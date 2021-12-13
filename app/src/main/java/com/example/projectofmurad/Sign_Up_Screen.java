@@ -56,6 +56,7 @@ import android.widget.Toast;
 
     boolean match = false;
     SharedPreferences sp;
+    boolean go = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -86,20 +87,34 @@ import android.widget.Toast;
         btn_sign_up.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                editor.putString(Utils.SHARED_PREFERENCES_KEY_USERNAME, et_username.getText().toString());
-                editor.putString(Utils.SHARED_PREFERENCES_KEY_EMAIL_ADDRESS, et_email_adress.getText().toString());
-                editor.putString(Utils.SHARED_PREFERENCES_KEY_PASSWORD, et_password.getText().toString());
+                String username = sp.getString(Utils.SHARED_PREFERENCES_KEY_USERNAME, null);
+                String email = sp.getString(Utils.SHARED_PREFERENCES_KEY_EMAIL_ADDRESS, null);
+                String password = sp.getString(Utils.SHARED_PREFERENCES_KEY_PASSWORD, null);
+                if(username.equals(et_username.getText().toString())){
+                    Toast.makeText(getApplicationContext(), "User with this username already exists", Toast.LENGTH_SHORT).show();
+                    go = true;
+                }
+                else if(email.equals(et_email_adress.getText().toString())){
+                    Toast.makeText(getApplicationContext(), "User with this e-mail already exists", Toast.LENGTH_SHORT).show();
+                    go = true;
+                }
+                else{
+                    editor.putString(Utils.SHARED_PREFERENCES_KEY_USERNAME, et_username.getText().toString());
+                    editor.putString(Utils.SHARED_PREFERENCES_KEY_EMAIL_ADDRESS, et_email_adress.getText().toString());
+                    editor.putString(Utils.SHARED_PREFERENCES_KEY_PASSWORD, et_password.getText().toString());
 
-                editor.commit();
+                    editor.commit();
+
+                    go = false;
+                }
+
             }
         });
-
-
 
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while(!btn_sign_up.isPressed()){
+                while(!btn_sign_up.isPressed() || go){
                     TextView tv_match;
                     tv_match = findViewById(R.id.tv_match);
                     try {
@@ -127,6 +142,23 @@ import android.widget.Toast;
         });
         thread.start();
 
+        /*new Thread(new Runnable() {
+            public void run() {
+                while (true) {
+                    (Activity) yourcurrentcontext).runOnUiThread(new Runnable() {
+                        public void run() {
+                            Log.d("Thread Log","I am from UI Thread");
+                        }
+                    });
+                    try {
+                        Thread.sleep(1000);
+                    } catch (Exception ex) {
+
+                    }
+                }
+            }
+        }).start();*/
+
         tv_sign_in.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -135,6 +167,7 @@ import android.widget.Toast;
 
             }
         });
+
 
 
         //custom code goes here

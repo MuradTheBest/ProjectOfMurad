@@ -43,7 +43,7 @@
 		app:layout_constraintStart_toStartOf="@+id/ellipse_4"
 		app:layout_constraintTop_toTopOf="@+id/ellipse_4" />
 
-	
+
 	<View
 		android:id="@+id/rectangle_1_ek4"
 		android:layout_width="337dp"
