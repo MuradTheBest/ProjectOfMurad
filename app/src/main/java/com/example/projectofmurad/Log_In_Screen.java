@@ -1,5 +1,3 @@
-
-
 package com.example.projectofmurad;
 
 import android.app.Activity;
@@ -11,7 +9,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.content.Intent;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
@@ -57,18 +54,16 @@ public class Log_In_Screen extends Activity {
 
 		et_password.getTransformationMethod();
 		tv_sign_up_now.setOnClickListener(new View.OnClickListener() {
-		
+			@Override
 			public void onClick(View v) {
-				
 				Intent nextScreen = new Intent(getApplicationContext(), Sign_Up_Screen.class);
 				startActivity(nextScreen);
+
 			}
 		});
-		
-		
+
+
 		//custom code goes here
-	
+
 	}
 }
-	
-	

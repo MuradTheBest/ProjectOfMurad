@@ -10,23 +10,25 @@
 	<ImageView
 		android:id="@+id/vector_ek2"
 		android:layout_width="match_parent"
-		android:layout_height="85.84dp"
+		android:layout_height="85dp"
 		android:contentDescription="vector_ek2"
 		android:src="@drawable/vector_ek2"
+		app:layout_constraintBottom_toTopOf="@+id/ellipse_3"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_bias="0.0" />
 
 	<View
 		android:id="@+id/ellipse_3"
 		android:layout_width="172dp"
 		android:layout_height="172dp"
-		android:layout_marginTop="112dp"
 		android:background="@drawable/ellipse_3_shape"
+		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.497"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_bias="0.18" />
 
 	<TextView
 		android:id="@+id/tv_welcome"
@@ -36,7 +38,7 @@
 		android:gravity="center"
 		android:text="Welcome!"
 		android:textColor="@color/sign_up_color"
-		android:textSize="35sp"
+		android:textSize="34sp"
 		app:layout_constraintBottom_toBottomOf="@+id/ellipse_3"
 		app:layout_constraintEnd_toEndOf="@+id/ellipse_3"
 		app:layout_constraintStart_toStartOf="@+id/ellipse_3"
@@ -49,10 +51,9 @@
 		android:layout_height="wrap_content"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.497"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintVertical_bias="0.907">
+		app:layout_constraintTop_toBottomOf="@+id/ellipse_3"
+		app:layout_constraintVertical_bias="0.9">
 
 		<View
 			android:id="@+id/rectangle_1_ek6"
@@ -60,7 +61,7 @@
 			android:layout_height="73dp"
 			android:layout_marginStart="0dp"
 			android:layout_marginTop="0dp"
-			android:alpha="0.47999998927116"
+			android:alpha="0.48"
 			android:background="@drawable/rectangle_1_ek6_shape" />
 
 

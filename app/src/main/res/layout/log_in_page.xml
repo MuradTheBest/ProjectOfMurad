@@ -23,11 +23,12 @@
 		android:id="@+id/ellipse_4"
 		android:layout_width="150dp"
 		android:layout_height="150dp"
-		android:layout_marginTop="108dp"
 		android:background="@drawable/ellipse_4_shape"
+		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_bias="0.171" />
 
 	<TextView
 		android:id="@+id/tv_log_in"
@@ -37,13 +38,13 @@
 		android:gravity="center"
 		android:text="Log in"
 		android:textColor="@color/sign_up_color"
-		android:textSize="35sp"
+		android:textSize="34sp"
 		app:layout_constraintBottom_toBottomOf="@+id/ellipse_4"
 		app:layout_constraintEnd_toEndOf="@+id/ellipse_4"
 		app:layout_constraintStart_toStartOf="@+id/ellipse_4"
 		app:layout_constraintTop_toTopOf="@+id/ellipse_4" />
 
-	
+
 	<View
 		android:id="@+id/rectangle_1_ek4"
 		android:layout_width="337dp"
@@ -51,23 +52,24 @@
 		android:layout_marginTop="20dp"
 		android:alpha="0.48"
 		android:background="@drawable/rectangle_1_ek4_shape"
+		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/ellipse_4" />
-
+		app:layout_constraintTop_toBottomOf="@+id/ellipse_4"
+		app:layout_constraintVertical_bias="0.065" />
 
 	<EditText
 		android:id="@+id/et_email_address"
-		android:layout_width="wrap_content"
+		android:layout_width="310dp"
 		android:layout_height="wrap_content"
 		android:background="@android:color/transparent"
 		android:hint="E-mail address"
 		android:textColor="@color/username_color"
 		android:textColorHint="@color/username_color"
-		android:textSize="24sp"
+		android:textSize="22sp"
+		android:inputType="textEmailAddress"
 		app:layout_constraintBottom_toBottomOf="@+id/rectangle_1_ek4"
 		app:layout_constraintEnd_toEndOf="@+id/rectangle_1_ek4"
-		app:layout_constraintHorizontal_bias="0.05"
 		app:layout_constraintStart_toStartOf="@+id/rectangle_1_ek4"
 		app:layout_constraintTop_toTopOf="@+id/rectangle_1_ek4" />
 
@@ -78,24 +80,25 @@
 		android:layout_marginTop="24dp"
 		android:alpha="0.48"
 		android:background="@drawable/rectangle_1_ek5_shape"
+		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="@+id/rectangle_1_ek4"
 		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintStart_toStartOf="@+id/rectangle_1_ek4"
-		app:layout_constraintTop_toBottomOf="@+id/rectangle_1_ek4" />
+		app:layout_constraintTop_toBottomOf="@+id/rectangle_1_ek4"
+		app:layout_constraintVertical_bias="0.0" />
 
 	<EditText
 		android:id="@+id/et_password"
-		android:layout_width="wrap_content"
+		android:layout_width="310dp"
 		android:layout_height="wrap_content"
 		android:hint="Password"
 		android:textColor="@color/username_color"
 		android:textColorHint="@color/username_color"
-		android:textSize="24sp"
+		android:textSize="22sp"
 		android:inputType="textPassword"
 		android:background="@android:color/transparent"
 		app:layout_constraintBottom_toBottomOf="@+id/rectangle_1_ek5"
 		app:layout_constraintEnd_toEndOf="@+id/rectangle_1_ek5"
-		app:layout_constraintHorizontal_bias="0.05"
 		app:layout_constraintStart_toStartOf="@+id/rectangle_1_ek5"
 		app:layout_constraintTop_toTopOf="@+id/rectangle_1_ek5" />
 
@@ -108,28 +111,29 @@
 		android:gravity="center"
 		android:text="Don't have an account?"
 		android:textColor="@color/don_t_have_an_account__color"
-		android:textSize="24sp"
+		android:textSize="22sp"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="@+id/rectangle_1_ek5"
+		app:layout_constraintHorizontal_bias="0.495"
 		app:layout_constraintStart_toStartOf="@+id/rectangle_1_ek5"
 		app:layout_constraintTop_toBottomOf="@+id/rectangle_1_ek5"
-		app:layout_constraintVertical_bias="0.0" />
+		app:layout_constraintVertical_bias="0.108" />
 
 	<TextView
 		android:id="@+id/tv_sign_up_now"
-		android:layout_width="173.2dp"
-		android:layout_height="50.2dp"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
 		android:layout_gravity="center_horizontal|center"
-		android:layout_marginTop="24dp"
+		android:layout_marginTop="10dp"
 		android:gravity="center"
 		android:text="Sign up now!"
 		android:textColor="@color/username_color"
-		android:textSize="24sp"
+		android:textSize="22sp"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="@+id/tv_don_t_have_an_account"
+		app:layout_constraintHorizontal_bias="0.504"
 		app:layout_constraintStart_toStartOf="@+id/tv_don_t_have_an_account"
 		app:layout_constraintTop_toBottomOf="@+id/tv_don_t_have_an_account"
-		app:layout_constraintVertical_bias="0.067" />
+		app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

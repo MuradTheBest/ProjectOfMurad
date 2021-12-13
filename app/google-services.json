@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1059282703260",
+    "project_id": "projectofmurad",
+    "storage_bucket": "projectofmurad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1059282703260:android:e1d9e1b7a1187b1fcfee59",
+        "android_client_info": {
+          "package_name": "com.example.projectofmurad"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1059282703260-j1otqlruj256io9ouf22dtcqd2neg65n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7nlW6K744ygOngKjmTjD8Khb3EDxuHPQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1059282703260-j1otqlruj256io9ouf22dtcqd2neg65n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
