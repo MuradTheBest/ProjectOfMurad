@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -19,13 +21,16 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.BuildConfig;
+import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
+import com.example.projectofmurad.Utils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Calendar_Screen extends AppCompatActivity implements CalendarAdapter.OnItemListener, AdapterView.OnItemSelectedListener {
     private TextView monthYearText;
@@ -37,7 +42,6 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
 
     int position = 0;
     Intent intent_for_previous;
-
 
     LocalDate today;
     Thread thread;
@@ -62,6 +66,8 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar_screen);
+
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Calendar");
 
         calendarRecyclerView = findViewById(R.id.calendarRecyclerView);
         monthYearText = findViewById(R.id.monthYearTV);
@@ -277,6 +283,31 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.calendar_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+        int selectedId = item.getItemId();
+        Intent intent = new Intent();
+
+        if(selectedId == R.id.app_bar_search){
+
+        }
+        if(selectedId == R.id.calendar_app_bar_today){
+            selectedDate = today;
+            prev=0;
+            next=1;
+            setMonthView();
+        }
+
+        return true;
     }
 }
 
