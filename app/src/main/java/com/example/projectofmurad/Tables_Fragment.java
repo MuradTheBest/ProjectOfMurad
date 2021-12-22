@@ -1,6 +1,7 @@
 package com.example.projectofmurad;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
+
+import com.example.projectofmurad.calendar.Calendar_Screen;
 
 import java.util.Calendar;
 
@@ -77,17 +80,7 @@ public class Tables_Fragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         btn_calendar = view.findViewById(R.id.btn_calendar);
-        btn_calendar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Calendar calendar = Calendar.getInstance();
-                int year = calendar.get(Calendar.YEAR);
-                int month = calendar.get(Calendar.MONTH);
-                int day = calendar.get(Calendar.DAY_OF_MONTH);
-                DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), new SetDate(), year, month, day);
-                datePickerDialog.show();
-            }
-        });
+        btn_calendar.setOnClickListener(v -> startActivity(new Intent(getActivity(), Calendar_Screen.class)));
     }
 
     public class SetDate implements DatePickerDialog.OnDateSetListener {
