@@ -3,9 +3,11 @@ package com.example.projectofmurad.calendar;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -63,10 +65,13 @@ public class AddEvent_Screen extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event_screen);
 
-        today_day = getIntent().getIntExtra("day", 0);
-        today_dayOfWeek = getIntent().getStringExtra("dayOfWeek");
-        today_month = getIntent().getIntExtra("month",0);
-        today_year = getIntent().getIntExtra("year", 0);
+        Intent gotten_intent = getIntent();
+        today_day = gotten_intent.getIntExtra("day", 0);
+        today_dayOfWeek = gotten_intent.getStringExtra("dayOfWeek");
+        today_month = gotten_intent.getIntExtra("month",0);
+        today_year = gotten_intent.getIntExtra("year", 0);
+
+        Log.d("murad","Receiving selectedDate " + today_day + " " + today_month + " " + today_year);
 
         //localDate = getIntent().getParcelableExtra("day_date");
 
@@ -75,6 +80,7 @@ public class AddEvent_Screen extends AppCompatActivity implements View.OnClickLi
         et_place = findViewById(R.id.et_place);
 
         btn_choose_start_date = findViewById(R.id.btn_choose_start_date);
+        btn_choose_start_date.setText(setDefaultDates());
         btn_choose_start_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -89,6 +95,7 @@ public class AddEvent_Screen extends AppCompatActivity implements View.OnClickLi
         });
 
         btn_choose_end_date = findViewById(R.id.btn_choose_end_date);
+        btn_choose_end_date.setText(setDefaultDates());
         btn_choose_end_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -296,6 +303,12 @@ public class AddEvent_Screen extends AppCompatActivity implements View.OnClickLi
                     break;
             }
         }
+    }
+
+    public String setDefaultDates(){
+        DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("E, dd.MM.yyyy");
+        LocalDate date = LocalDate.of(today_year, today_month, today_day);
+        return date.format(simpleDateFormat);
     }
 
 

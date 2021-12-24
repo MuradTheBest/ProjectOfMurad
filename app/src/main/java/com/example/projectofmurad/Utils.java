@@ -7,4 +7,10 @@ public class Utils {
     final static String SHARED_PREFERENCES_KEY_PASSWORD = "shared_preferences_key_password";
 
 
+
+
+    public static boolean isEmailValid(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
 }

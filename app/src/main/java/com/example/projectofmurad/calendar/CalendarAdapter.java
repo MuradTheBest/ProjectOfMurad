@@ -11,10 +11,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder> {
-    private  ArrayList<String> daysOfMonth;
+    private  ArrayList<LocalDate> daysOfMonth;
     private final OnItemListener onItemListener;
     private LayoutInflater inflater;
 
@@ -35,7 +36,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         }
     }
 
-    public CalendarAdapter(ArrayList<String> daysOfMonth, Context context, OnItemListener onItemListener) {
+    public CalendarAdapter(ArrayList<LocalDate> daysOfMonth, Context context, OnItemListener onItemListener) {
         inflater = LayoutInflater.from(context);
         this.daysOfMonth = daysOfMonth;
         this.onItemListener = onItemListener;
@@ -53,7 +54,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
     @Override
     public void onBindViewHolder(@NonNull CalendarViewHolder holder, int position) {
-        holder.dayOfMonth.setText(daysOfMonth.get(position));
+        holder.dayOfMonth.setText(String.valueOf(daysOfMonth.get(position).getDayOfMonth()));
     }
 
     @Override

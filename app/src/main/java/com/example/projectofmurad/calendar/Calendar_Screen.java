@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,15 +22,14 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.BuildConfig;
-import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class Calendar_Screen extends AppCompatActivity implements CalendarAdapter.OnItemListener, AdapterView.OnItemSelectedListener {
@@ -37,10 +37,10 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
     private RecyclerView calendarRecyclerView;
     private LocalDate selectedDate;
 
-    private ArrayList<String> daysInMonth;
+    private ArrayList<LocalDate> daysInMonth;
     private CalendarAdapter calendarAdapter;
 
-    int position = 0;
+    int positionOfToday = 0;
     Intent intent_for_previous;
 
     LocalDate today;
@@ -52,8 +52,17 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
 
     int prev = 0;
     int next = 1;
+
+    int dayOfWeek;
+    int lastDayOfPrevMonth;
+    int length;
+
+    int old_position = 0;
+
     TextView textView5;
     String day;
+
+    static HashMap<LocalDate, ArrayList<CalendarEvent>> map;
 
     public static final String action_to_find_today = BuildConfig.APPLICATION_ID + "to find today";
 
@@ -75,6 +84,8 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         selectedDate = LocalDate.now();
         today = LocalDate.now();
 
+        map = new HashMap<>();
+
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -83,7 +94,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
                     case action_to_find_today:
                         Log.d("murad", "broadcastReceiver for today triggered");
                         int pos = intent.getIntExtra("today", 0);
-                        calendarRecyclerView.findViewHolderForAdapterPosition(pos).itemView.findViewById(R.id.cellDayText).setBackgroundResource(R.drawable.calendar_cell_background);
+                        calendarRecyclerView.findViewHolderForAdapterPosition(pos).itemView.findViewById(R.id.cellDayText).setBackgroundResource(R.drawable.calendar_cell_today_and_selected_background);
                         //LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent_for_previous);
                         break;
                     case action_to_change_previous:
@@ -97,11 +108,11 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
                         int length = calendarRecyclerView.getChildCount();
 
                         for(int i = 0; i < previous; i++) {
-                            calendarRecyclerView.findViewHolderForAdapterPosition(i).itemView.findViewById(R.id.cellDayText).setBackgroundResource(R.drawable.calendar_cell_foreground);
+                            calendarRecyclerView.findViewHolderForAdapterPosition(i).itemView.findViewById(R.id.cellDayText).setBackgroundResource(R.drawable.calendar_cell_not_current_month_background);
                         }
 
                         for(int j = length - next; j < length; j++) {
-                            calendarRecyclerView.findViewHolderForAdapterPosition(j).itemView.findViewById(R.id.cellDayText).setBackgroundResource(R.drawable.calendar_cell_foreground);
+                            calendarRecyclerView.findViewHolderForAdapterPosition(j).itemView.findViewById(R.id.cellDayText).setBackgroundResource(R.drawable.calendar_cell_not_current_month_background);
                         }
                         break;
                 }
@@ -143,20 +154,20 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
                 //int i=0;
                 while(calendarRecyclerView.getChildCount() < daysInMonth.size()){}
 
-                Log.d("murad", position + " " + calendarAdapter.getItemCount());
+                Log.d("murad", positionOfToday + " " + calendarAdapter.getItemCount());
                 Log.d("murad", " recycler view's child count = " + calendarRecyclerView.getChildCount());
 
                 if(selectedDate.getMonth().equals(today.getMonth()) && selectedDate.getYear() == today.getYear()){
                     Log.d("murad",  "selectedDate == LocalDate.now()");
-                    for(int i=0; i<42; i++){
-                        if(daysInMonth.get(i).equals(day)){
+                    for(int i=0; i<length; i++){
+                        if(String.valueOf(daysInMonth.get(i).getDayOfMonth()).equals(day)){
                             Log.d("murad", "i: "+i);
-                            position = i;
+                            positionOfToday = i;
                         }
 
                     }
                     Intent i = new Intent(action_to_find_today);
-                    i.putExtra("today", position);
+                    i.putExtra("today", positionOfToday);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(i);
                 }
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent_for_previous);
@@ -166,8 +177,8 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
 
     }
 
-    private ArrayList<String> daysInMonthArray(LocalDate date) {
-        ArrayList<String> daysInMonthArray = new ArrayList<>();
+    private ArrayList<LocalDate> daysInMonthArray(LocalDate date) {
+        ArrayList<LocalDate> daysInMonthArray = new ArrayList<>();
         YearMonth yearMonth = YearMonth.from(date);
 
         LocalDate previousMonthDate = date.minusMonths(1);
@@ -179,34 +190,69 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         LocalDate firstOfCurrentMonth = date.withDayOfMonth(1);
         LocalDate lastOfPrevMonth = previousMonthDate.withDayOfMonth(daysInPrevMonth);
 
-        int dayOfWeek = firstOfCurrentMonth.getDayOfWeek().getValue();
-        int lastDayOfPrevMonth = lastOfPrevMonth.getDayOfMonth();
+        dayOfWeek = firstOfCurrentMonth.getDayOfWeek().getValue();
+
+        lastDayOfPrevMonth = lastOfPrevMonth.getDayOfMonth();
 
         Log.d("murad", "last day is " + lastDayOfPrevMonth);
+        Log.d("murad", "daysInCurrentMonth " + daysInCurrentMonth);
+        Log.d("murad", "dayOfWeek " + firstOfCurrentMonth.getDayOfWeek().toString());
 
+
+        int current = 1;
 
         for(int i = 1; i <= 42; i++) {
             if(i <= dayOfWeek) {
-                daysInMonthArray.add("");
+                daysInMonthArray.add(date);
                 prev++;
             }
             else if(i > daysInCurrentMonth + dayOfWeek){
-                daysInMonthArray.add(String.valueOf(next));
+                //daysInMonthArray.add(String.valueOf(next));
+                daysInMonthArray.add(date.plusMonths(1).withDayOfMonth(next));
                 next++;
             }
             else {
-                daysInMonthArray.add(String.valueOf(i - dayOfWeek));
+                //daysInMonthArray.add(String.valueOf(i - dayOfWeek));
+                daysInMonthArray.add(date.withDayOfMonth(current));
+                current++;
             }
         }
         next--;
 
         Log.d("murad", "prev " + prev);
+        Log.d("murad", "next " + next);
 
         for(int j = prev-1; j >= 0; j--, lastDayOfPrevMonth--) {
-            daysInMonthArray.set(j, String.valueOf(lastDayOfPrevMonth));
+            //daysInMonthArray.set(j, String.valueOf(lastDayOfPrevMonth));
+            daysInMonthArray.set(j, date.minusMonths(1).withDayOfMonth(lastDayOfPrevMonth));
         }
 
+        cleanupCalendar(prev, next, daysInMonthArray);
+
         return daysInMonthArray;
+    }
+
+    private void cleanupCalendar(int prevDays, int nextDays, ArrayList<LocalDate> daysInMonthArray) {
+        length = daysInMonthArray.size();
+        Log.d("murad", "old length " + length);
+        if(prevDays == 7){
+            for(int i=0; i < 7; i++){
+                daysInMonthArray.remove(0).getDayOfMonth();
+            }
+            prev = 0;
+        }
+
+        length = daysInMonthArray.size();
+        Log.d("murad", "length after cleaning prev " + length);
+
+        if(nextDays >= 7){
+            for(int i=length-1; i >= length-7; i--){
+                daysInMonthArray.remove(i);
+            }
+            next -=7;
+        }
+        length = daysInMonthArray.size();
+        Log.d("murad", "new length " + length);
     }
 
     private String monthYearFromDate(LocalDate date) {
@@ -231,6 +277,41 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
     @Override
     public void onItemClick(int position, String dayText) {
         if(!dayText.equals("")) {
+
+            calendarRecyclerView.findViewHolderForAdapterPosition(old_position).itemView.findViewById(R.id.cellDayText).setBackgroundResource(R.drawable.calendar_cell_unclicked_background);
+
+            old_position = position;
+
+            if(dayText.equals(String.valueOf(today.getDayOfMonth()))){
+                calendarRecyclerView.findViewHolderForAdapterPosition(position).itemView.findViewById(R.id.cellDayText).setBackgroundResource(R.drawable.calendar_cell_today_and_selected_background);
+            }
+            else {
+                if(selectedDate.getMonth().equals(today.getMonth()) && selectedDate.getYear() == today.getYear()){
+                    calendarRecyclerView.findViewHolderForAdapterPosition(positionOfToday).itemView.findViewById(R.id.cellDayText).setBackgroundResource(R.drawable.calendar_cell_today_background);
+                }
+                calendarRecyclerView.findViewHolderForAdapterPosition(position).itemView.findViewById(R.id.cellDayText).setBackgroundResource(R.drawable.calendar_cell_selected_background);
+            }
+
+            LocalDate passingDate = selectedDate;
+
+            Log.d("murad","position " + position);
+            Log.d("murad","dayOfWeek " + dayOfWeek);
+            Log.d("murad","lengthOfMonth " + selectedDate.lengthOfMonth());
+
+            if(position <= dayOfWeek) {
+                selectedDate = selectedDate.minusMonths(1);
+                position =
+                prev = 0;
+                next = 1;
+                setMonthView();
+            }
+            else if(position > selectedDate.lengthOfMonth() + dayOfWeek){
+                selectedDate = selectedDate.plusMonths(1);
+                prev = 0;
+                next = 1;
+                setMonthView();
+            }
+
             String message = dayText + " " + monthYearFromDate(selectedDate);
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 
@@ -246,25 +327,37 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
             TextView textview2 = d.findViewById(R.id.textView2);
             TextView textview3 = d.findViewById(R.id.textView3);
             TextView textview4 = d.findViewById(R.id.textView4);
+
             FloatingActionButton fab_add_event = d.findViewById(R.id.fab_add_event);
             fab_add_event.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     //createAddEventDialog(dayText, selectedDate);
                     Intent toAddEvent_Screen = new Intent(getApplicationContext(), AddEvent_Screen.class);
-                    int month = selectedDate.getMonth().getValue();
-                    int year = selectedDate.getYear();
 
-                    toAddEvent_Screen.putExtra("day", dayText);
+                    DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("E, dd.MM.yyyy");
+                    Log.d("murad","passingDate " + passingDate.format(simpleDateFormat));
+
+                    int month = passingDate.getMonth().getValue();
+                    int year = passingDate.getYear();
+                    toAddEvent_Screen.putExtra("day", Integer.valueOf(dayText));
                     toAddEvent_Screen.putExtra("month", month);
                     toAddEvent_Screen.putExtra("year", year);
+
+                    Log.d("murad","Sending selectedDate " + dayText + " " + month + " " + year);
 
                     startActivity(toAddEvent_Screen);
                     d.dismiss();
                 }
             });
 
-            d.show();
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    d.show();
+                }
+            }, 250);
         }
     }
 

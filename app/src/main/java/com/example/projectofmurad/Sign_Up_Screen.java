@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -12,7 +14,7 @@ import android.widget.TextView;
 import android.content.Intent;
 import android.widget.Toast;
 
-public class Sign_Up_Screen extends Activity {
+public class Sign_Up_Screen extends Activity implements TextWatcher {
 
     private TextView tv_sign_in;
     private TextView tv_already_have_an_account;
@@ -20,7 +22,7 @@ public class Sign_Up_Screen extends Activity {
     private View rectangle_1;
     private TextView et_username;
     private View rectangle_2;
-    private TextView et_email_adress;
+    private TextView et_email_address;
     private View rectangle_3;
     private TextView et_password;
     private View rectangle_4;
@@ -29,6 +31,7 @@ public class Sign_Up_Screen extends Activity {
     private TextView sign_up;
 
     private Button btn_sign_up;
+    private TextView tv_match;
 
 
     boolean match = false;
@@ -50,7 +53,7 @@ public class Sign_Up_Screen extends Activity {
         rectangle_1 = (View) findViewById(R.id.rectangle_1);
         et_username = (TextView) findViewById(R.id.et_username);
         rectangle_2 = (View) findViewById(R.id.rectangle_2);
-        et_email_adress = (TextView) findViewById(R.id.et_email_address);
+        et_email_address = (TextView) findViewById(R.id.et_email_address);
         rectangle_3 = (View) findViewById(R.id.rectangle_3);
         et_password = (TextView) findViewById(R.id.et_password);
         rectangle_4 = (View) findViewById(R.id.rectangle_4);
@@ -58,37 +61,69 @@ public class Sign_Up_Screen extends Activity {
         ellipse_5 = (View) findViewById(R.id.ellipse_5);
         sign_up = (TextView) findViewById(R.id.tv_sign_up);
 
-
+        tv_match = findViewById(R.id.tv_match);
+        tv_match.setVisibility(View.INVISIBLE);
 
         btn_sign_up = findViewById(R.id.btn_sign_up);
         btn_sign_up.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String username = sp.getString(Utils.SHARED_PREFERENCES_KEY_USERNAME, null);
-                String email = sp.getString(Utils.SHARED_PREFERENCES_KEY_EMAIL_ADDRESS, null);
-                String password = sp.getString(Utils.SHARED_PREFERENCES_KEY_PASSWORD, null);
-                if(username.equals(et_username.getText().toString())){
-                    Toast.makeText(getApplicationContext(), "User with this username already exists", Toast.LENGTH_SHORT).show();
-                    go = true;
-                }
-                else if(email.equals(et_email_adress.getText().toString())){
-                    Toast.makeText(getApplicationContext(), "User with this e-mail already exists", Toast.LENGTH_SHORT).show();
-                    go = true;
-                }
-                else{
-                    editor.putString(Utils.SHARED_PREFERENCES_KEY_USERNAME, et_username.getText().toString());
-                    editor.putString(Utils.SHARED_PREFERENCES_KEY_EMAIL_ADDRESS, et_email_adress.getText().toString());
-                    editor.putString(Utils.SHARED_PREFERENCES_KEY_PASSWORD, et_password.getText().toString());
+                String username = et_username.getText().toString();
+                String email = et_email_address.getText().toString();
+                String password = et_password.getText().toString();
+                String confirm_password = et_confirm_password.getText().toString();
 
-                    editor.commit();
+                String msg = "";
+                boolean editTextsFilled = true;
 
-                    go = false;
+                if(username.isEmpty()){
+                    et_username.setError("Username invalid");
+                    msg += "Username, ";
+                    editTextsFilled = false;
+                    //Toast.makeText(getApplicationContext(), "Please enter e-mail address", Toast.LENGTH_SHORT).show();
+                }
+
+                if(email.isEmpty()){
+                    et_email_address.setError("E-mail invalid");
+                    msg += "E-mail, ";
+                    editTextsFilled = false;
+                    //Toast.makeText(getApplicationContext(), "Please enter e-mail address", Toast.LENGTH_SHORT).show();
+                }
+                else if(!Utils.isEmailValid(email)){
+                    et_email_address.setError("E-mail invalid");
+                    msg += "valid E-mail, ";
+                    editTextsFilled = false;
+                    //Toast.makeText(getApplicationContext(), "Please enter valid e-mail address", Toast.LENGTH_SHORT).show();
+                }
+
+                if(password.isEmpty()){
+                    et_password.setError("Password invalid");
+                    msg += "password and ";
+                    editTextsFilled = false;
+                    //Toast.makeText(getApplicationContext(), "Please enter password address", Toast.LENGTH_SHORT).show();
+                }
+
+                if(confirm_password.isEmpty()){
+                    et_confirm_password.setError("Password invalid");
+                    msg += "confirm password";
+                    editTextsFilled = false;
+                    //Toast.makeText(getApplicationContext(), "Please enter password address", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    msg = msg.replace(" and ", "");
+                }
+
+                if(editTextsFilled) {
+                    //ToDo Firebase authentication
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "Please enter " + msg, Toast.LENGTH_SHORT).show();
                 }
 
             }
         });
 
-        Thread thread = new Thread(new Runnable() {
+        /*Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while(!btn_sign_up.isPressed() || go){
@@ -127,28 +162,15 @@ public class Sign_Up_Screen extends Activity {
                 }
             }
         });
-        thread.start();
+        thread.start();*/
 
-        /*new Thread(new Runnable() {
-            public void run() {
-                while (true) {
-                    (Activity) yourcurrentcontext).runOnUiThread(new Runnable() {
-                        public void run() {
-                            Log.d("Thread Log","I am from UI Thread");
-                        }
-                    });
-                    try {
-                        Thread.sleep(1000);
-                    } catch (Exception ex) {
-
-                    }
-                }
-            }
-        }).start();*/
+        et_password.addTextChangedListener(this);
+        et_confirm_password.addTextChangedListener(this);
 
         tv_sign_in.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent nextScreen = new Intent(getApplicationContext(), Log_In_Screen.class);
                 startActivity(nextScreen);
 
@@ -162,4 +184,31 @@ public class Sign_Up_Screen extends Activity {
 
     }
 
+    @Override
+    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        if(et_password.getText().toString().isEmpty() && et_confirm_password.getText().toString().isEmpty()){
+            tv_match.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    @Override
+    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        if(et_password.getText().toString().equals(et_confirm_password.getText().toString())){
+            tv_match.setVisibility(View.INVISIBLE);
+        }
+        else if(et_password.getText().toString().isEmpty() || et_confirm_password.getText().toString().isEmpty()){
+            tv_match.setVisibility(View.INVISIBLE);
+        }
+        else if(et_password.getText().toString().isEmpty() && et_confirm_password.getText().toString().isEmpty()){
+            tv_match.setVisibility(View.INVISIBLE);
+        }
+        else{
+            tv_match.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void afterTextChanged(Editable editable) {
+
+    }
 }

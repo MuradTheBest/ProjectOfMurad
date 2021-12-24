@@ -4,10 +4,16 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable-v24/_bg__log_in_page_ek2_shape.xml" value="0.2203125" />
+        <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable-v24/calendar_cell_selected_background.xml" value="0.17848101265822786" />
+        <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable-v24/ellipse_5_shape.xml" value="0.18076923076923077" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable-v24/ic_launcher_background.xml" value="0.2203125" />
+        <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.17848101265822786" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable-v24/ic_today_vector.xml" value="0.18076923076923077" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable/calendar_cell_background.xml" value="0.17848101265822786" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable/calendar_cell_foreground.xml" value="0.17848101265822786" />
+        <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable/calendar_cell_today_and_selected_background.xml" value="0.18076923076923077" />
+        <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable/calendar_cell_today_background.xml" value="0.18076923076923077" />
+        <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable/calendar_cell_unclicked_background.xml" value="0.18076923076923077" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2203125" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_search_black_24dp.xml" value="0.1" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_add_event_screen.xml" value="0.21" />

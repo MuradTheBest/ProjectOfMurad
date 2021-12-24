@@ -60,14 +60,18 @@
 
 	<EditText
 		android:id="@+id/et_email_address"
-		android:layout_width="310dp"
-		android:layout_height="wrap_content"
+		android:layout_width="0dp"
+		android:layout_marginHorizontal="10dp"
+		android:layout_height="0dp"
+		android:layout_marginVertical="5dp"
 		android:background="@android:color/transparent"
 		android:hint="E-mail address"
 		android:textColor="@color/username_color"
 		android:textColorHint="@color/username_color"
 		android:textSize="22sp"
 		android:inputType="textEmailAddress"
+		android:drawableStart="@drawable/ic_baseline_email_24"
+		android:drawablePadding="10dp"
 		app:layout_constraintBottom_toBottomOf="@+id/rectangle_1_ek4"
 		app:layout_constraintEnd_toEndOf="@+id/rectangle_1_ek4"
 		app:layout_constraintStart_toStartOf="@+id/rectangle_1_ek4"
@@ -89,14 +93,18 @@
 
 	<EditText
 		android:id="@+id/et_password"
-		android:layout_width="310dp"
-		android:layout_height="wrap_content"
+		android:layout_width="0dp"
+		android:layout_marginHorizontal="10dp"
+		android:layout_height="0dp"
+		android:layout_marginVertical="5dp"
 		android:hint="Password"
 		android:textColor="@color/username_color"
 		android:textColorHint="@color/username_color"
 		android:textSize="22sp"
 		android:inputType="textPassword"
 		android:background="@android:color/transparent"
+		android:drawableStart="@drawable/ic_baseline_password_24"
+		android:drawablePadding="10dp"
 		app:layout_constraintBottom_toBottomOf="@+id/rectangle_1_ek5"
 		app:layout_constraintEnd_toEndOf="@+id/rectangle_1_ek5"
 		app:layout_constraintStart_toStartOf="@+id/rectangle_1_ek5"
@@ -107,7 +115,6 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
-		android:layout_marginTop="56dp"
 		android:gravity="center"
 		android:text="Don't have an account?"
 		android:textColor="@color/don_t_have_an_account__color"
@@ -116,7 +123,7 @@
 		app:layout_constraintEnd_toEndOf="@+id/rectangle_1_ek5"
 		app:layout_constraintHorizontal_bias="0.495"
 		app:layout_constraintStart_toStartOf="@+id/rectangle_1_ek5"
-		app:layout_constraintTop_toBottomOf="@+id/rectangle_1_ek5"
+		app:layout_constraintTop_toBottomOf="@+id/btn_log_in"
 		app:layout_constraintVertical_bias="0.108" />
 
 	<TextView
@@ -134,6 +141,19 @@
 		app:layout_constraintHorizontal_bias="0.504"
 		app:layout_constraintStart_toStartOf="@+id/tv_don_t_have_an_account"
 		app:layout_constraintTop_toBottomOf="@+id/tv_don_t_have_an_account"
+		app:layout_constraintVertical_bias="0.0" />
+
+	<Button
+		android:id="@+id/btn_log_in"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="30dp"
+		android:text="Log in"
+		android:textSize="16sp"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="@+id/rectangle_1_ek5"
+		app:layout_constraintStart_toStartOf="@+id/rectangle_1_ek5"
+		app:layout_constraintTop_toBottomOf="@+id/rectangle_1_ek5"
 		app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
