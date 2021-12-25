@@ -14,6 +14,8 @@
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable/calendar_cell_today_and_selected_background.xml" value="0.18076923076923077" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable/calendar_cell_today_background.xml" value="0.18076923076923077" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable/calendar_cell_unclicked_background.xml" value="0.18076923076923077" />
+        <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable/day_dialog_background.xml" value="0.18076923076923077" />
+        <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_circle_24.xml" value="0.18076923076923077" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2203125" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_search_black_24dp.xml" value="0.1" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_add_event_screen.xml" value="0.21" />
@@ -23,7 +25,10 @@
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/blank_fragment.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/calendar_cell.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/chat_fragment.xml" value="0.1675213675213675" />
+        <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/day_dialog.xml" value="0.25" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/day_info.xml" value="0.1675213675213675" />
+        <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/even_info.xml" value="0.1675213675213675" />
+        <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/event_info.xml" value="0.5586854460093896" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_blank.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_calendar__month_.xml" value="0.1" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_chat_.xml" value="0.1675213675213675" />

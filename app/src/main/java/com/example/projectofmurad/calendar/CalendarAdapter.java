@@ -31,7 +31,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         @Override
         public void onClick(View view) {
             if(view == itemView){
-                onItemListener.onItemClick(getAdapterPosition(), (String) dayOfMonth.getText());
+                onItemListener.onItemClick(getAdapterPosition(), dayOfMonth.getText().toString(), daysOfMonth.get(getAdapterPosition()));
             }
         }
     }
@@ -63,7 +63,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     }
 
     public interface OnItemListener {
-        void onItemClick(int position, String dayText);
+        void onItemClick(int position, String dayText, LocalDate selectedDate);
     }
 
 }
