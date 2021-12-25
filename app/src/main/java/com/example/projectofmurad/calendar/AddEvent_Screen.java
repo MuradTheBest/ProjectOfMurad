@@ -2,7 +2,6 @@ package com.example.projectofmurad.calendar;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -19,9 +18,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.projectofmurad.R;
+import com.example.projectofmurad.Utils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class AddEvent_Screen extends AppCompatActivity implements View.OnClickListener{
@@ -52,13 +55,13 @@ public class AddEvent_Screen extends AppCompatActivity implements View.OnClickLi
     int end_month;
     int end_year;
 
-    int today_day = 0;
-    String today_dayOfWeek;
-    int today_month = 0;
-    int today_year = 0;
+    int selected_day = 0;
+    String selected_dayOfWeek;
+    int selected_month = 0;
+    int selected_year = 0;
 
     DatePickerDialog datePickerDialog;
-    LocalDate localDate;
+    LocalDate selectedDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +69,19 @@ public class AddEvent_Screen extends AppCompatActivity implements View.OnClickLi
         setContentView(R.layout.activity_add_event_screen);
 
         Intent gotten_intent = getIntent();
-        today_day = gotten_intent.getIntExtra("day", 0);
-        today_dayOfWeek = gotten_intent.getStringExtra("dayOfWeek");
-        today_month = gotten_intent.getIntExtra("month",0);
-        today_year = gotten_intent.getIntExtra("year", 0);
+        selected_day = gotten_intent.getIntExtra("day", 0);
+        selected_dayOfWeek = gotten_intent.getStringExtra("dayOfWeek");
+        selected_month = gotten_intent.getIntExtra("month",0);
+        selected_year = gotten_intent.getIntExtra("year", 0);
 
-        Log.d("murad","Receiving selectedDate " + today_day + " " + today_month + " " + today_year);
+        selectedDate = LocalDate.of(selected_year, selected_month, selected_day);
+
+        start_day = end_day = selected_day;
+        start_month = end_month = selected_month;
+        start_year = end_year = selected_year;
+
+
+        Log.d("murad","Receiving selectedDate " + selected_day + " " + selected_month + " " + selected_year);
 
         //localDate = getIntent().getParcelableExtra("day_date");
 
@@ -80,26 +90,23 @@ public class AddEvent_Screen extends AppCompatActivity implements View.OnClickLi
         et_place = findViewById(R.id.et_place);
 
         btn_choose_start_date = findViewById(R.id.btn_choose_start_date);
-        btn_choose_start_date.setText(setDefaultDates());
+        btn_choose_start_date.setText(Utils.getDefaultDate(selectedDate));
         btn_choose_start_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                datePickerDialog = new DatePickerDialog(AddEvent_Screen.this, android.R.style.Theme_Holo_Light_Dialog_MinWidth, new SetDate("start"), today_year, today_month, today_day);
-                datePickerDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialogInterface) {
-                    }
-                });
+                datePickerDialog = new DatePickerDialog(AddEvent_Screen.this, android.R.style.Theme_Holo_Light_Dialog_MinWidth, new SetDate("start"), selected_year, selected_month, selected_day);
+                datePickerDialog.updateDate(start_year, start_month, start_day);
                 datePickerDialog.show();
             }
         });
 
         btn_choose_end_date = findViewById(R.id.btn_choose_end_date);
-        btn_choose_end_date.setText(setDefaultDates());
+        btn_choose_end_date.setText(Utils.getDefaultDate(selectedDate));
         btn_choose_end_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                datePickerDialog = new DatePickerDialog(AddEvent_Screen.this, android.R.style.Theme_Material_Light_Dialog, new SetDate("end"), today_year, today_month, today_day);
+                datePickerDialog = new DatePickerDialog(AddEvent_Screen.this, android.R.style.ThemeOverlay_Material_Dialog, new SetDate("end"), selected_year, selected_month, selected_day);
+                datePickerDialog.updateDate(end_year, end_month, end_day);
                 datePickerDialog.show();
             }
         });
@@ -141,6 +148,7 @@ public class AddEvent_Screen extends AppCompatActivity implements View.OnClickLi
             String name = "";
             String description = "";
             String place = "";
+
             String msg = "";
 
             boolean editTextsFilled = true;
@@ -201,6 +209,23 @@ public class AddEvent_Screen extends AppCompatActivity implements View.OnClickLi
                                 "\n STARTS AT " + start_hour + " : " + start_min + " on " + start_day + "." + start_month + "." + start_year +
                                 "\n ENDS AT " + end_hour + " : " + end_min + " on " + end_day + "." + end_month + "." + end_year,
                         Toast.LENGTH_SHORT).show();
+
+                LocalDate start_date = LocalDate.of(start_year, start_month, start_day);
+                LocalDate end_date = LocalDate.of(end_year, end_month, end_day);
+
+                LocalTime start_time = LocalTime.of(start_hour, start_min);
+                LocalTime end_time = LocalTime.of(end_hour, end_min);
+
+                LocalDateTime startDatetime = LocalDateTime.of(start_date, start_time);
+                LocalDateTime endDatetime = LocalDateTime.of(end_date, end_time);
+
+                CalendarEvent event = new CalendarEvent(name, description, place, startDatetime, endDatetime);
+                Log.d("murad", event.toString());
+
+                Utils.addEvent(event);
+
+                startActivity(new Intent(AddEvent_Screen.this, Calendar_Screen.class));
+
             }
             else {
                 Toast.makeText(this, "Please enter event's " + msg, Toast.LENGTH_LONG).show();
@@ -305,11 +330,6 @@ public class AddEvent_Screen extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-    public String setDefaultDates(){
-        DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("E, dd.MM.yyyy");
-        LocalDate date = LocalDate.of(today_year, today_month, today_day);
-        return date.format(simpleDateFormat);
-    }
 
 
 }

@@ -23,6 +23,7 @@ import android.os.Bundle;
 
 
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -45,6 +46,8 @@ public class Splash_Screen extends Activity {
     private TextView e_2;
     private TextView d;
     private RelativeLayout group_1;
+
+    private Button button;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,6 +76,9 @@ public class Splash_Screen extends Activity {
             Intent nextScreen = new Intent(getApplicationContext(), Log_In_Screen.class);
             startActivity(nextScreen);
         });
+
+        button = findViewById(R.id.button);
+        button.setOnClickListener(view -> startActivity(new Intent(getApplicationContext(), MainActivity.class)));
 
         //custom code goes here
 

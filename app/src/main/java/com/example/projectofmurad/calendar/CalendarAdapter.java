@@ -1,6 +1,8 @@
 package com.example.projectofmurad.calendar;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,8 +33,12 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         @Override
         public void onClick(View view) {
             if(view == itemView){
-                onItemListener.onItemClick(getAdapterPosition(), (String) dayOfMonth.getText());
+                onItemListener.onItemClick(getAdapterPosition(), dayOfMonth.getText().toString(), daysOfMonth.get(getAdapterPosition()));
             }
+        }
+
+        public void changeDayTextColor(int color){
+            dayOfMonth.setTextColor(color);
         }
     }
 
@@ -54,7 +60,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
     @Override
     public void onBindViewHolder(@NonNull CalendarViewHolder holder, int position) {
-        holder.dayOfMonth.setText(String.valueOf(daysOfMonth.get(position).getDayOfMonth()));
+        holder.dayOfMonth.setText(" " + daysOfMonth.get(position).getDayOfMonth() + " ");
     }
 
     @Override
@@ -63,7 +69,10 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     }
 
     public interface OnItemListener {
-        void onItemClick(int position, String dayText);
+        void onItemClick(int position, String dayText, LocalDate selectedDate);
     }
 
+    public interface OnColorListener {
+        void OnColor(int position);
+    }
 }
