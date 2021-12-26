@@ -1,8 +1,10 @@
 package com.example.projectofmurad;
 
+import android.os.Bundle;
 import android.util.Log;
 
 import com.example.projectofmurad.calendar.CalendarEvent;
+import com.example.projectofmurad.calendar.Calendar_Month_Fragment;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -19,6 +21,17 @@ public class Utils {
     public static HashMap<LocalDate, ArrayList<CalendarEvent>> map = new HashMap<>();
 
 
+    public static Calendar_Month_Fragment createCalendar_Month_Fragment(LocalDate selectedDate){
+        Calendar_Month_Fragment fragment = new Calendar_Month_Fragment();
+        Bundle bundle = new Bundle();
+
+        bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_DAY, selectedDate.getDayOfMonth());
+        bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_MONTH, selectedDate.getMonth().getValue());
+        bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_YEAR, selectedDate.getYear());
+
+        fragment.setArguments(bundle);
+        return fragment;
+    }
 
     public static boolean isEmailValid(String email) {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();

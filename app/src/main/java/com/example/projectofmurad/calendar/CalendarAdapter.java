@@ -1,8 +1,6 @@
 package com.example.projectofmurad.calendar;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +40,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         }
     }
 
-    public CalendarAdapter(ArrayList<LocalDate> daysOfMonth, Context context, OnItemListener onItemListener) {
+    public CalendarAdapter(ArrayList<String> daysOfMonth, Context context, OnItemListener onItemListener) {
         inflater = LayoutInflater.from(context);
         this.daysOfMonth = daysOfMonth;
         this.onItemListener = onItemListener;
