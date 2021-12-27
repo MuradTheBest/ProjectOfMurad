@@ -99,5 +99,23 @@ public class Utils {
         }
     }
 
+    public static ArrayList<Calendar_Month_Fragment> move(ArrayList<Calendar_Month_Fragment> fragmentArrayList, int i){
+        ArrayList<Calendar_Month_Fragment> tmp = fragmentArrayList;
+
+        if(i == -1){
+            tmp.set(4, fragmentArrayList.get(3));
+            tmp.set(3, fragmentArrayList.get(2));
+            tmp.set(2, fragmentArrayList.get(1));
+            tmp.set(1, fragmentArrayList.get(0));
+        }
+        else if(i == 1){
+            tmp.set(0, fragmentArrayList.get(1));
+            tmp.set(1, fragmentArrayList.get(2));
+            tmp.set(2, fragmentArrayList.get(3));
+            tmp.set(3, fragmentArrayList.get(4));
+        }
+        return tmp;
+    }
+
 
 }

@@ -1,15 +1,11 @@
 package com.example.projectofmurad.calendar;
 
-import android.util.Log;
-
 import com.example.projectofmurad.Utils;
-import com.google.type.DateTime;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalQueries;
+
 
 public class CalendarEvent {
     private static int event_id = 0;

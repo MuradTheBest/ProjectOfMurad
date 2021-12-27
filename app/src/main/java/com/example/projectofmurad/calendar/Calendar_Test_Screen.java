@@ -1,14 +1,16 @@
 package com.example.projectofmurad.calendar;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.projectofmurad.R;
@@ -29,8 +31,8 @@ public class Calendar_Test_Screen extends AppCompatActivity {
     Calendar_Month_Fragment prevMonthFragment;
     Calendar_Month_Fragment nextMonthFragment;
 
-    ViewPager2 viewPager;
-    ScreenSlidePagerAdapter adapter;
+    public static ViewPager2 viewPager2;
+    public static ScreenSlidePagerAdapter adapter;
 
     public static ArrayList<Calendar_Month_Fragment> fragmentArrayList;
 
@@ -67,13 +69,107 @@ public class Calendar_Test_Screen extends AppCompatActivity {
         fragmentArrayList.add(fragment);
         fragmentArrayList.add(nextMonthFragment);
 
-        Bundle bundle = new Bundle();
+        viewPager2 = findViewById(R.id.view_pager2);
+        adapter = new ScreenSlidePagerAdapter(this, selectedDate);
 
-        bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_DAY, selectedDate.getDayOfMonth());
-        bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_MONTH, selectedDate.getMonth().getValue());
-        bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_YEAR, selectedDate.getYear());
+        SmartAdapter smartAdapter = new SmartAdapter(getSupportFragmentManager(), getLifecycle(), fragmentArrayList);
+        viewPager2.setAdapter(smartAdapter);
+        viewPager2.setCurrentItem(1, false);
+
+        viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            boolean move = false;
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                //super.onPageScrolled(position, positionOffset, positionOffsetPixels);
+
+                if(positionOffset == 0 && position != 1){
+                    move = true;
+                    Log.d("view_pager2", "moved");
+                }
+                Log.d("view_pager2", "" + position + "   " + positionOffset + "   " + positionOffsetPixels);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                //super.onPageSelected(position);
+                /*Calendar_Test_Screen.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while(true){
+                            if(move) break;
+                        }
+                        Log.d("view_pager2", "changing");
+                        if(position == 2){
+                            Calendar_Month_Fragment newCentralFragment = smartAdapter.getItem(position);
+                            smartAdapter.remove(0);
+                            smartAdapter.add( 2, Utils.createCalendar_Month_Fragment(newCentralFragment.getSelectedDate().plusMonths(1)));
+                            //viewPager2.setCurrentItem(1, true);
+                        }
+                        else if(position == 0){
+                            Calendar_Month_Fragment newCentralFragment = smartAdapter.getItem(position);
+                            smartAdapter.remove(2);
+                            smartAdapter.replace(0, Utils.createCalendar_Month_Fragment(newCentralFragment.getSelectedDate().minusMonths(1)));
+                            smartAdapter.replace(1, newCentralFragment);
+                            smartAdapter.add(2, Utils.createCalendar_Month_Fragment(newCentralFragment.getSelectedDate().plusMonths(1)));
+
+                            smartAdapter.remove(2);
+                            smartAdapter.add(0, Utils.createCalendar_Month_Fragment(newCentralFragment.getSelectedDate().minusMonths(1)));
+
+                        }
+                    }
+
+                });*/
+
+                Handler h = new Handler();
+                h.post()
+
+                boolean handler = new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    public void run() {
+                        move = true;
+                    }
+                });
 
 
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while(true){
+                            if(move) break;
+                        }
+                        Log.d("view_pager2", "changing");
+                        if(position == 2){
+                            Calendar_Month_Fragment newCentralFragment = smartAdapter.getItem(position);
+                            smartAdapter.remove(0);
+                            smartAdapter.add( 2, Utils.createCalendar_Month_Fragment(newCentralFragment.getSelectedDate().plusMonths(1)));
+                            //viewPager2.setCurrentItem(1, true);
+                        }
+                        else if(position == 0){
+                            Calendar_Month_Fragment newCentralFragment = smartAdapter.getItem(position);
+                            smartAdapter.remove(2);
+                            smartAdapter.replace(0, Utils.createCalendar_Month_Fragment(newCentralFragment.getSelectedDate().minusMonths(1)));
+                            smartAdapter.replace(1, newCentralFragment);
+                            smartAdapter.add(2, Utils.createCalendar_Month_Fragment(newCentralFragment.getSelectedDate().plusMonths(1)));
+
+                            smartAdapter.remove(2);
+                            smartAdapter.add(0, Utils.createCalendar_Month_Fragment(newCentralFragment.getSelectedDate().minusMonths(1)));
+
+                        }
+                    }
+                });
+                //t.start();
+
+                if(move){
+
+                }
+            }
+
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                super.onPageScrollStateChanged(state);
+            }
+        });
 
         /*adapter = new ScreenSlidePagerAdapter(this, selectedDate);
         viewPager.setAdapter(adapter);
@@ -108,40 +204,7 @@ public class Calendar_Test_Screen extends AppCompatActivity {
 
     }
 
-     class ScreenSlidePagerAdapter extends FragmentStateAdapter {
-        LocalDate localDate;
 
-        public ScreenSlidePagerAdapter(@NonNull Fragment fragment, LocalDate localDate) {
-            super(fragment);
-            this.localDate = localDate;
-        }
-
-        public ScreenSlidePagerAdapter(@NonNull Calendar_Test_Screen fragmentActivity, LocalDate localDate) {
-            super(fragmentActivity);
-            this.localDate = localDate;
-        }
-
-        @NonNull
-        @Override
-        public Calendar_Month_Fragment createFragment(int position) {
-            switch(position){
-                case 0:
-                    return Utils.createCalendar_Month_Fragment(localDate.plusMonths(1));
-                case 1:
-                    return Utils.createCalendar_Month_Fragment(localDate);
-                case 2:
-                    return Utils.createCalendar_Month_Fragment(localDate.minusMonths(1));
-                default:
-                    return null;
-            }
-
-        }
-
-        @Override
-        public int getItemCount() {
-            return 3;
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

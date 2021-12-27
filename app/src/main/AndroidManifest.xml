@@ -39,6 +39,10 @@
         <activity
             android:name=".calendar.Calendar_Screen"
             android:exported="false"/>
+
+        <activity
+            android:name=".calendar.Calendar_Test_Screen"
+            android:exported="false"/>
     </application>
 
 </manifest>
