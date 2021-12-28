@@ -1,8 +1,6 @@
 package com.example.projectofmurad.calendar;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,7 +8,6 @@ import android.widget.Toast;
 
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.projectofmurad.R;
@@ -18,7 +15,9 @@ import com.example.projectofmurad.Utils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Objects;
+import java.util.Queue;
 
 public class Calendar_Test_Screen extends AppCompatActivity {
     private LocalDate selectedDate;
@@ -61,20 +60,42 @@ public class Calendar_Test_Screen extends AppCompatActivity {
 
         fragment.setArguments(bundle);*/
 
-        fragment = Utils.createCalendar_Month_Fragment(selectedDate);
+        /*fragment = Utils.createCalendar_Month_Fragment(selectedDate);
         prevMonthFragment = Utils.createCalendar_Month_Fragment(selectedDate.minusMonths(1));
-        nextMonthFragment = Utils.createCalendar_Month_Fragment(selectedDate.plusMonths(1));
+        nextMonthFragment = Utils.createCalendar_Month_Fragment(selectedDate.plusMonths(1));*/
 
         fragmentArrayList.add(prevMonthFragment);
         fragmentArrayList.add(fragment);
         fragmentArrayList.add(nextMonthFragment);
 
         viewPager2 = findViewById(R.id.view_pager2);
-        adapter = new ScreenSlidePagerAdapter(this, selectedDate);
+        //adapter = new ScreenSlidePagerAdapter(this, selectedDate);
 
-        SmartAdapter smartAdapter = new SmartAdapter(getSupportFragmentManager(), getLifecycle(), fragmentArrayList);
+        LinkedList<Calendar_Month_Fragment> fragments = new LinkedList<>();
+        fragments.add(Utils.createCalendar_Month_Fragment(selectedDate.minusMonths(2)));
+        fragments.add(Utils.createCalendar_Month_Fragment(selectedDate.minusMonths(1)));
+        //fragments.get(0).onCreate(Bundle.EMPTY);
+        fragments.add(Utils.createCalendar_Month_Fragment(selectedDate));
+        //fragments.get(1).onCreate(Bundle.EMPTY);
+        fragments.add(Utils.createCalendar_Month_Fragment(selectedDate.plusMonths(1)));
+        //fragments.get(2).onCreate(Bundle.EMPTY);
+        fragments.add(Utils.createCalendar_Month_Fragment(selectedDate.plusMonths(2)));
+
+        Log.d("view_pager2", "selectedDate = " + Utils.getDefaultDate(selectedDate));
+
+        Log.d("view_pager2", "---------------------------------------------------------------------------------------------------");
+        Log.d("view_pager2", "position = 0   -> " + Utils.getDefaultDate(fragments.get(0).getSelectedDate()));
+        Log.d("view_pager2", "position = 1   -> " + Utils.getDefaultDate(fragments.get(1).getSelectedDate()));
+        Log.d("view_pager2", "position = 2   -> " + Utils.getDefaultDate(fragments.get(2).getSelectedDate()));
+        Log.d("view_pager2", "position = 3   -> " + Utils.getDefaultDate(fragments.get(3).getSelectedDate()));
+        Log.d("view_pager2", "position = 4   -> " + Utils.getDefaultDate(fragments.get(4).getSelectedDate()));
+        Log.d("view_pager2", "---------------------------------------------------------------------------------------------------");
+
+        LinkedListAdapter smartAdapter = new LinkedListAdapter(getSupportFragmentManager(), getLifecycle(), fragments);
         viewPager2.setAdapter(smartAdapter);
         viewPager2.setCurrentItem(1, false);
+        viewPager2.setCurrentItem(3, false);
+        viewPager2.setCurrentItem(2, false);
 
         viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             boolean move = false;
@@ -83,11 +104,11 @@ public class Calendar_Test_Screen extends AppCompatActivity {
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 //super.onPageScrolled(position, positionOffset, positionOffsetPixels);
 
-                if(positionOffset == 0 && position != 1){
+                /*if(positionOffset == 0 && position != 1){
                     move = true;
                     Log.d("view_pager2", "moved");
                 }
-                Log.d("view_pager2", "" + position + "   " + positionOffset + "   " + positionOffsetPixels);
+                Log.d("view_pager2", "" + position + "   " + positionOffset + "   " + positionOffsetPixels);*/
             }
 
             @Override
@@ -121,7 +142,7 @@ public class Calendar_Test_Screen extends AppCompatActivity {
 
                 });*/
 
-                Handler h = new Handler();
+                /*Handler h = new Handler();
                 h.post()
 
                 boolean handler = new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -161,10 +182,46 @@ public class Calendar_Test_Screen extends AppCompatActivity {
 
                 if(move){
 
+                }*/
+
+                if(position == 3){
+                    Calendar_Month_Fragment newCentralFragment = smartAdapter.createFragment(3);
+                    //viewPager2.setCurrentItem(1, true);
+
+                    smartAdapter.movedToNext(newCentralFragment.getSelectedDate());
+                    synchronized(this){
+                        this.notify();
+                    }
+                    synchronized(smartAdapter){
+                        smartAdapter.notify();
+                        smartAdapter.notifyDataSetChanged();
+
+                    }
+                    synchronized(viewPager2){
+                        viewPager2.notify();
+                    }
+
+                    Log.d("view_pager2", "position is " + position);
                 }
+                else if(position == 1){
+                    Calendar_Month_Fragment newCentralFragment = smartAdapter.createFragment(1);
+
+                    smartAdapter.movedToPrevious(newCentralFragment.getSelectedDate());
+                    synchronized(this){
+                        this.notify();
+                    }
+                    synchronized(smartAdapter){
+                        smartAdapter.notify();
+                        smartAdapter.notifyDataSetChanged();
+                    }
+                    synchronized(viewPager2){
+                        viewPager2.notify();
+                    }
+
+                    Log.d("view_pager2", "position is " + position);
+                }
+                position = 2;
             }
-
-
             @Override
             public void onPageScrollStateChanged(int state) {
                 super.onPageScrollStateChanged(state);
@@ -221,14 +278,14 @@ public class Calendar_Test_Screen extends AppCompatActivity {
             selectedDate = today;
 
             //fragment = Calendar_Month_Fragment.newInstance(selectedDate.getDayOfMonth(), selectedDate.getMonth().getValue(), selectedDate.getYear());
-            fragment = new Calendar_Month_Fragment();
-            Bundle bundle = new Bundle();
+            fragment = new Calendar_Month_Fragment(today.getDayOfMonth(), today.getMonth().getValue(), today.getYear());
+            /*Bundle bundle = new Bundle();
 
             bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_DAY, selectedDate.getDayOfMonth());
             bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_MONTH, selectedDate.getMonth().getValue());
             bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_YEAR, selectedDate.getYear());
 
-            fragment.setArguments(bundle);
+            fragment.setArguments(bundle);*/
             getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
             //openFragment();
         }

@@ -51,9 +51,9 @@ public class Calendar_Month_Fragment extends Fragment implements CalendarAdapter
     public static final String ARG_SELECTED_DATE_YEAR = "selectedDate_year";
 
     private LocalDate selectedDate;
-    private int selectedDate_day;
-    private int selectedDate_month;
-    private int selectedDate_year;
+    private int selectedDate_current_day;
+    private int selectedDate_current_month;
+    private int selectedDate_current_year;
 
     private int prev = 0;
     private int next = 1;
@@ -113,8 +113,16 @@ public class Calendar_Month_Fragment extends Fragment implements CalendarAdapter
     public static final String action_to_change_next = BuildConfig.APPLICATION_ID + "action_to_change_next";
 
 
-    public Calendar_Month_Fragment() {
+    public Calendar_Month_Fragment(int selectedDate_day, int selectedDate_month, int selectedDate_year) {
         // Required empty public constructor
+        Log.d("view_pager2", "constructor initialization");
+        if(getArguments() != null) {
+            selectedDate_current_day = getArguments().getInt(ARG_SELECTED_DATE_DAY);
+            selectedDate_current_month = getArguments().getInt(ARG_SELECTED_DATE_MONTH);
+            selectedDate_current_year = getArguments().getInt(ARG_SELECTED_DATE_YEAR);
+        }
+        this.selectedDate = LocalDate.of(selectedDate_year, selectedDate_month, selectedDate_day);
+        Log.d("view_pager2", Utils.getDefaultDate(selectedDate));
     }
 
     /**
@@ -128,7 +136,7 @@ public class Calendar_Month_Fragment extends Fragment implements CalendarAdapter
 
     // TODO: Rename and change types and number of parameters
     public static Calendar_Month_Fragment newInstance(int selectedDate_day, int selectedDate_month, int selectedDate_year) {
-        Calendar_Month_Fragment fragment = new Calendar_Month_Fragment();
+        Calendar_Month_Fragment fragment = new Calendar_Month_Fragment(selectedDate_day, selectedDate_month, selectedDate_year);
         /*
            The 1 below is an optimization, being the number of arguments that will
            be added to this bundle.  If you know the number of arguments you will add
@@ -137,6 +145,7 @@ public class Calendar_Month_Fragment extends Fragment implements CalendarAdapter
         */
 
         Bundle args = new Bundle();
+        Log.d("view_pager2", "fragment's newInstance created");
         /*
           This stores the argument as an argument in the bundle.
           Note that even if the 'name' parameter is NULL then this will work, so you should consider
@@ -153,8 +162,20 @@ public class Calendar_Month_Fragment extends Fragment implements CalendarAdapter
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.d("view_pager2", "fragment created");
+        if(getArguments() != null) {
+            selectedDate_current_day = getArguments().getInt(ARG_SELECTED_DATE_DAY);
+            selectedDate_current_month = getArguments().getInt(ARG_SELECTED_DATE_MONTH);
+            selectedDate_current_year = getArguments().getInt(ARG_SELECTED_DATE_YEAR);
+        }
+
+        this.selectedDate = LocalDate.of(selectedDate_current_year, selectedDate_current_month, selectedDate_current_day);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_calendar__month_, container, false);
         calendarRecyclerView = view.findViewById(R.id.calendarRecyclerView_test);
@@ -167,6 +188,8 @@ public class Calendar_Month_Fragment extends Fragment implements CalendarAdapter
         btn_next_month.setOnClickListener(v -> nextMonthActionForFragment());
 
         view_pager2 = getActivity().findViewById(R.id.view_pager2);
+
+        selectedDate = LocalDate.of(selectedDate_current_year, selectedDate_current_month, selectedDate_current_day);
 
         Log.d("murad",  "onCreateView");
         return view;
@@ -186,13 +209,13 @@ public class Calendar_Month_Fragment extends Fragment implements CalendarAdapter
         if(getArguments() != null) {
             //mParam1 = getArguments().getString(ARG_PARAM1);
             //mParam2 = getArguments().getString(ARG_PARAM2);
-            selectedDate_day = getArguments().getInt(ARG_SELECTED_DATE_DAY);
-            selectedDate_month = getArguments().getInt(ARG_SELECTED_DATE_MONTH);
-            selectedDate_year = getArguments().getInt(ARG_SELECTED_DATE_YEAR);
+            selectedDate_current_day = getArguments().getInt(ARG_SELECTED_DATE_DAY);
+            selectedDate_current_month = getArguments().getInt(ARG_SELECTED_DATE_MONTH);
+            selectedDate_current_year = getArguments().getInt(ARG_SELECTED_DATE_YEAR);
 
         }
 
-        selectedDate = LocalDate.of(selectedDate_year, selectedDate_month, selectedDate_day);
+        selectedDate = LocalDate.of(selectedDate_current_year, selectedDate_current_month, selectedDate_current_day);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy");
         Log.d("murad", selectedDate.format(formatter));
         today = LocalDate.now();
@@ -584,7 +607,7 @@ public class Calendar_Month_Fragment extends Fragment implements CalendarAdapter
     }
 
     public LocalDate getSelectedDate(){
-        return selectedDate;
+        return this.selectedDate;
     }
 
 

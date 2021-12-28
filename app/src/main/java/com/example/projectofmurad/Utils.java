@@ -22,15 +22,36 @@ public class Utils {
 
 
     public static Calendar_Month_Fragment createCalendar_Month_Fragment(LocalDate selectedDate){
-        Calendar_Month_Fragment fragment = new Calendar_Month_Fragment();
+        int day = selectedDate.getDayOfMonth();
+        int month = selectedDate.getMonth().getValue();
+        int year = selectedDate.getYear();
+
+        Calendar_Month_Fragment fragment = new Calendar_Month_Fragment(day, month, year);
+
         Bundle bundle = new Bundle();
 
-        bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_DAY, selectedDate.getDayOfMonth());
-        bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_MONTH, selectedDate.getMonth().getValue());
-        bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_YEAR, selectedDate.getYear());
+        bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_DAY, day);
+        bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_MONTH, month);
+        bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_YEAR, year);
 
         fragment.setArguments(bundle);
         return fragment;
+    }
+
+    public static Bundle getBundleFromDate(LocalDate selectedDate){
+
+        Bundle bundle = new Bundle();
+
+        int day = selectedDate.getDayOfMonth();
+        int month = selectedDate.getMonth().getValue();
+        int year = selectedDate.getYear();
+
+        bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_DAY, day);
+        bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_MONTH, month);
+        bundle.putInt(Calendar_Month_Fragment.ARG_SELECTED_DATE_YEAR, year);
+
+
+        return bundle;
     }
 
     public static boolean isEmailValid(String email) {

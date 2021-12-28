@@ -14,7 +14,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.projectofmurad.calendar.Calendar_Month_Fragment;
+
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Splash_Screen extends Activity {
 
@@ -89,6 +92,17 @@ public class Splash_Screen extends Activity {
 
         Log.d("murad",  "size " + arrayList.size());
         Log.d("murad",  "place 0 " + arrayList.get(0));
+
+       /* LinkedList<Integer> fragmentLinkedList = new LinkedList<>();
+        fragmentLinkedList.add(5);
+        fragmentLinkedList.add(56);
+        fragmentLinkedList.add(123);
+        fragmentLinkedList.add(7896);
+        fragmentLinkedList.add(88655);
+        Log.d("view_pager2", "size " + fragmentLinkedList.size());
+        fragmentLinkedList.remove();
+        Log.d("view_pager2", "0 " + fragmentLinkedList.getFirst());*/
+
 
         //custom code goes here
 
