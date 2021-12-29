@@ -37,7 +37,7 @@ public class FragmentAdapter extends RecyclerView.Adapter<FragmentAdapter.Calend
         this.recyclerViewLinkedList = recyclerViewLinkedList;
     }
 
-    public void movedToPrevious(LocalDate centralDate){
+    /*public void movedToPrevious(LocalDate centralDate){
         this.recyclerViewLinkedList.removeLast();
 
         this.recyclerViewLinkedList.addFirst();
@@ -81,7 +81,7 @@ public class FragmentAdapter extends RecyclerView.Adapter<FragmentAdapter.Calend
         Log.d("view_pager2", "position = 3   -> " + Utils.getDefaultDate(this.fragments.get(3).getSelectedDate()));
         Log.d("view_pager2", "position = 4   -> " + Utils.getDefaultDate(this.fragments.get(4).getSelectedDate()));
         Log.d("view_pager2", "---------------------------------------------------------------------------------------------------");
-    }
+    }*/
 
     @NonNull
     @Override

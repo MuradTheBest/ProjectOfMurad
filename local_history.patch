@@ -1,0 +1,33 @@
+Index: app/src/main/java/com/example/projectofmurad/calendar/Calendar_Screen.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/projectofmurad/calendar/Calendar_Screen.java b/app/src/main/java/com/example/projectofmurad/calendar/Calendar_Screen.java
+--- a/app/src/main/java/com/example/projectofmurad/calendar/Calendar_Screen.java	(date 1640438362656)
++++ b/app/src/main/java/com/example/projectofmurad/calendar/Calendar_Screen.java	(date 1640438362656)
+@@ -178,7 +178,7 @@
+                 }
+                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent_for_previous);
+ 
+-                circleCalendarCell(dateToCircle);
++                circleCalendarCell(dazzzzzz);
+             }
+         });
+         thread.start();
+@@ -342,15 +342,6 @@
+                 setMonthView(7 - dayOfWeekInPrevOrNextMonth - 1);
+             }
+ 
+-            /*if(dayOfWeekInPrevOrNextMonth == 7){
+-                if(selectedDate.isBefore(today)){
+-                    circleCalendarCell(daysInMonth.size() - 7);
+-                }
+-            }
+-            else{
+-                circleCalendarCell(dateToCircle);
+-            }*/
+-
+             /*if(selectedDate.isAfter(today)){
+                 circleCalendarCell(7 - dayOfWeekInPrevOrNextMonth - 1);
+             }

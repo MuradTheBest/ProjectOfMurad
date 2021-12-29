@@ -103,13 +103,12 @@ public class LinkedListAdapter extends FragmentStateAdapter {
         Log.d("view_pager2", "month removed " + this.fragments.removeLast().getSelectedDate().getMonth().toString());
         Log.d("view_pager2", "new size = " + this.fragments.size());
         //this.notifyItemRemoved(4);
-        this.notifyDataSetChanged();
 
         this.fragments.addFirst(Utils.createCalendar_Month_Fragment(centralDate.minusMonths(2)));
         Log.d("view_pager2", "month added " + this.fragments.get(0).getSelectedDate().getMonth().toString());
         Log.d("view_pager2", "new size = " + this.fragments.size());
         //this.notifyItemInserted(0);
-        this.notifyDataSetChanged();
+        this.notifyItemRangeChanged(0, 5);
 
         Log.d("view_pager2", "movedToPrevious");
         Log.d("view_pager2", "position = 0   -> " + Utils.getDefaultDate(this.fragments.get(0).getSelectedDate()));
@@ -130,12 +129,12 @@ public class LinkedListAdapter extends FragmentStateAdapter {
         Log.d("view_pager2", "month removed " + this.fragments.removeFirst().getSelectedDate().getMonth().toString());
         Log.d("view_pager2", "new size = " + this.fragments.size());
         //this.notifyItemRemoved(0);
-        this.notifyDataSetChanged();
+
         this.fragments.addLast(Utils.createCalendar_Month_Fragment(centralDate.plusMonths(2)));
         Log.d("view_pager2", "month added " + this.fragments.get(4).getSelectedDate().getMonth().toString());
         Log.d("view_pager2", "new size = " + this.fragments.size());
         //this.notifyItemInserted(4);
-        this.notifyDataSetChanged();
+        this.notifyItemRangeChanged(0, 5);
 
         Log.d("view_pager2", "movedToNext");
         Log.d("view_pager2", "position = 0   -> " + Utils.getDefaultDate(this.fragments.get(0).getSelectedDate()));
@@ -152,7 +151,7 @@ public class LinkedListAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 5;
+        return this.fragments.size();
     }
 
 

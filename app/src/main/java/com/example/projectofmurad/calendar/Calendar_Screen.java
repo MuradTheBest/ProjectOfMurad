@@ -75,7 +75,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
     public static final String action_to_change_previous = BuildConfig.APPLICATION_ID + "action_to_change_previous";
     public static final String action_to_change_next = BuildConfig.APPLICATION_ID + "action_to_change_next";
 
-    BroadcastReceiver broadcastReceiver;
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
