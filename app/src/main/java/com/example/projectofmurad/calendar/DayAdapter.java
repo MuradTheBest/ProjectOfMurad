@@ -1,7 +1,8 @@
 package com.example.projectofmurad.calendar;
 
 import android.content.Context;
-import android.icu.util.Calendar;
+import android.database.DataSetObserver;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,19 +59,32 @@ public class DayAdapter extends BaseAdapter {
 
 
         if(eventArrayList.get(position).getStart_date().equals(eventArrayList.get(position).getEnd_date())){
-            tv_event_start_time.setText(Utils.getDefaultTime(event.getStart_time()));
-            tv_event_end_time.setText(Utils.getDefaultTime(event.getEnd_time()));
+            tv_event_start_time.setText(Utils.TimeToText(event.getStart_time()));
+            tv_event_end_time.setText(Utils.TimeToText(event.getEnd_time()));
         }
         else if(eventArrayList.get(position).getStart_date().equals(selectedDate)){
-            tv_event_start_time.setText(Utils.getDefaultTime(event.getStart_time()));
+            tv_event_start_time.setText(Utils.TimeToText(event.getStart_time()));
         }
         else if(eventArrayList.get(position).getEnd_date().equals(selectedDate)){
-            tv_event_end_time.setText(Utils.getDefaultTime(event.getEnd_time()));
+            tv_event_end_time.setText(Utils.TimeToText(event.getEnd_time()));
         }
         else{
             tv_hyphen.setText("All day");
         }
 
         return convertview;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+
+        Log.d("murad", "DayAdapter's data is changed");
+    }
+
+    @Override
+    public void registerDataSetObserver(DataSetObserver observer) {
+        super.registerDataSetObserver(observer);
+
     }
 }

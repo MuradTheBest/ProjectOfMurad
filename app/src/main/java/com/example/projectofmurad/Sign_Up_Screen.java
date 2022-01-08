@@ -1,7 +1,7 @@
 package com.example.projectofmurad;
 
 import android.app.Activity;
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -13,6 +13,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.content.Intent;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class Sign_Up_Screen extends Activity implements TextWatcher {
 
@@ -38,14 +44,21 @@ public class Sign_Up_Screen extends Activity implements TextWatcher {
     SharedPreferences sp;
     boolean go = true;
 
+    FirebaseAuth firebaseAuth;
+    FirebaseUser firebaseUser;
+
+    ProgressDialog progressDialog;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_up_page);
 
-        sp = getSharedPreferences(BuildConfig.APPLICATION_ID + " savedData", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
+
+        progressDialog = new ProgressDialog(this);
 
         tv_sign_in = (TextView) findViewById(R.id.tv_sign_in);
         tv_already_have_an_account = (TextView) findViewById(R.id.tv_already_have_an_account);
@@ -115,6 +128,25 @@ public class Sign_Up_Screen extends Activity implements TextWatcher {
 
                 if(editTextsFilled) {
                     //ToDo Firebase authentication
+                    progressDialog.setMessage("Registering, please wait...");
+                    progressDialog.show();
+
+                    firebaseAuth.createUserWithEmailAndPassword(email, password).
+                            addOnCompleteListener(Sign_Up_Screen.this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(Task<AuthResult> task) {
+                                    if(task.isSuccessful()){
+                                        Toast.makeText(Sign_Up_Screen.this,
+                                                "Successfully registered", Toast.LENGTH_SHORT).show();
+                                    }
+                                    else{
+                                        Toast.makeText(Sign_Up_Screen.this,
+                                                "Registration Error!",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                    progressDialog.dismiss();
+                                }
+                            });
                 }
                 else {
                     Toast.makeText(getApplicationContext(), "Please enter " + msg, Toast.LENGTH_SHORT).show();
@@ -177,9 +209,6 @@ public class Sign_Up_Screen extends Activity implements TextWatcher {
             }
         });
 
-
-
-        //custom code goes here
 
 
     }

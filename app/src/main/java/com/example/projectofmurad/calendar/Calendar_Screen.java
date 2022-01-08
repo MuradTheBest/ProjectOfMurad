@@ -1,17 +1,17 @@
 package com.example.projectofmurad.calendar;
 
-import android.app.Dialog;
+import android.app.DatePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.projectofmurad.BuildConfig;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.Utils;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -33,7 +32,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class Calendar_Screen extends AppCompatActivity implements CalendarAdapter.OnItemListener, AdapterView.OnItemSelectedListener {
+public class Calendar_Screen extends AppCompatActivity implements CalendarAdapter.CalendarOnItemListener, AdapterView.OnItemSelectedListener {
     private TextView monthYearText;
     private RecyclerView calendarRecyclerView;
     private LocalDate selectedDate;
@@ -86,9 +85,29 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
 
         calendarRecyclerView = findViewById(R.id.calendarRecyclerView);
         monthYearText = findViewById(R.id.monthYearTV);
+        monthYearText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DatePickerDialog datePickerDialog = new DatePickerDialog(Calendar_Screen.this, android.R.style.Theme_Holo_Light_Dialog_NoActionBar_MinWidth);
+                datePickerDialog.updateDate(selectedDate.getYear(), selectedDate.minusMonths(1).getMonth().getValue(), selectedDate.getDayOfMonth());
+                datePickerDialog.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int day) {
+                        month = month+1;
+                        selectedDate = LocalDate.of(year, month, day);
+                        prev = 0;
+                        next = 1;
+                        setMonthView();
+                    }
+                });
+                datePickerDialog.show();
+            }
+        });
 
         selectedDate = LocalDate.now();
         today = LocalDate.now();
+
+        Log.d("murad","today is " + Utils.DateToText(today));
 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -103,6 +122,8 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
 
                         calendarRecyclerView.findViewHolderForAdapterPosition(pos).itemView.
                                 setBackgroundResource(R.drawable.calendar_cell_selected_background);
+
+                        old_position = pos;
                         //LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent_for_previous);
                         break;
                     case action_to_change_previous:
@@ -143,7 +164,6 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         Toast.makeText(getApplicationContext(), day, Toast.LENGTH_SHORT).show();
         setMonthView();
 
-        Utils.printHashMap(Utils.map);
     }
 
     private void setMonthView() {
@@ -153,6 +173,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         calendarAdapter = new CalendarAdapter(daysInMonth, this, this);
         calendarRecyclerView.setAdapter(calendarAdapter);
         calendarRecyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 7));
+        calendarRecyclerView.setHasFixedSize(true);
 
         intent_for_previous = new Intent(action_to_change_previous);
         intent_for_previous.putExtra("previous", prev);
@@ -170,12 +191,17 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
                 Log.d("murad", positionOfToday + " " + calendarAdapter.getItemCount());
                 Log.d("murad", " recycler view's child count = " + calendarRecyclerView.getChildCount());
 
-                if(selectedDate.getMonth().equals(today.getMonth()) && selectedDate.getYear() == today.getYear()){
+                YearMonth yearMonthOfSelectedDate = YearMonth.of(selectedDate.getYear(), selectedDate.getMonth());
+                YearMonth yearMonthOfTodayDate = YearMonth.of(today.getYear(), today.getMonth());
+
+                if(yearMonthOfTodayDate.equals(yearMonthOfSelectedDate)){
                     Log.d("murad",  "selectedDate == LocalDate.now()");
-                    for(int i=0; i<length; i++){
+                    boolean stop = false;
+                    for(int i=0; i<length && !stop; i++){
                         if(String.valueOf(daysInMonth.get(i).getDayOfMonth()).equals(day)){
                             Log.d("murad", "i: "+i);
                             positionOfToday = i;
+                            stop = true;
                         }
 
                     }
@@ -333,6 +359,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
             YearMonth yearMonthOfSelectedDate = YearMonth.of(selectedDate.getYear(), selectedDate.getMonth());
             YearMonth yearMonthOfPassingDate = YearMonth.of(passingDate.getYear(), passingDate.getMonth());
 
+            Log.d("murad", "selectedDate " + Utils.DateToText(selectedDate) + ", passingDate " + Utils.DateToText(passingDate));
             if(!yearMonthOfPassingDate.equals(yearMonthOfSelectedDate)){
                 selectedDate = passingDate;
                 prev = 0;
@@ -341,9 +368,6 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
             }
             else {
                 calendarRecyclerView.findViewHolderForAdapterPosition(old_position).
-                        itemView.setBackgroundResource(R.drawable.calendar_cell_unclicked_background);
-
-                calendarRecyclerView.findViewHolderForAdapterPosition(positionOfToday).
                         itemView.setBackgroundResource(R.drawable.calendar_cell_unclicked_background);
 
                 old_position = position;
@@ -372,7 +396,13 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
     }
 
     public void createDayDialog(LocalDate passingDate){
-        Dialog d = new Dialog(this);
+        //DayDialogFragment dayDialogFragment = new DayDialogFragment(Calendar_Screen.this, passingDate);
+        //DayDialogFragmentWithRecyclerView dayDialogFragment = new DayDialogFragmentWithRecyclerView(Calendar_Screen.this, passingDate);
+        //DayDialogFragmentWithRecyclerViewWithText dayDialogFragment = new DayDialogFragmentWithRecyclerViewWithText(Calendar_Screen.this, passingDate);
+        DayDialogFragment2 dayDialogFragment = new DayDialogFragment2(Calendar_Screen.this, passingDate);
+        dayDialogFragment.show();
+
+        /*Dialog d = new Dialog(this);
         d.setContentView(R.layout.day_dialog);
         d.setCancelable(true);
 
@@ -394,8 +424,8 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
 
             ArrayList<CalendarEvent> calendarEventArrayList = Utils.map.get(passingDate);
             Log.d("murad", "empty calendarEventArrayList " + calendarEventArrayList.isEmpty());
-            /*calendarEventAdapter = new CalendarEventAdapter(calendarEventArrayList, getApplicationContext());
-            rv_events.setAdapter(calendarEventAdapter);*/
+            *//*calendarEventAdapter = new CalendarEventAdapter(calendarEventArrayList, getApplicationContext());
+            rv_events.setAdapter(calendarEventAdapter);*//*
 
             adapter = new DayAdapter(calendarEventArrayList, Calendar_Screen.this, passingDate);
             lv_events.setAdapter(adapter);
@@ -443,7 +473,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
             public void run() {
                 d.show();
             }
-        }, 100);
+        }, 100);*/
     }
 
     @Override

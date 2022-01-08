@@ -68,8 +68,8 @@ public class CalendarEventAdapter extends RecyclerView.Adapter<CalendarEventAdap
         holder.tv_event_name.setText(event.getName());
         holder.tv_event_place.setText(event.getPlace());
         holder.tv_event_description.setText(event.getDescription());
-        holder.tv_event_start_time.setText(Utils.getDefaultTime(event.getStart_time()));
-        holder.tv_event_end_time.setText(Utils.getDefaultTime(event.getEnd_time()));
+        holder.tv_event_start_time.setText(Utils.TimeToText(event.getStart_time()));
+        holder.tv_event_end_time.setText(Utils.TimeToText(event.getEnd_time()));
 
     }
 

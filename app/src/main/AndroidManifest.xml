@@ -10,20 +10,26 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjectOfMurad">
         <activity
+            android:name=".calendar.CalendarView_Screen"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="false">
-            <!--<intent-filter>
+
+            <!--
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
+            </intent-filter>
+            -->
         </activity>
         <activity
             android:name=".Log_In_Screen"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".Sign_Up_Screen"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".Splash_Screen"
             android:exported="true">
@@ -34,11 +40,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".calendar.AddEvent_Screen"
+            android:name=".calendar.Add_Event_Screen"
+            android:exported="false" />
+        <activity
+            android:name=".calendar.Edit_Event_Screen"
             android:exported="false" />
         <activity
             android:name=".calendar.Calendar_Screen"
-            android:exported="false"/>
+            android:exported="false" />
     </application>
 
 </manifest>

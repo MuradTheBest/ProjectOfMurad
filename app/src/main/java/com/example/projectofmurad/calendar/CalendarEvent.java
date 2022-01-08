@@ -1,17 +1,13 @@
 package com.example.projectofmurad.calendar;
 
-import android.util.Log;
-
 import com.example.projectofmurad.Utils;
-import com.google.type.DateTime;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalQueries;
 
-public class CalendarEvent {
+public class CalendarEvent implements Serializable {
     private static int event_id = 0;
 
     private String name;
@@ -29,7 +25,6 @@ public class CalendarEvent {
     private int start_hour;
     private int start_min;
 
-
     private LocalDate end_date;
 
     private int end_day;
@@ -41,6 +36,17 @@ public class CalendarEvent {
     private int end_hour;
     private int end_min;
 
+    public CalendarEvent(){
+        event_id++;
+    }
+
+    public CalendarEvent(String name, String description, String place) {
+        event_id++;
+
+        this.name = name;
+        this.description = description;
+        this.place = place;
+    }
 
     public CalendarEvent(String name, String description, String place, LocalDateTime startDateTime, LocalDateTime endDateTime) {
         event_id++;
@@ -60,7 +66,6 @@ public class CalendarEvent {
         this.start_hour = startDateTime.getHour();
         this.start_min = startDateTime.getMinute();
 
-
         this.end_date = endDateTime.toLocalDate();
 
         this.end_day = endDateTime.getDayOfMonth();
@@ -73,19 +78,119 @@ public class CalendarEvent {
         this.end_min = endDateTime.getMinute();
     }
 
-    public CalendarEvent(String name, String description, String place) {
+    public CalendarEvent(String name, String description, String place, LocalDate start_date, LocalTime start_time, LocalDate end_date, LocalTime end_time) {
         event_id++;
 
         this.name = name;
         this.description = description;
         this.place = place;
+
+        this.start_date = start_date;
+
+        this.start_day = start_date.getDayOfMonth();
+        this.start_month = start_date.getMonthValue();
+        this.start_year = start_date.getYear();
+
+        this.start_time = start_time;
+
+        this.start_hour = start_time.getHour();
+        this.start_min = start_time.getMinute();
+
+        this.end_date = end_date;
+
+        this.end_day = end_date.getDayOfMonth();
+        this.end_month = end_date.getMonthValue();
+        this.end_year =  end_date.getYear();
+
+        this.end_time = end_time;
+
+        this.end_hour = end_time.getHour();
+        this.end_min = end_time.getMinute();
     }
 
-    public static int getEvent_id() {
+    public CalendarEvent(String name, String description, String place, int start_day, int start_month, int start_year, int start_hour, int start_min, int end_day, int end_month, int end_year, int end_hour, int end_min) {
+        event_id++;
+
+        this.name = name;
+        this.description = description;
+        this.place = place;
+
+        this.start_date = LocalDate.of(start_year, start_month, start_day);
+
+        this.start_day = start_day;
+        this.start_month = start_month;
+        this.start_year = start_year;
+
+        this.start_time = LocalTime.of(start_hour, start_min);
+
+        this.start_hour = start_hour;
+        this.start_min = start_min;
+
+        this.end_date = LocalDate.of(end_year, end_month, end_day);
+
+        this.end_day = end_day;
+        this.end_month = end_month;
+        this.end_year = end_year;
+
+        this.end_time = LocalTime.of(end_hour, end_min);
+
+        this.end_hour = end_hour;
+        this.end_min = end_min;
+    }
+
+    public CalendarEvent(String name, String description, String place, LocalDate date, int start_hour, int start_min, int end_hour, int end_min) {
+        event_id++;
+
+        this.name = name;
+        this.description = description;
+        this.place = place;
+
+        this.start_date = this.end_date = date;
+
+        this.start_day = this.end_day = date.getDayOfMonth();
+        this.start_month = this.end_month = date.getMonthValue();
+        this.start_year = this.end_year = date.getYear();
+
+        this.start_time = LocalTime.of(start_hour, start_min);
+
+        this.start_hour = start_hour;
+        this.start_min = start_min;
+
+        this.end_time = LocalTime.of(end_hour, end_min);
+
+        this.end_hour = end_hour;
+        this.end_min = end_min;
+    }
+
+    public CalendarEvent(String name, String description, String place, int day, int month, int year, int start_hour, int start_min, int end_hour, int end_min) {
+        event_id++;
+
+        this.name = name;
+        this.description = description;
+        this.place = place;
+
+        this.start_date = this.end_date = LocalDate.of(year, month, day);
+
+        this.start_day = this.end_day = day;
+        this.start_month = this.end_month = month;
+        this.start_year = this.end_year = year;
+
+        this.start_time = LocalTime.of(start_hour, start_min);
+
+        this.start_hour = start_hour;
+        this.start_min = start_min;
+
+        this.end_time = LocalTime.of(end_hour, end_min);
+
+        this.end_hour = end_hour;
+        this.end_min = end_min;
+    }
+
+    public int getEvent_id() {
         return event_id;
     }
 
-    public static void setEvent_id(int event_id) {
+    public void setEvent_id(int event_id) {
         CalendarEvent.event_id = event_id;
     }
 
@@ -115,10 +220,15 @@ public class CalendarEvent {
 
     public LocalDate getStart_date() {
         return start_date;
+        //return LocalDate.of(start_year, start_month, start_day);
     }
 
     public void setStart_date(LocalDate start_date) {
         this.start_date = start_date;
+
+        this.start_day = start_date.getDayOfMonth();
+        this.start_month = start_date.getMonth().getValue();
+        this.start_year = start_date.getYear();
     }
 
     public int getStart_day() {
@@ -147,10 +257,14 @@ public class CalendarEvent {
 
     public LocalTime getStart_time() {
         return start_time;
+        //return LocalTime.of(start_hour, start_min);
     }
 
     public void setStart_time(LocalTime start_time) {
         this.start_time = start_time;
+
+        this.start_hour = start_time.getHour();
+        this.start_min = start_time.getMinute();
     }
 
     public int getStart_hour() {
@@ -171,10 +285,15 @@ public class CalendarEvent {
 
     public LocalDate getEnd_date() {
         return end_date;
+        //return LocalDate.of(end_year, end_month, end_day);
     }
 
     public void setEnd_date(LocalDate end_date) {
         this.end_date = end_date;
+
+        this.end_day = end_date.getDayOfMonth();
+        this.end_month = end_date.getMonth().getValue();
+        this.end_year = end_date.getYear();
     }
 
     public int getEnd_day() {
@@ -203,10 +322,14 @@ public class CalendarEvent {
 
     public LocalTime getEnd_time() {
         return end_time;
+        //return LocalTime.of(end_hour, end_min);
     }
 
     public void setEnd_time(LocalTime end_time) {
         this.end_time = end_time;
+
+        this.end_hour = end_time.getHour();
+        this.end_min = end_time.getMinute();
     }
 
     public int getEnd_hour() {
@@ -228,8 +351,8 @@ public class CalendarEvent {
     public String toString(){
         String str = "------------------------------------------------------------------------------------------------------------------------------------ \n" +
                 "\n" + this.getName() + " | " + this.getPlace() + " | " + this.getDescription() +
-                "\n" + Utils.getDefaultDate(this.getStart_date()) + " | " + Utils.getDefaultTime(this.start_time) +
-                "\n" + Utils.getDefaultDate(this.getEnd_date()) + " | " + Utils.getDefaultTime(this.end_time) +
+                "\n" + Utils.DateToText(this.getStart_date()) + " | " + Utils.TimeToText(this.start_time) +
+                "\n" + Utils.DateToText(this.getEnd_date()) + " | " + Utils.TimeToText(this.end_time) +
                 "\n" + "\n ------------------------------------------------------------------------------------------------------------------------------------ \n";
 
         return str;
