@@ -34,10 +34,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import petrov.kristiyan.colorpicker.ColorPicker;
+
 public class Add_Event_Screen extends AppCompatActivity {
     private EditText et_name;
     private EditText et_place;
     private EditText et_description;
+
+    int selectedColor = Color.GREEN;
 
     private Button btn_choose_start_time;
     private Button btn_choose_start_date;
@@ -45,6 +49,7 @@ public class Add_Event_Screen extends AppCompatActivity {
     private Button btn_choose_end_date;
 
     private Button btn_add_event;
+    private Button btn_color;
 
     private int start_hour;
     private int start_min;
@@ -79,8 +84,6 @@ public class Add_Event_Screen extends AppCompatActivity {
     private TimePickerDialog startTimePickerDialog;
     private TimePickerDialog endTimePickerDialog;
 
-    private static int count = 1;
-    int id = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +124,7 @@ public class Add_Event_Screen extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startDatePickerDialog = new DatePickerDialog(Add_Event_Screen.this, android.R.style.Theme_Holo_Light_Dialog_NoActionBar_MinWidth, new SetDate("start"), selected_year, selected_month, selected_day);
-                startDatePickerDialog.updateDate(start_year, start_month, start_day);
+                startDatePickerDialog.updateDate(start_year, start_month-1, start_day);
 //                startDatePickerDialog.getDatePicker().setMinDate(LocalDate.now().);
                 startDatePickerDialog.show();
             }
@@ -133,7 +136,7 @@ public class Add_Event_Screen extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 endDatePickerDialog = new DatePickerDialog(Add_Event_Screen.this, android.R.style.ThemeOverlay_Material_Dialog, new SetDate("end"), selected_year, selected_month, selected_day);
-                endDatePickerDialog.updateDate(end_year, end_month, end_day);
+                endDatePickerDialog.updateDate(end_year, end_month-1, end_day);
                 endDatePickerDialog.show();
             }
         });
@@ -168,16 +171,23 @@ public class Add_Event_Screen extends AppCompatActivity {
             }
         });
 
+        btn_color = findViewById(R.id.btn_color);
+        btn_color.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createColorPickerDialog();
+            }
+        });
+
         btn_add_event = findViewById(R.id.btn_add_event);
         btn_add_event.setOnClickListener(view -> {
-            String name = "";
+            /*String name = "";
             String description = "";
             String place = "";
 
             String msg = "";
 
             boolean editTextsFilled = true;
-            String h = et_name.getText().toString();
             if(et_name.getText().toString().isEmpty()) {
                 msg += "name";
                 editTextsFilled = false;
@@ -197,18 +207,23 @@ public class Add_Event_Screen extends AppCompatActivity {
             }
 
             if(et_place.getText().toString().isEmpty()) {
-            /*if(!editTextsFilled){
+            *//*if(!editTextsFilled){
                 msg += ", ";
-            }*/
+            }*//*
                 msg += (editTextsFilled ? "" : ", ");
                 msg += "place";
                 editTextsFilled = false;
             }
             else {
                 place = et_place.getText().toString();
-            }
+            }*/
 
-            //boolean error = true;
+            String name = et_name.getText().toString();
+            String description = et_description.getText().toString();
+            String place = et_place.getText().toString();
+
+            boolean editTextsFilled = Utils.areEventDetailsValid(this, name, description, place);
+
             if(editTextsFilled) {
                 /*if(start_day <= end_day && start_month <= end_month && start_year <= end_year ){
 
@@ -254,7 +269,7 @@ public class Add_Event_Screen extends AppCompatActivity {
                     event = new CalendarEvent(name, description, place, startDateTime, endDateTime);
                 }
 
-                CalendarEventWithTextOnly eventWithTextOnly = new CalendarEventWithTextOnly(name, description, place, start_date, start_time, end_date, end_time);
+                CalendarEventWithTextOnly eventWithTextOnly = new CalendarEventWithTextOnly(name, description, place, selectedColor, start_date, start_time, end_date, end_time);
 
                 Log.d("murad", event.toString());
 
@@ -268,9 +283,9 @@ public class Add_Event_Screen extends AppCompatActivity {
                 startActivity(new Intent(Add_Event_Screen.this, Calendar_Screen.class));
 
             }
-            else {
+            /*else {
                 Toast.makeText(this, "Please enter event's " + msg, Toast.LENGTH_LONG).show();
-            }
+            }*/
 
         });
 
@@ -289,6 +304,29 @@ public class Add_Event_Screen extends AppCompatActivity {
         materialDateBuilder.setTitleText("SELECT A DATE");
 
         MaterialDatePicker materialDatePicker = materialDateBuilder.build();
+    }
+
+    private void createColorPickerDialog() {
+        ColorPicker colorPicker = new ColorPicker(this);
+        colorPicker.setDefaultColorButton(Color.BLUE);
+        colorPicker.setRoundColorButton(true);
+
+        colorPicker.setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
+            @Override
+            public void onChooseColor(int position, int color) {
+                if(color == 0){
+                    return;
+                }
+                Log.d("murad", "color " + color);
+                selectedColor = color;
+                btn_color.setBackgroundColor(color);
+            }
+
+            @Override
+            public void onCancel() {
+            }
+        });
+        colorPicker.show();
     }
 
     //sets time
@@ -476,11 +514,6 @@ public class Add_Event_Screen extends AppCompatActivity {
 
         LocalTime endTime = Utils.TextToTime(event.getEnd_time());
 
-        LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
-        LocalDateTime endDateTime = LocalDateTime.of(endDate, endTime);
-
-/*        event.setEvent_id(Utils.TextToTextForFirebase(start_date) + "_" + timestamp);
-        event.setTimestamp(timestamp);*/
 
         LocalDate tmp = Utils.TextToDate(start_date);
 
@@ -532,8 +565,8 @@ public class Add_Event_Screen extends AppCompatActivity {
     }
 
     public void addEventToFirebaseForTextWithPUSH(CalendarEventWithTextOnly event) {
-        String start_date = event.getStart_date();
-        String end_date = event.getEnd_date();
+        LocalDate start_date = event.receiveStart_date();
+        LocalDate end_date = event.receiveEnd_date();
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
@@ -544,22 +577,13 @@ public class Add_Event_Screen extends AppCompatActivity {
 
         eventsDatabaseForText = firebase.getReference("EventsDatabase");
 
+        LocalDate tmp = start_date;
 
-        LocalDate startDate = Utils.TextToDateForFirebase(Utils.TextToTextForFirebase(start_date));
-        LocalDate endDate = Utils.TextToDateForFirebase(Utils.TextToTextForFirebase(end_date));
-
-        LocalTime startTime = Utils.TextToTime(event.getStart_time());
-
-        LocalTime endTime = Utils.TextToTime(event.getEnd_time());
-
-        LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
-        LocalDateTime endDateTime = LocalDateTime.of(endDate, endTime);
-
-        LocalDate tmp = Utils.TextToDate(start_date);
-
-        eventsDatabaseForText = eventsDatabaseForText.child(Utils.TextToTextForFirebase(start_date));
+        eventsDatabaseForText = eventsDatabaseForText.child(Utils.DateToTextForFirebase(start_date));
         eventsDatabaseForText = eventsDatabaseForText.push();
+
         String key = eventsDatabaseForText.getKey();
+        event.setEvent_id(key);
 
         Log.d("murad", eventsDatabaseForText.getKey());
 
@@ -567,16 +591,14 @@ public class Add_Event_Screen extends AppCompatActivity {
             eventsDatabaseForText = firebase.getReference("EventsDatabase");
             eventsDatabaseForText = eventsDatabaseForText.child(Utils.DateToTextForFirebase(tmp));
 
-            event.setEvent_id(key);
-
             eventsDatabaseForText = eventsDatabaseForText.child(key);
             eventsDatabaseForText.setValue(event);
+
             event.setTimestamp(0);
 
             tmp = tmp.plusDays(1);
-
         }
-        while(!tmp.isEqual(Utils.TextToDate(end_date).plusDays(1)));
+        while(!tmp.isEqual(end_date.plusDays(1)));
 
     }
 

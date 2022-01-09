@@ -171,17 +171,20 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                 }
 */
                 Log.d("murad", "---------------------------------------------------------------------------------");
-                Log.d("murad", "date: " + daysOfMonth.get(position).getDayOfMonth());
+                Log.d("murad", "date: " + daysOfMonth.get(holder.getAdapterPosition()).getDayOfMonth());
                 Log.d("murad", "getChildrenCount" + snapshot.getChildrenCount());
                 if(snapshot.hasChildren()){
                     int count = 1;
+                    int color = Color.GREEN;
 
                     for(DataSnapshot data : snapshot.getChildren()){
                         Log.d("murad", "count = " + count);
 
                         name = data.child("name").getValue().toString();
+                        color = Integer.parseInt(data.child("color").getValue().toString());
                         if(count == 1) {
                             holder.tv_event_1.setText(name);
+                            holder.tv_event_1.setBackgroundColor(color);
                             holder.tv_event_1.setVisibility(View.VISIBLE);
                             Log.d("murad", "tv_event_1 set VISIBLE");
                             int height = holder.tv_event_1.getHeight();
@@ -189,16 +192,19 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                         }
                         else if(count == 2) {
                             holder.tv_event_2.setText(name);
+                            holder.tv_event_2.setBackgroundColor(color);
                             holder.tv_event_2.setVisibility(View.VISIBLE);
                             Log.d("murad", "tv_event_2 set VISIBLE");
                         }
                         else if(count == 3) {
                             holder.tv_event_3.setText(name);
+                            holder.tv_event_3.setBackgroundColor(color);
                             holder.tv_event_3.setVisibility(View.VISIBLE);
                             Log.d("murad", "tv_event_3 set VISIBLE");
                         }
                         else if(count == 4) {
                             holder.tv_event_4.setText(name);
+                            holder.tv_event_4.setBackgroundColor(color);
                             holder.tv_event_4.setVisibility(View.VISIBLE);
                             Log.d("murad", "tv_event_4 set VISIBLE");
                         }

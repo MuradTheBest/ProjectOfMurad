@@ -139,4 +139,16 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.974" />
 
+    <Button
+        android:id="@+id/btn_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="Pick color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/btn_add_event"
+        app:layout_constraintStart_toStartOf="@+id/btn_add_event"
+        app:layout_constraintTop_toBottomOf="@+id/btn_add_event"
+        app:layout_constraintVertical_bias="0.0" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

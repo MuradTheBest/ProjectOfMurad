@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -40,21 +41,11 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
     private ArrayList<LocalDate> daysInMonth;
     private CalendarAdapter calendarAdapter;
 
-    RecyclerView rv_events;
-    CalendarEventAdapter calendarEventAdapter;
-
-    ListView lv_events;
-    DayAdapter adapter;
-
     int positionOfToday = 0;
     Intent intent_for_previous;
 
     LocalDate today;
     Thread thread;
-
-    EditText et_name;
-    EditText et_place;
-    EditText et_description;
 
     int prev = 0;
     int next = 1;
@@ -89,7 +80,9 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
             @Override
             public void onClick(View view) {
                 DatePickerDialog datePickerDialog = new DatePickerDialog(Calendar_Screen.this, android.R.style.Theme_Holo_Light_Dialog_NoActionBar_MinWidth);
-                datePickerDialog.updateDate(selectedDate.getYear(), selectedDate.minusMonths(1).getMonth().getValue(), selectedDate.getDayOfMonth());
+                datePickerDialog.getDatePicker().setBackgroundColor(Color.TRANSPARENT);
+                datePickerDialog.updateDate(selectedDate.getYear(), selectedDate.minusMonths(1).getMonthValue(), selectedDate.getDayOfMonth());
+                datePickerDialog.getDatePicker().findViewById(getResources().getIdentifier("day","id","android")).setVisibility(View.GONE);
                 datePickerDialog.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int day) {

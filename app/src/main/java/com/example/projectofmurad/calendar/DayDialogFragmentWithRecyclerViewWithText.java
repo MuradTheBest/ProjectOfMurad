@@ -169,6 +169,7 @@ public class DayDialogFragmentWithRecyclerViewWithText extends Dialog implements
         String name = calendarEventWithTextOnly.getName();
         String description = calendarEventWithTextOnly. getDescription();
         String place = calendarEventWithTextOnly.getPlace();
+        int color = calendarEventWithTextOnly.getColor();
         String start_date = calendarEventWithTextOnly.getStart_date();
         String start_time = calendarEventWithTextOnly.getStart_time();
         String end_date = calendarEventWithTextOnly.getEnd_date();
@@ -180,6 +181,7 @@ public class DayDialogFragmentWithRecyclerViewWithText extends Dialog implements
         intent.putExtra("event_name", name);
         intent.putExtra("event_description", description);
         intent.putExtra("event_place", place);
+        intent.putExtra("event_color", color);
         intent.putExtra("event_start_date", start_date);
         intent.putExtra("event_start_time", start_time);
         intent.putExtra("event_end_date", end_date);

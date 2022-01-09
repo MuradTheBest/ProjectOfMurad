@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -53,6 +54,7 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
         private TextView tv_event_start_time;
         private TextView tv_hyphen;
         private TextView tv_event_end_time;
+        private ImageView imageView2;
 
         public ViewHolderForFirebase(@NonNull View itemView, OnEventListener onEventListener) {
             super(itemView);
@@ -64,6 +66,7 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
             tv_hyphen = itemView.findViewById(R.id.tv_hyphen);
             tv_event_end_time = itemView.findViewById(R.id.tv_event_end_time);
 
+            imageView2 = itemView.findViewById(R.id.imageView2);
             itemView.setOnClickListener(this);
         }
 
@@ -117,6 +120,7 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
         }
         Log.d("murad", "position"+ holder.getAdapterPosition());
 
+        holder.imageView2.getDrawable().setTint(model.getColor());
     }
 
 

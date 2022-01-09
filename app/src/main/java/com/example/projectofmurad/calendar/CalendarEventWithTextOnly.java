@@ -1,5 +1,6 @@
 package com.example.projectofmurad.calendar;
 
+import android.graphics.Color;
 import android.util.Log;
 
 import com.example.projectofmurad.Utils;
@@ -27,6 +28,8 @@ public class CalendarEventWithTextOnly implements Serializable {
     private int frequency;
 
     private String frequencyType;
+
+    private int color;
 
 
     public CalendarEventWithTextOnly(){
@@ -66,6 +69,29 @@ public class CalendarEventWithTextOnly implements Serializable {
         this.timestamp = startTime.toSecondOfDay();
 
         this.event_id = this.start_date + "-" + this.timestamp;
+
+        this.color = Color.GREEN;
+    }
+
+    public CalendarEventWithTextOnly(String name, String description, String place, int color, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+
+        this.name = name;
+        this.description = description;
+        this.place = place;
+
+        this.start_date = Utils.DateToText(startDate);
+
+        this.start_time = Utils.TimeToText(startTime);
+
+        this.end_date = Utils.DateToText(endDate);
+
+        this.end_time = Utils.TimeToText(endTime);
+
+        this.timestamp = startTime.toSecondOfDay();
+
+        this.event_id = this.start_date + "-" + this.timestamp;
+
+        this.color = color;
     }
 
     public CalendarEventWithTextOnly(String name, String description, String place, String start_date, String start_time, String end_date, String end_time) {
@@ -86,6 +112,28 @@ public class CalendarEventWithTextOnly implements Serializable {
 
         this.end_time = end_time;
 
+        this.color = Color.GREEN;
+    }
+
+    public CalendarEventWithTextOnly(String name, String description, String place, int color, String start_date, String start_time, String end_date, String end_time) {
+
+        this.timestamp = Utils.TextToTime(start_time).toSecondOfDay();
+
+        this.event_id = start_date + "-" + this.timestamp;
+
+        this.name = name;
+        this.description = description;
+        this.place = place;
+
+        this.start_date = start_date;
+
+        this.start_time = start_time;
+
+        this.end_date = end_date;
+
+        this.end_time = end_time;
+
+        this.color = color;
     }
 
     public String getEvent_id() {
@@ -195,6 +243,14 @@ public class CalendarEventWithTextOnly implements Serializable {
 
     public void deleteTimeStamp(){
         this.timestamp = 0;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
     }
 
     public String toString(){

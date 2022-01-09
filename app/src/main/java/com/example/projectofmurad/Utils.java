@@ -1,6 +1,8 @@
 package com.example.projectofmurad;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.google.firebase.database.DatabaseReference;
@@ -114,5 +116,44 @@ public class Utils {
         }
     }
 
+    public static boolean areEventDetailsValid(Context context, String name, String description, String place){
+        String msg = "";
 
+        boolean editTextsFilled = true;
+        if(name.isEmpty()) {
+            msg += "name";
+            editTextsFilled = false;
+        }
+        else {
+            name = name.replaceFirst("\\s+", "");
+        }
+        if(description.isEmpty()) {
+            if(!editTextsFilled) {
+                msg += ", ";
+            }
+            msg += "description";
+            editTextsFilled = false;
+        }
+        else {
+            description = description.replaceFirst("\\s+", "");;
+        }
+
+        if(place.isEmpty()) {
+            /*if(!editTextsFilled){
+                msg += ", ";
+            }*/
+            msg += (editTextsFilled ? "" : ", ");
+            msg += "place";
+            editTextsFilled = false;
+        }
+        else {
+            place = place.replaceFirst("\\s+", "");;
+        }
+
+        if(!editTextsFilled){
+            Toast.makeText(context, "Please enter event's " + msg, Toast.LENGTH_LONG).show();
+        }
+
+        return editTextsFilled;
+    }
 }
