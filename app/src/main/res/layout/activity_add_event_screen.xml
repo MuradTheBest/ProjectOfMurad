@@ -131,7 +131,6 @@
         android:layout_height="wrap_content"
         android:calendarViewShown="false"
         android:datePickerMode="spinner"
-        android:headerMonthTextAppearance="@color/blue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.627"
@@ -150,5 +149,15 @@
         app:layout_constraintStart_toStartOf="@+id/btn_add_event"
         app:layout_constraintTop_toBottomOf="@+id/btn_add_event"
         app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/btn_repeat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
+        android:text="Repeat"
+        app:layout_constraintEnd_toStartOf="@+id/btn_color"
+        app:layout_constraintTop_toBottomOf="@+id/btn_add_event" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

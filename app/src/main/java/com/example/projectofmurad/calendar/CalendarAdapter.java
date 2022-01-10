@@ -1,11 +1,13 @@
 package com.example.projectofmurad.calendar;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -81,7 +83,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CalendarViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CalendarViewHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.dayOfMonth.setText(" " + daysOfMonth.get(position).getDayOfMonth() + " ");
 /*
         Log.d("murad ", "length"+getItemCount());
@@ -100,112 +102,52 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         holder.tv_event_4.setVisibility(View.INVISIBLE);
 
 
-
         firebase = FirebaseDatabase.getInstance();
         eventsDatabase = firebase.getReference("EventsDatabase");
-/*
-        eventsDatabase.child(Utils.DateToTextForFirebase(daysOfMonth.get(position))).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                count = 1;
-                for(DataSnapshot data : snapshot.getChildren()){
-                    Log.d("murad", "date: " + daysOfMonth.get(holder.getAdapterPosition()).getDayOfMonth());
-                    Log.d("murad", "getChildrenCount" + snapshot.getChildrenCount());
-                    Log.d("murad", "count = " + count);
-                    if(data.exists()){
-                        name = data.child("name").getValue().toString();
-                        switch(count){
-                            case 1:
-                                holder.tv_event_1.setText(name);
-                                holder.tv_event_1.setVisibility(View.VISIBLE);
-                            case 2:
-                                holder.tv_event_2.setText(name);
-                                holder.tv_event_2.setVisibility(View.VISIBLE);
-                            case 3:
-                                holder.tv_event_3.setText(name);
-                                holder.tv_event_3.setVisibility(View.VISIBLE);
-                            case 4:
-                                holder.tv_event_4.setText(name);
-                                holder.tv_event_4.setVisibility(View.VISIBLE);
-                        }
-                    }
-                    count++;
-                }
-                Log.d("murad", "count after loop = " + count);
-            }
-
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-*/
-        Query query = eventsDatabase.child(Utils.DateToTextForFirebase(daysOfMonth.get(holder.getAdapterPosition()))).orderByChild("timestamp");
+        Query query = eventsDatabase.child(Utils.DateToTextForFirebase(daysOfMonth.get(position))).orderByChild("timestamp");
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-/*
-                for(DataSnapshot data : snapshot.getChildren()){
-                    Log.d("murad", "date: " + daysOfMonth.get(holder.getAdapterPosition()).getDayOfMonth());
-                    Log.d("murad", "getChildrenCount" + snapshot.getChildrenCount());
-                    Log.d("murad", "count = " + count);
-                    if(data.exists()){
-                        name = data.child("name").getValue().toString();
-                        switch(count){
-                            case 1:
-                                holder.tv_event_1.setText(name);
-                                holder.tv_event_1.setVisibility(View.VISIBLE);
-                            case 2:
-                                holder.tv_event_2.setText(name);
-                                holder.tv_event_2.setVisibility(View.VISIBLE);
-                            case 3:
-                                holder.tv_event_3.setText(name);
-                                holder.tv_event_3.setVisibility(View.VISIBLE);
-                            case 4:
-                                holder.tv_event_4.setText(name);
-                                holder.tv_event_4.setVisibility(View.VISIBLE);
-                        }
-                    }
-                    count++;
-                }
-*/
                 Log.d("murad", "---------------------------------------------------------------------------------");
-                Log.d("murad", "date: " + daysOfMonth.get(holder.getAdapterPosition()).getDayOfMonth());
+                Log.d("murad", "date: " + daysOfMonth.get(position).getDayOfMonth());
                 Log.d("murad", "getChildrenCount" + snapshot.getChildrenCount());
                 if(snapshot.hasChildren()){
                     int count = 1;
                     int color = Color.GREEN;
+                    int timestamp;
 
                     for(DataSnapshot data : snapshot.getChildren()){
                         Log.d("murad", "count = " + count);
 
                         name = data.child("name").getValue().toString();
                         color = Integer.parseInt(data.child("color").getValue().toString());
+                        timestamp = Integer.parseInt(data.child("timestamp").getValue().toString());
                         if(count == 1) {
-                            holder.tv_event_1.setText(name);
-                            holder.tv_event_1.setBackgroundColor(color);
                             holder.tv_event_1.setVisibility(View.VISIBLE);
+                            holder.tv_event_1.setText(name);
+                            //holder.tv_event_1 = editTextView(holder.tv_event_1, timestamp);
+                            holder.tv_event_1.getBackground().setTint(color);
                             Log.d("murad", "tv_event_1 set VISIBLE");
-                            int height = holder.tv_event_1.getHeight();
-                            Log.d("murad", "tv_height "+height);
                         }
                         else if(count == 2) {
-                            holder.tv_event_2.setText(name);
-                            holder.tv_event_2.setBackgroundColor(color);
                             holder.tv_event_2.setVisibility(View.VISIBLE);
+                            holder.tv_event_2.setText(name);
+                            //holder.tv_event_2 = editTextView(holder.tv_event_2, timestamp);
+                            holder.tv_event_2.getBackground().setTint(color);
                             Log.d("murad", "tv_event_2 set VISIBLE");
                         }
                         else if(count == 3) {
-                            holder.tv_event_3.setText(name);
-                            holder.tv_event_3.setBackgroundColor(color);
                             holder.tv_event_3.setVisibility(View.VISIBLE);
+                            holder.tv_event_3.setText(name);
+                            //holder.tv_event_3 = editTextView(holder.tv_event_3, timestamp);
+                            holder.tv_event_3.getBackground().setTint(color);
                             Log.d("murad", "tv_event_3 set VISIBLE");
                         }
                         else if(count == 4) {
-                            holder.tv_event_4.setText(name);
-                            holder.tv_event_4.setBackgroundColor(color);
                             holder.tv_event_4.setVisibility(View.VISIBLE);
+                            holder.tv_event_4.setText(name);
+                            //holder.tv_event_4 = editTextView(holder.tv_event_4, timestamp);
+                            holder.tv_event_4.getBackground().setTint(color);
                             Log.d("murad", "tv_event_4 set VISIBLE");
                         }
                         count++;
@@ -221,6 +163,20 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         });
         Log.d("murad", "---------------------------------------------------------------------------------");
 
+    }
+
+    public TextView editTextView(TextView textView, int timestamp){
+        textView.setText(name);
+        if(timestamp == 0){
+            textView.setBackgroundResource(R.drawable.calendar_cell_text_has_events_background);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.setMargins(0,0,0,0);
+            textView.setLayoutParams(params);
+
+        }
+        int height = textView.getHeight();
+        Log.d("murad", "tv_height "+height);
+        return textView;
     }
 
     @Override

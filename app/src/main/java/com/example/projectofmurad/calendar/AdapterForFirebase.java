@@ -78,7 +78,7 @@ public class AdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEvent, A
     @Override
     public AdapterForFirebase.ViewHolderForFirebase onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.event_info_with_cardview, parent, false);
+                .inflate(R.layout.event_info, parent, false);
 
         return new AdapterForFirebase.ViewHolderForFirebase(view);
     }

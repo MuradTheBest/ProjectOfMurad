@@ -392,7 +392,8 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         //DayDialogFragment dayDialogFragment = new DayDialogFragment(Calendar_Screen.this, passingDate);
         //DayDialogFragmentWithRecyclerView dayDialogFragment = new DayDialogFragmentWithRecyclerView(Calendar_Screen.this, passingDate);
         //DayDialogFragmentWithRecyclerViewWithText dayDialogFragment = new DayDialogFragmentWithRecyclerViewWithText(Calendar_Screen.this, passingDate);
-        DayDialogFragment2 dayDialogFragment = new DayDialogFragment2(Calendar_Screen.this, passingDate);
+        //DayDialogFragment2 dayDialogFragment = new DayDialogFragment2(Calendar_Screen.this, passingDate);
+        DayDialogFragmentWithRecyclerView2 dayDialogFragment = new DayDialogFragmentWithRecyclerView2(Calendar_Screen.this, passingDate);
         dayDialogFragment.show();
 
         /*Dialog d = new Dialog(this);

@@ -1,10 +1,10 @@
 package com.example.projectofmurad.calendar;
 
-import android.database.Observable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,7 +19,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 
 /** FirebaseRecyclerAdapter is a class provided by
@@ -55,6 +54,7 @@ public class AdapterForFirebaseWithText extends FirebaseRecyclerAdapter<Calendar
         private TextView tv_event_start_time;
         private TextView tv_hyphen;
         private TextView tv_event_end_time;
+        private ImageView imageView2;
 
         public ViewHolderForFirebase(@NonNull View itemView, OnEventListener onEventListener) {
             super(itemView);
@@ -66,6 +66,7 @@ public class AdapterForFirebaseWithText extends FirebaseRecyclerAdapter<Calendar
             tv_hyphen = itemView.findViewById(R.id.tv_hyphen);
             tv_event_end_time = itemView.findViewById(R.id.tv_event_end_time);
 
+            imageView2 = itemView.findViewById(R.id.iv_circle);
             itemView.setOnClickListener(this);
         }
 
@@ -74,7 +75,7 @@ public class AdapterForFirebaseWithText extends FirebaseRecyclerAdapter<Calendar
         public void onClick(View view) {
             if(view == itemView){
                 onEventListener.onEventClick(getAdapterPosition(), calendarEventArrayList.get(getAdapterPosition()));
-                Log.d("murad", "getAdapterPosition " + getAdapterPosition() + "event :" + calendarEventArrayList.get(this.getAdapterPosition()).toString());
+                Log.d("murad", "getAdapterPosition " + getAdapterPosition() );
             }
         }
     }
@@ -117,7 +118,11 @@ public class AdapterForFirebaseWithText extends FirebaseRecyclerAdapter<Calendar
         else{
             holder.tv_hyphen.setText("All day");
         }
+        Log.d("murad", "position"+ holder.getAdapterPosition());
+
+        holder.imageView2.getDrawable().setTint(model.getColor());
     }
+
 
     @NonNull
     @Override

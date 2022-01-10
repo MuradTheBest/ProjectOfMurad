@@ -289,7 +289,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
                 LocalTime start_time = LocalTime.of(start_hour, start_min);
                 LocalTime end_time = LocalTime.of(end_hour, end_min);
 
-                CalendarEventWithTextOnly eventWithTextOnly = new CalendarEventWithTextOnly(name, description, place, start_date, start_time, end_date, end_time);
+                CalendarEventWithTextOnly eventWithTextOnly = new CalendarEventWithTextOnly(name, description, place, color, start_date, start_time, end_date, end_time);
 
                 //addEventToFirebase(event);
                 //addEventToFirebaseForText(eventWithTextOnly);

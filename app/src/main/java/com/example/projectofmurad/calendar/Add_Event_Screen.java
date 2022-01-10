@@ -50,6 +50,7 @@ public class Add_Event_Screen extends AppCompatActivity {
 
     private Button btn_add_event;
     private Button btn_color;
+    private Button btn_repeat;
 
     private int start_hour;
     private int start_min;
@@ -111,8 +112,6 @@ public class Add_Event_Screen extends AppCompatActivity {
         end_min = LocalTime.now().getMinute();
 
         Log.d("murad", "Receiving selectedDate " + selected_day + " " + selected_month + " " + selected_year);
-
-        //localDate = getIntent().getParcelableExtra("day_date");
 
         et_name = findViewById(R.id.et_name);
         et_description = findViewById(R.id.et_description);
@@ -176,6 +175,15 @@ public class Add_Event_Screen extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 createColorPickerDialog();
+            }
+        });
+
+        btn_repeat = findViewById(R.id.btn_repeat);
+        btn_repeat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ChooseEventFrequencyDialog chooseEventFrequencyDialog = new ChooseEventFrequencyDialog(Add_Event_Screen.this);
+                chooseEventFrequencyDialog.show();
             }
         });
 
@@ -257,23 +265,8 @@ public class Add_Event_Screen extends AppCompatActivity {
                 LocalTime start_time = LocalTime.of(start_hour, start_min);
                 LocalTime end_time = LocalTime.of(end_hour, end_min);
 
-                LocalDateTime startDateTime = LocalDateTime.of(start_date, start_time);
-                LocalDateTime endDateTime = LocalDateTime.of(end_date, end_time);
-
-                CalendarEvent event;
-
-                if(start_date.equals(end_date)) {
-                    event = new CalendarEvent(name, description, place, start_date, start_hour, start_min, end_hour, end_min);
-                }
-                else {
-                    event = new CalendarEvent(name, description, place, startDateTime, endDateTime);
-                }
-
                 CalendarEventWithTextOnly eventWithTextOnly = new CalendarEventWithTextOnly(name, description, place, selectedColor, start_date, start_time, end_date, end_time);
 
-                Log.d("murad", event.toString());
-
-                Utils.addEvent(event);
                 //addEventToFirebase(event);
                 //addEventToFirebaseForText(eventWithTextOnly);
                 //addEventToFirebaseForText(eventWithTextOnly);
