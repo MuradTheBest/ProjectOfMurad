@@ -8,55 +8,90 @@ import com.example.projectofmurad.calendar.CalendarEvent;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class Utils {
 
-    final static String SHARED_PREFERENCES_KEY_USERNAME = "shared_preferences_key_username";
-    final static String SHARED_PREFERENCES_KEY_EMAIL_ADDRESS = "shared_preferences_key_email_address";
-    final static String SHARED_PREFERENCES_KEY_PASSWORD = "shared_preferences_key_password";
+    //public final static Locale locale = Locale.getDefault();
+    public final static Locale locale = Locale.ENGLISH;
+
+    public final static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("E, dd.MM.yyyy").withLocale(locale);
+    public final static DateTimeFormatter dateFormatForFB = DateTimeFormatter.ofPattern("dd-MM-yyyy").withLocale(locale);
+    public final static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
+
+    public final static String SHARED_PREFERENCES_KEY_USERNAME = "shared_preferences_key_username";
+    public final static String SHARED_PREFERENCES_KEY_EMAIL_ADDRESS = "shared_preferences_key_email_address";
+    public final static String SHARED_PREFERENCES_KEY_PASSWORD = "shared_preferences_key_password";
+
+    public final static String INTENT_KEY_EVENT_KEY = "intent_key_event_key";
+    public final static String INTENT_KEY_EVENT_NAME = "intent_key_event_name";
+    public final static String INTENT_KEY_EVENT_DESCRIPTION = "intent_key_event_description";
+    public final static String INTENT_KEY_EVENT_PLACE = "intent_key_event_place";
+    public final static String INTENT_KEY_EVENT_COLOR = "intent_key_event_color";
+    public final static String INTENT_KEY_EVENT_START_DATE = "intent_key_event_start_date";
+    public final static String INTENT_KEY_EVENT_START_TIME = "intent_key_event_start_time";
+    public final static String INTENT_KEY_EVENT_END_DATE = "intent_key_event_end_date";
+    public final static String INTENT_KEY_EVENT_END_TIME = "intent_key_event_end_time";
+
 
     public static HashMap<LocalDate, ArrayList<CalendarEvent>> map = new HashMap<>();
 
     public static DatabaseReference eventsDatabase = FirebaseDatabase.getInstance().getReference("EventsDatabase");
 
 
-    public static boolean isEmailValid(String email) {
+    public static boolean isEmailValid(String email){
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
+    public static String[] getShortDayOfWeek(){
+        String[] days = new String[7];
+
+        for(int i = 0; i < DayOfWeek.values().length; i++) {
+            DayOfWeek d = DayOfWeek.of(i+1);
+            days[i] = d.getDisplayName(TextStyle.NARROW, locale);
+            Log.d("murad", "position " + i + " is " + days[i]);
+        }
+
+        return days;
+    }
+
+    public static int getWeekNumber(LocalDate date){
+        // Or use a specific locale, or configure your own rules
+        WeekFields weekFields = WeekFields.of(Locale.getDefault());
+        int weekNumber = date.get(weekFields.weekOfWeekBasedYear());
+        return weekNumber;
+    }
+
     public static String DateToText(LocalDate date){
-        DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("E, dd.MM.yyyy");
-        return date.format(simpleDateFormat);
+        return date.format(dateFormat);
     }
 
     public static LocalDate TextToDate(String date){
-        DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("E, dd.MM.yyyy");
-        return LocalDate.parse(date, simpleDateFormat);
+        return LocalDate.parse(date, dateFormat);
     }
 
     public static String DateToTextForFirebase(LocalDate date){
-        DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        return date.format(simpleDateFormat);
+        return date.format(dateFormatForFB);
     }
 
     public static LocalDate TextToDateForFirebase(String date){
-        DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        return LocalDate.parse(date, simpleDateFormat);
+        return LocalDate.parse(date, dateFormatForFB);
     }
 
     public static String TimeToText(LocalTime time){
-        DateTimeFormatter simpleTimeFormat = DateTimeFormatter.ofPattern("HH:mm");
-        return time.format(simpleTimeFormat);
+        return time.format(timeFormat);
     }
 
     public static LocalTime TextToTime(String time){
-        DateTimeFormatter simpleTimeFormat = DateTimeFormatter.ofPattern("HH:mm");
-        return LocalTime.parse(time, simpleTimeFormat);
+        return LocalTime.parse(time, timeFormat);
     }
 
     public static String TextToTextForFirebase(String text){

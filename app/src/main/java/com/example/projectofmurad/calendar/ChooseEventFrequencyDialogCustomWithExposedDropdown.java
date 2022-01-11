@@ -4,13 +4,11 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.View;
-
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
@@ -26,10 +24,8 @@ import androidx.core.os.ConfigurationCompat;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.Utils;
 
-import java.time.LocalDate;
 
-
-public class ChooseEventFrequencyDialogCustom extends Dialog implements CompoundButton.OnCheckedChangeListener,
+public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog implements CompoundButton.OnCheckedChangeListener,
                                                                         RadioGroup.OnCheckedChangeListener {
 
     private RadioGroup radioGroup;
@@ -68,16 +64,16 @@ public class ChooseEventFrequencyDialogCustom extends Dialog implements Compound
 
     private Intent intent;
 
-    public ChooseEventFrequencyDialogCustom(@NonNull Context context) {
+    public ChooseEventFrequencyDialogCustomWithExposedDropdown(@NonNull Context context) {
         super(context);
         listener = (GetFrequencyListener) context;
     }
 
-    public ChooseEventFrequencyDialogCustom(@NonNull Context context, int themeResId) {
+    public ChooseEventFrequencyDialogCustomWithExposedDropdown(@NonNull Context context, int themeResId) {
         super(context, themeResId);
     }
 
-    protected ChooseEventFrequencyDialogCustom(@NonNull Context context, boolean cancelable, @Nullable OnCancelListener cancelListener) {
+    protected ChooseEventFrequencyDialogCustomWithExposedDropdown(@NonNull Context context, boolean cancelable, @Nullable OnCancelListener cancelListener) {
         super(context, cancelable, cancelListener);
     }
 

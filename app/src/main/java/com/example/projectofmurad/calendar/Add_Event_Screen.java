@@ -31,12 +31,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Arrays;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
-public class Add_Event_Screen extends AppCompatActivity {
+public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFrequencyDialogCustom.GetFrequencyListener {
     private EditText et_name;
     private EditText et_place;
     private EditText et_description;
@@ -85,6 +85,15 @@ public class Add_Event_Screen extends AppCompatActivity {
     private TimePickerDialog startTimePickerDialog;
     private TimePickerDialog endTimePickerDialog;
 
+    private Intent gotten_intent;
+    private Intent intentToChooseEventFrequencyDialogCustom;
+
+    private int frequency;
+
+    private boolean frequencyDay;
+    private boolean[] frequencyDayOfWeek;
+    private boolean frequencyMonth;
+    private boolean frequencyYear;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +103,7 @@ public class Add_Event_Screen extends AppCompatActivity {
         firebase = FirebaseDatabase.getInstance();
         eventsDatabase = firebase.getReference("EventsDatabase");
 
-        Intent gotten_intent = getIntent();
+        gotten_intent = getIntent();
         selected_day = gotten_intent.getIntExtra("day", 0);
         selected_dayOfWeek = gotten_intent.getStringExtra("dayOfWeek");
         selected_month = gotten_intent.getIntExtra("month", 0);
@@ -182,7 +191,10 @@ public class Add_Event_Screen extends AppCompatActivity {
         btn_repeat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ChooseEventFrequencyDialog chooseEventFrequencyDialog = new ChooseEventFrequencyDialog(Add_Event_Screen.this);
+                ChooseEventFrequencyDialogCustom chooseEventFrequencyDialog = new ChooseEventFrequencyDialogCustom(Add_Event_Screen.this);
+                intentToChooseEventFrequencyDialogCustom = new Intent(Add_Event_Screen.this, ChooseEventFrequencyDialogCustom.class);
+
+
                 chooseEventFrequencyDialog.show();
             }
         });
@@ -320,6 +332,21 @@ public class Add_Event_Screen extends AppCompatActivity {
             }
         });
         colorPicker.show();
+    }
+
+    @Override
+    public void getFrequency(int selectedFrequency, boolean selectedFrequencyDay, boolean[] selectedFrequencyDayOfWeek, boolean selectedFrequencyMonth, boolean selectedFrequencyYear) {
+        frequency = selectedFrequency;
+        frequencyDay = selectedFrequencyDay;
+        frequencyDayOfWeek = selectedFrequencyDayOfWeek;
+        frequencyMonth = selectedFrequencyMonth;
+        frequencyYear = selectedFrequencyYear;
+
+        Log.d("murad", "frequency is " + frequency);
+        Log.d("murad", "frequencyDay is " + frequencyDay);
+        Log.d("murad", "frequencyDayOfWeek is " + Arrays.toString(frequencyDayOfWeek));
+        Log.d("murad", "frequencyMonth is " + frequencyMonth);
+        Log.d("murad", "frequencyYear is " + frequencyYear);
     }
 
     //sets time

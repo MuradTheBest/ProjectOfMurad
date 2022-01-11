@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable-v24/_bg__log_in_page_ek2_shape.xml" value="0.2203125" />
+        <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable-v24/_bg__splash_page_ek2_shape.xml" value="0.18076923076923077" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable-v24/calendar_cell_selected_background.xml" value="0.17848101265822786" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable-v24/ellipse_4_shape.xml" value="0.18076923076923077" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/drawable-v24/ellipse_5_shape.xml" value="0.18076923076923077" />
@@ -41,7 +42,8 @@
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/calendar_cell.xml" value="0.31689272503082616" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/chat_fragment.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/choose_event_frequency_dialog.xml" value="0.33" />
-        <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/choose_event_frequency_dialogcustom.xml" value="0.75" />
+        <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/choose_event_frequency_dialogcustom.xml" value="0.33" />
+        <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/choose_event_frequency_dialogcustom_with_exposed_dropdown.xml" value="0.25" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/day_dialog.xml" value="0.25" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/day_dialog_with_recyclerview.xml" value="0.2" />
         <entry key="..\:/Users/acer/AndroidStudioProjects/ProjectOfMurad/app/src/main/res/layout/day_info.xml" value="0.1675213675213675" />
