@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.Utils_Calendar;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DatabaseReference;
@@ -64,10 +64,10 @@ public class DayDialogFragmentWithRecyclerView extends Dialog {
         //rv_events = d.findViewById(R.id.rv_events);
 
 
-       /* if(Utils.map.containsKey(passingDate)){
+       /* if(Utils_Calendar.map.containsKey(passingDate)){
             tv_no_events.setVisibility(View.INVISIBLE);
 
-            calendarEventArrayList = Utils.map.get(passingDate);
+            calendarEventArrayList = Utils_Calendar.map.get(passingDate);
             Log.d("murad", "empty calendarEventArrayList " + calendarEventArrayList.isEmpty());
             *//*calendarEventAdapter = new CalendarEventAdapter(calendarEventArrayList, getApplicationContext());
             rv_events.setAdapter(calendarEventAdapter);*//*
@@ -88,7 +88,7 @@ public class DayDialogFragmentWithRecyclerView extends Dialog {
         firebase = FirebaseDatabase.getInstance();
         databaseReference = firebase.getReference("EventsDatabase");
 
-        /*if(databaseReference.child(Utils.DateToTextForFirebase(passingDate)).get() != null){
+        /*if(databaseReference.child(Utils_Calendar.DateToTextForFirebase(passingDate)).get() != null){
 
         }*/
 
@@ -96,7 +96,7 @@ public class DayDialogFragmentWithRecyclerView extends Dialog {
 
         rv_events = this.findViewById(R.id.rv_events);
 
-        databaseReference = databaseReference.child(Utils.DateToTextForFirebase(passingDate));
+        databaseReference = databaseReference.child(Utils_Calendar.DateToTextForFirebase(passingDate));
 
         if(databaseReference != null){
 
@@ -130,11 +130,11 @@ public class DayDialogFragmentWithRecyclerView extends Dialog {
                         String description = data.child("Place").getValue().toString();
                         String place = data.child("Description").getValue().toString();
 
-                        LocalDate start_date = Utils.TextToDateForFirebase(data.child("Starting Date").getValue().toString());
-                        LocalTime start_time = Utils.TextToTime(data.child("Starting Time").getValue().toString());
+                        LocalDate start_date = Utils_Calendar.TextToDateForFirebase(data.child("Starting Date").getValue().toString());
+                        LocalTime start_time = Utils_Calendar.TextToTime(data.child("Starting Time").getValue().toString());
 
-                        LocalDate end_date = Utils.TextToDateForFirebase(data.child("Ending Date").getValue().toString());
-                        LocalTime end_time = Utils.TextToTime(data.child("Ending Time").getValue().toString());
+                        LocalDate end_date = Utils_Calendar.TextToDateForFirebase(data.child("Ending Date").getValue().toString());
+                        LocalTime end_time = Utils_Calendar.TextToTime(data.child("Ending Time").getValue().toString());
 
                         CalendarEvent tmp = new CalendarEvent(name, description, place, start_date, start_time, end_date, end_time);
                         Log.d("murad", tmp.toString());
@@ -167,11 +167,11 @@ public class DayDialogFragmentWithRecyclerView extends Dialog {
                         String description = data.child("Place").getValue().toString();
                         String place = data.child("Description").getValue().toString();
 
-                        LocalDate start_date = Utils.TextToDateForFirebase(data.child("Starting Date").getValue().toString());
-                        LocalTime start_time = Utils.TextToTime(data.child("Starting Time").getValue().toString());
+                        LocalDate start_date = Utils_Calendar.TextToDateForFirebase(data.child("Starting Date").getValue().toString());
+                        LocalTime start_time = Utils_Calendar.TextToTime(data.child("Starting Time").getValue().toString());
 
-                        LocalDate end_date = Utils.TextToDateForFirebase(data.child("Ending Date").getValue().toString());
-                        LocalTime end_time = Utils.TextToTime(data.child("Ending Time").getValue().toString());
+                        LocalDate end_date = Utils_Calendar.TextToDateForFirebase(data.child("Ending Date").getValue().toString());
+                        LocalTime end_time = Utils_Calendar.TextToTime(data.child("Ending Time").getValue().toString());
 
                         CalendarEvent tmp = new CalendarEvent(name, description, place, start_date, start_time, end_date, end_time);
                         Log.d("murad", tmp.toString());
@@ -209,7 +209,7 @@ public class DayDialogFragmentWithRecyclerView extends Dialog {
             Log.d("murad", "containsKey");
         }*/
 
-        /*if(Utils.map.isEmpty()){
+        /*if(Utils_Calendar.map.isEmpty()){
             Log.d("murad", "isEmpty");
         }*/
 

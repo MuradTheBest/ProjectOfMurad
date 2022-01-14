@@ -14,25 +14,17 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.Utils_Calendar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.Map;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
@@ -111,14 +103,14 @@ public class Edit_Event_Screen extends AppCompatActivity {
         place = gotten_intent.getStringExtra("event_place");
         color = gotten_intent.getIntExtra("event_color", Color.GREEN);
 
-        startDate = Utils.TextToDate(gotten_intent.getStringExtra("event_start_date"));
-        endDate = Utils.TextToDate(gotten_intent.getStringExtra("event_end_date"));
+        startDate = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_start_date"));
+        endDate = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_end_date"));
 
-        old_start_date = Utils.TextToDate(gotten_intent.getStringExtra("event_start_date"));
-        old_end_date = Utils.TextToDate(gotten_intent.getStringExtra("event_end_date"));
+        old_start_date = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_start_date"));
+        old_end_date = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_end_date"));
 
-        startTime = Utils.TextToTime(gotten_intent.getStringExtra("event_start_time"));
-        endTime = Utils.TextToTime(gotten_intent.getStringExtra("event_end_time"));
+        startTime = Utils_Calendar.TextToTime(gotten_intent.getStringExtra("event_start_time"));
+        endTime = Utils_Calendar.TextToTime(gotten_intent.getStringExtra("event_end_time"));
 
 
         firebase = FirebaseDatabase.getInstance();
@@ -148,7 +140,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
         et_place.setText(place);
 
         btn_choose_start_date = findViewById(R.id.btn_choose_start_date);
-        btn_choose_start_date.setText(Utils.DateToText(startDate));
+        btn_choose_start_date.setText(Utils_Calendar.DateToText(startDate));
         btn_choose_start_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -160,7 +152,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
         });
 
         btn_choose_end_date = findViewById(R.id.btn_choose_end_date);
-        btn_choose_end_date.setText(Utils.DateToText(endDate));
+        btn_choose_end_date.setText(Utils_Calendar.DateToText(endDate));
         btn_choose_end_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -171,7 +163,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
         });
 
         btn_choose_start_time = findViewById(R.id.btn_choose_start_time);
-        btn_choose_start_time.setText(Utils.TimeToText(startTime));
+        btn_choose_start_time.setText(Utils_Calendar.TimeToText(startTime));
         btn_choose_start_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -188,7 +180,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
         });
 
         btn_choose_end_time = findViewById(R.id.btn_choose_end_time);
-        btn_choose_end_time.setText(Utils.TimeToText(endTime));
+        btn_choose_end_time.setText(Utils_Calendar.TimeToText(endTime));
         btn_choose_end_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -254,7 +246,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
             String description = et_description.getText().toString();
             String place = et_place.getText().toString();
 
-            boolean editTextsFilled = Utils.areEventDetailsValid(this, name, description, place);
+            boolean editTextsFilled = Utils_Calendar.areEventDetailsValid(this, name, description, place);
 
             if(editTextsFilled){
                 /*if(start_day <= end_day && start_month <= end_month && start_year <= end_year ){
@@ -321,7 +313,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
             int u = time.toSecondOfDay();
             LocalTime f = LocalTime.ofSecondOfDay(u);
 
-            String time_text = Utils.TimeToText(time);
+            String time_text = Utils_Calendar.TimeToText(time);
 
             /*if(hour < 10){
                 time += "0";
@@ -363,7 +355,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
         public void onDateSet(DatePicker view, int year, int month, int day) {
             month = month + 1;
             LocalDate date = LocalDate.of(year, month, day);
-            String date_text = Utils.DateToText(date);
+            String date_text = Utils_Calendar.DateToText(date);
 
             switch(date_start_or_end) {
                 case "start":
@@ -425,13 +417,13 @@ public class Edit_Event_Screen extends AppCompatActivity {
         LocalDate tmp = old_start_date;
         event.setEvent_id(key);
 
-        eventsDatabaseForText = eventsDatabaseForText.child(Utils.DateToTextForFirebase(old_start_date));
+        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(old_start_date));
         Log.d("murad", eventsDatabaseForText.getKey());
 
 
         do {
             eventsDatabaseForText = firebase.getReference("EventsDatabase");
-            eventsDatabaseForText = eventsDatabaseForText.child(Utils.DateToTextForFirebase(tmp));
+            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
             eventsDatabaseForText.child(key).removeValue();
 
@@ -441,12 +433,12 @@ public class Edit_Event_Screen extends AppCompatActivity {
 
         tmp = start_date;
 
-        eventsDatabaseForText = eventsDatabaseForText.child(Utils.DateToTextForFirebase(start_date));
+        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(start_date));
         Log.d("murad", eventsDatabaseForText.getKey());
 
         do {
             eventsDatabaseForText = firebase.getReference("EventsDatabase");
-            eventsDatabaseForText = eventsDatabaseForText.child(Utils.DateToTextForFirebase(tmp));
+            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
             eventsDatabaseForText.child(key).setValue(event);
 
@@ -472,12 +464,12 @@ public class Edit_Event_Screen extends AppCompatActivity {
 
         LocalDate tmp = start_date;
 
-        eventsDatabaseForText = eventsDatabaseForText.child(Utils.DateToTextForFirebase(old_start_date));
+        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(old_start_date));
         Log.d("murad", eventsDatabaseForText.getKey());
 
         do {
             eventsDatabaseForText = firebase.getReference("EventsDatabase");
-            eventsDatabaseForText = eventsDatabaseForText.child(Utils.DateToTextForFirebase(tmp));
+            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
             eventsDatabaseForText.child(key).removeValue();
 

@@ -4,8 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,22 +11,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.Utils_Calendar;
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.database.FirebaseListOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
@@ -77,7 +70,7 @@ public class DayDialogFragment extends Dialog {
 
 
 
-        databaseReference = databaseReference.child(Utils.DateToTextForFirebase(passingDate));
+        databaseReference = databaseReference.child(Utils_Calendar.DateToTextForFirebase(passingDate));
 
         Query query = databaseReference.orderByChild("timestamp");
 
@@ -118,12 +111,12 @@ public class DayDialogFragment extends Dialog {
                     Log.d("murad","Ending date: " + event.getEnd_time());
 
                 }
-                else if(event.getStart_date().equals(Utils.DateToText(passingDate))){
+                else if(event.getStart_date().equals(Utils_Calendar.DateToText(passingDate))){
                     tv_event_start_time.setText(event.getStart_time());
                     Log.d("murad","Starting date: " + event.getStart_time());
 
                 }
-                else if(event.getEnd_date().equals(Utils.DateToText(passingDate))){
+                else if(event.getEnd_date().equals(Utils_Calendar.DateToText(passingDate))){
                     tv_event_end_time.setText(event.getEnd_time());
                     Log.d("murad","Ending date: " + event.getEnd_time());
 

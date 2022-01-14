@@ -9,7 +9,7 @@
     android:clipToPadding="false">
 
     <RadioGroup
-        android:id="@+id/radioGroup"
+        android:id="@+id/rg_repeat"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"

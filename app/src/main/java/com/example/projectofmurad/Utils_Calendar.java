@@ -11,14 +11,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
-import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
-public class Utils {
+public class Utils_Calendar {
 
     //public final static Locale locale = Locale.getDefault();
     public final static Locale locale = Locale.ENGLISH;
@@ -52,23 +52,70 @@ public class Utils {
     }
 
     public static String[] getShortDayOfWeek(){
-        String[] days = new String[7];
+        ArrayList<String> days = new ArrayList<>(7);
+
+        //days.add(DayOfWeek.SUNDAY.getDisplayName(TextStyle.NARROW, locale));
 
         for(int i = 0; i < DayOfWeek.values().length; i++) {
             DayOfWeek d = DayOfWeek.of(i+1);
-            days[i] = d.getDisplayName(TextStyle.NARROW, locale);
-            Log.d("murad", "position " + i + " is " + days[i]);
+            days.add(d.getDisplayName(TextStyle.NARROW, locale)) ;
+            Log.d("murad", "position " + i + " is " + days.get(i));
         }
 
-        return days;
+        String[] tmp = new String[7];
+        int i=0;
+        for(String d : days) {
+            tmp[i] = d;
+            i++;
+        }
+
+
+        return tmp;
     }
 
-    public static int getWeekNumber(LocalDate date){
+    /*public static int getWeekNumber(LocalDate date){
         // Or use a specific locale, or configure your own rules
         WeekFields weekFields = WeekFields.of(Locale.getDefault());
-        int weekNumber = date.get(weekFields.weekOfWeekBasedYear());
-        return weekNumber;
+        return date.get(weekFields.weekOfMonth());
+    }*/
+
+    public static int getWeekNumber(LocalDate date){
+        Month month = date.getMonth();
+
+        int count = 0;
+        while(date.getMonth().equals(month)){
+            count++;
+            date = date.minusWeeks(1);
+        }
+
+        return count;
     }
+
+    /*public static int getWeekNumber(LocalDate date){
+        // Or use a specific locale, or configure your own rules
+        WeekFields weekFields = WeekFields.of(Locale.getDefault());
+        int count = date.get(weekFields.weekOfMonth());
+
+        int dayOfWeek = DayOfWeek.from(date).getValue();
+        Log.d("murad", "dayOfWeek = " + dayOfWeek);
+
+        Month month = date.getMonth();
+
+        Log.d("murad", "weekNumber = " + count);
+
+        int firstDayOfWeek = date.withDayOfMonth(1).getDayOfWeek().getValue();
+        Log.d("murad", "firstDayOfWeek = " + firstDayOfWeek);
+
+        if(dayOfWeek < firstDayOfWeek *//*|| (dayOfWeek == 7 && firstDayOfWeek !=7 )*//*){
+            count--;
+        }
+
+
+
+        return count;
+    }*/
+
+
 
     public static String DateToText(LocalDate date){
         return date.format(dateFormat);
@@ -111,9 +158,9 @@ public class Utils {
                 for(CalendarEvent e : eventArrayList){
                     Log.d("murad",  "------------------------------------------------------------------------------------------------------------------------------------");
 
-                    Log.d("murad", "key: " + Utils.DateToText(date) + " value: " + e.getName() + " | " + e.getPlace() + " | " + e.getDescription());
-                    Log.d("murad",  Utils.DateToText(e.getStart_date()) + " | " + e.getStart_hour() + ":" + e.getStart_min());
-                    Log.d("murad",  Utils.DateToText(e.getEnd_date()) + " | " + e.getEnd_hour() + ":" + e.getEnd_min());
+                    Log.d("murad", "key: " + Utils_Calendar.DateToText(date) + " value: " + e.getName() + " | " + e.getPlace() + " | " + e.getDescription());
+                    Log.d("murad",  Utils_Calendar.DateToText(e.getStart_date()) + " | " + e.getStart_hour() + ":" + e.getStart_min());
+                    Log.d("murad",  Utils_Calendar.DateToText(e.getEnd_date()) + " | " + e.getEnd_hour() + ":" + e.getEnd_min());
 
                     Log.d("murad",  "------------------------------------------------------------------------------------------------------------------------------------");
                 }
@@ -132,22 +179,22 @@ public class Utils {
     }
 
     private static void addOrCreateObjectInHashMap(LocalDate date, CalendarEvent event){
-        if(Utils.map.containsKey(date)){
-            if(Utils.map.get(date) == null){
+        if(Utils_Calendar.map.containsKey(date)){
+            if(Utils_Calendar.map.get(date) == null){
                 ArrayList<CalendarEvent> eventArrayList = new ArrayList<>();
                 eventArrayList.add(event);
-                Utils.map.put(date, eventArrayList);
+                Utils_Calendar.map.put(date, eventArrayList);
                 Log.d("murad", "eventArrayList on this key is null");
             }
             else {
-                Utils.map.get(date).add(event);
+                Utils_Calendar.map.get(date).add(event);
                 Log.d("murad", "event added to eventArrayList on this key ");
             }
         }
         else {
             ArrayList<CalendarEvent> eventArrayList = new ArrayList<>();
             eventArrayList.add(event);
-            Utils.map.put(date, eventArrayList);
+            Utils_Calendar.map.put(date, eventArrayList);
         }
     }
 

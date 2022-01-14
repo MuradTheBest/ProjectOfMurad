@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.Utils_Calendar;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
@@ -76,7 +76,7 @@ public class DayDialogFragmentWithRecyclerViewWithText extends Dialog implements
 
         calendarEventArrayList = new ArrayList<>();
 
-        databaseReference = databaseReference.child(Utils.DateToTextForFirebase(passingDate));
+        databaseReference = databaseReference.child(Utils_Calendar.DateToTextForFirebase(passingDate));
         Query query = databaseReference.orderByChild("timestamp");
 
         FirebaseRecyclerOptions<CalendarEventWithTextOnly> options
@@ -186,6 +186,16 @@ public class DayDialogFragmentWithRecyclerViewWithText extends Dialog implements
         intent.putExtra("event_start_time", start_time);
         intent.putExtra("event_end_date", end_date);
         intent.putExtra("event_end_time", end_time);
+
+        Log.d("murad", "event_key is " + key);
+        Log.d("murad", "event_name is " + name);
+        Log.d("murad", "event_description is " + description);
+        Log.d("murad", "event_place is " + place);
+        Log.d("murad", "event_color is " + color);
+        Log.d("murad", "event_start_date is " + start_date);
+        Log.d("murad", "event_start_time is " + start_time);
+        Log.d("murad", "event_end_date is " + end_date);
+        Log.d("murad", "event_end_time is " + end_time);
 
         getContext().startActivity(intent);
     }

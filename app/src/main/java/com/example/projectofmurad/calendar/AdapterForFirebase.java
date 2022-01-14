@@ -1,6 +1,5 @@
 package com.example.projectofmurad.calendar;
 
-import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,12 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.Utils_Calendar;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 
 /** FirebaseRecyclerAdapter is a class provided by
@@ -52,21 +50,21 @@ public class AdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEvent, A
         Log.d("murad", "description " + model.getDescription());
 
         if(model.getStart_date().equals(model.getEnd_date())){
-            holder.tv_event_start_time.setText(Utils.TimeToText(model.getStart_time()));
-            Log.d("murad","Starting time: " +  Utils.TimeToText(model.getStart_time()));
+            holder.tv_event_start_time.setText(Utils_Calendar.TimeToText(model.getStart_time()));
+            Log.d("murad","Starting time: " +  Utils_Calendar.TimeToText(model.getStart_time()));
 
-            holder.tv_event_end_time.setText(Utils.TimeToText(model.getEnd_time()));
-            Log.d("murad","Ending time: " +  Utils.TimeToText(model.getEnd_time()));
+            holder.tv_event_end_time.setText(Utils_Calendar.TimeToText(model.getEnd_time()));
+            Log.d("murad","Ending time: " +  Utils_Calendar.TimeToText(model.getEnd_time()));
 
         }
         else if(model.getStart_date().equals(selectedDate)){
-            holder.tv_event_start_time.setText(Utils.TimeToText(model.getStart_time()));
-            Log.d("murad","Starting date: " +  Utils.TimeToText(model.getStart_time()));
+            holder.tv_event_start_time.setText(Utils_Calendar.TimeToText(model.getStart_time()));
+            Log.d("murad","Starting date: " +  Utils_Calendar.TimeToText(model.getStart_time()));
 
         }
         else if(model.getEnd_date().equals(selectedDate)){
-            holder.tv_event_end_time.setText(Utils.TimeToText(model.getEnd_time()));
-            Log.d("murad","Ending date: " +  Utils.TimeToText(model.getEnd_time()));
+            holder.tv_event_end_time.setText(Utils_Calendar.TimeToText(model.getEnd_time()));
+            Log.d("murad","Ending date: " +  Utils_Calendar.TimeToText(model.getEnd_time()));
 
         }
         else{

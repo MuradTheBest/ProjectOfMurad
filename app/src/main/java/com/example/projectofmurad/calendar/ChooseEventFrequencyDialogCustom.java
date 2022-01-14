@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
@@ -24,9 +23,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.os.ConfigurationCompat;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
-
-import java.time.LocalDate;
+import com.example.projectofmurad.Utils_Calendar;
 
 
 public class ChooseEventFrequencyDialogCustom extends Dialog implements CompoundButton.OnCheckedChangeListener,
@@ -56,7 +53,7 @@ public class ChooseEventFrequencyDialogCustom extends Dialog implements Compound
 
     boolean expanded = false;
 
-    private final String[] days = Utils.getShortDayOfWeek();
+    private final String[] days = Utils_Calendar.getShortDayOfWeek();
 
     private ToggleButton tb_Sunday;
     private ToggleButton tb_Monday;
@@ -130,10 +127,10 @@ public class ChooseEventFrequencyDialogCustom extends Dialog implements Compound
 
         choose_day_of_week_layout.setVisibility(View.GONE);
 
-        radioGroup = this.findViewById(R.id.radioGroup);
+        radioGroup = this.findViewById(R.id.rg_repeat);
 
-        Log.d("murad", "COUNTRY " + Utils.locale.getCountry());
-        Log.d("murad", "LANGUAGE " + Utils.locale.getLanguage());
+        Log.d("murad", "COUNTRY " + Utils_Calendar.locale.getCountry());
+        Log.d("murad", "LANGUAGE " + Utils_Calendar.locale.getLanguage());
 
         ConfigurationCompat.getLocales(Resources.getSystem().getConfiguration()).get(0);
 
@@ -225,7 +222,6 @@ public class ChooseEventFrequencyDialogCustom extends Dialog implements Compound
         else if(tb_Saturday.equals(compoundButton)) {
             frequencyDayOfWeek[6] = b;
         }
-
 
     }
 

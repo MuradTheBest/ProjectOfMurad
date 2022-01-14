@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.Utils_Calendar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,7 +33,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     private DatabaseReference eventsDatabase;
 
     private String name;
-//    private int count = 1;
 
     class CalendarViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView dayOfMonth;
@@ -55,7 +54,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         @Override
         public void onClick(View view) {
             if(view == itemView){
-                Log.d("murad", getAdapterPosition() + " | " + dayOfMonth.getText().toString() + " | " + Utils.DateToText(daysOfMonth.get(getAdapterPosition())));
+                Log.d("murad", getAdapterPosition() + " | " + dayOfMonth.getText().toString() + " | " + Utils_Calendar.DateToText(daysOfMonth.get(getAdapterPosition())));
                 calendarOnItemListener.onItemClick(getAdapterPosition(), dayOfMonth.getText().toString(), daysOfMonth.get(getAdapterPosition()));
             }
         }
@@ -104,7 +103,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
         firebase = FirebaseDatabase.getInstance();
         eventsDatabase = firebase.getReference("EventsDatabase");
-        Query query = eventsDatabase.child(Utils.DateToTextForFirebase(daysOfMonth.get(position))).orderByChild("timestamp");
+        Query query = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(daysOfMonth.get(position))).orderByChild("timestamp");
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

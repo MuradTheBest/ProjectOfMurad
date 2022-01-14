@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.Utils_Calendar;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -30,13 +30,24 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Month;
+import java.time.format.TextStyle;
 import java.util.Arrays;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
-public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFrequencyDialogCustom.GetFrequencyListener {
+public class Add_Event_Screen extends AppCompatActivity implements
+        ChooseEventFrequencyDialogCustomWithExposedDropdown.OnNeverFrequencyListener,
+        ChooseEventFrequencyDialogCustomWithExposedDropdown.OnDayFrequencyListener,
+        ChooseEventFrequencyDialogCustomWithExposedDropdown.OnDayOfWeekFrequencyListener,
+        ChooseEventFrequencyDialogCustomWithExposedDropdown.OnDayAndMonthFrequencyListener,
+        ChooseEventFrequencyDialogCustomWithExposedDropdown.OnDayOfWeekAndMonthFrequencyListener,
+        ChooseEventFrequencyDialogCustomWithExposedDropdown.OnDayAndYearFrequencyListener,
+        ChooseEventFrequencyDialogCustomWithExposedDropdown.OnDayOfWeekAndYearFrequencyListener {
+
     private EditText et_name;
     private EditText et_place;
     private EditText et_description;
@@ -88,6 +99,8 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
     private Intent gotten_intent;
     private Intent intentToChooseEventFrequencyDialogCustom;
 
+    private final String[] days = Utils_Calendar.getShortDayOfWeek();
+
     private int frequency;
 
     private boolean frequencyDay;
@@ -127,7 +140,7 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
         et_place = findViewById(R.id.et_place);
 
         btn_choose_start_date = findViewById(R.id.btn_choose_start_date);
-        btn_choose_start_date.setText(Utils.DateToText(selectedDate));
+        btn_choose_start_date.setText(Utils_Calendar.DateToText(selectedDate));
         btn_choose_start_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -139,7 +152,7 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
         });
 
         btn_choose_end_date = findViewById(R.id.btn_choose_end_date);
-        btn_choose_end_date.setText(Utils.DateToText(selectedDate));
+        btn_choose_end_date.setText(Utils_Calendar.DateToText(selectedDate));
         btn_choose_end_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -191,8 +204,15 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
         btn_repeat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ChooseEventFrequencyDialogCustom chooseEventFrequencyDialog = new ChooseEventFrequencyDialogCustom(Add_Event_Screen.this);
+                LocalDate startDate = LocalDate.of(start_year, start_month, start_day);
+                String start_date = Utils_Calendar.DateToText(startDate);
+
+                //ChooseEventFrequencyDialog chooseEventFrequencyDialog = new ChooseEventFrequencyDialog(Add_Event_Screen.this);
+                ChooseEventFrequencyDialogCustomWithExposedDropdown chooseEventFrequencyDialog = new ChooseEventFrequencyDialogCustomWithExposedDropdown(Add_Event_Screen.this, startDate);
+                //AlertDialogToChooseFrequency chooseEventFrequencyDialog = new AlertDialogToChooseFrequency(Add_Event_Screen.this, startDate);
+
                 intentToChooseEventFrequencyDialogCustom = new Intent(Add_Event_Screen.this, ChooseEventFrequencyDialogCustom.class);
+                intentToChooseEventFrequencyDialogCustom.putExtra("start_date", start_date);
 
 
                 chooseEventFrequencyDialog.show();
@@ -242,7 +262,7 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
             String description = et_description.getText().toString();
             String place = et_place.getText().toString();
 
-            boolean editTextsFilled = Utils.areEventDetailsValid(this, name, description, place);
+            boolean editTextsFilled = Utils_Calendar.areEventDetailsValid(this, name, description, place);
 
             if(editTextsFilled) {
                 /*if(start_day <= end_day && start_month <= end_month && start_year <= end_year ){
@@ -313,7 +333,7 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
 
     private void createColorPickerDialog() {
         ColorPicker colorPicker = new ColorPicker(this);
-        colorPicker.setDefaultColorButton(Color.BLUE);
+        colorPicker.setDefaultColorButton(Color.GREEN);
         colorPicker.setRoundColorButton(true);
 
         colorPicker.setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
@@ -335,18 +355,51 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
     }
 
     @Override
-    public void getFrequency(int selectedFrequency, boolean selectedFrequencyDay, boolean[] selectedFrequencyDayOfWeek, boolean selectedFrequencyMonth, boolean selectedFrequencyYear) {
-        frequency = selectedFrequency;
-        frequencyDay = selectedFrequencyDay;
-        frequencyDayOfWeek = selectedFrequencyDayOfWeek;
-        frequencyMonth = selectedFrequencyMonth;
-        frequencyYear = selectedFrequencyYear;
+    public void setOnDayFrequency(int frequency, int amount) {
+        Log.d("murad", "Every " + frequency + " days");
+    }
 
-        Log.d("murad", "frequency is " + frequency);
-        Log.d("murad", "frequencyDay is " + frequencyDay);
-        Log.d("murad", "frequencyDayOfWeek is " + Arrays.toString(frequencyDayOfWeek));
-        Log.d("murad", "frequencyMonth is " + frequencyMonth);
-        Log.d("murad", "frequencyYear is " + frequencyYear);
+    @Override
+    public void setOnDayOfWeekFrequency(boolean[] array_frequencyDayOfWeek, int frequency, int amount) {
+
+        String msg = "";
+        for(int i = 0; i < array_frequencyDayOfWeek.length; i++) {
+            if(array_frequencyDayOfWeek[i]){
+                msg += DayOfWeek.of(i+1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) + " ,";
+            }
+        }
+        Log.d("murad", "Every " + frequency + " weeks on " + msg);
+    }
+
+    @Override
+    public void setOnDayAndMonthFrequency(int day, int frequency, int amount) {
+        Log.d("murad", "Every month on " + day + " day" + " with frequency of " + frequency);
+    }
+
+    @Override
+    public void setOnDayOfWeekAndMonthFrequency(int weekNumber, int dayOfWeek, int frequency, int amount) {
+        Log.d("murad", "Every month on " + weekNumber + " " +
+                DayOfWeek.of(dayOfWeek+1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
+                " with frequency of " + frequency);
+    }
+
+    @Override
+    public void setOnDayAndYearFrequency(int day, int month, int frequency, int amount) {
+        Log.d("murad", "Every year on " + day + " of " +
+                Month.of(month).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
+                " with frequency of " + frequency);
+    }
+
+    @Override
+    public void setOnDayOfWeekAndYearFrequency(int weekNumber, int dayOfWeek, int month, int frequency, int amount) {
+        Log.d("murad", "Every " + Month.of(month).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
+                " on " + weekNumber + " " + DayOfWeek.of(dayOfWeek+1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
+                " with frequency of " + frequency);
+    }
+
+    @Override
+    public void setOnNeverFrequency() {
+
     }
 
     //sets time
@@ -365,7 +418,7 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
             int u = time.toSecondOfDay();
             LocalTime f = LocalTime.ofSecondOfDay(u);
 
-            String time_text = Utils.TimeToText(time);
+            String time_text = Utils_Calendar.TimeToText(time);
 
             /*if(hour < 10){
                 time += "0";
@@ -407,7 +460,7 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
         public void onDateSet(DatePicker view, int year, int month, int day) {
             month = month + 1;
             LocalDate date = LocalDate.of(year, month, day);
-            String date_text = Utils.DateToText(date);
+            String date_text = Utils_Calendar.DateToText(date);
 
             switch(date_start_or_end) {
                 case "start":
@@ -441,19 +494,19 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
             //ToDo check if current user is madrich
         }
 
-/*        eventsDatabase.child(""+Utils.getDefaultDateForFirebase(start_date)).child(""+event.getEvent_id()).push();
-        eventsDatabase = eventsDatabase.child(""+Utils.getDefaultDateForFirebase(start_date)).child(""+event.getEvent_id());
+/*        eventsDatabase.child(""+Utils_Calendar.getDefaultDateForFirebase(start_date)).child(""+event.getEvent_id()).push();
+        eventsDatabase = eventsDatabase.child(""+Utils_Calendar.getDefaultDateForFirebase(start_date)).child(""+event.getEvent_id());
         //eventsDatabase.setValue(event.getClass());
 
         eventsDatabase.child("Name").setValue(event.getName());
         eventsDatabase.child("Place").setValue(event.getPlace());
         eventsDatabase.child("Description").setValue(event.getDescription());
 
-        eventsDatabase.child("Starting Date").setValue(Utils.getDefaultDateForFirebase(event.getStart_date()));
-        eventsDatabase.child("Starting Time").setValue(Utils.getDefaultTime(event.getStart_time()));
+        eventsDatabase.child("Starting Date").setValue(Utils_Calendar.getDefaultDateForFirebase(event.getStart_date()));
+        eventsDatabase.child("Starting Time").setValue(Utils_Calendar.getDefaultTime(event.getStart_time()));
 
-        eventsDatabase.child("Ending Date").setValue(Utils.getDefaultDateForFirebase(event.getEnd_date()));
-        eventsDatabase.child("Ending Time").setValue(Utils.getDefaultTime(event.getEnd_time()));*/
+        eventsDatabase.child("Ending Date").setValue(Utils_Calendar.getDefaultDateForFirebase(event.getEnd_date()));
+        eventsDatabase.child("Ending Time").setValue(Utils_Calendar.getDefaultTime(event.getEnd_time()));*/
 
         LocalDate tmp = start_date;
 
@@ -461,11 +514,11 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
             eventsDatabase = firebase.getReference("EventsDatabase");
             eventsDatabaseForText = firebase.getReference("EventsDatabase");
 
-            //eventsDatabase.child(""+Utils.DateToTextForFirebase(tmp)).push();
-            //eventsDatabase = eventsDatabase.child(""+Utils.DateToTextForFirebase(tmp)).child("");
+            //eventsDatabase.child(""+Utils_Calendar.DateToTextForFirebase(tmp)).push();
+            //eventsDatabase = eventsDatabase.child(""+Utils_Calendar.DateToTextForFirebase(tmp)).child("");
 
-            eventsDatabase.child("" + Utils.DateToTextForFirebase(tmp)).child("" + event.getEvent_id()).push();
-            eventsDatabase = eventsDatabase.child("" + Utils.DateToTextForFirebase(tmp)).child("" + event.getEvent_id());
+            eventsDatabase.child("" + Utils_Calendar.DateToTextForFirebase(tmp)).child("" + event.getEvent_id()).push();
+            eventsDatabase = eventsDatabase.child("" + Utils_Calendar.DateToTextForFirebase(tmp)).child("" + event.getEvent_id());
 
             eventsDatabase.addChildEventListener(new ChildEventListener() {
                 @Override
@@ -498,13 +551,13 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
             eventsDatabase.child("Place").setValue(event.getPlace());
             eventsDatabase.child("Description").setValue(event.getDescription());
 
-            eventsDatabase.child("Starting Date").setValue(Utils.DateToTextForFirebase(event.getStart_date()));
-            eventsDatabase.child("Starting Time").setValue(Utils.TimeToText(event.getStart_time()));
+            eventsDatabase.child("Starting Date").setValue(Utils_Calendar.DateToTextForFirebase(event.getStart_date()));
+            eventsDatabase.child("Starting Time").setValue(Utils_Calendar.TimeToText(event.getStart_time()));
 
             eventsDatabase.child("Absolute Starting Time").setValue(String.valueOf(event.getStart_time().toSecondOfDay()));
 
-            eventsDatabase.child("Ending Date").setValue(Utils.DateToTextForFirebase(event.getEnd_date()));
-            eventsDatabase.child("Ending Time").setValue(Utils.TimeToText(event.getEnd_time()));
+            eventsDatabase.child("Ending Date").setValue(Utils_Calendar.DateToTextForFirebase(event.getEnd_date()));
+            eventsDatabase.child("Ending Time").setValue(Utils_Calendar.TimeToText(event.getEnd_time()));
 
             tmp = tmp.plusDays(1);
         }
@@ -526,18 +579,18 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
         eventsDatabaseForText = firebase.getReference("EventsDatabase");
 
 
-        LocalDate startDate = Utils.TextToDateForFirebase(Utils.TextToTextForFirebase(start_date));
-        LocalDate endDate = Utils.TextToDateForFirebase(Utils.TextToTextForFirebase(end_date));
+        LocalDate startDate = Utils_Calendar.TextToDateForFirebase(Utils_Calendar.TextToTextForFirebase(start_date));
+        LocalDate endDate = Utils_Calendar.TextToDateForFirebase(Utils_Calendar.TextToTextForFirebase(end_date));
 
-        LocalTime startTime = Utils.TextToTime(event.getStart_time());
+        LocalTime startTime = Utils_Calendar.TextToTime(event.getStart_time());
         int timestamp = startTime.toSecondOfDay();
 
-        LocalTime endTime = Utils.TextToTime(event.getEnd_time());
+        LocalTime endTime = Utils_Calendar.TextToTime(event.getEnd_time());
 
 
-        LocalDate tmp = Utils.TextToDate(start_date);
+        LocalDate tmp = Utils_Calendar.TextToDate(start_date);
 
-        eventsDatabaseForText = eventsDatabaseForText.child(Utils.TextToTextForFirebase(start_date));
+        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.TextToTextForFirebase(start_date));
         Log.d("murad", eventsDatabaseForText.getKey());
 
         /*eventsDatabaseForText.addValueEventListener(new ValueEventListener() {
@@ -551,7 +604,7 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
                 }
                 else{
                 }
-                //snapshot.getRef().child("event_id").setValue(Utils.TextToTextForFirebase(start_date) + "_" + id);
+                //snapshot.getRef().child("event_id").setValue(Utils_Calendar.TextToTextForFirebase(start_date) + "_" + id);
             }
 
             @Override
@@ -562,12 +615,12 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
 
         do {
 
-            //eventsDatabase.child(""+Utils.DateToTextForFirebase(tmp)).push();
-            //eventsDatabase = eventsDatabase.child(""+Utils.DateToTextForFirebase(tmp)).child("");
+            //eventsDatabase.child(""+Utils_Calendar.DateToTextForFirebase(tmp)).push();
+            //eventsDatabase = eventsDatabase.child(""+Utils_Calendar.DateToTextForFirebase(tmp)).child("");
 
-//            eventsDatabaseForText.child(""+Utils.DateToTextForFirebase(tmp)).push();
+//            eventsDatabaseForText.child(""+Utils_Calendar.DateToTextForFirebase(tmp)).push();
             eventsDatabaseForText = firebase.getReference("EventsDatabase");
-            eventsDatabaseForText = eventsDatabaseForText.child(Utils.DateToTextForFirebase(tmp));
+            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
             eventsDatabaseForText = eventsDatabaseForText.push();
 
@@ -580,7 +633,7 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
             tmp = tmp.plusDays(1);
 
         }
-        while(!tmp.isEqual(Utils.TextToDate(end_date).plusDays(1)));
+        while(!tmp.isEqual(Utils_Calendar.TextToDate(end_date).plusDays(1)));
 
     }
 
@@ -599,7 +652,7 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
 
         LocalDate tmp = start_date;
 
-        eventsDatabaseForText = eventsDatabaseForText.child(Utils.DateToTextForFirebase(start_date));
+        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(start_date));
         eventsDatabaseForText = eventsDatabaseForText.push();
 
         String key = eventsDatabaseForText.getKey();
@@ -609,7 +662,7 @@ public class Add_Event_Screen extends AppCompatActivity implements ChooseEventFr
 
         do {
             eventsDatabaseForText = firebase.getReference("EventsDatabase");
-            eventsDatabaseForText = eventsDatabaseForText.child(Utils.DateToTextForFirebase(tmp));
+            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
             eventsDatabaseForText = eventsDatabaseForText.child(key);
             eventsDatabaseForText.setValue(event);

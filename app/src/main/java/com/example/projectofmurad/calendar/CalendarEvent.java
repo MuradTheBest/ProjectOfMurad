@@ -1,6 +1,6 @@
 package com.example.projectofmurad.calendar;
 
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.Utils_Calendar;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -351,8 +351,8 @@ public class CalendarEvent implements Serializable {
     public String toString(){
         String str = "------------------------------------------------------------------------------------------------------------------------------------ \n" +
                 "\n" + this.getName() + " | " + this.getPlace() + " | " + this.getDescription() +
-                "\n" + Utils.DateToText(this.getStart_date()) + " | " + Utils.TimeToText(this.start_time) +
-                "\n" + Utils.DateToText(this.getEnd_date()) + " | " + Utils.TimeToText(this.end_time) +
+                "\n" + Utils_Calendar.DateToText(this.getStart_date()) + " | " + Utils_Calendar.TimeToText(this.start_time) +
+                "\n" + Utils_Calendar.DateToText(this.getEnd_date()) + " | " + Utils_Calendar.TimeToText(this.end_time) +
                 "\n" + "\n ------------------------------------------------------------------------------------------------------------------------------------ \n";
 
         return str;

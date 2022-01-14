@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/constraintLayout_frequency"
     xmlns:tools="http://schemas.android.com/tools"
@@ -15,10 +15,14 @@
 
 
     <LinearLayout
+        android:id="@+id/ll_frequency"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="5dp"
         android:orientation="vertical"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         >
 
         <TextView
@@ -87,9 +91,14 @@
     <RadioGroup
         android:id="@+id/rg_repeat"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_margin="5dp" >
+        android:layout_margin="5dp"
+
+        android:layout_below="@+id/ll_frequency"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        >
 
         <RadioButton
             android:id="@+id/rb_with_day_and_month"
@@ -133,6 +142,10 @@
         android:weightSum="7"
         android:layout_marginHorizontal="10sp"
         android:clipToPadding="false"
+
+        android:layout_below="@+id/rg_repeat"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         >
 
         <ToggleButton
@@ -221,51 +234,43 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/choose_day_of_week_layout"
+
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:orientation="vertical">
 
-        <TextView
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_times"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginBottom="5dp"
-            android:text="Duration"
+            app:layout_constraintStart_toEndOf="@+id/rb_times"
+            app:layout_constraintTop_toTopOf="@+id/rb_times"
+            app:layout_constraintBottom_toBottomOf="@id/rb_times"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="2"
+            android:text="1"
             android:textSize="16sp" />
 
         <RadioGroup
             android:id="@+id/rg_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_duration"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:gravity="start"
             android:orientation="vertical">
 
             <RadioButton
                 android:id="@+id/rb_times"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Times in total: "
-                android:checked="true"/>
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:id="@+id/textInputLayout_times"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_times"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:inputType="number"
-                    android:maxLength="2"
-                    android:text="1"
-                    android:textSize="16sp" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+                android:text="Times in total: "/>
 
             <!--<com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_times"
@@ -277,6 +282,7 @@
                 android:text="1"
                 android:textSize="16sp" />-->
 
+
             <RadioButton
                 android:id="@+id/rb_until"
                 android:layout_width="wrap_content"
@@ -285,14 +291,69 @@
 
         </RadioGroup>
 
+<!--
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
 
-    </LinearLayout>
+            android:layout_below="@+id/tv_duration"
+            android:layout_alignParentStart="true"
+            android:gravity="bottom"
+            android:layout_marginStart="31sp"
+            android:layout_marginTop="13sp">
 
-    <Button
-        android:id="@+id/btn_ok"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ok" />
+            <TextView
+                android:id="@+id/tv_times"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Times in total: "
+                android:textSize="16sp"
+
+                android:layout_alignParentStart="true"
+
+                />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_times"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/tv_times"
+                android:layout_alignBottom="@id/tv_times"
+                android:gravity="center"
+                android:inputType="number"
+                android:maxLength="2"
+                android:text="1"
+                android:textSize="16sp" />
+
+        </RelativeLayout>
+-->
+
+
+
+<!--        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:gravity="center"
+            android:layout_alignTop="@+id/rg_duration"
+            android:layout_toEndOf="@+id/rb_times"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_times"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:inputType="number"
+                android:maxLength="2"
+                android:text="1"
+                android:textSize="16sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>-->
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <!--<LinearLayout
         android:layout_width="wrap_content"
@@ -321,4 +382,4 @@
 
 
 
-</LinearLayout>
+</RelativeLayout>

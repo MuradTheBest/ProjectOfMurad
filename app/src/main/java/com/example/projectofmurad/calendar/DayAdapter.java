@@ -10,7 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.Utils_Calendar;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -59,14 +59,14 @@ public class DayAdapter extends BaseAdapter {
 
 
         if(eventArrayList.get(position).getStart_date().equals(eventArrayList.get(position).getEnd_date())){
-            tv_event_start_time.setText(Utils.TimeToText(event.getStart_time()));
-            tv_event_end_time.setText(Utils.TimeToText(event.getEnd_time()));
+            tv_event_start_time.setText(Utils_Calendar.TimeToText(event.getStart_time()));
+            tv_event_end_time.setText(Utils_Calendar.TimeToText(event.getEnd_time()));
         }
         else if(eventArrayList.get(position).getStart_date().equals(selectedDate)){
-            tv_event_start_time.setText(Utils.TimeToText(event.getStart_time()));
+            tv_event_start_time.setText(Utils_Calendar.TimeToText(event.getStart_time()));
         }
         else if(eventArrayList.get(position).getEnd_date().equals(selectedDate)){
-            tv_event_end_time.setText(Utils.TimeToText(event.getEnd_time()));
+            tv_event_end_time.setText(Utils_Calendar.TimeToText(event.getEnd_time()));
         }
         else{
             tv_hyphen.setText("All day");

@@ -13,8 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.BuildConfig;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.Utils_Calendar;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -100,7 +98,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         selectedDate = LocalDate.now();
         today = LocalDate.now();
 
-        Log.d("murad","today is " + Utils.DateToText(today));
+        Log.d("murad","today is " + Utils_Calendar.DateToText(today));
 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -352,7 +350,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
             YearMonth yearMonthOfSelectedDate = YearMonth.of(selectedDate.getYear(), selectedDate.getMonth());
             YearMonth yearMonthOfPassingDate = YearMonth.of(passingDate.getYear(), passingDate.getMonth());
 
-            Log.d("murad", "selectedDate " + Utils.DateToText(selectedDate) + ", passingDate " + Utils.DateToText(passingDate));
+            Log.d("murad", "selectedDate " + Utils_Calendar.DateToText(selectedDate) + ", passingDate " + Utils_Calendar.DateToText(passingDate));
             if(!yearMonthOfPassingDate.equals(yearMonthOfSelectedDate)){
                 selectedDate = passingDate;
                 prev = 0;
@@ -413,10 +411,10 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         //rv_events = d.findViewById(R.id.rv_events);
         lv_events = d.findViewById(R.id.lv_events);
 
-        if(Utils.map.containsKey(passingDate)){
+        if(Utils_Calendar.map.containsKey(passingDate)){
             tv_no_events.setVisibility(View.INVISIBLE);
 
-            ArrayList<CalendarEvent> calendarEventArrayList = Utils.map.get(passingDate);
+            ArrayList<CalendarEvent> calendarEventArrayList = Utils_Calendar.map.get(passingDate);
             Log.d("murad", "empty calendarEventArrayList " + calendarEventArrayList.isEmpty());
             *//*calendarEventAdapter = new CalendarEventAdapter(calendarEventArrayList, getApplicationContext());
             rv_events.setAdapter(calendarEventAdapter);*//*
@@ -434,7 +432,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
             Log.d("murad", "not containsKey");
         }
 
-        if(Utils.map.isEmpty()){
+        if(Utils_Calendar.map.isEmpty()){
             Log.d("murad", "isEmpty");
         }
 

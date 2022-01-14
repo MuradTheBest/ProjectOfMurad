@@ -7,7 +7,7 @@
     android:layout_height="wrap_content">
 
     <RadioGroup
-        android:id="@+id/radioGroup"
+        android:id="@+id/rg_repeat"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -33,13 +33,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Every week" />
-
-        <ca.antonious.materialdaypicker.MaterialDayPicker
-            android:id="@+id/materialDayPicker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            />
 
         <RadioButton
             android:id="@+id/rb_month"

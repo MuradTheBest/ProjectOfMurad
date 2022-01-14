@@ -7,25 +7,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AnticipateInterpolator;
-import android.view.animation.BounceInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintLayoutStates;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.Utils_Calendar;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.ObservableSnapshotArray;
@@ -51,8 +43,6 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
     private ObservableSnapshotArray<CalendarEventWithTextOnly> calendarEventArrayList;
     private final OnEventListener onEventListener;
     private FirebaseRecyclerOptions<CalendarEventWithTextOnly> options;
-    private FirebaseDatabase firebase;
-    private DatabaseReference eventsDatabase;
 
     public AdapterForFirebase2(@NonNull FirebaseRecyclerOptions<CalendarEventWithTextOnly> options, LocalDate selectedDate, OnEventListener onEventListener) {
         super(options);
@@ -210,12 +200,12 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
             Log.d("murad","Ending time: " + model.getEnd_time());
 
         }
-        else if(model.getStart_date().equals(Utils.DateToText(selectedDate))){
+        else if(model.getStart_date().equals(Utils_Calendar.DateToText(selectedDate))){
             holder.tv_event_start_time.setText(model.getStart_time());
             Log.d("murad","Starting time: " + model.getStart_time());
 
         }
-        else if(model.getEnd_date().equals(Utils.DateToText(selectedDate))){
+        else if(model.getEnd_date().equals(Utils_Calendar.DateToText(selectedDate))){
             holder.tv_event_end_time.setText(model.getEnd_time());
             Log.d("murad","Ending time: " + model.getEnd_time());
 
@@ -223,7 +213,7 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
         else{
             holder.tv_hyphen.setText("All day");
         }
-        Log.d("murad", "position"+ holder.getAdapterPosition());
+        Log.d("murad", "position = " + position);
 
         holder.expanded_layout.setVisibility(View.GONE);
         holder.tv_event_start_date_time.setText("Starting time: " + model.getStart_date() + ", " + model.getStart_time());

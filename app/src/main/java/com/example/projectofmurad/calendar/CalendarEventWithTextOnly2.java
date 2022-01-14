@@ -2,7 +2,7 @@ package com.example.projectofmurad.calendar;
 
 import android.graphics.Color;
 
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.Utils_Calendar;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -62,13 +62,13 @@ public class CalendarEventWithTextOnly2 implements Serializable {
         this.description = description;
         this.place = place;
 
-        this.start_date = Utils.DateToText(startDate);
+        this.start_date = Utils_Calendar.DateToText(startDate);
 
-        this.start_time = Utils.TimeToText(startTime);
+        this.start_time = Utils_Calendar.TimeToText(startTime);
 
-        this.end_date = Utils.DateToText(endDate);
+        this.end_date = Utils_Calendar.DateToText(endDate);
 
-        this.end_time = Utils.TimeToText(endTime);
+        this.end_time = Utils_Calendar.TimeToText(endTime);
 
         this.timestamp = startTime.toSecondOfDay();
 
@@ -86,13 +86,13 @@ public class CalendarEventWithTextOnly2 implements Serializable {
         this.description = description;
         this.place = place;
 
-        this.start_date = Utils.DateToText(startDate);
+        this.start_date = Utils_Calendar.DateToText(startDate);
 
-        this.start_time = Utils.TimeToText(startTime);
+        this.start_time = Utils_Calendar.TimeToText(startTime);
 
-        this.end_date = Utils.DateToText(endDate);
+        this.end_date = Utils_Calendar.DateToText(endDate);
 
-        this.end_time = Utils.TimeToText(endTime);
+        this.end_time = Utils_Calendar.TimeToText(endTime);
 
         this.timestamp = startTime.toSecondOfDay();
 
@@ -110,7 +110,7 @@ public class CalendarEventWithTextOnly2 implements Serializable {
 
     public CalendarEventWithTextOnly2(String name, String description, String place, String start_date, String start_time, String end_date, String end_time) {
 
-        this.timestamp = Utils.TextToTime(start_time).toSecondOfDay();
+        this.timestamp = Utils_Calendar.TextToTime(start_time).toSecondOfDay();
 
         this.event_id = start_date + "-" + this.timestamp;
 
@@ -134,7 +134,7 @@ public class CalendarEventWithTextOnly2 implements Serializable {
                                       String frequencyDay, String[] frequencyDayOfWeek, String frequencyMonth,
                                       String frequencyYear, int frequency) {
 
-        this.timestamp = Utils.TextToTime(start_time).toSecondOfDay();
+        this.timestamp = Utils_Calendar.TextToTime(start_time).toSecondOfDay();
 
         this.event_id = start_date + "-" + this.timestamp;
 
@@ -198,7 +198,7 @@ public class CalendarEventWithTextOnly2 implements Serializable {
     }
 
     public LocalDate receiveStart_date(){
-        return Utils.TextToDate(start_date);
+        return Utils_Calendar.TextToDate(start_date);
     }
 
     public void setStart_date(String start_date) {
@@ -206,7 +206,7 @@ public class CalendarEventWithTextOnly2 implements Serializable {
     }
 
     public void updateStart_date(LocalDate start_date) {
-        this.start_date = Utils.DateToText(start_date);
+        this.start_date = Utils_Calendar.DateToText(start_date);
     }
 
     public String getStart_time() {
@@ -214,7 +214,7 @@ public class CalendarEventWithTextOnly2 implements Serializable {
     }
 
     public LocalTime receiveStart_time(){
-        return Utils.TextToTime(start_time);
+        return Utils_Calendar.TextToTime(start_time);
     }
 
     public void setStart_time(String start_time) {
@@ -222,7 +222,7 @@ public class CalendarEventWithTextOnly2 implements Serializable {
     }
 
     public void updateStart_time(LocalTime start_time) {
-        this.start_time = Utils.TimeToText(start_time);
+        this.start_time = Utils_Calendar.TimeToText(start_time);
     }
 
     public String getEnd_date() {
@@ -230,7 +230,7 @@ public class CalendarEventWithTextOnly2 implements Serializable {
     }
 
     public LocalDate receiveEnd_date(){
-        return Utils.TextToDate(end_date);
+        return Utils_Calendar.TextToDate(end_date);
     }
 
     public void setEnd_date(String end_date) {
@@ -238,7 +238,7 @@ public class CalendarEventWithTextOnly2 implements Serializable {
     }
 
     public void updateEnd_date(LocalDate end_date) {
-        this.end_date = Utils.DateToText(end_date);
+        this.end_date = Utils_Calendar.DateToText(end_date);
     }
 
     public String getEnd_time() {
@@ -246,7 +246,7 @@ public class CalendarEventWithTextOnly2 implements Serializable {
     }
 
     public LocalTime receiveEnd_time(){
-        return Utils.TextToTime(end_time);
+        return Utils_Calendar.TextToTime(end_time);
     }
 
     public void setEnd_time(String end_time) {
@@ -254,7 +254,7 @@ public class CalendarEventWithTextOnly2 implements Serializable {
     }
 
     public void updateEnd_time(LocalTime end_time) {
-        this.end_time = Utils.TimeToText(end_time);
+        this.end_time = Utils_Calendar.TimeToText(end_time);
     }
 
     public int getTimestamp() {

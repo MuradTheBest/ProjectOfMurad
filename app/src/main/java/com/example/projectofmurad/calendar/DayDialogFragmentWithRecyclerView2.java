@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.Utils_Calendar;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
@@ -75,7 +75,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Adapte
 
         calendarEventArrayList = new ArrayList<>();
 
-        databaseReference = databaseReference.child(Utils.DateToTextForFirebase(passingDate));
+        databaseReference = databaseReference.child(Utils_Calendar.DateToTextForFirebase(passingDate));
         Query query = databaseReference.orderByChild("timestamp");
 
         FirebaseRecyclerOptions<CalendarEventWithTextOnly> options
@@ -98,9 +98,11 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Adapte
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.hasChildren()){
                     rv_events.setVisibility(View.VISIBLE);
+                    Log.d("murad", "Visibility set to " + rv_events.getVisibility());
                 }
                 else {
                     rv_events.setVisibility(View.INVISIBLE);
+                    Log.d("murad", "Visibility set to " + rv_events.getVisibility());
                     tv_no_events.setVisibility(View.VISIBLE);
                 }
             }

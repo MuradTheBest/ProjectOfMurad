@@ -102,7 +102,7 @@ public class Sign_Up_Screen extends Activity implements TextWatcher {
                     editTextsFilled = false;
                     //Toast.makeText(getApplicationContext(), "Please enter e-mail address", Toast.LENGTH_SHORT).show();
                 }
-                else if(!Utils.isEmailValid(email)){
+                else if(!Utils_Calendar.isEmailValid(email)){
                     et_email_address.setError("E-mail invalid");
                     msg += "valid E-mail, ";
                     editTextsFilled = false;
