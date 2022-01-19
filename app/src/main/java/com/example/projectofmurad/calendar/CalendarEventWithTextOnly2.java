@@ -2,11 +2,10 @@ package com.example.projectofmurad.calendar;
 
 import android.graphics.Color;
 
-import com.example.projectofmurad.Utils_Calendar;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 public class CalendarEventWithTextOnly2 implements Serializable {
 
@@ -23,12 +22,16 @@ public class CalendarEventWithTextOnly2 implements Serializable {
     private String end_date;
     private String end_time;
 
-    private int frequency;
+    private int frequencyType = 0;
 
-    private String frequencyDay;
-    private String[] frequencyDayOfWeek;
-    private String frequencyMonth;
-    private String frequencyYear;
+    private int frequency;
+    private int amount;
+
+    private int day;
+    private int dayOfWeekPosition;
+    private List<Boolean> array_frequencyDayOfWeek;
+    private int weekNumber;
+    private int month;
 
     private int color;
 
@@ -62,11 +65,11 @@ public class CalendarEventWithTextOnly2 implements Serializable {
         this.description = description;
         this.place = place;
 
-        this.start_date = Utils_Calendar.DateToText(startDate);
+        this.start_date = Utils_Calendar.DateToTextOnline(startDate);
 
         this.start_time = Utils_Calendar.TimeToText(startTime);
 
-        this.end_date = Utils_Calendar.DateToText(endDate);
+        this.end_date = Utils_Calendar.DateToTextOnline(endDate);
 
         this.end_time = Utils_Calendar.TimeToText(endTime);
 
@@ -77,20 +80,18 @@ public class CalendarEventWithTextOnly2 implements Serializable {
         this.color = Color.GREEN;
     }
 
-    public CalendarEventWithTextOnly2(String name, String description, String place, int color,
-                                      LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime,
-                                      String frequencyDay, String[] frequencyDayOfWeek, String frequencyMonth,
-                                      String frequencyYear, int frequency) {
+    public CalendarEventWithTextOnly2(String name, String description, String place, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime,
+                                      int selected_frequency, int selected_amount) {
 
         this.name = name;
         this.description = description;
         this.place = place;
 
-        this.start_date = Utils_Calendar.DateToText(startDate);
+        this.start_date = Utils_Calendar.DateToTextOnline(startDate);
 
         this.start_time = Utils_Calendar.TimeToText(startTime);
 
-        this.end_date = Utils_Calendar.DateToText(endDate);
+        this.end_date = Utils_Calendar.DateToTextOnline(endDate);
 
         this.end_time = Utils_Calendar.TimeToText(endTime);
 
@@ -98,14 +99,7 @@ public class CalendarEventWithTextOnly2 implements Serializable {
 
         this.event_id = this.start_date + "-" + this.timestamp;
 
-        this.color = color;
-
-        this.frequency = frequency;
-
-        this.frequencyDay = frequencyDay;
-        this.frequencyDayOfWeek = frequencyDayOfWeek;
-        this.frequencyMonth = frequencyMonth;
-        this.frequencyYear = frequencyYear;
+        this.color = Color.GREEN;
     }
 
     public CalendarEventWithTextOnly2(String name, String description, String place, String start_date, String start_time, String end_date, String end_time) {
@@ -127,37 +121,6 @@ public class CalendarEventWithTextOnly2 implements Serializable {
         this.end_time = end_time;
 
         this.color = Color.GREEN;
-    }
-
-    public CalendarEventWithTextOnly2(String name, String description, String place, int color,
-                                      String start_date, String start_time, String end_date, String end_time,
-                                      String frequencyDay, String[] frequencyDayOfWeek, String frequencyMonth,
-                                      String frequencyYear, int frequency) {
-
-        this.timestamp = Utils_Calendar.TextToTime(start_time).toSecondOfDay();
-
-        this.event_id = start_date + "-" + this.timestamp;
-
-        this.name = name;
-        this.description = description;
-        this.place = place;
-
-        this.start_date = start_date;
-
-        this.start_time = start_time;
-
-        this.end_date = end_date;
-
-        this.end_time = end_time;
-
-        this.color = color;
-
-        this.frequency = frequency;
-
-        this.frequencyDay = frequencyDay;
-        this.frequencyDayOfWeek = frequencyDayOfWeek;
-        this.frequencyMonth = frequencyMonth;
-        this.frequencyYear = frequencyYear;
     }
 
     public String getEvent_id() {
@@ -206,7 +169,7 @@ public class CalendarEventWithTextOnly2 implements Serializable {
     }
 
     public void updateStart_date(LocalDate start_date) {
-        this.start_date = Utils_Calendar.DateToText(start_date);
+        this.start_date = Utils_Calendar.DateToTextOnline(start_date);
     }
 
     public String getStart_time() {
@@ -238,7 +201,7 @@ public class CalendarEventWithTextOnly2 implements Serializable {
     }
 
     public void updateEnd_date(LocalDate end_date) {
-        this.end_date = Utils_Calendar.DateToText(end_date);
+        this.end_date = Utils_Calendar.DateToTextOnline(end_date);
     }
 
     public String getEnd_time() {

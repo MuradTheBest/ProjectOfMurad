@@ -10,7 +10,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils_Calendar;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

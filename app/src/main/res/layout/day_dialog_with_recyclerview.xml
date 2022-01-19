@@ -52,7 +52,9 @@
         android:clickable="true"
         app:layout_constraintBottom_toBottomOf="@+id/rv_events"
         app:layout_constraintEnd_toEndOf="@+id/rv_events"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        app:srcCompat="@android:drawable/ic_input_add"
+
+        />
 
     <TextView
         android:id="@+id/tv_no_events"

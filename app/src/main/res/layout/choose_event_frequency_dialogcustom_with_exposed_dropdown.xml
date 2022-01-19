@@ -92,30 +92,35 @@
         android:layout_margin="5dp" >
 
         <RadioButton
+            style="@style/radioButton"
             android:id="@+id/rb_with_day_and_month"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Don't repeat" />
 
         <RadioButton
+            style="@style/radioButton"
             android:id="@+id/rb_with_dayOfWeek_and_month"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Every day" />
 
         <RadioButton
+            style="@style/radioButton"
             android:id="@+id/rb_with_day_and_year"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Don't repeat" />
 
         <RadioButton
+            style="@style/radioButton"
             android:id="@+id/rb_with_dayOfWeek_and_year"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Every day" />
 
         <RadioButton
+            style="@style/radioButton"
             android:id="@+id/rb_never"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -241,6 +246,7 @@
             android:orientation="vertical">
 
             <RadioButton
+                style="@style/radioButton"
                 android:id="@+id/rb_times"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -278,10 +284,21 @@
                 android:textSize="16sp" />-->
 
             <RadioButton
+                style="@style/radioButton"
                 android:id="@+id/rb_until"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Until " />
+
+            <DatePicker
+                android:id="@+id/date_picker_end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:spinnersShown="false"
+                android:calendarViewShown="true"
+                android:datePickerMode="calendar"
+
+                />
 
         </RadioGroup>
 

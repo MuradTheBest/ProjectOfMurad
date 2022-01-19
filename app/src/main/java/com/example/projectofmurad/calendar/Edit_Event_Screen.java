@@ -8,40 +8,31 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
 
+import com.example.projectofmurad.MySuperTouchActivity;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils_Calendar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
-public class Edit_Event_Screen extends AppCompatActivity {
-    private EditText et_name;
-    private EditText et_place;
-    private EditText et_description;
+public class Edit_Event_Screen extends MySuperTouchActivity {
 
-    int color;
-
-    private Button btn_choose_start_time;
+/*    private Button btn_choose_start_time;
     private Button btn_choose_start_date;
     private Button btn_choose_end_time;
-    private Button btn_choose_end_date;
-
-    private Button btn_add_event;
-    private Button btn_color;
+    private Button btn_choose_end_date;*/
 
     private String key;
 
@@ -52,26 +43,26 @@ public class Edit_Event_Screen extends AppCompatActivity {
     private LocalDate startDate;
     private LocalDate old_start_date;
 
-    private int start_day;
+   /* private int start_day;
     private int start_month;
-    private int start_year;
+    private int start_year;*/
 
     private LocalTime startTime;
 
-    private int start_hour;
-    private int start_min;
+/*    private int start_hour;
+    private int start_min;*/
 
     private LocalDate endDate;
     private LocalDate old_end_date;
 
-    private int end_day;
+/*    private int end_day;
     private int end_month;
-    private int end_year;
+    private int end_year;*/
 
     private LocalTime endTime;
 
-    private int end_hour;
-    private int end_min;
+/*    private int end_hour;
+    private int end_min;*/
 
     private LocalDate selectedDate;
 
@@ -101,7 +92,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
         name = gotten_intent.getStringExtra("event_name");
         description = gotten_intent.getStringExtra("event_description");
         place = gotten_intent.getStringExtra("event_place");
-        color = gotten_intent.getIntExtra("event_color", Color.GREEN);
+        selectedColor = gotten_intent.getIntExtra("event_color", Color.GREEN);
 
         startDate = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_start_date"));
         endDate = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_end_date"));
@@ -140,23 +131,26 @@ public class Edit_Event_Screen extends AppCompatActivity {
         et_place.setText(place);
 
         btn_choose_start_date = findViewById(R.id.btn_choose_start_date);
-        btn_choose_start_date.setText(Utils_Calendar.DateToText(startDate));
+        btn_choose_start_date.setText(Utils_Calendar.DateToTextLocal(startDate));
         btn_choose_start_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startDatePickerDialog = new DatePickerDialog(Edit_Event_Screen.this, android.R.style.Theme_Holo_Light_Dialog_NoActionBar_MinWidth, new SetDate("start"), start_year, start_month, start_day);
+                startDatePickerDialog = new DatePickerDialog(Edit_Event_Screen.this,
+                        android.R.style.Theme_Holo_Light_Dialog_NoActionBar_MinWidth, new SetDate("start"), start_year, start_month, start_day);
                 startDatePickerDialog.updateDate(start_year, start_month-1, start_day);
                 //startDatePickerDialog.getDatePicker().setMinDate(LocalDate.now().);
+
                 startDatePickerDialog.show();
             }
         });
 
         btn_choose_end_date = findViewById(R.id.btn_choose_end_date);
-        btn_choose_end_date.setText(Utils_Calendar.DateToText(endDate));
+        btn_choose_end_date.setText(Utils_Calendar.DateToTextLocal(endDate));
         btn_choose_end_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                endDatePickerDialog = new DatePickerDialog(Edit_Event_Screen.this, android.R.style.ThemeOverlay_Material_Dialog, new SetDate("end"), end_year, end_month, end_day);
+                endDatePickerDialog = new DatePickerDialog(Edit_Event_Screen.this,
+                        android.R.style.ThemeOverlay_Material_Dialog, new SetDate("end"), end_year, end_month, end_day);
                 endDatePickerDialog.updateDate(end_year, end_month-1, end_day);
                 endDatePickerDialog.show();
             }
@@ -204,51 +198,53 @@ public class Edit_Event_Screen extends AppCompatActivity {
 
 
         btn_add_event = findViewById(R.id.btn_add_event);
-        btn_add_event.setOnClickListener(view -> {
-            /*name = "";
-            description = "";
-            place = "";
+        btn_add_event.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /*name = "";
+                description = "";
+                place = "";
 
-            String msg = "";
+                String msg = "";
 
-            boolean editTextsFilled = true;
+                boolean editTextsFilled = true;
 
-            if(et_name.getText().toString().isEmpty()){
-                msg += "name";
-                editTextsFilled = false;
-            }
-            else {
-                name = et_name.getText().toString();
-            }
-            if(et_description.getText().toString().isEmpty()){
-                if(!editTextsFilled){
-                    msg += ", ";
+                if(et_name.getText().toString().isEmpty()){
+                    msg += "name";
+                    editTextsFilled = false;
                 }
-                msg += "description";
-                editTextsFilled = false;
-            }
-            else {
-                description = et_description.getText().toString();
-            }
-            if(et_place.getText().toString().isEmpty()){
-            *//*if(!editTextsFilled){
-                msg += ", ";
-            }*//*
-                msg += (editTextsFilled ? "" : ", ");
-                msg += "place";
-                editTextsFilled = false;
-            }
-            else {
-                place = et_place.getText().toString();
-            }*/
+                else {
+                    name = et_name.getText().toString();
+                }
+                if(et_description.getText().toString().isEmpty()){
+                    if(!editTextsFilled){
+                        msg += ", ";
+                    }
+                    msg += "description";
+                    editTextsFilled = false;
+                }
+                else {
+                    description = et_description.getText().toString();
+                }
+                if(et_place.getText().toString().isEmpty()){
+                *//*if(!editTextsFilled){
+                    msg += ", ";
+                }*//*
+                    msg += (editTextsFilled ? "" : ", ");
+                    msg += "place";
+                    editTextsFilled = false;
+                }
+                else {
+                    place = et_place.getText().toString();
+                }*/
 
-            String name = et_name.getText().toString();
-            String description = et_description.getText().toString();
-            String place = et_place.getText().toString();
+                String name = et_name.getText().toString();
+                String description = et_description.getText().toString();
+                String place = et_place.getText().toString();
 
-            boolean editTextsFilled = Utils_Calendar.areEventDetailsValid(this, name, description, place);
+                boolean editTextsFilled = Utils_Calendar.areEventDetailsValid(Edit_Event_Screen.this, name, description, place);
 
-            if(editTextsFilled){
+                if(editTextsFilled) {
                 /*if(start_day <= end_day && start_month <= end_month && start_year <= end_year ){
 
                     if(start_hour == end_hour && start_min <= end_min || start_hour < end_hour){
@@ -267,37 +263,62 @@ public class Edit_Event_Screen extends AppCompatActivity {
 
                 if(error)
                     Toast.makeText(this, "Ups... Something is wrong", Toast.LENGTH_LONG).show();*/
-                Toast.makeText(this, "Event was successfully added " +
-                                "\n NAME: " + name +
-                                "\n DESCRIPTION: " + description +
-                                "\n PLACE: " + place +
-                                "\n STARTS AT " + start_hour + " : " + start_min + " on " + start_day + "." + start_month + "." + start_year +
-                                "\n ENDS AT " + end_hour + " : " + end_min + " on " + end_day + "." + end_month + "." + end_year,
-                        Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Edit_Event_Screen.this, "Event was successfully added " +
+                                    "\n NAME: " + name +
+                                    "\n DESCRIPTION: " + description +
+                                    "\n PLACE: " + place +
+                                    "\n STARTS AT " + start_hour + " : " + start_min + " on " + start_day + "." + start_month + "." + start_year +
+                                    "\n ENDS AT " + end_hour + " : " + end_min + " on " + end_day + "." + end_month + "." + end_year,
+                            Toast.LENGTH_SHORT).show();
 
-                LocalDate start_date = LocalDate.of(start_year, start_month, start_day);
-                LocalDate end_date = LocalDate.of(end_year, end_month, end_day);
+                    LocalDate start_date = LocalDate.of(start_year, start_month, start_day);
+                    LocalDate end_date = LocalDate.of(end_year, end_month, end_day);
 
-                LocalTime start_time = LocalTime.of(start_hour, start_min);
-                LocalTime end_time = LocalTime.of(end_hour, end_min);
+                    LocalTime start_time = LocalTime.of(start_hour, start_min);
+                    LocalTime end_time = LocalTime.of(end_hour, end_min);
 
-                CalendarEventWithTextOnly eventWithTextOnly = new CalendarEventWithTextOnly(name, description, place, color, start_date, start_time, end_date, end_time);
+                    event.addDefaultParams(selectedColor, name, description, place, start_date, start_time, end_date, end_time);
 
-                //addEventToFirebase(event);
-                //addEventToFirebaseForText(eventWithTextOnly);
-                editEvent(eventWithTextOnly);
-                //addEventToFirebaseForAdvanced(eventAdvanced);
+                    event.setEvent_id(key);
 
-                startActivity(new Intent(Edit_Event_Screen.this, Calendar_Screen.class));
+                    if(event.getFrequencyType().endsWith("amount")){
+                        addEventForTimesAdvanced(event);
+                    }
+                    else if(event.getFrequencyType().endsWith("end")){
+                        addEventForUntilAdvanced(event);
+                    }
+
+                    //addEventToFirebase(event);
+                    superDelete(key);
+                    addEventToFirebaseForTextWithPUSH(event);
+                    //addEventToFirebaseForAdvanced(eventAdvanced);
+
+                    startActivity(new Intent(Edit_Event_Screen.this, Calendar_Screen.class));
+
+                }
 
             }
-
         });
 
 
+        btn_delete_event = findViewById(R.id.btn_delete_event);
+        btn_delete_event.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    deleteEventAbsolute(old_start_date, old_end_date);
+                    superDelete(key);
+                    startActivity(new Intent(Edit_Event_Screen.this, Calendar_Screen.class));
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Ups... Deleting failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
-    //sets time
+/*    //sets time
     public class SetTime implements TimePickerDialog.OnTimeSetListener{
         private String time_start_or_end;
 
@@ -315,14 +336,14 @@ public class Edit_Event_Screen extends AppCompatActivity {
 
             String time_text = Utils_Calendar.TimeToText(time);
 
-            /*if(hour < 10){
+            *//*if(hour < 10){
                 time += "0";
             }
             time += hour + ":";
             if(min < 10){
                 time += "0";
             }
-            time += min;*/
+            time += min;*//*
 
             switch(time_start_or_end) {
                 case "start":
@@ -355,7 +376,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
         public void onDateSet(DatePicker view, int year, int month, int day) {
             month = month + 1;
             LocalDate date = LocalDate.of(year, month, day);
-            String date_text = Utils_Calendar.DateToText(date);
+            String date_text = Utils_Calendar.DateToTextOnline(date);
 
             switch(date_start_or_end) {
                 case "start":
@@ -376,7 +397,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
                     break;
             }
         }
-    }
+    }*/
 
     private void createColorPickerDialog() {
         ColorPicker colorPicker = new ColorPicker(this);
@@ -385,13 +406,13 @@ public class Edit_Event_Screen extends AppCompatActivity {
 
         colorPicker.setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
             @Override
-            public void onChooseColor(int position, int selectedColor) {
-                if(selectedColor == 0){
+            public void onChooseColor(int position, int color) {
+                if(color == 0){
                     return;
                 }
-                Log.d("murad", "color " + selectedColor);
-                color = selectedColor;
-                btn_color.setBackgroundColor(selectedColor);
+                Log.d("murad", "color " + color);
+                selectedColor = color;
+                btn_color.setBackgroundColor(color);
             }
 
             @Override
@@ -401,54 +422,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
         colorPicker.show();
     }
 
-    public void editEvent(CalendarEventWithTextOnly event){
-        LocalDate start_date = event.receiveStart_date();
-        LocalDate end_date = event.receiveEnd_date();
-
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
-
-        if(firebaseUser != null){
-            //ToDo check if current user is madrich
-        }
-
-        eventsDatabaseForText = firebase.getReference("EventsDatabase");
-
-        LocalDate tmp = old_start_date;
-        event.setEvent_id(key);
-
-        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(old_start_date));
-        Log.d("murad", eventsDatabaseForText.getKey());
-
-
-        do {
-            eventsDatabaseForText = firebase.getReference("EventsDatabase");
-            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
-
-            eventsDatabaseForText.child(key).removeValue();
-
-            tmp = tmp.plusDays(1);
-        }
-        while(!tmp.isEqual(old_end_date.plusDays(1)));
-
-        tmp = start_date;
-
-        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(start_date));
-        Log.d("murad", eventsDatabaseForText.getKey());
-
-        do {
-            eventsDatabaseForText = firebase.getReference("EventsDatabase");
-            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
-
-            eventsDatabaseForText.child(key).setValue(event);
-
-            event.setTimestamp(0);
-
-            tmp = tmp.plusDays(1);
-        }
-        while(!tmp.isEqual(end_date.plusDays(1)));
-    }
-
+    /*
     public void deleteEvent(CalendarEventWithTextOnly event){
         LocalDate start_date = event.receiveStart_date();
         LocalDate end_date = event.receiveEnd_date();
@@ -476,5 +450,47 @@ public class Edit_Event_Screen extends AppCompatActivity {
             tmp = tmp.plusDays(1);
         }
         while(!tmp.isEqual(end_date.plusDays(1)));
+    }
+*/
+
+    public void deleteEventAbsolute(LocalDate start, LocalDate end){
+
+        eventsDatabaseForText = firebase.getReference("EventsDatabase");
+
+        LocalDate tmp = start;
+
+        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(start));
+        Log.d("murad", eventsDatabaseForText.getKey());
+
+        do {
+            eventsDatabaseForText = firebase.getReference("EventsDatabase");
+            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
+
+            eventsDatabaseForText.child(key).removeValue();
+
+            tmp = tmp.plusDays(1);
+        }
+        while(!tmp.isEqual(end.plusDays(1)));
+    }
+
+    public void superDelete(String key) {
+        eventsDatabaseForText = firebase.getReference("EventsDatabase");
+
+        eventsDatabaseForText.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot data: snapshot.getChildren()) {
+                    if(data.hasChild(key)) {
+                        data.child(key).getRef().removeValue();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
     }
 }

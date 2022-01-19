@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils_Calendar;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.ObservableSnapshotArray;
@@ -105,12 +104,12 @@ public class AdapterForFirebaseWithText extends FirebaseRecyclerAdapter<Calendar
             Log.d("murad","Ending time: " + model.getEnd_time());
 
         }
-        else if(model.getStart_date().equals(Utils_Calendar.DateToText(selectedDate))){
+        else if(model.getStart_date().equals(Utils_Calendar.DateToTextOnline(selectedDate))){
             holder.tv_event_start_time.setText(model.getStart_time());
             Log.d("murad","Starting time: " + model.getStart_time());
 
         }
-        else if(model.getEnd_date().equals(Utils_Calendar.DateToText(selectedDate))){
+        else if(model.getEnd_date().equals(Utils_Calendar.DateToTextOnline(selectedDate))){
             holder.tv_event_end_time.setText(model.getEnd_time());
             Log.d("murad","Ending time: " + model.getEnd_time());
 

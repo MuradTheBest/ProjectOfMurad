@@ -16,6 +16,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Scanner;
+
 public class MainActivity extends AppCompatActivity implements NavigationBarView.OnItemSelectedListener {
     FirebaseAuth firebaseAuth;
     FirebaseUser firebaseUser;
@@ -35,7 +37,6 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-
 
     }
 

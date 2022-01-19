@@ -5,7 +5,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:gravity="center"
-    tools:context=".calendar.Add_Event_Screen">
+    tools:context=".calendar.Add_Event_Screen"
+    android:clickable="true"
+    android:focusableInTouchMode="true"
+    >
 
 
     <EditText
@@ -13,15 +16,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="center"
         android:hint="Enter name"
-        android:textSize="20sp"
         android:inputType="textCapWords"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.13" />
+        app:layout_constraintVertical_bias="0.079" />
 
     <EditText
         android:id="@+id/et_description"
@@ -113,18 +116,40 @@
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btn_add_event"
+    <LinearLayout
+        android:id="@+id/ll_manage_event"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:text="Save event"
-        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/ll_end"
         app:layout_constraintStart_toStartOf="@+id/ll_end"
         app:layout_constraintTop_toBottomOf="@+id/ll_end"
-        app:layout_constraintVertical_bias="0.00" />
+        app:layout_constraintVertical_bias="0.0"
+        android:gravity="center"
+        android:layout_marginTop="36dp"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/btn_delete_event"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete event"
+            android:textSize="16sp"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="20dp"/>
+
+        <Button
+            android:id="@+id/btn_add_event"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add event"
+            android:onClick="onAddEventClick"
+            android:textSize="16sp"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="20dp"/>
+
+    </LinearLayout>
 
     <DatePicker
         android:layout_width="wrap_content"
@@ -145,19 +170,19 @@
         android:layout_marginTop="15dp"
         android:text="Pick color"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/btn_add_event"
-        app:layout_constraintStart_toStartOf="@+id/btn_add_event"
-        app:layout_constraintTop_toBottomOf="@+id/btn_add_event"
+        app:layout_constraintEnd_toEndOf="@+id/ll_manage_event"
+        app:layout_constraintStart_toStartOf="@+id/ll_manage_event"
+        app:layout_constraintTop_toBottomOf="@+id/ll_manage_event"
         app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/btn_repeat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="24dp"
         android:text="Repeat"
-        app:layout_constraintEnd_toStartOf="@+id/btn_color"
-        app:layout_constraintTop_toBottomOf="@+id/btn_add_event" />
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/btn_color"
+        app:layout_constraintStart_toStartOf="@+id/btn_color"
+        app:layout_constraintTop_toBottomOf="@+id/btn_color" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

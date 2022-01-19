@@ -1,10 +1,9 @@
-package com.example.projectofmurad;
+package com.example.projectofmurad.calendar;
 
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.projectofmurad.calendar.CalendarEvent;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -20,11 +19,19 @@ import java.util.Locale;
 
 public class Utils_Calendar {
 
-    //public final static Locale locale = Locale.getDefault();
-    public final static Locale locale = Locale.ENGLISH;
+    public final static Locale locale = Locale.getDefault();
 
-    public final static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("E, dd.MM.yyyy").withLocale(locale);
-    public final static DateTimeFormatter dateFormatForFB = DateTimeFormatter.ofPattern("dd-MM-yyyy").withLocale(locale);
+    /*public final static Locale locale = Locale.ENGLISH;*/
+
+    public static String[] narrowDaysOfWeek = getNarrowDaysOfWeek();
+    public static String[] shortDaysOfWeek = getShortDaysOfWeek();
+
+    public final static DateTimeFormatter dateFormatOnline = DateTimeFormatter.ofPattern("E, dd.MM.yyyy", Locale.ENGLISH);
+    public final static DateTimeFormatter dateFormatLocal = DateTimeFormatter.ofPattern("E, dd.MM.yyyy").withLocale(locale);
+
+    public final static DateTimeFormatter dateFormatForFBOnline= DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    public final static DateTimeFormatter dateFormatForFBOffline = DateTimeFormatter.ofPattern("dd-MM-yyyy").withLocale(locale);
+
     public final static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
 
     public final static String SHARED_PREFERENCES_KEY_USERNAME = "shared_preferences_key_username";
@@ -51,7 +58,7 @@ public class Utils_Calendar {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
-    public static String[] getShortDayOfWeek(){
+    public static String[] getNarrowDaysOfWeek(){
         ArrayList<String> days = new ArrayList<>(7);
 
         //days.add(DayOfWeek.SUNDAY.getDisplayName(TextStyle.NARROW, locale));
@@ -59,6 +66,28 @@ public class Utils_Calendar {
         for(int i = 0; i < DayOfWeek.values().length; i++) {
             DayOfWeek d = DayOfWeek.of(i+1);
             days.add(d.getDisplayName(TextStyle.NARROW, locale)) ;
+            Log.d("murad", "position " + i + " is " + days.get(i));
+        }
+
+        String[] tmp = new String[7];
+        int i=0;
+        for(String d : days) {
+            tmp[i] = d;
+            i++;
+        }
+
+
+        return tmp;
+    }
+
+    public static String[] getShortDaysOfWeek(){
+        ArrayList<String> days = new ArrayList<>(7);
+
+        //days.add(DayOfWeek.SUNDAY.getDisplayName(TextStyle.NARROW, locale));
+
+        for(int i = 0; i < DayOfWeek.values().length; i++) {
+            DayOfWeek d = DayOfWeek.of(i+1);
+            days.add(d.getDisplayName(TextStyle.SHORT, locale)) ;
             Log.d("murad", "position " + i + " is " + days.get(i));
         }
 
@@ -115,23 +144,64 @@ public class Utils_Calendar {
         return count;
     }*/
 
+    public static LocalDate getNextOccurrence(LocalDate date, int weekNumber){
+        int dayOfWeek = date.getDayOfWeek().getValue();
 
+        LocalDate tmp = date;
 
-    public static String DateToText(LocalDate date){
-        return date.format(dateFormat);
+//        Log.d("frequency_dayOfWeek_and_month", "getNextOccurrence: " + Utils_Calendar.DateToTextOnline(tmp));
+
+        for(int i = 1; i < weekNumber; i++) {
+            tmp = tmp.plusWeeks(1);
+        }
+
+        return tmp;
+    }
+
+    public static LocalDate getFirstDayWithDayOfWeek(LocalDate date, int dayOfWeek){
+        date = date.withDayOfMonth(1);
+        while(date.getDayOfWeek().getValue() != dayOfWeek+1){
+            date = date.plusDays(1);
+        }
+
+        return date;
+    }
+
+    public static LocalDate getNextOccurrenceForLast(LocalDate date, int dayOfWeek){
+        int month_length = date.lengthOfMonth();
+        LocalDate tmp = date.withDayOfMonth(month_length);
+
+        while(tmp.getDayOfWeek().getValue() != dayOfWeek+1){
+            tmp = tmp.minusDays(1);
+        }
+
+        return tmp;
+    }
+
+    public static String DateToTextOnline(LocalDate date){
+        return date.format(dateFormatOnline);
+    }
+
+    public static String DateToTextLocal(LocalDate date){
+        return date.format(dateFormatLocal);
+    }
+
+    public static String OnlineTextToLocal(String date){
+        LocalDate h = LocalDate.parse(date, dateFormatOnline);
+        return h.format(dateFormatLocal);
     }
 
     public static LocalDate TextToDate(String date){
-        return LocalDate.parse(date, dateFormat);
+        return LocalDate.parse(date, dateFormatOnline);
     }
 
     public static String DateToTextForFirebase(LocalDate date){
-        return date.format(dateFormatForFB);
+        return date.format(dateFormatForFBOnline);
     }
 
-    public static LocalDate TextToDateForFirebase(String date){
-        return LocalDate.parse(date, dateFormatForFB);
-    }
+    /*public static LocalDate TextToDateForFirebase(String date){
+        return LocalDate.parse(date, dateFormat);
+    }*/
 
     public static String TimeToText(LocalTime time){
         return time.format(timeFormat);
@@ -146,10 +216,10 @@ public class Utils_Calendar {
         return DateToTextForFirebase(date);
     }
 
-    public static String TextForFirebaseToText(String text){
+    /*public static String TextForFirebaseToText(String text){
         LocalDate date = TextToDateForFirebase(text);
-        return DateToText(date);
-    }
+        return DateToTextOnline(date);
+    }*/
 
     public static void printHashMap(HashMap<LocalDate, ArrayList<CalendarEvent>> map){
         for (LocalDate date : map.keySet()) {
@@ -158,9 +228,9 @@ public class Utils_Calendar {
                 for(CalendarEvent e : eventArrayList){
                     Log.d("murad",  "------------------------------------------------------------------------------------------------------------------------------------");
 
-                    Log.d("murad", "key: " + Utils_Calendar.DateToText(date) + " value: " + e.getName() + " | " + e.getPlace() + " | " + e.getDescription());
-                    Log.d("murad",  Utils_Calendar.DateToText(e.getStart_date()) + " | " + e.getStart_hour() + ":" + e.getStart_min());
-                    Log.d("murad",  Utils_Calendar.DateToText(e.getEnd_date()) + " | " + e.getEnd_hour() + ":" + e.getEnd_min());
+                    Log.d("murad", "key: " + Utils_Calendar.DateToTextOnline(date) + " value: " + e.getName() + " | " + e.getPlace() + " | " + e.getDescription());
+                    Log.d("murad",  Utils_Calendar.DateToTextOnline(e.getStart_date()) + " | " + e.getStart_hour() + ":" + e.getStart_min());
+                    Log.d("murad",  Utils_Calendar.DateToTextOnline(e.getEnd_date()) + " | " + e.getEnd_hour() + ":" + e.getEnd_min());
 
                     Log.d("murad",  "------------------------------------------------------------------------------------------------------------------------------------");
                 }
@@ -206,9 +276,10 @@ public class Utils_Calendar {
             msg += "name";
             editTextsFilled = false;
         }
-        else {
+/*        else {
             name = name.replaceFirst("\\s+", "");
-        }
+        }*/
+
         if(description.isEmpty()) {
             if(!editTextsFilled) {
                 msg += ", ";
@@ -216,9 +287,9 @@ public class Utils_Calendar {
             msg += "description";
             editTextsFilled = false;
         }
-        else {
+/*        else {
             description = description.replaceFirst("\\s+", "");;
-        }
+        }*/
 
         if(place.isEmpty()) {
             /*if(!editTextsFilled){
@@ -228,9 +299,9 @@ public class Utils_Calendar {
             msg += "place";
             editTextsFilled = false;
         }
-        else {
+/*        else {
             place = place.replaceFirst("\\s+", "");;
-        }
+        }*/
 
         if(!editTextsFilled){
             Toast.makeText(context, "Please enter event's " + msg, Toast.LENGTH_LONG).show();

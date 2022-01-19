@@ -1,12 +1,10 @@
 package com.example.projectofmurad.calendar;
 
-import android.graphics.Color;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class CalendarEventWithTextOnly implements Serializable {
+public class CalendarEventSuperClass implements Serializable {
 
     private String event_id;
     private int timestamp;
@@ -21,15 +19,11 @@ public class CalendarEventWithTextOnly implements Serializable {
     private String end_date;
     private String end_time;
 
-    private int frequency;
-
-    private String frequencyType;
-
     private int color;
 
 
-    public CalendarEventWithTextOnly(){
-
+    public CalendarEventSuperClass(){
+/*
         this.event_id = "";
 
         this.name = "";
@@ -45,31 +39,13 @@ public class CalendarEventWithTextOnly implements Serializable {
         this.timestamp = 0;
 
         this.frequency = 0;
-        this.frequencyType = "";
+        this.frequencyDay = "";
+        this.frequencyDayOfWeek = new String[]{};
+        this.frequencyMonth = "";
+        this.frequencyYear = "";*/
     }
 
-    public CalendarEventWithTextOnly(String name, String description, String place, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
-
-        this.name = name;
-        this.description = description;
-        this.place = place;
-
-        this.start_date = Utils_Calendar.DateToTextOnline(startDate);
-
-        this.start_time = Utils_Calendar.TimeToText(startTime);
-
-        this.end_date = Utils_Calendar.DateToTextOnline(endDate);
-
-        this.end_time = Utils_Calendar.TimeToText(endTime);
-
-        this.timestamp = startTime.toSecondOfDay();
-
-        this.event_id = this.start_date + "-" + this.timestamp;
-
-        this.color = Color.GREEN;
-    }
-
-    public CalendarEventWithTextOnly(String name, String description, String place, int color, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+    public CalendarEventSuperClass(int color, String name, String description, String place, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
 
         this.name = name;
         this.description = description;
@@ -90,28 +66,30 @@ public class CalendarEventWithTextOnly implements Serializable {
         this.color = color;
     }
 
-    public CalendarEventWithTextOnly(String name, String description, String place, String start_date, String start_time, String end_date, String end_time) {
 
-        this.timestamp = Utils_Calendar.TextToTime(start_time).toSecondOfDay();
-
-        this.event_id = start_date + "-" + this.timestamp;
+    public void addDefaultParams(int color, String name, String description, String place, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
 
         this.name = name;
         this.description = description;
         this.place = place;
 
-        this.start_date = start_date;
+        this.start_date = Utils_Calendar.DateToTextOnline(startDate);
 
-        this.start_time = start_time;
+        this.start_time = Utils_Calendar.TimeToText(startTime);
 
-        this.end_date = end_date;
+        this.end_date = Utils_Calendar.DateToTextOnline(endDate);
 
-        this.end_time = end_time;
+        this.end_time = Utils_Calendar.TimeToText(endTime);
 
-        this.color = Color.GREEN;
+        this.timestamp = startTime.toSecondOfDay();
+
+        this.event_id = this.start_date + "-" + this.timestamp;
+
+        this.color = color;
     }
 
-    public CalendarEventWithTextOnly(String name, String description, String place, int color, String start_date, String start_time, String end_date, String end_time) {
+
+    public CalendarEventSuperClass(int color, String name, String description, String place, String start_date, String start_time, String end_date, String end_time) {
 
         this.timestamp = Utils_Calendar.TextToTime(start_time).toSecondOfDay();
 

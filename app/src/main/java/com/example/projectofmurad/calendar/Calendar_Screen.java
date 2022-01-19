@@ -15,15 +15,17 @@ import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.BuildConfig;
+import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils_Calendar;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -57,6 +59,15 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
     TextView textView5;
     String day;
 
+    private String[] days = Utils_Calendar.shortDaysOfWeek;
+
+    private TextView tv_Sunday;
+    private TextView tv_Monday;
+    private TextView tv_Tuesday;
+    private TextView tv_Wednesday;
+    private TextView tv_Thursday;
+    private TextView tv_Friday;
+    private TextView tv_Saturday;
 
     public static final String action_to_find_today = BuildConfig.APPLICATION_ID + "to find today";
 
@@ -98,7 +109,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         selectedDate = LocalDate.now();
         today = LocalDate.now();
 
-        Log.d("murad","today is " + Utils_Calendar.DateToText(today));
+        Log.d("murad","today is " + Utils_Calendar.DateToTextOnline(today));
 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -153,9 +164,34 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
 
         day = ""+selectedDate.getDayOfMonth();
         Toast.makeText(getApplicationContext(), day, Toast.LENGTH_SHORT).show();
+        initAllDaysOfWeek();
         setMonthView();
 
     }
+
+    private void initAllDaysOfWeek(){
+        tv_Sunday = findViewById(R.id.tv_Sunday);
+        tv_Sunday.setText(days[6]);
+
+        tv_Monday = findViewById(R.id.tv_Monday);
+        tv_Monday.setText(days[0]);
+
+        tv_Tuesday = findViewById(R.id.tv_Tuesday);
+        tv_Tuesday.setText(days[1]);
+
+        tv_Wednesday = findViewById(R.id.tv_Wednesday);
+        tv_Wednesday.setText(days[2]);
+
+        tv_Thursday = findViewById(R.id.tv_Thursday);
+        tv_Thursday.setText(days[3]);
+
+        tv_Friday = findViewById(R.id.tv_Friday);
+        tv_Friday.setText(days[4]);
+
+        tv_Saturday = findViewById(R.id.tv_Saturday);
+        tv_Saturday.setText(days[5]);
+    }
+
 
     private void setMonthView() {
         monthYearText.setText(monthYearFromDate(selectedDate));
@@ -350,7 +386,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
             YearMonth yearMonthOfSelectedDate = YearMonth.of(selectedDate.getYear(), selectedDate.getMonth());
             YearMonth yearMonthOfPassingDate = YearMonth.of(passingDate.getYear(), passingDate.getMonth());
 
-            Log.d("murad", "selectedDate " + Utils_Calendar.DateToText(selectedDate) + ", passingDate " + Utils_Calendar.DateToText(passingDate));
+            Log.d("murad", "selectedDate " + Utils_Calendar.DateToTextOnline(selectedDate) + ", passingDate " + Utils_Calendar.DateToTextOnline(passingDate));
             if(!yearMonthOfPassingDate.equals(yearMonthOfSelectedDate)){
                 selectedDate = passingDate;
                 prev = 0;
@@ -508,6 +544,13 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         }
 
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        startActivity(new Intent(Calendar_Screen.this, MainActivity.class));
     }
 }
 

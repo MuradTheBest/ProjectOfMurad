@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/constraintLayout_frequency"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:maxHeight="450dp"
+    android:overScrollMode="never"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:divider="@color/gray"
+        android:showDividers="middle">
+
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:orientation="vertical"
+            >
+
+            <TextView
+                android:id="@+id/tv_repeat"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:text="Repeats once in"
+                android:textSize="16sp"
+                android:layout_weight="1"
+                />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:orientation="horizontal"
+                >
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/textInputLayout_frequency"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/textInputLayout_frequencyType"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_frequency"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:inputType="number"
+                        android:maxLength="2"
+                        android:text="1"
+                        android:textSize="16sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:id="@+id/textInputLayout_frequencyType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="Frequency Type"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+
+                    <AutoCompleteTextView
+                        android:id="@+id/autoCompleteTextView_frequencyType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:inputType="none"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <RadioGroup
+            android:id="@+id/rg_repeat"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_margin="5dp" >
+
+            <RadioButton
+                style="@style/radioButton"
+                android:id="@+id/rb_with_day_and_month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Don't repeat" />
+
+            <RadioButton
+                style="@style/radioButton"
+                android:id="@+id/rb_with_dayOfWeek_and_month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Every day" />
+
+            <RadioButton
+                style="@style/radioButton"
+                android:id="@+id/rb_with_day_and_year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Don't repeat" />
+
+            <RadioButton
+                style="@style/radioButton"
+                android:id="@+id/rb_with_dayOfWeek_and_year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Every day" />
+
+<!--            <RadioButton
+                style="@style/radioButton"
+                android:id="@+id/rb_never"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Don't repeat" />-->
+
+        </RadioGroup>
+
+        <LinearLayout
+            android:id="@+id/choose_day_of_week_layout"
+            android:layout_width="238sp"
+            android:layout_height="38sp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:weightSum="7"
+            android:layout_marginHorizontal="10sp"
+            android:clipToPadding="false"
+            >
+
+            <ToggleButton
+                android:id="@+id/tb_Sunday"
+                android:layout_width="30sp"
+                android:layout_height="30sp"
+                android:layout_marginHorizontal="2sp"
+                android:textOff="S"
+                android:textOn="S"
+                android:textSize="14sp"
+                style="@style/toggleButton"
+                android:background="@drawable/toggle_bg"
+                android:checked="true"/>
+
+            <ToggleButton
+                android:id="@+id/tb_Monday"
+                android:layout_width="30sp"
+                android:layout_height="30sp"
+                android:layout_marginHorizontal="2sp"
+                android:textOff="M"
+                android:textOn="M"
+                android:textSize="14sp"
+                style="@style/toggleButton"
+                android:background="@drawable/toggle_bg"
+                android:checked="true"/>
+
+            <ToggleButton
+                android:id="@+id/tb_Tuesday"
+                android:layout_width="30sp"
+                android:layout_height="30sp"
+                android:layout_marginHorizontal="2sp"
+                android:textOff="T"
+                android:textOn="T"
+                android:textSize="14sp"
+                style="@style/toggleButton"
+                android:background="@drawable/toggle_bg"
+                android:checked="true"/>
+
+            <ToggleButton
+                android:id="@+id/tb_Wednesday"
+                android:layout_width="30sp"
+                android:layout_height="30sp"
+                android:layout_marginHorizontal="2sp"
+                android:textOff="W"
+                android:textOn="W"
+                android:textSize="14sp"
+                style="@style/toggleButton"
+                android:background="@drawable/toggle_bg"
+                android:checked="true"/>
+
+            <ToggleButton
+                android:id="@+id/tb_Thursday"
+                android:layout_width="30sp"
+                android:layout_height="30sp"
+                android:layout_marginHorizontal="2sp"
+                android:textOff="T"
+                android:textOn="T"
+                android:textSize="14sp"
+                style="@style/toggleButton"
+                android:background="@drawable/toggle_bg"
+                android:checked="true"/>
+
+            <ToggleButton
+                android:id="@+id/tb_Friday"
+                android:layout_width="30sp"
+                android:layout_height="30sp"
+                android:layout_marginHorizontal="2sp"
+                android:textOff="F"
+                android:textOn="F"
+                android:textSize="14sp"
+                style="@style/toggleButton"
+                android:background="@drawable/toggle_bg"
+                android:checked="true"/>
+
+            <ToggleButton
+                android:id="@+id/tb_Saturday"
+                android:layout_width="30sp"
+                android:layout_height="30sp"
+                android:layout_marginHorizontal="2sp"
+                android:textOff="S"
+                android:textOn="S"
+                android:textSize="14sp"
+                style="@style/toggleButton"
+                android:background="@drawable/toggle_bg"
+                android:checked="true"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginBottom="5dp"
+                android:text="Duration"
+                android:textSize="16sp" />
+
+            <RadioGroup
+                android:id="@+id/rg_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    style="@style/radioButton"
+                    android:id="@+id/rb_times"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Times in total: "
+                    android:checked="true"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:id="@+id/textInputLayout_times"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_times"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:inputType="number"
+                        android:maxLength="2"
+                        android:text="1"
+                        android:textSize="16sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!--<com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_times"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:maxLength="2"
+                    android:text="1"
+                    android:textSize="16sp" />-->
+
+                <RadioButton
+                    style="@style/radioButton"
+                    android:id="@+id/rb_until"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Until " />
+
+                <DatePicker
+                    android:animateLayoutChanges="true"
+                    android:id="@+id/date_picker_end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:outlineSpotShadowColor="@color/colorAccent"
+                    android:outlineAmbientShadowColor="@color/colorAccent"
+
+                    android:headerBackground="@color/colorAccent"
+                    android:backgroundTint="@color/colorAccent"
+                    android:headerDayOfMonthTextAppearance="@color/colorAccent"
+                    android:calendarTextColor="@color/colorAccent"
+                    android:dayOfWeekBackground="@color/colorAccent"
+                    android:foregroundGravity="center"
+                    android:spinnersShown="false"
+                    android:calendarViewShown="true"
+                    android:datePickerMode="calendar"
+                    android:scrollbars="none"
+                    />
+
+            </RadioGroup>
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:text="Cancel"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/btn_ok"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:text="Ok"
+                style="?android:attr/buttonBarButtonStyle" />
+
+        </LinearLayout>
+
+
+        <!--<LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            >
+
+            <Button
+                android:id="@+id/btn_ok"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="50dp"
+                android:textSize="10sp"
+                android:text="Ok" />
+
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50dp"
+                android:textSize="10sp"
+                android:text="Cancel" />
+
+        </LinearLayout>-->
+
+
+
+
+    </LinearLayout>
+
+</ScrollView>

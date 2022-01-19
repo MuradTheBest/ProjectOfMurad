@@ -17,12 +17,9 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils_Calendar;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.ObservableSnapshotArray;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.time.LocalDate;
 
@@ -30,7 +27,7 @@ import java.time.LocalDate;
 /** FirebaseRecyclerAdapter is a class provided by
    FirebaseUI. it provides functions to bind, adapt and show
    database contents in a Recycler View */
-public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWithTextOnly, AdapterForFirebase2.ViewHolderForFirebase> {
+public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWithTextOnly2FromSuper, AdapterForFirebase2.ViewHolderForFirebase> {
 
     /**
      * Initialize a {@link RecyclerView.Adapter} that listens to a Firebase query. See
@@ -40,11 +37,11 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
      */
 
     private LocalDate selectedDate;
-    private ObservableSnapshotArray<CalendarEventWithTextOnly> calendarEventArrayList;
+    private ObservableSnapshotArray<CalendarEventWithTextOnly2FromSuper> calendarEventArrayList;
     private final OnEventListener onEventListener;
-    private FirebaseRecyclerOptions<CalendarEventWithTextOnly> options;
+    private FirebaseRecyclerOptions<CalendarEventWithTextOnly2FromSuper> options;
 
-    public AdapterForFirebase2(@NonNull FirebaseRecyclerOptions<CalendarEventWithTextOnly> options, LocalDate selectedDate, OnEventListener onEventListener) {
+    public AdapterForFirebase2(@NonNull FirebaseRecyclerOptions<CalendarEventWithTextOnly2FromSuper> options, LocalDate selectedDate, OnEventListener onEventListener) {
         super(options);
         this.calendarEventArrayList = options.getSnapshots();
         this.selectedDate = selectedDate;
@@ -174,7 +171,7 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull AdapterForFirebase2.ViewHolderForFirebase holder, int position, @NonNull CalendarEventWithTextOnly model) {
+    protected void onBindViewHolder(@NonNull AdapterForFirebase2.ViewHolderForFirebase holder, int position, @NonNull CalendarEventWithTextOnly2FromSuper model) {
         Log.d("murad", "RECYCLING STARTED");
         String info = "";
 
@@ -200,12 +197,12 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
             Log.d("murad","Ending time: " + model.getEnd_time());
 
         }
-        else if(model.getStart_date().equals(Utils_Calendar.DateToText(selectedDate))){
+        else if(model.getStart_date().equals(Utils_Calendar.DateToTextOnline(selectedDate))){
             holder.tv_event_start_time.setText(model.getStart_time());
             Log.d("murad","Starting time: " + model.getStart_time());
 
         }
-        else if(model.getEnd_date().equals(Utils_Calendar.DateToText(selectedDate))){
+        else if(model.getEnd_date().equals(Utils_Calendar.DateToTextOnline(selectedDate))){
             holder.tv_event_end_time.setText(model.getEnd_time());
             Log.d("murad","Ending time: " + model.getEnd_time());
 
@@ -216,8 +213,8 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
         Log.d("murad", "position = " + position);
 
         holder.expanded_layout.setVisibility(View.GONE);
-        holder.tv_event_start_date_time.setText("Starting time: " + model.getStart_date() + ", " + model.getStart_time());
-        holder.tv_event_end_date_time.setText("Ending time: " + model.getEnd_date() + ", " + model.getEnd_time());
+        holder.tv_event_start_date_time.setText("Starting time: " + Utils_Calendar.OnlineTextToLocal(model.getStart_date()) + ", " + model.getStart_time());
+        holder.tv_event_end_date_time.setText("Ending time: " + Utils_Calendar.OnlineTextToLocal(model.getEnd_date()) + ", " + model.getEnd_time());
     }
 
 
@@ -232,7 +229,7 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
     }
 
     public interface OnEventListener {
-        void onEventClick(int position, CalendarEventWithTextOnly calendarEventWithTextOnly);
+        void onEventClick(int position, CalendarEventWithTextOnly2FromSuper calendarEventWithTextOnly);
     }
 
     public interface OnExpandedListener {

@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils_Calendar;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
@@ -32,7 +31,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Adapte
     LocalDate passingDate;
     Context context;
 
-    ArrayList<CalendarEventWithTextOnly> calendarEventArrayList;
+    ArrayList<CalendarEventWithTextOnly2FromSuper> calendarEventArrayList;
 
     private RecyclerView rv_events;
     private AdapterForFirebase2 adapterForFirebase;
@@ -78,9 +77,9 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Adapte
         databaseReference = databaseReference.child(Utils_Calendar.DateToTextForFirebase(passingDate));
         Query query = databaseReference.orderByChild("timestamp");
 
-        FirebaseRecyclerOptions<CalendarEventWithTextOnly> options
-                = new FirebaseRecyclerOptions.Builder<CalendarEventWithTextOnly>()
-                .setQuery(query, CalendarEventWithTextOnly.class)
+        FirebaseRecyclerOptions<CalendarEventWithTextOnly2FromSuper> options
+                = new FirebaseRecyclerOptions.Builder<CalendarEventWithTextOnly2FromSuper>()
+                .setQuery(query, CalendarEventWithTextOnly2FromSuper.class)
                 .setLifecycleOwner((LifecycleOwner) this.getOwnerActivity())
                 .build();
 
@@ -162,7 +161,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Adapte
     }
 
     @Override
-    public void onEventClick(int position, CalendarEventWithTextOnly calendarEventWithTextOnly) {
+    public void onEventClick(int position, CalendarEventWithTextOnly2FromSuper calendarEventWithTextOnly) {
         this.dismiss();
         String key = calendarEventWithTextOnly.getEvent_id();
 

@@ -1,7 +1,5 @@
 package com.example.projectofmurad.calendar;
 
-import com.example.projectofmurad.Utils_Calendar;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -52,11 +50,11 @@ public class CalendarEventWithText implements Serializable {
         this.description = description;
         this.place = place;
 
-        this.start_date = Utils_Calendar.DateToText(startDate);
+        this.start_date = Utils_Calendar.DateToTextOnline(startDate);
 
         this.start_time = Utils_Calendar.TimeToText(startTime);
 
-        this.end_date = Utils_Calendar.DateToText(endDate);
+        this.end_date = Utils_Calendar.DateToTextOnline(endDate);
 
         this.end_time = Utils_Calendar.TimeToText(endTime);
 

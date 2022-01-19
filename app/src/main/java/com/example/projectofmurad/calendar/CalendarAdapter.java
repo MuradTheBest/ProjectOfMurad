@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils_Calendar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,6 +23,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder> {
     private  ArrayList<LocalDate> daysOfMonth;
@@ -33,6 +33,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     private DatabaseReference eventsDatabase;
 
     private String name;
+    boolean changed = false;
 
     class CalendarViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView dayOfMonth;
@@ -54,7 +55,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         @Override
         public void onClick(View view) {
             if(view == itemView){
-                Log.d("murad", getAdapterPosition() + " | " + dayOfMonth.getText().toString() + " | " + Utils_Calendar.DateToText(daysOfMonth.get(getAdapterPosition())));
+                Log.d("murad", getAdapterPosition() + " | " + dayOfMonth.getText().toString() + " | " + Utils_Calendar.DateToTextOnline(daysOfMonth.get(getAdapterPosition())));
                 calendarOnItemListener.onItemClick(getAdapterPosition(), dayOfMonth.getText().toString(), daysOfMonth.get(getAdapterPosition()));
             }
         }
@@ -104,6 +105,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         firebase = FirebaseDatabase.getInstance();
         eventsDatabase = firebase.getReference("EventsDatabase");
         Query query = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(daysOfMonth.get(position))).orderByChild("timestamp");
+/*
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -160,6 +162,72 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
             }
         });
+*/
+
+
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.d("murad", "---------------------------------------------------------------------------------");
+                Log.d("murad", "date: " + daysOfMonth.get(position).getDayOfMonth());
+                Log.d("murad", "getChildrenCount" + snapshot.getChildrenCount());
+                if(snapshot.hasChildren()){
+                    int count = 1;
+                    int color = Color.GREEN;
+                    int timestamp;
+
+                    for(DataSnapshot data : snapshot.getChildren()){
+                        Log.d("murad", "count = " + count);
+
+                        name = data.child("name").getValue().toString();
+                        color = Integer.parseInt(data.child("color").getValue().toString());
+                        timestamp = Integer.parseInt(data.child("timestamp").getValue().toString());
+                        if(count == 1) {
+                            holder.tv_event_1.setVisibility(View.VISIBLE);
+                            holder.tv_event_1.setText(name);
+                            //holder.tv_event_1 = editTextView(holder.tv_event_1, timestamp);
+                            holder.tv_event_1.getBackground().setTint(color);
+                            Log.d("murad", "tv_event_1 set VISIBLE");
+                        }
+                        else if(count == 2) {
+                            holder.tv_event_2.setVisibility(View.VISIBLE);
+                            holder.tv_event_2.setText(name);
+                            //holder.tv_event_2 = editTextView(holder.tv_event_2, timestamp);
+                            holder.tv_event_2.getBackground().setTint(color);
+                            Log.d("murad", "tv_event_2 set VISIBLE");
+                        }
+                        else if(count == 3) {
+                            holder.tv_event_3.setVisibility(View.VISIBLE);
+                            holder.tv_event_3.setText(name);
+                            //holder.tv_event_3 = editTextView(holder.tv_event_3, timestamp);
+                            holder.tv_event_3.getBackground().setTint(color);
+                            Log.d("murad", "tv_event_3 set VISIBLE");
+                        }
+                        else if(count == 4) {
+                            holder.tv_event_4.setVisibility(View.VISIBLE);
+                            holder.tv_event_4.setText(name);
+                            //holder.tv_event_4 = editTextView(holder.tv_event_4, timestamp);
+                            holder.tv_event_4.getBackground().setTint(color);
+                            Log.d("murad", "tv_event_4 set VISIBLE");
+                        }
+                        count++;
+                    }
+                    Log.d("murad", "count after loop = " + count);
+                }
+
+                changed = true;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        if(changed){
+            this.notifyDataSetChanged();
+        }
+
         Log.d("murad", "---------------------------------------------------------------------------------");
 
     }

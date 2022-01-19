@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.projectofmurad">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
@@ -12,6 +12,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjectOfMurad">
+        <activity
+            android:name=".calendar.ChooseEventFrequency_Screen"
+            android:exported="false" />
+        <activity
+            android:name=".calendar.hjxvcvghjkl"
+            android:exported="false" />
+        <activity
+            android:name=".MySuperTouchActivity"
+            android:exported="false" />
         <activity
             android:name=".calendar.CalendarView_Screen"
             android:exported="false" />
