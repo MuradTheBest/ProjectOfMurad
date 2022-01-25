@@ -1,7 +1,13 @@
 package com.example.projectofmurad.calendar;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.transition.AutoTransition;
+import android.transition.ChangeBounds;
+import android.transition.TransitionManager;
 import android.util.Log;
+import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
@@ -175,8 +181,14 @@ public class Utils_Calendar {
             tmp = tmp.minusDays(1);
         }
 
+/*        TemporalField h = WeekFields.SUNDAY_START.dayOfWeek();
+        DayOfWeek.from();
+        tmp.get(h);*/
+
         return tmp;
     }
+
+
 
     public static String DateToTextOnline(LocalDate date){
         return date.format(dateFormatOnline);
@@ -308,5 +320,53 @@ public class Utils_Calendar {
         }
 
         return editTextsFilled;
+    }
+
+    public static int lighten(int color, double fraction) {
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        red = lightenColor(red, fraction);
+        green = lightenColor(green, fraction);
+        blue = lightenColor(blue, fraction);
+        int alpha = Color.alpha(color);
+        return Color.argb(alpha, red, green, blue);
+    }
+
+    public static int darken(int color, double fraction) {
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        red = darkenColor(red, fraction);
+        green = darkenColor(green, fraction);
+        blue = darkenColor(blue, fraction);
+        int alpha = Color.alpha(color);
+
+        return Color.argb(alpha, red, green, blue);
+    }
+
+    private static int darkenColor(int color, double fraction) {
+        return (int)Math.max(color - (color * fraction), 0);
+    }
+
+    private static int lightenColor(int color, double fraction) {
+        return (int) Math.min(color + (color * fraction), 255);
+    }
+
+    public static void animate(ViewGroup viewGroup){
+        AutoTransition trans = new AutoTransition();
+        trans.setDuration(100);
+        trans.setInterpolator(new AccelerateDecelerateInterpolator());
+        //trans.setInterpolator(new DecelerateInterpolator());
+        //trans.setInterpolator(new FastOutSlowInInterpolator());
+
+        ChangeBounds changeBounds = new ChangeBounds();
+        changeBounds.setDuration(300);
+        changeBounds.setInterpolator(new AccelerateDecelerateInterpolator());
+
+//        TransitionManager.beginDelayedTransition(viewGroup, trans);
+        TransitionManager.beginDelayedTransition(viewGroup, changeBounds);
+
+
     }
 }

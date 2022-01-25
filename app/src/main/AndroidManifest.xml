@@ -13,12 +13,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjectOfMurad">
         <activity
-            android:name=".calendar.ChooseEventFrequency_Screen"
-            android:exported="false" />
-        <activity
-            android:name=".calendar.hjxvcvghjkl"
-            android:exported="false" />
-        <activity
             android:name=".MySuperTouchActivity"
             android:exported="false" />
         <activity

@@ -87,7 +87,7 @@ public class ChooseEventFrequencyDialogCustom extends Dialog implements Compound
 
         frequencyDayOfWeek = new boolean[7];
 
-        constraintLayout_frequency = this.findViewById(R.id.constraintLayout_frequency);
+        constraintLayout_frequency = this.findViewById(R.id.scrollview_frequency);
 
         choose_day_of_week_layout = this.findViewById(R.id.choose_day_of_week_layout);
 

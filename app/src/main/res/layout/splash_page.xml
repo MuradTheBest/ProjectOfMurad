@@ -13,11 +13,9 @@
 		android:layout_height="85dp"
 		android:background="@drawable/vector_ek2"
 		android:backgroundTint="@color/colorAccent"
-		app:layout_constraintBottom_toTopOf="@+id/ellipse_3"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintVertical_bias="0.0" />
+		app:layout_constraintTop_toTopOf="parent" />
 
 	<View
 		android:id="@+id/ellipse_3"
@@ -28,8 +26,8 @@
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintVertical_bias="0.18" />
+		app:layout_constraintTop_toBottomOf="@+id/vector_ek2"
+		app:layout_constraintVertical_bias="0.05" />
 
 	<TextView
 		android:id="@+id/tv_welcome"
@@ -196,6 +194,6 @@
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
+		app:layout_constraintTop_toBottomOf="@+id/ellipse_3" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

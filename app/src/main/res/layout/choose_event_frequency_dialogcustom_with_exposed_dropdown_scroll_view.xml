@@ -5,17 +5,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
 
-    android:id="@+id/constraintLayout_frequency"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:maxHeight="450dp"
+    android:id="@+id/scrollview_frequency"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:overScrollMode="never"
     android:scrollbars="none">
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:clipToPadding="false"
         android:orientation="vertical"
         android:gravity="center"
@@ -23,213 +21,381 @@
         android:showDividers="middle">
 
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:showDividers="middle"
+            android:divider="@color/gray"
+            >
+
+<!--            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:textSize="16sp"
+                style="?android:attr/buttonBarButtonStyle"
+                />
+
+            <Button
+                android:id="@+id/btn_ok"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Ok"
+                android:textSize="16sp"
+                style="?android:attr/buttonBarButtonStyle" />-->
+
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:background="@color/colorAccent"
+                />
+
+            <Button
+                android:id="@+id/btn_ok"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Ok"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:background="@color/colorAccent"/>
+        </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:orientation="vertical"
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp"
             >
-
             <TextView
                 android:id="@+id/tv_repeat"
                 android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:text="Repeats once in"
-                android:textSize="16sp"
+                android:layout_height="wrap_content"
+                android:text="Every"
+                android:textSize="20sp"
                 android:layout_weight="1"
                 />
 
-            <LinearLayout
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayout_frequency"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:orientation="horizontal"
-                >
+                android:layout_marginHorizontal="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/textInputLayout_frequencyType"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/textInputLayout_frequency"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_frequency"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="10dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/textInputLayout_frequencyType"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:maxLength="2"
+                    android:text="1"
+                    android:selectAllOnFocus="true"
+                    android:focusableInTouchMode="false"
+                    android:textSize="16sp" />
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_frequency"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:inputType="number"
-                        android:maxLength="2"
-                        android:text="1"
-                        android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-                </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:id="@+id/textInputLayout_frequencyType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Frequency Type"
+                android:clickable="false"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:id="@+id/textInputLayout_frequencyType"
+
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteTextView_frequencyType"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:hint="Frequency Type"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-
-                    <AutoCompleteTextView
-                        android:id="@+id/autoCompleteTextView_frequencyType"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:inputType="none"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </LinearLayout>
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:inputType="none"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
 
+<!--        <com.google.android.material.chip.ChipGroup
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+
+
+        </com.google.android.material.chip.ChipGroup>-->
+
+<!--
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/rg_repeat_for_month"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:singleSelection="true"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            app:singleLine="false"
+            android:layout_gravity="center"
+            app:selectionRequired="true"
+            android:weightSum="4">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/rb_with_day_and_month"
+                style="@style/radioButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Every month on 8 day"
+                android:textSize="16sp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/rb_with_last_day_and_month"
+                style="@style/radioButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Every month on last day"
+                android:textSize="16sp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/rb_with_dayOfWeek_and_month"
+                style="@style/radioButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Every month on 2 Tuesday"
+                android:textSize="16sp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/rb_with_last_dayOfWeek_and_month"
+                style="@style/radioButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Every month on last Tuesday"
+                android:textSize="16sp" />
+
+        </com.google.android.material.chip.ChipGroup>
+-->
+
         <RadioGroup
-            android:id="@+id/rg_repeat"
+            android:id="@+id/rg_repeat_for_month"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:weightSum="4">
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rb_with_day_and_month"
+                style="@style/radioButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Every month on 8 day"
+                android:textSize="16sp" />
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rb_with_last_day_and_month"
+                style="@style/radioButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Every month on last day"
+                android:textSize="16sp" />
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rb_with_dayOfWeek_and_month"
+                style="@style/radioButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Every month on 2 Tuesday"
+                android:textSize="16sp" />
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rb_with_last_dayOfWeek_and_month"
+                style="@style/radioButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Every month on last Tuesday"
+                android:textSize="16sp" />
+
+        </RadioGroup>
+
+
+        <RadioGroup
+            android:id="@+id/rg_repeat_for_year"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:weightSum="4"
             android:layout_margin="5dp" >
-
-            <RadioButton
-                style="@style/radioButton"
-                android:id="@+id/rb_with_day_and_month"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Don't repeat" />
-
-            <RadioButton
-                style="@style/radioButton"
-                android:id="@+id/rb_with_dayOfWeek_and_month"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Every day" />
 
             <RadioButton
                 style="@style/radioButton"
                 android:id="@+id/rb_with_day_and_year"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Don't repeat" />
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="Every year on 8 of January" />
+
+            <RadioButton
+                style="@style/radioButton"
+                android:id="@+id/rb_with_last_day_and_year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="Every year on last day of January" />
 
             <RadioButton
                 style="@style/radioButton"
                 android:id="@+id/rb_with_dayOfWeek_and_year"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Every day" />
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="Every year on 2 Sunday of January" />
 
-<!--            <RadioButton
+            <RadioButton
                 style="@style/radioButton"
-                android:id="@+id/rb_never"
-                android:layout_width="match_parent"
+                android:id="@+id/rb_with_last_dayOfWeek_and_year"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Don't repeat" />-->
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="Every year on last Sunday of January" />
+
+            <!--            <RadioButton
+                            style="@style/radioButton"
+                            android:id="@+id/rb_never"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Don't repeat" />-->
 
         </RadioGroup>
 
         <LinearLayout
             android:id="@+id/choose_day_of_week_layout"
-            android:layout_width="238sp"
-            android:layout_height="38sp"
+            android:layout_width="266sp"
+            android:layout_height="46sp"
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_gravity="center"
             android:weightSum="7"
             android:layout_marginHorizontal="10sp"
             android:clipToPadding="false"
+            android:layout_marginVertical="5sp"
             >
 
             <ToggleButton
                 android:id="@+id/tb_Sunday"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
+                android:layout_width="34sp"
+                android:layout_height="34sp"
                 android:layout_marginHorizontal="2sp"
+                android:textSize="16sp"
                 android:textOff="S"
                 android:textOn="S"
-                android:textSize="14sp"
                 style="@style/toggleButton"
                 android:background="@drawable/toggle_bg"
                 android:checked="true"/>
 
             <ToggleButton
                 android:id="@+id/tb_Monday"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
+                android:layout_width="34sp"
+                android:layout_height="34sp"
                 android:layout_marginHorizontal="2sp"
+                android:textSize="16sp"
                 android:textOff="M"
                 android:textOn="M"
-                android:textSize="14sp"
                 style="@style/toggleButton"
                 android:background="@drawable/toggle_bg"
                 android:checked="true"/>
 
             <ToggleButton
                 android:id="@+id/tb_Tuesday"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
+                android:layout_width="34sp"
+                android:layout_height="34sp"
                 android:layout_marginHorizontal="2sp"
+                android:textSize="16sp"
                 android:textOff="T"
                 android:textOn="T"
-                android:textSize="14sp"
                 style="@style/toggleButton"
                 android:background="@drawable/toggle_bg"
                 android:checked="true"/>
 
             <ToggleButton
                 android:id="@+id/tb_Wednesday"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
+                android:layout_width="34sp"
+                android:layout_height="34sp"
                 android:layout_marginHorizontal="2sp"
+                android:textSize="16sp"
                 android:textOff="W"
                 android:textOn="W"
-                android:textSize="14sp"
                 style="@style/toggleButton"
                 android:background="@drawable/toggle_bg"
                 android:checked="true"/>
 
             <ToggleButton
                 android:id="@+id/tb_Thursday"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
+                android:layout_width="34sp"
+                android:layout_height="34sp"
                 android:layout_marginHorizontal="2sp"
+                android:textSize="16sp"
                 android:textOff="T"
                 android:textOn="T"
-                android:textSize="14sp"
                 style="@style/toggleButton"
                 android:background="@drawable/toggle_bg"
                 android:checked="true"/>
 
             <ToggleButton
                 android:id="@+id/tb_Friday"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
+                android:layout_width="34sp"
+                android:layout_height="34sp"
                 android:layout_marginHorizontal="2sp"
+                android:textSize="16sp"
                 android:textOff="F"
                 android:textOn="F"
-                android:textSize="14sp"
                 style="@style/toggleButton"
                 android:background="@drawable/toggle_bg"
                 android:checked="true"/>
 
             <ToggleButton
                 android:id="@+id/tb_Saturday"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
+                android:layout_width="34sp"
+                android:layout_height="34sp"
                 android:layout_marginHorizontal="2sp"
+                android:textSize="16sp"
                 android:textOff="S"
                 android:textOn="S"
-                android:textSize="14sp"
                 style="@style/toggleButton"
                 android:background="@drawable/toggle_bg"
                 android:checked="true"/>
@@ -239,6 +405,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             android:orientation="vertical">
 
             <TextView
@@ -246,14 +413,23 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_marginBottom="5dp"
-                android:text="Duration"
-                android:textSize="16sp" />
+                android:text="Duration:"
+                android:textSize="20sp" />
 
             <RadioGroup
                 android:id="@+id/rg_duration"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
+                <RadioButton
+                    style="@style/radioButton"
+                    android:id="@+id/rb_never"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Never"
+                    android:textSize="16sp"
+                    android:checked="false"/>
 
                 <RadioButton
                     style="@style/radioButton"
@@ -261,6 +437,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Times in total: "
+                    android:textSize="16sp"
                     android:checked="true"/>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -279,6 +456,8 @@
                         android:inputType="number"
                         android:maxLength="2"
                         android:text="1"
+                        android:selectAllOnFocus="true"
+                        android:focusableInTouchMode="false"
                         android:textSize="16sp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -298,7 +477,9 @@
                     android:id="@+id/rb_until"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Until " />
+                    android:text="Until "
+                    android:textSize="16sp"
+                    />
 
                 <DatePicker
                     android:animateLayoutChanges="true"
@@ -308,7 +489,6 @@
                     android:layout_gravity="center"
                     android:outlineSpotShadowColor="@color/colorAccent"
                     android:outlineAmbientShadowColor="@color/colorAccent"
-
                     android:headerBackground="@color/colorAccent"
                     android:backgroundTint="@color/colorAccent"
                     android:headerDayOfMonthTextAppearance="@color/colorAccent"
@@ -319,6 +499,10 @@
                     android:calendarViewShown="true"
                     android:datePickerMode="calendar"
                     android:scrollbars="none"
+
+                    style="@style/MyCustomCalendarView"
+                    android:theme="@style/MyCustomCalendarView"
+
                     />
 
             </RadioGroup>
@@ -327,29 +511,6 @@
         </LinearLayout>
 
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-
-            <Button
-                android:id="@+id/btn_cancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:text="Cancel"
-                style="?android:attr/buttonBarButtonStyle" />
-
-            <Button
-                android:id="@+id/btn_ok"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:text="Ok"
-                style="?android:attr/buttonBarButtonStyle" />
-
-        </LinearLayout>
 
 
         <!--<LinearLayout

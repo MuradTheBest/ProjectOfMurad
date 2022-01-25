@@ -8,37 +8,84 @@
     tools:context=".calendar.Add_Event_Screen"
     android:clickable="true"
     android:focusableInTouchMode="true"
-    >
+    android:padding="15dp"
 
+    >
 
     <EditText
         android:id="@+id/et_name"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:hint="Enter name"
-        android:inputType="textCapWords"
         android:textSize="20sp"
+        android:singleLine="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.079" />
+        app:layout_constraintVertical_bias="0.0"
+        android:layout_marginTop="20dp"
+        android:autofillHints="name"
+
+        />
+
+    <!--<androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/ib_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/et_name"
+        app:layout_constraintEnd_toEndOf="@+id/et_name"
+        app:layout_constraintTop_toTopOf="@+id/et_name"
+        android:layout_marginEnd="7dp"
+        android:background="@drawable/ic_baseline_circle_24"
+        android:backgroundTint="@color/colorAccent"
+    />-->
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/ib_color"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/et_name"
+        app:layout_constraintEnd_toEndOf="@+id/et_name"
+        app:layout_constraintTop_toTopOf="@+id/et_name"
+        android:src="@drawable/ic_baseline_choose_color_24"
+        android:backgroundTint="@android:color/transparent"
+        android:tint="@color/colorAccent"
+        />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switch_all_day"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="All day"
+        android:textSize="18sp"
+        android:drawableStart="@drawable/ic_baseline_access_time_24"
+        android:drawablePadding="3dp"
+        android:gravity="center_vertical"
+        android:checked="true"
+        style="@style/Widget.AppCompat.CompoundButton.Switch"
+        android:theme="@style/Widget.AppCompat.CompoundButton.Switch"
+        app:layout_constraintTop_toBottomOf="@+id/et_name"
+        app:useMaterialThemeColors="false"
+        />
 
     <EditText
         android:id="@+id/et_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
         android:hint="Enter description"
+        android:inputType="textCapSentences"
         android:textSize="20sp"
-        android:inputType="textCapWords"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/et_name"
-        app:layout_constraintStart_toStartOf="@+id/et_name"
-        app:layout_constraintTop_toBottomOf="@+id/et_name"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/switch_all_day"
+        app:layout_constraintVertical_bias="0.042"
+        android:importantForAutofill="no"/>
 
     <EditText
         android:id="@+id/et_place"
@@ -52,7 +99,8 @@
         app:layout_constraintEnd_toEndOf="@+id/et_description"
         app:layout_constraintStart_toStartOf="@+id/et_description"
         app:layout_constraintTop_toBottomOf="@+id/et_description"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        android:importantForAutofill="no"/>
 
 
     <LinearLayout

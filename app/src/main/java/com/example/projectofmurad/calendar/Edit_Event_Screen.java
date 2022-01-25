@@ -34,14 +34,15 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
     private Button btn_choose_end_time;
     private Button btn_choose_end_date;*/
 
-    private String key;
+    private String chain_key;
+    private String private_key;
 
     private String name;
     private String description;
     private String place;
 
     private LocalDate startDate;
-    private LocalDate old_start_date;
+    private LocalDate chain_start_date;
 
    /* private int start_day;
     private int start_month;
@@ -53,7 +54,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
     private int start_min;*/
 
     private LocalDate endDate;
-    private LocalDate old_end_date;
+    private LocalDate chain_end_date;
 
 /*    private int end_day;
     private int end_month;
@@ -87,7 +88,8 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
         gotten_intent = getIntent();
 
-        key = gotten_intent.getStringExtra("event_key");
+        chain_key = gotten_intent.getStringExtra("event_chain_key");
+        private_key = gotten_intent.getStringExtra("event_private_key");
 
         name = gotten_intent.getStringExtra("event_name");
         description = gotten_intent.getStringExtra("event_description");
@@ -97,8 +99,8 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         startDate = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_start_date"));
         endDate = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_end_date"));
 
-        old_start_date = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_start_date"));
-        old_end_date = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_end_date"));
+        chain_start_date = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_start_date"));
+        chain_end_date = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_end_date"));
 
         startTime = Utils_Calendar.TextToTime(gotten_intent.getStringExtra("event_start_time"));
         endTime = Utils_Calendar.TextToTime(gotten_intent.getStringExtra("event_end_time"));
@@ -277,20 +279,20 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                     LocalTime start_time = LocalTime.of(start_hour, start_min);
                     LocalTime end_time = LocalTime.of(end_hour, end_min);
 
-                    event.addDefaultParams(selectedColor, name, description, place, start_date, start_time, end_date, end_time);
+                    event.addDefaultParams(selectedColor, name, description, place, 0, start_date, start_time, end_date, end_time);
 
-                    event.setEvent_id(key);
+                    event.setEvent_chain_id(chain_key);
 
                     if(event.getFrequencyType().endsWith("amount")){
                         addEventForTimesAdvanced(event);
                     }
                     else if(event.getFrequencyType().endsWith("end")){
-                        addEventForUntilAdvanced(event);
+//                        addEventForUntilAdvanced(event);
                     }
 
                     //addEventToFirebase(event);
-                    superDelete(key);
-                    addEventToFirebaseForTextWithPUSH(event);
+                    superDelete(chain_key);
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
                     //addEventToFirebaseForAdvanced(eventAdvanced);
 
                     startActivity(new Intent(Edit_Event_Screen.this, Calendar_Screen.class));
@@ -306,9 +308,58 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    deleteEventAbsolute(old_start_date, old_end_date);
-                    superDelete(key);
-                    startActivity(new Intent(Edit_Event_Screen.this, Calendar_Screen.class));
+                    /*eventsDatabase = firebase.getReference("EventsDatabase");
+
+                    eventsDatabase = eventsDatabase.child(private_key);
+
+                    Log.d("murad", "-------------------------------------------------------------------");
+                    Log.d("murad", " ");
+
+                    Log.d("murad", "RIGHT NOW AT " + eventsDatabase.getKey());
+                    Log.d("murad", "RIGHT NOW AT " + eventsDatabase.getRef().getKey());
+                    Log.d("murad", "Parent is  " + Objects.requireNonNull(eventsDatabase.getParent()).getKey());
+
+                    Log.d("murad", " ");
+                    Log.d("murad", "-------------------------------------------------------------------");
+
+                    eventsDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                            Log.d("murad", "-------------------------------------------------------------------");
+                            Log.d("murad", " ");
+
+                            Log.d("murad", "RIGHT NOW AT " + snapshot.getKey());
+
+                            Log.d("murad", " ");
+                            Log.d("murad", "-------------------------------------------------------------------");
+
+                            tmp = snapshot.getValue(CalendarEventWithTextOnly2FromSuper.class);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
+                    startDate = tmp.receiveStart_date();
+                    endDate = tmp.receiveEnd_date();
+
+                    chain_start_date = tmp.receiveFrequency_start();
+                    chain_end_date = tmp.receiveFrequency_end();
+
+                    String private_key = tmp.getEvent_private_id();
+                    String chain_key = tmp.getEvent_chain_id();*/
+
+//                    deleteSingleEvent(private_key, startDate, endDate);
+//                    deleteAllEventsInChain(chain_key, chain_start_date, chain_end_date);
+
+                    superDelete(chain_key);
+
+
+//                    superDelete(chain_key);
+//                    startActivity(new Intent(Edit_Event_Screen.this, Calendar_Screen.class));
                 }
                 catch(Exception e) {
                     e.printStackTrace();
@@ -317,6 +368,8 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             }
         });
     }
+
+    CalendarEventWithTextOnly2FromSuper tmp = new CalendarEventWithTextOnly2FromSuper();
 
 /*    //sets time
     public class SetTime implements TimePickerDialog.OnTimeSetListener{
@@ -453,7 +506,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
     }
 */
 
-    public void deleteEventAbsolute(LocalDate start, LocalDate end){
+    public void deleteEvent(LocalDate start, LocalDate end){
 
         eventsDatabaseForText = firebase.getReference("EventsDatabase");
 
@@ -466,23 +519,104 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             eventsDatabaseForText = firebase.getReference("EventsDatabase");
             eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
-            eventsDatabaseForText.child(key).removeValue();
+            eventsDatabaseForText.child(chain_key).getParent().removeValue();
 
             tmp = tmp.plusDays(1);
         }
         while(!tmp.isEqual(end.plusDays(1)));
     }
 
+    public void deleteSingleEvent(String private_key, LocalDate start, LocalDate end){
+
+        eventsDatabaseForText = firebase.getReference("EventsDatabase");
+
+        LocalDate tmp = start;
+
+        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(start));
+        Log.d("murad", eventsDatabaseForText.getKey());
+
+        do {
+            eventsDatabaseForText = firebase.getReference("EventsDatabase");
+            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
+
+            eventsDatabaseForText.child(private_key).removeValue();
+
+            tmp = tmp.plusDays(1);
+        }
+        while(!tmp.isEqual(end.plusDays(1)));
+    }
+
+    public void deleteAllEventsInChain(String chain_key, LocalDate chain_start, LocalDate chain_end){
+
+        eventsDatabaseForText = firebase.getReference("EventsDatabase");
+
+        LocalDate tmp = chain_start;
+
+        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(chain_start));
+        Log.d("murad", eventsDatabaseForText.getKey());
+
+        do {
+            eventsDatabaseForText = firebase.getReference("EventsDatabase");
+            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
+
+            eventsDatabaseForText.child(chain_key).getParent().removeValue();
+
+            tmp = tmp.plusDays(1);
+        }
+        while(!tmp.isEqual(chain_end.plusDays(1)));
+    }
+
+    boolean finished = true;
+
     public void superDelete(String key) {
         eventsDatabaseForText = firebase.getReference("EventsDatabase");
 
-        eventsDatabaseForText.addListenerForSingleValueEvent(new ValueEventListener() {
+        eventsDatabaseForText.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot data: snapshot.getChildren()) {
-                    if(data.hasChild(key)) {
+
+                for(DataSnapshot data : snapshot.getChildren()) {
+                    /*if(data.hasChild(key)) {
                         data.child(key).getRef().removeValue();
+                    }*/
+
+                    for (DataSnapshot d : data.getChildren()){
+
+
+                        Log.d("murad", "-----------------------------------------------------------------------");
+                        Log.d("murad", " ");
+
+                        Log.d("murad", "RIGHT NOW AT " + data.getKey() + " / " + d.getKey());
+
+
+/*                        if(d.getValue(CalendarEventWithTextOnly2FromSuper.class).getEvent_chain_id().equals(key)){
+                            d.getRef().removeValue();
+                        }*/
+
+                        if(d.child("event_chain_id").getValue().toString().equals(key)){
+
+                            CalendarEventWithTextOnly2FromSuper c = d.getValue(CalendarEventWithTextOnly2FromSuper.class);
+                            if(c == null){
+                                Toast.makeText(getApplicationContext(), "FAILED", Toast.LENGTH_SHORT).show();
+                            }
+                            else {
+                                Toast.makeText(getApplicationContext(), "SUCCEEDED " + c.toString(), Toast.LENGTH_SHORT).show();
+                            }
+
+                            d.getRef().removeValue();
+//                            d.getRef().child(d.getKey()).removeValue();
+                            Log.d("murad", " ");
+
+                            Log.d("murad", "EVENT " + "'" + d.child("name").getValue().toString() + "'" + " IS DELETED");
+                        }
+
+                        Log.d("murad", " ");
+                        Log.d("murad", "-----------------------------------------------------------------------");
+
+                        finished = false;
                     }
+
+
                 }
             }
 
@@ -490,7 +624,19 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
+
+
         });
+
+
+
+        Log.d("murad", "DELETING EVENT HAS BEEN SUCCESSFULLY FINISHED");
+        Toast.makeText(getApplicationContext(), "DELETING EVENT HAS BEEN SUCCESSFULLY FINISHED", Toast.LENGTH_SHORT).show();
+
+
+        startActivity(new Intent(Edit_Event_Screen.this, Calendar_Screen.class));
+        startActivity(new Intent(Edit_Event_Screen.this, Calendar_Screen.class));
+//        Query query = eventsDatabase.equalTo(key);
 
     }
 }
