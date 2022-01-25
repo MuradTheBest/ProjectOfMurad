@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="all_day">כל יום</string>
+    <string name="every">כל</string>
+    <string name="until">עד</string>
+    <string name="days">ימים</string>
+    <string name="weeks">שבועות</string>
+    <string name="months">חודשים</string>
+    <string name="years">שנים</string>
+</resources>

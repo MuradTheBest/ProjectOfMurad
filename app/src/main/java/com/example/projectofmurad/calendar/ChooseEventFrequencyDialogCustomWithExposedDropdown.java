@@ -3,8 +3,10 @@ package com.example.projectofmurad.calendar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.transition.AutoTransition;
+import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.View;
@@ -20,125 +22,152 @@ import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.example.projectofmurad.R;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog implements CompoundButton.OnCheckedChangeListener,
-        RadioGroup.OnCheckedChangeListener, AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener, View.OnFocusChangeListener, View.OnClickListener {
+public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog implements
+        CompoundButton.OnCheckedChangeListener,
+        AdapterView.OnItemSelectedListener,
+        RadioGroup.OnCheckedChangeListener,
+        AdapterView.OnItemClickListener,
+        View.OnFocusChangeListener,
+        View.OnClickListener, ChipGroup.OnCheckedChangeListener {
 
-    private Context context;
+    public Context context;
 
-    private LinearLayout ll_choose_day_of_week;
+    public LinearLayout ll_choose_day_of_week;
+    public ScrollView scrollView;
 
-    private TextInputEditText et_frequency;
-    private TextInputEditText et_times;
+    public TextInputEditText et_frequency;
+    public TextInputEditText et_times;
 
-    private RadioGroup rg_repeat;
+    public RadioGroup rg_repeat_for_month;
 
-        private RadioButton rb_with_day_and_month;
-        private RadioButton rb_with_dayOfWeek_and_month;
+        public RadioButton rb_with_day_and_month;
+        public RadioButton rb_with_last_day_and_month;
+        public RadioButton rb_with_dayOfWeek_and_month;
+        public RadioButton rb_with_last_dayOfWeek_and_month;
 
-        private RadioButton rb_with_day_and_year;
-        private RadioButton rb_with_dayOfWeek_and_year;
+    public RadioGroup rg_repeat_for_year;
 
-        /*private RadioButton rb_never;*/
+        public RadioButton rb_with_day_and_year;
+        public RadioButton rb_with_last_day_and_year;
+        public RadioButton rb_with_dayOfWeek_and_year;
+        public RadioButton rb_with_last_dayOfWeek_and_year;
 
-    private RadioGroup rg_duration;
+        /*public RadioButton rb_never;*/
 
-        private RadioButton rb_times;
-        private RadioButton rb_until;
+    public RadioGroup rg_duration;
+
+        public RadioButton rb_never;
+        public RadioButton rb_times;
+        public RadioButton rb_until;
 
 
-    private TextInputLayout textInputLayout_times;
+    public TextInputLayout textInputLayout_times;
 
-    private AutoCompleteTextView autoCompleteTextView_frequencyType;
+    public AutoCompleteTextView autoCompleteTextView_frequencyType;
 
-    private ArrayAdapter<String> arrayAdapter;
+    public ArrayAdapter<String> arrayAdapter;
 
-    private int frequency;
+    public int frequency;
 
-    private int amount;
-    private LocalDate absolute_end_date;
+    public int amount;
+    public LocalDate frequency_end_date;
 
-    private int day;
-    private String dayOfWeek;
-    private int dayOfWeekPosition;
-    private List<Boolean> array_frequencyDayOfWeek;
-    private int weekNumber;
-    private String month_name;
-    private int month;
+    public int day;
+    public String dayOfWeek;
+    public int dayOfWeekPosition;
+    public List<Boolean> array_frequencyDayOfWeek;
+    public int weekNumber;
+    public String month_name;
+    public int month;
 
-    private OnDayFrequencyListener onDayFrequencyListener;
-    private OnDayOfWeekFrequencyListener onDayOfWeekFrequencyListener;
-    private OnDayAndMonthFrequencyListener onDayAndMonthFrequencyListener;
-    private OnDayOfWeekAndMonthFrequencyListener onDayOfWeekAndMonthFrequencyListener;
-    private OnDayAndYearFrequencyListener onDayAndYearFrequencyListener;
-    private OnDayOfWeekAndYearFrequencyListener onDayOfWeekAndYearFrequencyListener;
-    private OnNeverFrequencyListener onNeverFrequencyListener;
+    public OnSwitchDialog onSwitchDialog;
+
+    public OnDayFrequencyListener onDayFrequencyListener;
+    public OnDayOfWeekFrequencyListener onDayOfWeekFrequencyListener;
+    public OnDayAndMonthFrequencyListener onDayAndMonthFrequencyListener;
+    public OnDayOfWeekAndMonthFrequencyListener onDayOfWeekAndMonthFrequencyListener;
+    public OnDayAndYearFrequencyListener onDayAndYearFrequencyListener;
+    public OnDayOfWeekAndYearFrequencyListener onDayOfWeekAndYearFrequencyListener;
+    public OnNeverFrequencyListener onNeverFrequencyListener;
 
     String msg;
 
-    private boolean expanded_choose_day_of_week_layout = false;
-    private boolean expanded_rg_month = false;
-    private boolean expanded_rg_year = false;
+    public boolean expanded_choose_day_of_week_layout = false;
+    public boolean expanded_rg_month = false;
+    public boolean expanded_rg_year = false;
 
-    private boolean isFrequency_by_amount = true;
+    public boolean isFrequency_by_amount = true;
 
-    private boolean frequency_day = false;
-    private boolean frequencyDayOfWeek = false;
-    private boolean frequency_day_and_month = false;
-    private boolean frequency_dayOfWeek_and_month = false;
-    private boolean frequency_day_and_year = false;
-    private boolean frequency_dayOfWeek_and_year = false;
-    private boolean frequency_never = false;
+    public boolean frequency_never = false;
 
-    private final String[] days = Utils_Calendar.getNarrowDaysOfWeek();
+    public boolean frequency_day = false;
+    public boolean frequency_dayOfWeek = false;
 
-    private ArrayList<ToggleButton> toggleButtons;
+    public boolean frequency_day_and_month = false;
+    public boolean frequency_last_day_and_month = false;
 
-    private ToggleButton tb_Sunday;
-    private ToggleButton tb_Monday;
-    private ToggleButton tb_Tuesday;
-    private ToggleButton tb_Wednesday;
-    private ToggleButton tb_Thursday;
-    private ToggleButton tb_Friday;
-    private ToggleButton tb_Saturday;
+    public boolean frequency_dayOfWeek_and_month = false;
+    public boolean frequency_last_dayOfWeek_and_month = false;
 
-    private LocalDate startDate;
-    private int end_year;
-    private int end_month;
-    private int end_day;
+    public boolean frequency_day_and_year = false;
+    public boolean frequency_last_day_and_year = false;
 
-    private Dialog dialog;
+    public boolean frequency_dayOfWeek_and_year = false;
+    public boolean frequency_last_dayOfWeek_and_year = false;
 
-    private DatePicker date_picker_end;
+    public final String[] days = Utils_Calendar.getNarrowDaysOfWeek();
 
-    private Button btn_ok;
-    private Button btn_cancel;
+    public ArrayList<ToggleButton> toggleButtons;
+
+    public ToggleButton tb_Sunday;
+    public ToggleButton tb_Monday;
+    public ToggleButton tb_Tuesday;
+    public ToggleButton tb_Wednesday;
+    public ToggleButton tb_Thursday;
+    public ToggleButton tb_Friday;
+    public ToggleButton tb_Saturday;
+
+    public LocalDate startDate;
+    public int end_year;
+    public int end_month;
+    public int end_day;
+
+    public Dialog dialog;
+
+    public DatePicker date_picker_end;
+
+    public Button btn_ok;
+    public Button btn_cancel;
+
+    ChooseEventFrequencyDialogCustomWithExposedDropdown copy;
 
     public ChooseEventFrequencyDialogCustomWithExposedDropdown(@NonNull Context context, LocalDate startDate) {
         super(context);
         this.context = context;
         this.startDate = startDate;
 
-        this.end_year = startDate.getYear();
-        this.end_month = startDate.getMonthValue();
-        this.end_day = startDate.getDayOfMonth();
-
         Toast.makeText(context, Utils_Calendar.DateToTextLocal(startDate), Toast.LENGTH_SHORT).show();
+
+        this.onSwitchDialog = (OnSwitchDialog) context;
 
         this.onNeverFrequencyListener = (OnNeverFrequencyListener) context;
         this.onDayFrequencyListener = (OnDayFrequencyListener) context;
@@ -151,8 +180,13 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
     }
 
     public ChooseEventFrequencyDialogCustomWithExposedDropdown(@NonNull Context context) {
-        super(context);
+
+//        super(context, android.R.style.ThemeOverlay_Material_ActionBar);
+        super(context, R.style.FullScreenDialogTheme);
         this.context = context;
+
+
+        this.onSwitchDialog = (OnSwitchDialog) context;
 
         this.onNeverFrequencyListener = (OnNeverFrequencyListener) context;
         this.onDayFrequencyListener = (OnDayFrequencyListener) context;
@@ -168,6 +202,8 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+/*        getWindow().setLayout(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);*/
         setContentView(R.layout.choose_event_frequency_dialogcustom_with_exposed_dropdown_scroll_view);
         setCancelable(true);
 
@@ -193,6 +229,8 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
 
         ll_choose_day_of_week = this.findViewById(R.id.choose_day_of_week_layout);
         ll_choose_day_of_week.setVisibility(View.GONE);
+
+        scrollView = this.findViewById(R.id.scrollview_frequency);
 
         et_frequency = this.findViewById(R.id.et_frequency);
         et_frequency.setOnFocusChangeListener(this);
@@ -241,33 +279,50 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
 
         initAllToggleButtons();
 
-        rg_repeat = this.findViewById(R.id.rg_repeat);
-
-        rg_repeat.setOnCheckedChangeListener(this);
-        rg_repeat.setVisibility(View.GONE);
+        rg_repeat_for_month = this.findViewById(R.id.rg_repeat_for_month);
+        rg_repeat_for_month.setOnCheckedChangeListener(this);
+        rg_repeat_for_month.setVisibility(View.GONE);
 
             rb_with_day_and_month = this.findViewById(R.id.rb_with_day_and_month);
             rb_with_day_and_month.setOnCheckedChangeListener(this);
 
+            rb_with_last_day_and_month = this.findViewById(R.id.rb_with_last_day_and_month);
+            rb_with_last_day_and_month.setOnCheckedChangeListener(this);
+
             rb_with_dayOfWeek_and_month = this.findViewById(R.id.rb_with_dayOfWeek_and_month);
             rb_with_dayOfWeek_and_month.setOnCheckedChangeListener(this);
+
+            rb_with_last_dayOfWeek_and_month = this.findViewById(R.id.rb_with_last_dayOfWeek_and_month);
+            rb_with_last_dayOfWeek_and_month.setOnCheckedChangeListener(this);
+
+
+        rg_repeat_for_year = this.findViewById(R.id.rg_repeat_for_year);
+        rg_repeat_for_year.setOnCheckedChangeListener(this);
+        rg_repeat_for_year.setVisibility(View.GONE);
 
             rb_with_day_and_year = this.findViewById(R.id.rb_with_day_and_year);
             rb_with_day_and_year.setOnCheckedChangeListener(this);
 
+            rb_with_last_day_and_year = this.findViewById(R.id.rb_with_last_day_and_year);
+            rb_with_last_day_and_year.setOnCheckedChangeListener(this);
+
             rb_with_dayOfWeek_and_year = this.findViewById(R.id.rb_with_dayOfWeek_and_year);
             rb_with_dayOfWeek_and_year.setOnCheckedChangeListener(this);
 
-/*            rb_never = this.findViewById(R.id.rb_never);
-            rb_never.setOnCheckedChangeListener(this);*/
+            rb_with_last_dayOfWeek_and_year = this.findViewById(R.id.rb_with_last_dayOfWeek_and_year);
+            rb_with_last_dayOfWeek_and_year.setOnCheckedChangeListener(this);
 
         rg_duration = this.findViewById(R.id.rg_duration);
         rg_duration.setOnCheckedChangeListener(this);
 
+            rb_never = this.findViewById(R.id.rb_never);
+            //rb_never.setOnCheckedChangeListener(this);
+
             rb_times = this.findViewById(R.id.rb_times);
-            rb_times.setOnCheckedChangeListener(this);
+            //rb_times.setOnCheckedChangeListener(this);
+
             rb_until = this.findViewById(R.id.rb_until);
-            rb_until.setOnCheckedChangeListener(this);
+            //rb_until.setOnCheckedChangeListener(this);
 
 /*        ArrayList<String> frequencyTypes = new ArrayList<>();
         frequencyTypes.add("day");
@@ -281,17 +336,50 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         frequencyTypesArray[2] = "month";
         frequencyTypesArray[3] = "year";
 
-        arrayAdapter = new ArrayAdapter<>(context, R.layout.dropdown_item, frequencyTypesArray);
+/*        String[] frequencyTypesArrayPlural = new String[4];
+        frequencyTypesArrayPlural[0] = "days";
+        frequencyTypesArrayPlural[1] = "weeks";
+        frequencyTypesArrayPlural[2] = "months";
+        frequencyTypesArrayPlural[3] = "years";*/
+
+        Resources res = getContext().getResources();
+
+        String[] frequencyTypesArrayPlural = res.getStringArray(R.array.frequencyTypes);
+
+        arrayAdapter = new ArrayAdapter<>(context, R.layout.dropdown_item, frequencyTypesArrayPlural);
 
         autoCompleteTextView_frequencyType = this.findViewById(R.id.autoCompleteTextView_frequencyType);
+/*
+        autoCompleteTextView_frequencyType.addTextChangedListener(new TextWatcher() {
+            String text = autoCompleteTextView_frequencyType.getText().toString();
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                int anchor = autoCompleteTextView_frequencyType.getDropDownAnchor();
+                if(s.equals("1")){
+                    arrayAdapter = new ArrayAdapter<>(context, R.layout.dropdown_item, frequencyTypesArray);
+                }
+                else {
+                    arrayAdapter = new ArrayAdapter<>(context, R.layout.dropdown_item, frequencyTypesArrayPlural);
+                }
+//                new ArrayAdapter<>(context, R.layout.dropdown_item, (text.equals("1")) ? frequencyTypesArray : frequencyTypesArrayPlural);
+                autoCompleteTextView_frequencyType.setAdapter(arrayAdapter);
+                autoCompleteTextView_frequencyType.setDropDownAnchor(anchor);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+*/
 
         autoCompleteTextView_frequencyType.setAdapter(arrayAdapter);
-//        autoCompleteTextView_frequencyType.setText(frequencyTypesArray[0], false);
-
-
-        autoCompleteTextView_frequencyType.showDropDown();
-        /*autoCompleteTextView_frequencyType.setListSelection(2);*/
-
+        autoCompleteTextView_frequencyType.setText(frequencyTypesArrayPlural[0], false);
 
         frequency_day = true;
 
@@ -300,14 +388,12 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         textInputLayout_times = this.findViewById(R.id.textInputLayout_times);
 
         date_picker_end = this.findViewById(R.id.date_picker_end);
-//        date_picker_end = new DatePickerDialog(Add_Event_Screen.this, android.R.style.Theme_Holo_Light_Dialog_NoActionBar_MinWidth, new MySuperTouchActivity.SetDate("start"), selected_year, selected_month, selected_day);
-        date_picker_end.updateDate(end_year, end_month-1, end_day);
         date_picker_end.setOnDateChangedListener(new DatePicker.OnDateChangedListener() {
             @Override
             public void onDateChanged(DatePicker datePicker, int year, int month, int day) {
                 month = month + 1;
-                absolute_end_date = LocalDate.of(year, month, day);
-                String date_text = Utils_Calendar.DateToTextLocal(absolute_end_date);
+                frequency_end_date = LocalDate.of(year, month, day);
+                String date_text = Utils_Calendar.DateToTextLocal(frequency_end_date);
 
                 end_year = year;
                 end_month = month;
@@ -317,12 +403,15 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
             }
         });
         date_picker_end.setVisibility(View.GONE);
+        date_picker_end.setFirstDayOfWeek(7);
 
         btn_ok = this.findViewById(R.id.btn_ok);
         btn_ok.setOnClickListener(this);
 
         btn_cancel = this.findViewById(R.id.btn_cancel);
         btn_cancel.setOnClickListener(this);
+
+        printAllIds();
     }
 
     private void initAllToggleButtons(){
@@ -360,6 +449,23 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         for(ToggleButton tb : toggleButtons) {
             tb.setOnCheckedChangeListener(this);
         }
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+    }
+
+    private void printAllIds(){
+        Log.d("murad", "rb_with_day_and_month is " + rb_with_day_and_month.getId());
+        Log.d("murad", "rb_with_dayOfWeek_and_month is " + rb_with_dayOfWeek_and_month.getId());
+        Log.d("murad", "rb_with_day_and_year is " + rb_with_day_and_year.getId());
+        Log.d("murad", "rb_with_dayOfWeek_and_year is " + rb_with_dayOfWeek_and_year.getId());
+        Log.d("murad", "rb_never is " + rb_never.getId());
+        Log.d("murad", "rb_times is " + rb_times.getId());
+        Log.d("murad", "rb_until is " + rb_until.getId());
     }
 
     public void addText(ToggleButton toggleButton, int i){
@@ -377,14 +483,55 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         //trans.setInterpolator(new DecelerateInterpolator());
         //trans.setInterpolator(new FastOutSlowInInterpolator());
 
-        TransitionManager.beginDelayedTransition(viewGroup, trans);
+        ChangeBounds changeBounds = new ChangeBounds();
+        changeBounds.setDuration(300);
+        changeBounds.setInterpolator(new AccelerateDecelerateInterpolator());
+
+//        TransitionManager.beginDelayedTransition(viewGroup, trans);
+        TransitionManager.beginDelayedTransition(viewGroup, changeBounds);
+
+
     }
 
     // method onCheckedChanged for RadioGroup
+
+    private boolean never_is_checked = true;
+
     @Override
     public void onCheckedChanged(RadioGroup radioGroup, int i) {
 
-        if(radioGroup.getCheckedRadioButtonId() == R.id.rb_times){
+        if(radioGroup.getCheckedRadioButtonId() == R.id.rb_never){
+            never_is_checked = true;
+
+            textInputLayout_times.setVisibility(View.GONE);
+            date_picker_end.setVisibility(View.GONE);
+            animate(date_picker_end);
+
+            animate(radioGroup);
+
+            isFrequency_by_amount = false;
+
+            frequency_never = true;
+
+            frequency_day = false;
+            frequency_dayOfWeek = false;
+            frequency_day_and_month = false;
+            frequency_dayOfWeek_and_month = false;
+            frequency_day_and_year = false;
+            frequency_dayOfWeek_and_year = false;
+
+            /*rb_with_day_and_month.setChecked(false);
+            rb_with_dayOfWeek_and_month.setChecked(false);
+            rb_with_day_and_year.setChecked(false);
+            rb_with_dayOfWeek_and_year.setChecked(false);*/
+
+            ll_choose_day_of_week.setVisibility(View.GONE);
+            animate(ll_choose_day_of_week);
+
+            rg_repeat_for_month.setVisibility(View.GONE);
+            animate(rg_repeat_for_month);
+        }
+        else if(radioGroup.getCheckedRadioButtonId() == R.id.rb_times /*|| frequency_never*/){
             Log.d("murad", "rb_times is " + rb_times.isChecked());
             Log.d("murad", "rb_until is " + rb_until.isChecked());
 
@@ -396,33 +543,72 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
             animate(date_picker_end);
 
             isFrequency_by_amount = true;
+            frequency_never = false;
         }
         else if(radioGroup.getCheckedRadioButtonId() == R.id.rb_until){
-            Log.d("murad", "rb_until is " + rb_until.isChecked());
-            Log.d("murad", "rb_times is " + rb_times.isChecked());
+            rb_times.setChecked(false);
+            Log.d("murad", "rb_until is checked = " + rb_until.isChecked());
+            Log.d("murad", "rb_times is checked = " + rb_times.isChecked());
 
             textInputLayout_times.setVisibility(View.GONE);
             date_picker_end.setVisibility(View.VISIBLE);
+            date_picker_end.updateDate(end_year, end_month-1, end_day);
+
 
             animate(radioGroup);
             animate(date_picker_end);
 
             isFrequency_by_amount = false;
+            frequency_never = false;
+
+            scrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                }
+            });
+        }
+
+        Log.d("murad", "*****************************************************************************************************");
+        Log.d("murad", "rb_never is set to to " + rb_never.isChecked() + " |  frequency_never = " + frequency_never);
+        Log.d("murad", "rb_times is set to to " + rb_times.isChecked() + " |  isFrequency_by_amount = " + isFrequency_by_amount);
+        Log.d("murad", "rb_until is set to to " + rb_until.isChecked() + " |  frequency_by_end = " + !isFrequency_by_amount);
+        Log.d("murad", "*****************************************************************************************************");
+
+
+        if (radioGroup.getId() == rg_repeat_for_month.getId() || (radioGroup.getId() == rg_repeat_for_year.getId())){
+            if(rb_never.isChecked()){
+                rb_never.setChecked(false);
+                frequency_never = false;
+                Toast.makeText(getContext(), "rb_never is set to false", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
     // method onCheckedChanged for ToggleButtons and RadioButtons
     @Override
     public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-        frequencyDayOfWeek = false;
 
+        frequency_dayOfWeek = false;
+
+/*        if (compoundButton != rb_never && compoundButton != rb_until && compoundButton != rb_times){
+            if(rb_never.isChecked()){
+                rb_never.setChecked(false);
+                frequency_never = false;
+                Toast.makeText(getContext(), "rb_never is set to false", Toast.LENGTH_SHORT).show();
+            }
+        }*/
+/*
+        if (compoundButton == rb_never && !isChecked){
+            rb_times.setChecked(true);
+        }*/
 
         int pos=0;
         for(int i = 0; i < toggleButtons.size(); i++) {
             if(toggleButtons.get(i) == compoundButton){
                 pos = i;
                 array_frequencyDayOfWeek.set(i, isChecked);
-                frequencyDayOfWeek = true;
+                frequency_dayOfWeek = true;
             }
         }
 
@@ -446,21 +632,72 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         }*/
 
 
+        frequency_never = rb_never.isChecked();
+
+        isFrequency_by_amount = rb_times.isChecked();
+        isFrequency_by_amount = !rb_until.isChecked();
+
+
         frequency_day_and_month = rb_with_day_and_month.isChecked();
+        frequency_last_day_and_month = rb_with_last_day_and_month.isChecked();
+
         frequency_dayOfWeek_and_month = rb_with_dayOfWeek_and_month.isChecked();
+        frequency_last_dayOfWeek_and_month = rb_with_last_dayOfWeek_and_month.isChecked();
+
         frequency_day_and_year = rb_with_day_and_year.isChecked();
+        frequency_last_day_and_year = rb_with_last_day_and_year.isChecked();
+
         frequency_dayOfWeek_and_year = rb_with_dayOfWeek_and_year.isChecked();
+        frequency_last_dayOfWeek_and_year = rb_with_last_dayOfWeek_and_year.isChecked();
+
+        if(frequency_last_day_and_month){
+            frequency_day_and_month = true;
+        }
+        else if(frequency_last_dayOfWeek_and_month){
+            frequency_dayOfWeek_and_month = true;
+        }
+        else if(frequency_last_day_and_year){
+            frequency_day_and_year = true;
+        }
+        else if(frequency_last_dayOfWeek_and_year){
+            frequency_dayOfWeek_and_year = true;
+        }
+
 //        frequency_never = rb_never.isChecked();
 
+        Log.d("murad", "-------------------------------------------------------------------");
 
-        Log.d("murad", "day checked: " + frequency_day);
-        Log.d("murad", "dayOfWeek is checked: " + frequencyDayOfWeek);
+/*        Log.d("murad", "day checked: " + frequency_day);
+        Log.d("murad", "dayOfWeek is checked: " + frequency_dayOfWeek);
         Log.d("murad", "day_and_month is checked: " + rb_with_day_and_month.isChecked());
         Log.d("murad", "dayOfWeek_and_month is checked: " + rb_with_dayOfWeek_and_month.isChecked());
         Log.d("murad", "day_and_year is checked: " + rb_with_day_and_year.isChecked());
-        Log.d("murad", "dayOfWeek_and_year is checked: " + rb_with_dayOfWeek_and_year.isChecked());
-        /*Log.d("murad", "never is checked: " + rb_never.isChecked());*/
+        Log.d("murad", "dayOfWeek_and_year is checked: " + rb_with_dayOfWeek_and_year.isChecked());*/
 
+        Log.d("murad", "isFrequency_by_amount is set to " + isFrequency_by_amount);
+
+        Log.d("murad", "day is set to " + frequency_day);
+        Log.d("murad", "dayOfWeek is set to " + frequency_dayOfWeek);
+
+        Log.d("murad", "day_and_month is set to " + frequency_day_and_month);
+        Log.d("murad", "last_day_and_month is set to " + frequency_last_day_and_month);
+
+        Log.d("murad", "dayOfWeek_and_month is set to " + frequency_dayOfWeek_and_month);
+        Log.d("murad", "last_dayOfWeek_and_month is set to " + frequency_last_dayOfWeek_and_month);
+
+        Log.d("murad", "day_and_year is set to " + frequency_day_and_year);
+        Log.d("murad", "last_day_and_year is set to " + frequency_last_day_and_year);
+
+        Log.d("murad", "dayOfWeek_and_year is set to " + frequency_dayOfWeek_and_year);
+        Log.d("murad", "last_dayOfWeek_and_year is set to " + frequency_last_dayOfWeek_and_year);
+
+        Log.d("murad", "                                           ");
+        Log.d("murad", "rb_never is set to " + rb_never.isChecked());
+        Log.d("murad", "rb_times is set to " + rb_times.isChecked());
+        Log.d("murad", "rb_until is set to " + rb_until.isChecked());
+
+
+        Log.d("murad", "-------------------------------------------------------------------");
     }
 
     //ToDo what is onItemSelected???
@@ -483,38 +720,52 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         frequency_day = false;
+
         frequency_day_and_month = false;
+        frequency_last_day_and_month = false;
+
         frequency_dayOfWeek_and_month = false;
+        frequency_last_dayOfWeek_and_month = false;
+
         frequency_day_and_year = false;
+        frequency_last_day_and_year = false;
+
         frequency_dayOfWeek_and_year = false;
+        frequency_last_dayOfWeek_and_year = false;
+
+        frequency_never = false;
+        rb_never.setChecked(false);
 //        frequency_never = false;
 
         // checks expansion
         if(expanded_choose_day_of_week_layout){
             ll_choose_day_of_week.setVisibility(View.GONE);
             animate(ll_choose_day_of_week);
+            expanded_choose_day_of_week_layout = false;
         }
 
-
-
         if(expanded_rg_month){
-            rg_repeat.setVisibility(View.GONE);
-            animate(rg_repeat);
+            rg_repeat_for_month.setVisibility(View.GONE);
+            animate(rg_repeat_for_month);
+            expanded_rg_month = false;
         }
 
         if(expanded_rg_year){
-            rg_repeat.setVisibility(View.GONE);
-            animate(rg_repeat);
+            rg_repeat_for_year.setVisibility(View.GONE);
+            animate(rg_repeat_for_year);
+            expanded_rg_year = false;
         }
 
+        String item = adapterView.getItemAtPosition(i).toString();
+
         // manages content after clicking on dropdown menu item
-        if(adapterView.getItemAtPosition(i).equals("day")){
+        if(item.equals("day") || item.equals("days")){
             Toast.makeText(context, "DAY", Toast.LENGTH_SHORT).show();
             frequency_day = true;
         }
-        else if(adapterView.getItemAtPosition(i).equals("week")){
+        else if(item.equals("week") || item.equals("weeks")){
             expanded_choose_day_of_week_layout = true;
-            frequencyDayOfWeek = true;
+            frequency_dayOfWeek = true;
 
             ll_choose_day_of_week.setVisibility(View.VISIBLE);
             animate(ll_choose_day_of_week);
@@ -522,54 +773,102 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
             toggleButtons.get(dayOfWeekPosition).setChecked(true);
 
         }
-        else if(adapterView.getItemAtPosition(i).equals("month")){
+        else if(item.equals("month") || item.equals("months")){
             expanded_rg_month = true;
 
             //Todo fix this
-            /*if(rg_repeat.getVisibility() == View.GONE){
-                rg_repeat.setVisibility(View.VISIBLE);
-                animate(rg_repeat);
+            /*if(rg_repeat_for_month.getVisibility() == View.GONE){
+                rg_repeat_for_month.setVisibility(View.VISIBLE);
+                animate(rg_repeat_for_month);
             }*/
 
-            rg_repeat.setVisibility(View.VISIBLE);
-            rb_with_day_and_year.setVisibility(View.GONE);
-            rb_with_dayOfWeek_and_year.setVisibility(View.GONE);
+            rg_repeat_for_month.setVisibility(View.VISIBLE);
 
-            rb_with_day_and_month.setVisibility(View.VISIBLE);
-            rb_with_dayOfWeek_and_month.setVisibility(View.VISIBLE);
-//            rb_never.setVisibility(View.VISIBLE);
+            if(day == startDate.lengthOfMonth()){
+                rb_with_last_day_and_month.setText("Every month on the last day");
 
-            animate(rg_repeat);
+                rb_with_day_and_month.setText("Every month on " + day + " day");
+/*                if(day == 30 || day == 31){
+                }
+                else{
+                    rb_with_day_and_month.setVisibility(View.GONE);
+                }*/
+            }
+            else{
+                rb_with_day_and_month.setText("Every month on " + day + " day");
+                rb_with_last_day_and_month.setVisibility(View.GONE);
+            }
 
-            rb_with_day_and_month.setText("Every month on " + day + " day");
-            rb_with_dayOfWeek_and_month.setText("Every month on " + weekNumber + " " + dayOfWeek);
+            if(startDate.with(TemporalAdjusters.lastInMonth(DayOfWeek.of(dayOfWeekPosition+1))).equals(startDate)){
+                rb_with_last_dayOfWeek_and_month.setText("Every month on the last " + DayOfWeek.of(dayOfWeekPosition+1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale));
+
+                if(weekNumber == 4){
+                    rb_with_dayOfWeek_and_month.setText("Every month on " + weekNumber + " " + dayOfWeek);
+                }
+                else{
+                    rb_with_dayOfWeek_and_month.setVisibility(View.GONE);
+                }
+            }
+            else{
+                rb_with_dayOfWeek_and_month.setText("Every month on " + weekNumber + " " + dayOfWeek);
+                rb_with_last_dayOfWeek_and_month.setVisibility(View.GONE);
+            }
+
+            animate(rg_repeat_for_month);
+
         }
-        else if(adapterView.getItemAtPosition(i).equals("year")){
+        else if(item.equals("year") || item.equals("years")){
             expanded_rg_year = true;
 
             //Todo fix this
-            /*if(rg_repeat.getVisibility() == View.GONE){
-                rg_repeat.setVisibility(View.VISIBLE);
-                animate(rg_repeat);
+            /*if(rg_repeat_for_month.getVisibility() == View.GONE){
+                rg_repeat_for_month.setVisibility(View.VISIBLE);
+                animate(rg_repeat_for_month);
             }*/
 
-            rg_repeat.setVisibility(View.VISIBLE);
-
-            rb_with_day_and_month.setVisibility(View.GONE);
-            rb_with_dayOfWeek_and_month.setVisibility(View.GONE);
-
-            rb_with_day_and_year.setVisibility(View.VISIBLE);
-            rb_with_dayOfWeek_and_year.setVisibility(View.VISIBLE);
-//            rb_never.setVisibility(View.VISIBLE);
-
-            animate(rg_repeat);
+            rg_repeat_for_year.setVisibility(View.VISIBLE);
 
             rb_with_day_and_year.setText("Every year on " + day + " of " + month_name);
-            rb_with_dayOfWeek_and_year.setText("Every " + month_name + " on " + weekNumber + " " + dayOfWeek);
+            rb_with_dayOfWeek_and_year.setText("Every year on " + weekNumber + " " + dayOfWeek + " of " + month_name);
+
+            if(day == startDate.lengthOfMonth()){
+                rb_with_last_day_and_year.setText("Every year on the last day of " + month_name);
+                rb_with_day_and_year.setText("Every year on " + day + " of " + month_name);
+
+/*                if(day == 30){
+
+                }
+                else{
+                    rb_with_day_and_year.setVisibility(View.GONE);
+                }*/
+            }
+            else{
+                rb_with_day_and_year.setText("Every year on " + day + " of " + month_name);
+                rb_with_last_day_and_year.setVisibility(View.GONE);
+            }
+
+            if(startDate.with(TemporalAdjusters.lastInMonth(DayOfWeek.of(dayOfWeekPosition+1))).equals(startDate)){
+                rb_with_last_dayOfWeek_and_year.setText("Every year on the last " + DayOfWeek.of(dayOfWeekPosition+1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
+                        " of " + month_name);
+
+                if(weekNumber == 4){
+                    rb_with_dayOfWeek_and_year.setText("Every year on " + weekNumber + " " + dayOfWeek + " of " + month_name);
+                }
+                else{
+                    rb_with_dayOfWeek_and_year.setVisibility(View.GONE);
+                }
+            }
+            else{
+                rb_with_dayOfWeek_and_year.setText("Every year on " + weekNumber + " " + dayOfWeek + " of " + month_name);
+                rb_with_last_dayOfWeek_and_year.setVisibility(View.GONE);
+            }
+
+
+            animate(rg_repeat_for_year);
 
         }
 
-        Log.d("murad", "getItemAtPosition(i) = " + adapterView.getItemAtPosition(i));
+        Log.d("murad", "getItemAtPosition(i) = " + item);
 
     }
 
@@ -599,80 +898,96 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
     }
 
     @Override
-    public void onClick(View view) {
-        boolean toDismiss = true;
+    public void onCheckedChanged(ChipGroup group, int checkedId) {
 
-        if(view == btn_ok){
+        if(group.getCheckedChipId() == R.id.rb_never){
+            never_is_checked = true;
 
-            frequency = Integer.parseInt(et_frequency.getText().toString());
-            amount = Integer.parseInt(et_times.getText().toString());
+            textInputLayout_times.setVisibility(View.GONE);
+            date_picker_end.setVisibility(View.GONE);
+            animate(date_picker_end);
 
+            animate(group);
 
+            isFrequency_by_amount = false;
 
-            if(frequency_day && isFrequency_by_amount){
-                Log.d("murad", "frequency_day is" + true + "\n isFrequency_by_amount is" + true);
-                onDayFrequencyListener.setOnDayFrequency(frequency, amount);
-            }
-            else if(frequency_day){
-                Log.d("murad", "frequency_day is" + true + "\n isFrequency_by_amount is" + false);
-                onDayFrequencyListener.setOnDayFrequency(frequency, absolute_end_date);
-            }
-            else if(frequencyDayOfWeek && isFrequency_by_amount){
-                Log.d("murad", "frequencyDayOfWeek is" + true + "\n isFrequency_by_amount is" + true);
-                onDayOfWeekFrequencyListener.setOnDayOfWeekFrequency(array_frequencyDayOfWeek, frequency, amount);
-            }
-            else if(frequencyDayOfWeek){
-                Log.d("murad", "frequencyDayOfWeek is" + true + "\n isFrequency_by_amount is" + false);
-                onDayOfWeekFrequencyListener.setOnDayOfWeekFrequency(array_frequencyDayOfWeek, frequency, absolute_end_date);
-            }
-            else if(frequency_day_and_month && isFrequency_by_amount){
-                Log.d("murad", "frequency_day_and_month is" + true + "\n isFrequency_by_amount is" + true);
-                onDayAndMonthFrequencyListener.setOnDayAndMonthFrequency(day, frequency, amount);
-            }
-            else if(frequency_day_and_month){
-                Log.d("murad", "frequency_day_and_month is" + true + "\n isFrequency_by_amount is" + false);
-                onDayAndMonthFrequencyListener.setOnDayAndMonthFrequency(day, frequency, absolute_end_date);
-            }
-            else if(frequency_dayOfWeek_and_month && isFrequency_by_amount){
-                Log.d("murad", "frequency_dayOfWeek_and_month is" + true + "\n isFrequency_by_amount is" + true);
-                onDayOfWeekAndMonthFrequencyListener.setOnDayOfWeekAndMonthFrequency(weekNumber, dayOfWeekPosition, frequency, amount);
-            }
-            else if(frequency_dayOfWeek_and_month){
-                Log.d("murad", "frequency_dayOfWeek_and_month is" + true + "\n isFrequency_by_amount is" + false);
-                onDayOfWeekAndMonthFrequencyListener.setOnDayOfWeekAndMonthFrequency(weekNumber, dayOfWeekPosition, frequency, absolute_end_date);
-            }
-            else if(frequency_day_and_year && isFrequency_by_amount){
-                Log.d("murad", "frequency_day_and_year is" + true + "\n isFrequency_by_amount is" + true);
-                onDayAndYearFrequencyListener.setOnDayAndYearFrequency(day, month, frequency, amount);
-            }
-            else if(frequency_day_and_year){
-                Log.d("murad", "frequency_day_and_year is" + true + "\n isFrequency_by_amount is" + false);
-                onDayAndYearFrequencyListener.setOnDayAndYearFrequency(day, month, frequency, absolute_end_date);
-            }
-            else if(frequency_dayOfWeek_and_year && isFrequency_by_amount){
-                Log.d("murad", "frequency_dayOfWeek_and_year is" + true + "\n isFrequency_by_amount is" + true);
-                onDayOfWeekAndYearFrequencyListener.setOnDayOfWeekAndYearFrequency(weekNumber, dayOfWeekPosition, month, frequency, amount);
-            }
-            else if(frequency_dayOfWeek_and_year){
-                Log.d("murad", "frequency_dayOfWeek_and_year is" + true + "\n isFrequency_by_amount is" + false);
-                onDayOfWeekAndYearFrequencyListener.setOnDayOfWeekAndYearFrequency(weekNumber, dayOfWeekPosition, month, frequency, absolute_end_date);
-            }
-            else {
-                toDismiss = false;
-                Toast.makeText(context, "Please select frequency type for the event", Toast.LENGTH_SHORT).show();
-            }
-
-
-        }
-        else if(view == btn_cancel){
             frequency_never = true;
-            onNeverFrequencyListener.setOnNeverFrequency();
-            cancel();
+
+            frequency_day = false;
+            frequency_dayOfWeek = false;
+            frequency_day_and_month = false;
+            frequency_dayOfWeek_and_month = false;
+            frequency_day_and_year = false;
+            frequency_dayOfWeek_and_year = false;
+
+            /*rb_with_day_and_month.setChecked(false);
+            rb_with_dayOfWeek_and_month.setChecked(false);
+            rb_with_day_and_year.setChecked(false);
+            rb_with_dayOfWeek_and_year.setChecked(false);*/
+
+            ll_choose_day_of_week.setVisibility(View.GONE);
+            animate(ll_choose_day_of_week);
+
+            rg_repeat_for_month.setVisibility(View.GONE);
+            animate(rg_repeat_for_month);
+        }
+        else if(group.getCheckedChipId() == R.id.rb_times /*|| frequency_never*/){
+            Log.d("murad", "rb_times is " + rb_times.isChecked());
+            Log.d("murad", "rb_until is " + rb_until.isChecked());
+
+            textInputLayout_times.setVisibility(View.VISIBLE);
+            date_picker_end.setVisibility(View.GONE);
+            rb_until.setText("Until");
+
+            animate(group);
+            animate(date_picker_end);
+
+            isFrequency_by_amount = true;
+            frequency_never = false;
+        }
+        else if(group.getCheckedChipId() == R.id.rb_until){
+            rb_times.setChecked(false);
+            Log.d("murad", "rb_until is checked = " + rb_until.isChecked());
+            Log.d("murad", "rb_times is checked = " + rb_times.isChecked());
+
+            textInputLayout_times.setVisibility(View.GONE);
+            date_picker_end.setVisibility(View.VISIBLE);
+            date_picker_end.updateDate(end_year, end_month-1, end_day);
+
+
+            animate(group);
+            animate(date_picker_end);
+
+            isFrequency_by_amount = false;
+            frequency_never = false;
+
+            scrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                }
+            });
         }
 
-        if(toDismiss){
-            hide();
+        Log.d("murad", "*****************************************************************************************************");
+        Log.d("murad", "rb_never is set to to " + rb_never.isChecked() + " |  frequency_never = " + frequency_never);
+        Log.d("murad", "rb_times is set to to " + rb_times.isChecked() + " |  isFrequency_by_amount = " + isFrequency_by_amount);
+        Log.d("murad", "rb_until is set to to " + rb_until.isChecked() + " |  frequency_by_end = " + !isFrequency_by_amount);
+        Log.d("murad", "*****************************************************************************************************");
+
+
+        if (group.getId() == rg_repeat_for_month.getId() || (group.getId() == rg_repeat_for_year.getId())){
+            if(rb_never.isChecked()){
+                rb_never.setChecked(false);
+                frequency_never = false;
+                Toast.makeText(getContext(), "rb_never is set to false", Toast.LENGTH_SHORT).show();
+            }
         }
+    }
+
+
+    public interface OnSwitchDialog {
+        void switchDialog(ChooseEventFrequencyDialogCustomWithExposedDropdown copy);
     }
 
     public interface OnDayFrequencyListener {
@@ -688,56 +1003,309 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
     }
 
     public interface OnDayAndMonthFrequencyListener {
-        void setOnDayAndMonthFrequency(int selected_day, int selected_frequency, int selected_amount);
-        void setOnDayAndMonthFrequency(int selected_day, int selected_frequency, LocalDate selected_end);
+/*        void setOnDayAndMonthFrequency(int selected_day, int selected_frequency, int selected_amount);
+        void setOnDayAndMonthFrequency(int selected_day, int selected_frequency, LocalDate selected_end);*/
+
+        void setOnDayAndMonthFrequency(int selected_day, int selected_frequency, int selected_amount, boolean isLast);
+        void setOnDayAndMonthFrequency(int selected_day, int selected_frequency, LocalDate selected_end, boolean isLast);
     }
 
     public interface OnDayOfWeekAndMonthFrequencyListener {
         void setOnDayOfWeekAndMonthFrequency(int selected_weekNumber, int selected_dayOfWeekPosition,
-                                             int selected_frequency, int selected_amount);
+                                             int selected_frequency, int selected_amount, boolean isLast);
         void setOnDayOfWeekAndMonthFrequency(int selected_weekNumber, int selected_dayOfWeekPosition,
-                                             int selected_frequency, LocalDate selected_end);
+                                             int selected_frequency, LocalDate selected_end, boolean isLast);
     }
 
     public interface OnDayAndYearFrequencyListener {
         void setOnDayAndYearFrequency(int selected_day, int selected_month,
-                                      int selected_frequency, int selected_amount);
+                                      int selected_frequency, int selected_amount, boolean isLast);
         void setOnDayAndYearFrequency(int selected_day, int selected_month,
-                                      int selected_frequency, LocalDate selected_end);
+                                      int selected_frequency, LocalDate selected_end, boolean isLast);
     }
 
     public interface OnDayOfWeekAndYearFrequencyListener {
         void setOnDayOfWeekAndYearFrequency(int selected_weekNumber, int selected_dayOfWeekPosition, int selected_month,
-                                            int selected_frequency, int selected_amount);
+                                            int selected_frequency, int selected_amount, boolean isLast);
         void setOnDayOfWeekAndYearFrequency(int selected_weekNumber, int selected_dayOfWeekPosition, int selected_month,
-                                            int selected_frequency, LocalDate selected_end);
+                                            int selected_frequency, LocalDate selected_end, boolean isLast);
     }
 
     public interface OnNeverFrequencyListener {
         void setOnNeverFrequency();
+    }
+
+    public void setStartDateForRepeatInitial(LocalDate startDate){
+        this.startDate = startDate;
+
+        this.end_year = startDate.getYear();
+        this.end_month = startDate.getMonthValue();
+        this.end_day = startDate.getDayOfMonth();
 
     }
 
-    public void setStartDateForRepeat(LocalDate startDate){
-        this.startDate = startDate;
+    public void setStartDateForRepeat(LocalDate startDate,
+                                      int selected_frequency,
+                                      int selected_amount,
+                                      LocalDate selected_end,
+                                      List<Boolean> selected_array_frequencyDayOfWeek,
+                                      boolean selected_frequency_day,
+                                      boolean selected_frequency_dayOfWeek,
+                                      boolean selected_frequency_day_and_month,
+                                      boolean selected_frequency_dayOfWeek_and_month,
+                                      boolean selected_frequency_day_and_year,
+                                      boolean selected_frequency_dayOfWeek_and_year){
+
+        startDate = startDate;
+
+        end_year = startDate.getYear();
+        end_month = startDate.getMonthValue();
+        end_day = startDate.getDayOfMonth();
+
+        day = startDate.getDayOfMonth();
+        dayOfWeek = startDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Utils_Calendar.locale);
+
+        dayOfWeekPosition = startDate.getDayOfWeek().getValue()-1;
+
+        Log.d("murad", "dayOfWeek is " + dayOfWeek + " at position " + dayOfWeekPosition);
+
+        weekNumber = Utils_Calendar.getWeekNumber(startDate);
+        month_name = startDate.getMonth().getDisplayName(TextStyle.FULL, Utils_Calendar.locale);
+        month = startDate.getMonthValue();
+
+        frequency = selected_frequency;
+        amount = selected_amount;
+
+        if(startDate.isAfter(selected_end)){
+            selected_end = startDate;
+        }
+        else{
+            frequency_end_date = selected_end;
+        }
+
+        array_frequencyDayOfWeek = selected_array_frequencyDayOfWeek;
+
+        frequency_day = selected_frequency_day;
+        frequency_dayOfWeek = selected_frequency_dayOfWeek;
+        frequency_day_and_month = selected_frequency_day_and_month;
+        frequency_dayOfWeek_and_month = selected_frequency_dayOfWeek_and_month;
+        frequency_day_and_year = selected_frequency_day_and_year;
+        frequency_dayOfWeek_and_year = selected_frequency_dayOfWeek_and_year;
+
+
+
     }
 
     @Override
-    public void dismiss() {}
+    public void onClick(View view) {
+        boolean toDismiss = true;
 
+        if(view == btn_ok){
+
+            frequency = Integer.parseInt(et_frequency.getText().toString());
+            amount = Integer.parseInt(et_times.getText().toString());
+
+
+            if(expanded_rg_month){
+
+                if(frequency_day_and_month && isFrequency_by_amount){
+                    Log.d("murad", "frequency_day_and_month is " + true + "\n isFrequency_by_amount is " + true);
+                    onDayAndMonthFrequencyListener.setOnDayAndMonthFrequency(day, frequency, amount, frequency_last_day_and_month);
+                }
+                else if(frequency_day_and_month){
+                    Log.d("murad", "frequency_day_and_month is " + true + "\n isFrequency_by_amount is " + false);
+                    onDayAndMonthFrequencyListener.setOnDayAndMonthFrequency(day, frequency, frequency_end_date, frequency_last_day_and_month);
+                }
+                else if(frequency_dayOfWeek_and_month && isFrequency_by_amount){
+                    Log.d("murad", "frequency_dayOfWeek_and_month is " + true + "\n isFrequency_by_amount is " + true);
+                    onDayOfWeekAndMonthFrequencyListener.setOnDayOfWeekAndMonthFrequency(weekNumber, dayOfWeekPosition, frequency, amount, frequency_last_dayOfWeek_and_month);
+                }
+                else if(frequency_dayOfWeek_and_month){
+                    Log.d("murad", "frequency_dayOfWeek_and_month is  " + true + "\n isFrequency_by_amount is " + false);
+                    onDayOfWeekAndMonthFrequencyListener.setOnDayOfWeekAndMonthFrequency(weekNumber, dayOfWeekPosition, frequency, frequency_end_date, frequency_last_dayOfWeek_and_month);
+                }
+
+            }
+            else if (expanded_rg_year){
+
+                if(frequency_day_and_year && isFrequency_by_amount){
+                    Log.d("murad", "frequency_day_and_year is " + true + "\n isFrequency_by_amount is " + true);
+                    onDayAndYearFrequencyListener.setOnDayAndYearFrequency(day, month, frequency, amount, frequency_last_day_and_year);
+                }
+                else if(frequency_day_and_year){
+                    Log.d("murad", "frequency_day_and_year is  " + true + "\n isFrequency_by_amount is " + false);
+                    onDayAndYearFrequencyListener.setOnDayAndYearFrequency(day, month, frequency, frequency_end_date, frequency_last_day_and_year);
+                }
+                else if(frequency_dayOfWeek_and_year && isFrequency_by_amount){
+                    Log.d("murad", "frequency_dayOfWeek_and_year is " + true + "\n isFrequency_by_amount is " + true);
+                    onDayOfWeekAndYearFrequencyListener.setOnDayOfWeekAndYearFrequency(weekNumber, dayOfWeekPosition, month, frequency, amount, frequency_last_dayOfWeek_and_year);
+                }
+                else if(frequency_dayOfWeek_and_year){
+                    Log.d("murad", "frequency_dayOfWeek_and_year is " + true + "\n isFrequency_by_amount is " + false);
+                    onDayOfWeekAndYearFrequencyListener.setOnDayOfWeekAndYearFrequency(weekNumber, dayOfWeekPosition, month, frequency, frequency_end_date, frequency_last_dayOfWeek_and_year);
+                }
+
+            }
+            else if(expanded_choose_day_of_week_layout){
+
+                if(frequency_dayOfWeek && isFrequency_by_amount){
+                    Log.d("murad", "frequencyDayOfWeek is " + true + "\n isFrequency_by_amount is " + true);
+                    onDayOfWeekFrequencyListener.setOnDayOfWeekFrequency(array_frequencyDayOfWeek, frequency, amount);
+                }
+                else if(frequency_dayOfWeek){
+                    Log.d("murad", "frequencyDayOfWeek is " + true + "\n isFrequency_by_amount is " + false);
+                    onDayOfWeekFrequencyListener.setOnDayOfWeekFrequency(array_frequencyDayOfWeek, frequency, frequency_end_date);
+                }
+
+            }
+            else {
+
+                if(frequency_day && isFrequency_by_amount){
+                    Log.d("murad", "frequency_day is " + true + "\n isFrequency_by_amount is " + true);
+                    onDayFrequencyListener.setOnDayFrequency(frequency, amount);
+                }
+                else if(frequency_day){
+                    Log.d("murad", "frequency_day is " + true + "\n isFrequency_by_amount is " + false);
+                    onDayFrequencyListener.setOnDayFrequency(frequency, frequency_end_date);
+                }
+
+            }
+
+
+            /*if(frequency_day && isFrequency_by_amount){
+                Log.d("murad", "frequency_day is " + true + "\n isFrequency_by_amount is " + true);
+                onDayFrequencyListener.setOnDayFrequency(frequency, amount);
+            }
+            else if(frequency_day){
+                Log.d("murad", "frequency_day is " + true + "\n isFrequency_by_amount is " + false);
+                onDayFrequencyListener.setOnDayFrequency(frequency, frequency_end_date);
+            }
+            else if(frequency_dayOfWeek && isFrequency_by_amount){
+                Log.d("murad", "frequencyDayOfWeek is " + true + "\n isFrequency_by_amount is " + true);
+                onDayOfWeekFrequencyListener.setOnDayOfWeekFrequency(array_frequencyDayOfWeek, frequency, amount);
+            }
+            else if(frequency_dayOfWeek){
+                Log.d("murad", "frequencyDayOfWeek is " + true + "\n isFrequency_by_amount is " + false);
+                onDayOfWeekFrequencyListener.setOnDayOfWeekFrequency(array_frequencyDayOfWeek, frequency, frequency_end_date);
+            }
+            else if(frequency_day_and_month && isFrequency_by_amount){
+                Log.d("murad", "frequency_day_and_month is " + true + "\n isFrequency_by_amount is " + true);
+                onDayAndMonthFrequencyListener.setOnDayAndMonthFrequency(day, frequency, amount);
+            }
+            else if(frequency_day_and_month){
+                Log.d("murad", "frequency_day_and_month is " + true + "\n isFrequency_by_amount is " + false);
+                onDayAndMonthFrequencyListener.setOnDayAndMonthFrequency(day, frequency, frequency_end_date);
+            }
+            else if(frequency_dayOfWeek_and_month && isFrequency_by_amount){
+                Log.d("murad", "frequency_dayOfWeek_and_month is " + true + "\n isFrequency_by_amount is " + true);
+                onDayOfWeekAndMonthFrequencyListener.setOnDayOfWeekAndMonthFrequency(weekNumber, dayOfWeekPosition, frequency, amount);
+            }
+            else if(frequency_dayOfWeek_and_month){
+                Log.d("murad", "frequency_dayOfWeek_and_month is  " + true + "\n isFrequency_by_amount is " + false);
+                onDayOfWeekAndMonthFrequencyListener.setOnDayOfWeekAndMonthFrequency(weekNumber, dayOfWeekPosition, frequency, frequency_end_date);
+            }
+            else if(frequency_day_and_year && isFrequency_by_amount){
+                Log.d("murad", "frequency_day_and_year is " + true + "\n isFrequency_by_amount is " + true);
+                onDayAndYearFrequencyListener.setOnDayAndYearFrequency(day, month, frequency, amount);
+            }
+            else if(frequency_day_and_year){
+                Log.d("murad", "frequency_day_and_year is  " + true + "\n isFrequency_by_amount is " + false);
+                onDayAndYearFrequencyListener.setOnDayAndYearFrequency(day, month, frequency, frequency_end_date);
+            }
+            else if(frequency_dayOfWeek_and_year && isFrequency_by_amount){
+                Log.d("murad", "frequency_dayOfWeek_and_year is " + true + "\n isFrequency_by_amount is " + true);
+                onDayOfWeekAndYearFrequencyListener.setOnDayOfWeekAndYearFrequency(weekNumber, dayOfWeekPosition, month, frequency, amount);
+            }
+            else if(frequency_dayOfWeek_and_year){
+                Log.d("murad", "frequency_dayOfWeek_and_year is " + true + "\n isFrequency_by_amount is " + false);
+                onDayOfWeekAndYearFrequencyListener.setOnDayOfWeekAndYearFrequency(weekNumber, dayOfWeekPosition, month, frequency, frequency_end_date);
+            }
+            else if(frequency_never){
+                Log.d("murad", "frequency_never is " + true);
+                onNeverFrequencyListener.setOnNeverFrequency();
+            }
+            else {
+                toDismiss = false;
+                Toast.makeText(context, "Please select frequency type for the event", Toast.LENGTH_SHORT).show();
+            }*/
+
+            if(toDismiss){
+                copy = this;
+                Toast.makeText(context, "Copy saved", Toast.LENGTH_SHORT).show();
+                dismiss();
+
+//            cancel();
+            }
+
+        }
+        else if(view == btn_cancel){
+            cancel();
+        }
+
+
+    }
+
+    @Override
+    public void dismiss() {
+        super.dismiss();
+
+
+        Log.d("murad", "isFrequency_by_amount is set to " + isFrequency_by_amount);
+        Log.d("murad", "frequency_never is set to " + frequency_never);
+        Log.d("murad", "frequency_day is set to " + frequency_day);
+        Log.d("murad", "frequency_dayOfWeek is set to " + frequency_dayOfWeek);
+        Log.d("murad", "frequency_day_and_month is set to " + frequency_day_and_month);
+        Log.d("murad", "frequency_dayOfWeek_and_month is set to " + frequency_dayOfWeek_and_month);
+        Log.d("murad", "frequency_day_and_year is set to " + frequency_day_and_year);
+        Log.d("murad", "frequency_dayOfWeek_and_year is set to " + frequency_dayOfWeek_and_year);
+    }
+
+/*
     @Override
     public void hide() {
         super.hide();
+        copy = this;
+
+         Log.d("murad", "isFrequency_by_amount is set to " + isFrequency_by_amount);
+         Log.d("murad", "frequency_never is set to " + frequency_never);
+         Log.d("murad", "frequency_day is set to " + frequency_day);
+         Log.d("murad", "frequency_dayOfWeek is set to " + frequency_dayOfWeek);
+         Log.d("murad", "frequency_day_and_month is set to " + frequency_day_and_month);
+         Log.d("murad", "frequency_dayOfWeek_and_month is set to " + frequency_dayOfWeek_and_month);
+         Log.d("murad", "frequency_day_and_year is set to " + frequency_day_and_year);
+         Log.d("murad", "frequency_dayOfWeek_and_year is set to " + frequency_dayOfWeek_and_year);
+
     }
+*/
 
     @Override
     public void cancel() {
-        super.cancel();
+//        super.cancel();
+        /*            frequency_never = true;
+            onNeverFrequencyListener.setOnNeverFrequency();*/
+        /*cancel();*/
+        if (copy == null){
+            onSwitchDialog.switchDialog(copy);
+            Toast.makeText(getContext(), "Copy Dialog is null", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            onSwitchDialog.switchDialog(copy);
+            Toast.makeText(getContext(), "Copy Dialog is not null", Toast.LENGTH_SHORT).show();
+        }
+
+        if(this.equals(copy)){
+            Toast.makeText(getContext(), "Dialogs are equal!", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            Toast.makeText(getContext(), "Dialogs are not equal!", Toast.LENGTH_SHORT).show();
+        }
+
+        dismiss();
     }
 
     @Override
-    public void setOnShowListener(@Nullable OnShowListener listener) {
-        super.setOnShowListener(listener);
+    public void onBackPressed() {
+        cancel();
     }
 
     @Override
@@ -759,7 +1327,6 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
     @Override
     public void show() {
         super.show();
-
 
 
         //getting Root View that gets focus

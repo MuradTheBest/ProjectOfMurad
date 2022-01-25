@@ -1,15 +1,21 @@
 package com.example.projectofmurad.calendar;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-
 import android.app.TimePickerDialog;
-
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.transition.AutoTransition;
+import android.transition.ChangeBounds;
+import android.transition.Slide;
+import android.transition.TransitionManager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Toast;
 
 import androidx.core.util.Pair;
@@ -24,12 +30,12 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.Period;
 import java.util.List;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
-public class Add_Event_Screen extends MySuperTouchActivity {
+public class Add_Event_Screen extends MySuperTouchActivity implements
+        ChooseEventFrequencyDialogCustomWithExposedDropdown.OnSwitchDialog{
 
 
 
@@ -77,18 +83,13 @@ public class Add_Event_Screen extends MySuperTouchActivity {
 
     private final String[] days = Utils_Calendar.getNarrowDaysOfWeek();
 
-    private String frequencyType;
-
-    private int frequency;
-
-    private int amount;
-    private LocalDate end;
-
     private int day;
     private int dayOfWeekPosition;
     private List<Boolean> array_frequencyDayOfWeek;
     private int weekNumber;
     private int month;
+
+    private boolean initial = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +99,7 @@ public class Add_Event_Screen extends MySuperTouchActivity {
         event.setFrequencyType(DAY_BY_END);
         event.setFrequency(1);
 
-        ChooseEventFrequencyDialogCustomWithExposedDropdown chooseEventFrequencyDialog = new ChooseEventFrequencyDialogCustomWithExposedDropdown(Add_Event_Screen.this);
+        chooseEventFrequencyDialog = new ChooseEventFrequencyDialogCustomWithExposedDropdown(Add_Event_Screen.this);
 
         firebase = FirebaseDatabase.getInstance();
         eventsDatabase = firebase.getReference("EventsDatabase");
@@ -117,10 +118,15 @@ public class Add_Event_Screen extends MySuperTouchActivity {
         start_month = end_month = selected_month;
         start_year = end_year = selected_year;
 
-        start_hour = LocalTime.now().getHour();
+/*        start_hour = LocalTime.now().getHour();
         start_min = LocalTime.now().getMinute();
         end_hour = LocalTime.now().getHour();
-        end_min = LocalTime.now().getMinute();
+        end_min = LocalTime.now().getMinute();*/
+
+        start_hour = 8;
+        start_min = 0;
+        end_hour = 9;
+        end_min = 0;
 
         Log.d("murad", "Receiving selectedDate " + selected_day + " " + selected_month + " " + selected_year);
 
@@ -133,12 +139,31 @@ public class Add_Event_Screen extends MySuperTouchActivity {
         et_place = findViewById(R.id.et_place);
         et_place.setOnFocusChangeListener(this);
 
+        ib_color = findViewById(R.id.ib_color);
+        ib_color.setOnClickListener(v -> createColorPickerDialog());
+
+        switch_all_day = findViewById(R.id.switch_all_day);
+        switch_all_day.setOnCheckedChangeListener((buttonView, isChecked) -> {
+//                    event.setTimestamp(isChecked ? 0 : event.receiveStart_time().toSecondOfDay());
+                    timestamp = isChecked ? 0 : ((start_hour*60 + start_min)*60);
+/*                    int i = event.receiveStart_time().toSecondOfDay();
+                    if(isChecked){
+                        event.setTimestamp(0);
+                    }
+                    else{
+                        event.setTimestamp(i);
+                    }*/
+                    btn_choose_start_time.setVisibility(isChecked ? View.GONE : View.VISIBLE);
+                    btn_choose_end_time.setVisibility(isChecked ? View.GONE : View.VISIBLE);
+                }
+        );
+
         btn_choose_start_date = findViewById(R.id.btn_choose_start_date);
         btn_choose_start_date.setText(Utils_Calendar.DateToTextLocal(selectedDate));
         btn_choose_start_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startDatePickerDialog = new DatePickerDialog(Add_Event_Screen.this, android.R.style.Theme_Holo_Light_Dialog_NoActionBar_MinWidth, new SetDate("start"), selected_year, selected_month, selected_day);
+                startDatePickerDialog = new DatePickerDialog(Add_Event_Screen.this, AlertDialog.THEME_HOLO_LIGHT, new SetDate("start"), selected_year, selected_month, selected_day);
                 startDatePickerDialog.updateDate(start_year, start_month-1, start_day);
 //                startDatePickerDialog.getDatePicker().setMinDate(LocalDate.now().);
 
@@ -163,8 +188,8 @@ public class Add_Event_Screen extends MySuperTouchActivity {
             public void onClick(View v) {
                 //Initialize time picker dialog
                 startTimePickerDialog = new TimePickerDialog(Add_Event_Screen.this,
-                        android.R.style.Theme_Holo_Light_Dialog_NoActionBar_MinWidth,
-                        new SetTime("start"), 0, 0, true);
+                        AlertDialog.THEME_HOLO_LIGHT,
+                        new SetTime("start"), start_hour, start_min, true);
 
                 startTimePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
@@ -180,7 +205,7 @@ public class Add_Event_Screen extends MySuperTouchActivity {
                 //Initialize time picker dialog
                 endTimePickerDialog = new TimePickerDialog(Add_Event_Screen.this,
                         android.R.style.ThemeOverlay_Material_Dialog,
-                        new SetTime("end"), 0, 0, true);
+                        new SetTime("end"), end_hour, end_min, true);
 
                 endTimePickerDialog.updateTime(end_hour, end_min);
                 endTimePickerDialog.show();
@@ -188,12 +213,7 @@ public class Add_Event_Screen extends MySuperTouchActivity {
         });
 
         btn_color = findViewById(R.id.btn_color);
-        btn_color.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createColorPickerDialog();
-            }
-        });
+        btn_color.setOnClickListener(view -> createColorPickerDialog());
 
         btn_repeat = findViewById(R.id.btn_repeat);
         btn_repeat.setOnClickListener(new View.OnClickListener() {
@@ -204,14 +224,68 @@ public class Add_Event_Screen extends MySuperTouchActivity {
 
                 //ChooseEventFrequencyDialog chooseEventFrequencyDialog = new ChooseEventFrequencyDialog(Add_Event_Screen.this);
                 //AlertDialogToChooseFrequency chooseEventFrequencyDialog = new AlertDialogToChooseFrequency(Add_Event_Screen.this, startDate);
+/*                if (initial){
+                    Toast.makeText(getApplicationContext(), "Initial open", Toast.LENGTH_SHORT).show();
+                    chooseEventFrequencyDialog.setStartDateForRepeatInitial(startDate);
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "Open", Toast.LENGTH_SHORT).show();
+                    chooseEventFrequencyDialog.setStartDateForRepeat(startDate);
+                }
+                initial = false;*/
 
-                chooseEventFrequencyDialog.setStartDateForRepeat(startDate);
-/*                intentToChooseEventFrequencyDialogCustom = new Intent(Add_Event_Screen.this, ChooseEventFrequencyDialogCustom.class);
+                chooseEventFrequencyDialog.setStartDateForRepeatInitial(startDate);
+
+
+                intentToChooseEventFrequencyDialogCustom = new Intent(Add_Event_Screen.this, ChooseEventFrequencyDialogCustom.class);
                 intentToChooseEventFrequencyDialogCustom.putExtra("end_year", start_year);
                 intentToChooseEventFrequencyDialogCustom.putExtra("end_month", start_month);
-                intentToChooseEventFrequencyDialogCustom.putExtra("end_day", start_day);*/
+                intentToChooseEventFrequencyDialogCustom.putExtra("end_day", start_day);
 
                 chooseEventFrequencyDialog.show();
+
+                Bundle bundle = new Bundle();
+                bundle.putInt("year", start_year);
+                bundle.putInt("month", start_month);
+                bundle.putInt("day", start_day);
+
+/*
+                getSupportFragmentManager().beginTransaction()
+                        .setReorderingAllowed(true)
+                        .add(ChooseEventFrequency_Screen.class, bundle, ChooseEventFrequency_Screen.TAG)
+                        .commit();*/
+
+
+                /**
+                 * DialogFragment.show() will take care of adding the fragment
+                 * in a transaction.  We also want to remove any currently showing
+                 * dialog, so make our own transaction and take care of that here.
+                 */
+
+/*                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction ft = fragmentManager.beginTransaction();
+                Fragment prev = fragmentManager.findFragmentByTag(ChooseEventFrequency_Screen.TAG);
+                if (prev != null) {
+//                    prev.show(ft, ChooseEventFrequency_Screen.TAG);
+                    ((ChooseEventFrequency_Screen) prev).show(fragmentManager, ChooseEventFrequency_Screen.TAG);
+//                    fragmentManager.beginTransaction().show(prev).commit();
+                    Toast.makeText(getApplicationContext(), "Showing created dialog", Toast.LENGTH_SHORT).show();
+
+                }
+                else{
+                    fragmentManager.beginTransaction()
+                            .setReorderingAllowed(true)
+                            .add(ChooseEventFrequency_Screen.class, bundle, ChooseEventFrequency_Screen.TAG)
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                            .commit();
+                    Toast.makeText(getApplicationContext(), "Creating dialog", Toast.LENGTH_SHORT).show();
+
+                }*/
+//                ft.addToBackStack(null);
+
+                // Create and show the dialog.
+/*                ChooseEventFrequency_Screen newFragment = ChooseEventFrequency_Screen.newInstance(start_year, start_month, start_day);
+                newFragment.show(ft, ChooseEventFrequency_Screen.TAG);*/
             }
         });
 
@@ -241,8 +315,10 @@ public class Add_Event_Screen extends MySuperTouchActivity {
         ColorPicker colorPicker = new ColorPicker(this);
         colorPicker.setDefaultColorButton(Color.GREEN);
         colorPicker.setRoundColorButton(true);
+        colorPicker.setColorButtonSize(30, 30);
+        colorPicker.setColorButtonTickColor(Color.BLACK);
 
-        colorPicker.setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
+/*        colorPicker.setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
             @Override
             public void onChooseColor(int position, int color) {
                 if(color == 0){
@@ -256,9 +332,48 @@ public class Add_Event_Screen extends MySuperTouchActivity {
             @Override
             public void onCancel() {
             }
+        });*/
+
+        colorPicker.setOnFastChooseColorListener(new ColorPicker.OnFastChooseColorListener() {
+            @Override
+            public void setOnFastChooseColorListener(int position, int color) {
+                selectedColor = color;
+                btn_color.setBackgroundColor(color);
+//                ib_color.setBackgroundColor(color);
+//                ib_color.getBackground().setTint(color);
+//                ib_color.setBackgroundColor(color);
+                ib_color.getDrawable().setTint(color);
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
         });
+
         colorPicker.show();
+
     }
+
+    public void animate(ViewGroup viewGroup){
+        AutoTransition trans = new AutoTransition();
+        trans.setDuration(100);
+        trans.setInterpolator(new AccelerateDecelerateInterpolator());
+        //trans.setInterpolator(new DecelerateInterpolator());
+        //trans.setInterpolator(new FastOutSlowInInterpolator());
+
+        ChangeBounds changeBounds = new ChangeBounds();
+        changeBounds.setDuration(300);
+        changeBounds.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        Slide slide = new Slide(Gravity.TOP);
+        TransitionManager.beginDelayedTransition(viewGroup, slide);
+
+//        TransitionManager.beginDelayedTransition(viewGroup, trans);
+
+
+    }
+
 
     public void onAddEventClick(View view) {
 
@@ -298,41 +413,61 @@ public class Add_Event_Screen extends MySuperTouchActivity {
             startDate = LocalDate.of(start_year, start_month, start_day);
             endDate = LocalDate.of(end_year, end_month, end_day);
 
-            LocalTime start_time = LocalTime.of(start_hour, start_min);
-            LocalTime end_time = LocalTime.of(end_hour, end_min);
+            LocalTime startTime = LocalTime.of(start_hour, start_min);
+            LocalTime endTime = LocalTime.of(end_hour, end_min);
 
-            //event = new CalendarEventWithTextOnly2FromSuper(selectedColor, name, description, place, start_date, start_time, end_date, end_time);
-            event.setColor(selectedColor);
+//            event = new CalendarEventWithTextOnly2FromSuper(selectedColor, name, description, place, timestamp, startDate, startTime, endDate, endTime);
+/*            event.setColor(selectedColor);
             event.setName(name);
             event.setDescription(description);
             event.setPlace(place);
+
             event.updateStart_date(startDate);
-            event.updateStart_time(start_time);
+
+
+            event.updateStart_time(startTime);
+
             event.updateEnd_date(endDate);
-            event.updateEnd_time(end_time);
-            //event.addDefaultParams(selectedColor, name, description, place, start_date, start_time, end_date, end_time);
 
-            Period range = startDate.until(endDate);
+            event.updateEnd_time(endTime);*/
 
-            if(range.getDays() >= event.getFrequency()){
-
-            }
+            event.addDefaultParams(selectedColor, name, description, place, timestamp, startDate, startTime, endDate, endTime);
 
             eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(startDate));
             eventsDatabase = eventsDatabase.push();
 
-            String key = eventsDatabase.getKey();
-            event.setEvent_id(key);
+            if (event.getTimestamp() == 0){
+                event.setStart_time("");
+                event.setEnd_time("");
+            }
+
+            String chain_key = eventsDatabase.getKey();
+            event.setEvent_chain_id(chain_key);
+
+            boolean success = true;
 
             if(row_event) {
-                addEventToFirebaseForTextWithPUSH(event);
+                event.updateFrequency_start(startDate);
+                event.updateFrequency_end(endDate);
+
+                addEventToFirebaseForTextWithPUSH(event, chain_key);
             }
             else if(event.getFrequencyType().endsWith("amount")){
-                addEventForTimesAdvanced(event);
+                success = addEventForTimesAdvanced(event);
             }
             else if(event.getFrequencyType().endsWith("end")){
-                addEventForUntilAdvanced(event);
+                success = addEventForUntilAdvanced(event);
             }
+
+            //ToDo adjust chain_id for row events in database
+ /*           if(event.getStart_date().equals(event.getFrequency_start()) &&
+                    event.getEnd_date().equals(event.getFrequency_end())){
+
+                eventsDatabase = firebase.getReference("EventsDatabase");
+                eventsDatabase = eventsDatabase.child(event.getStart_date());
+
+                eventsDatabase.child(chain_key).setValue(event.getEvent_private_id());
+            }*/
 
 /*            Intent intent_toCalendar = new Intent(getApplicationContext(), Calendar_Screen.class);
             intent_toCalendar.putExtra("selected_day", start_);
@@ -340,8 +475,37 @@ public class Add_Event_Screen extends MySuperTouchActivity {
             intent_toCalendar.putExtra("selected_year", year);
             startActivity();*/
 
-            startActivity(new Intent(getApplicationContext(), Calendar_Screen.class));
+//            startActivity(new Intent(getApplicationContext(), Calendar_Screen.class));
 
+            Intent toCalendar_Screen = new Intent(getApplicationContext(), Calendar_Screen.class);
+
+            int day = event.receiveFrequency_start().getDayOfMonth();
+            int month = event.receiveFrequency_start().getMonth().getValue();
+            int year = event.receiveFrequency_start().getYear();
+
+            toCalendar_Screen.putExtra("day", day);
+            toCalendar_Screen.putExtra("month", month);
+            toCalendar_Screen.putExtra("year", year);
+
+            if (success) {
+                startActivity(toCalendar_Screen);
+            }
+            else {
+                createBottomSheetDialog();
+            }
+
+        }
+
+    }
+
+    @Override
+    public void switchDialog(ChooseEventFrequencyDialogCustomWithExposedDropdown copy) {
+        if (copy == null){
+            chooseEventFrequencyDialog = new ChooseEventFrequencyDialogCustomWithExposedDropdown(Add_Event_Screen.this);
+//            chooseEventFrequencyDialog.setStartDateForRepeatInitial(startDate);
+        }
+        else {
+            chooseEventFrequencyDialog = copy;
         }
 
     }

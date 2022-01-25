@@ -163,7 +163,8 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Adapte
     @Override
     public void onEventClick(int position, CalendarEventWithTextOnly2FromSuper calendarEventWithTextOnly) {
         this.dismiss();
-        String key = calendarEventWithTextOnly.getEvent_id();
+        String chain_key = calendarEventWithTextOnly.getEvent_chain_id();
+        String private_key = calendarEventWithTextOnly.getEvent_private_id();
 
         int timestamp = calendarEventWithTextOnly.getTimestamp();
         String name = calendarEventWithTextOnly.getName();
@@ -177,7 +178,9 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Adapte
 
         Intent intent = new Intent(context, Edit_Event_Screen.class);
 
-        intent.putExtra("event_key", key);
+        intent.putExtra("event_chain_key", chain_key);
+        intent.putExtra("event_private_key", private_key);
+
         intent.putExtra("event_name", name);
         intent.putExtra("event_description", description);
         intent.putExtra("event_place", place);

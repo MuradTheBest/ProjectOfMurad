@@ -14,6 +14,7 @@ import java.util.List;
 public class CalendarEventWithTextOnly2FromSuper extends CalendarEventSuperClass implements Serializable {
 
     private String frequencyType;
+    private String event_private_id;
 
     private int frequency;
     private int amount;
@@ -24,6 +25,8 @@ public class CalendarEventWithTextOnly2FromSuper extends CalendarEventSuperClass
     private int weekNumber;
     private int month;
 
+    private boolean isLast;
+
     private String frequency_start;
     private String frequency_end;
 
@@ -33,8 +36,6 @@ public class CalendarEventWithTextOnly2FromSuper extends CalendarEventSuperClass
 
         this.frequencyType = MySuperTouchActivity.DAY_BY_END;
         this.frequency = 1;
-
-
 
 /*
         this.event_id = "";
@@ -58,10 +59,12 @@ public class CalendarEventWithTextOnly2FromSuper extends CalendarEventSuperClass
         this.frequencyYear = "";*/
     }
 
-    public CalendarEventWithTextOnly2FromSuper(int color, String name, String description, String place,
-                                               LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+    public CalendarEventWithTextOnly2FromSuper(int color, String name, String description,
+                                               String place, int timestamp,
+                                               LocalDate startDate, LocalTime startTime,
+                                               LocalDate endDate, LocalTime endTime) {
 
-        super(color, name, description, place, startDate, startTime, endDate, endTime);
+        super(color, name, description, place, timestamp, startDate, startTime, endDate, endTime);
 
 /*        this.name = name;
         this.description = description;
@@ -516,6 +519,22 @@ public class CalendarEventWithTextOnly2FromSuper extends CalendarEventSuperClass
         Log.d("murad", "Absolute end date updated " + Utils_Calendar.DateToTextOnline(frequency_end));
     }
 
+    public String getEvent_private_id() {
+        return event_private_id;
+    }
+
+    public void setEvent_private_id(String event_private_id) {
+        this.event_private_id = event_private_id;
+    }
+
+    public boolean isLast() {
+        return isLast;
+    }
+
+    public void setLast(boolean last) {
+        isLast = last;
+    }
+
     public void clearFrequencyData(){
         this.day = 0;
         this.dayOfWeekPosition = 0;
@@ -529,11 +548,11 @@ public class CalendarEventWithTextOnly2FromSuper extends CalendarEventSuperClass
     @NonNull
     public String toString(){
 
-        return "------------------------------------------------------------------------------------------------------------------------------------ \n" +
+        return /*"------------------------------------------------------------------------------------------------------------------------------------ \n" +*/
                 "\n" + this.getName() + " | " + this.getPlace() + " | " + this.getDescription() +
                 "\n" + this.getStart_date() + " | " + this.getStart_time() +
                 "\n" + this.getEnd_date() + " | " + this.getEnd_time() +
-                "\n" + "\n ------------------------------------------------------------------------------------------------------------------------------------ \n";
+                "\n"/* + "\n ------------------------------------------------------------------------------------------------------------------------------------ \n"*/;
     }
 
 }

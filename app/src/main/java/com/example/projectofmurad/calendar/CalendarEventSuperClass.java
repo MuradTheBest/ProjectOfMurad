@@ -6,7 +6,7 @@ import java.time.LocalTime;
 
 public class CalendarEventSuperClass implements Serializable {
 
-    private String event_id;
+    private String event_chain_id;
     private int timestamp;
 
     private String name;
@@ -23,6 +23,10 @@ public class CalendarEventSuperClass implements Serializable {
 
 
     public CalendarEventSuperClass(){
+
+        this.start_time = "08:00";
+        this.end_time = "09:00";
+
 /*
         this.event_id = "";
 
@@ -43,6 +47,8 @@ public class CalendarEventSuperClass implements Serializable {
         this.frequencyDayOfWeek = new String[]{};
         this.frequencyMonth = "";
         this.frequencyYear = "";*/
+
+
     }
 
     public CalendarEventSuperClass(int color, String name, String description, String place, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
@@ -61,17 +67,19 @@ public class CalendarEventSuperClass implements Serializable {
 
         this.timestamp = startTime.toSecondOfDay();
 
-        this.event_id = this.start_date + "-" + this.timestamp;
+        this.event_chain_id = this.start_date + "-" + this.timestamp;
 
         this.color = color;
     }
 
-
-    public void addDefaultParams(int color, String name, String description, String place, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+    public CalendarEventSuperClass(int color, String name, String description, String place, int timestamp, LocalDate startDate, LocalTime startTime,
+                                   LocalDate endDate, LocalTime endTime) {
 
         this.name = name;
         this.description = description;
         this.place = place;
+
+        this.timestamp = timestamp;
 
         this.start_date = Utils_Calendar.DateToTextOnline(startDate);
 
@@ -83,7 +91,31 @@ public class CalendarEventSuperClass implements Serializable {
 
         this.timestamp = startTime.toSecondOfDay();
 
-        this.event_id = this.start_date + "-" + this.timestamp;
+        this.event_chain_id = this.start_date + "-" + this.timestamp;
+
+        this.color = color;
+    }
+
+
+    public void addDefaultParams(int color, String name, String description, String place, int timestamp,LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+
+        this.name = name;
+        this.description = description;
+        this.place = place;
+
+        this.timestamp = timestamp;
+
+        this.start_date = Utils_Calendar.DateToTextOnline(startDate);
+
+        this.start_time = Utils_Calendar.TimeToText(startTime);
+
+        this.end_date = Utils_Calendar.DateToTextOnline(endDate);
+
+        this.end_time = Utils_Calendar.TimeToText(endTime);
+
+        this.timestamp = startTime.toSecondOfDay();
+
+        this.event_chain_id = this.start_date + "-" + this.timestamp;
 
         this.color = color;
     }
@@ -93,7 +125,7 @@ public class CalendarEventSuperClass implements Serializable {
 
         this.timestamp = Utils_Calendar.TextToTime(start_time).toSecondOfDay();
 
-        this.event_id = start_date + "-" + this.timestamp;
+        this.event_chain_id = start_date + "-" + this.timestamp;
 
         this.name = name;
         this.description = description;
@@ -110,12 +142,12 @@ public class CalendarEventSuperClass implements Serializable {
         this.color = color;
     }
 
-    public String getEvent_id() {
-        return event_id;
+    public String getEvent_chain_id() {
+        return event_chain_id;
     }
 
-    public void setEvent_id(String event_id) {
-        this.event_id = event_id;
+    public void setEvent_chain_id(String event_chain_id) {
+        this.event_chain_id = event_chain_id;
     }
 
     public String getName() {
