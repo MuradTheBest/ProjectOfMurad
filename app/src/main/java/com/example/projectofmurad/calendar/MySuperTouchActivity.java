@@ -1,29 +1,34 @@
-package com.example.projectofmurad;
+package com.example.projectofmurad.calendar;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 
-import com.example.projectofmurad.calendar.CalendarEventWithTextOnly2FromSuper;
-import com.example.projectofmurad.calendar.Calendar_Screen;
-import com.example.projectofmurad.calendar.ChooseEventFrequencyDialogCustomWithExposedDropdown;
-import com.example.projectofmurad.calendar.Utils_Calendar;
+import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.R;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -39,6 +44,7 @@ import java.util.List;
 
 public class MySuperTouchActivity extends AppCompatActivity implements
         ChooseEventFrequencyDialogCustomWithExposedDropdown.OnNeverFrequencyListener,
+        ChooseEventFrequencyDialogCustomWithExposedDropdown.OnSendMessageListener,
         ChooseEventFrequencyDialogCustomWithExposedDropdown.OnDayFrequencyListener,
         ChooseEventFrequencyDialogCustomWithExposedDropdown.OnDayOfWeekFrequencyListener,
         ChooseEventFrequencyDialogCustomWithExposedDropdown.OnDayAndMonthFrequencyListener,
@@ -55,7 +61,13 @@ public class MySuperTouchActivity extends AppCompatActivity implements
     protected SwitchMaterial switch_all_day;
 
     protected Button btn_choose_start_time;
-    protected Button btn_choose_start_date;
+    protected Chip btn_choose_start_date;
+
+    protected TimePicker event_time_picker;
+
+    protected RelativeLayout rl_event_setup;
+    protected ScrollView sv_add_event_screen;
+
     protected Button btn_choose_end_time;
     protected Button btn_choose_end_date;
 
@@ -63,7 +75,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
     protected Button btn_delete_event;
 
     protected Button btn_color;
-    protected Button btn_repeat;
+    protected TextView btn_repeat;
 
     protected CalendarEventWithTextOnly2FromSuper event = new CalendarEventWithTextOnly2FromSuper();
 
@@ -128,15 +140,49 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
     protected ChooseEventFrequencyDialogCustomWithExposedDropdown chooseEventFrequencyDialog;
 
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_close_24);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setShowHideAnimationEnabled(true);
         getSupportActionBar().hide();
+
+//        getSupportActionBar().hide();
 //        setContentView(R.layout.activity_my_super_touch);
     }
 
+
     public MySuperTouchActivity() {
         super();
+    }
+
+    // method to inflate the options menu when
+    // the user opens the menu for the first time
+    @Override
+    public boolean onCreateOptionsMenu( Menu menu ) {
+        getMenuInflater().inflate(R.menu.event_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    // methods to control the operations that will
+    // happen when user clicks on the action buttons
+    @Override
+    public boolean onOptionsItemSelected( @NonNull MenuItem item ) {
+
+        switch (item.getItemId()){
+            case R.id.action_save:
+                break;
+            case android.R.id.home:
+                Toast.makeText(this, "Search Clicked", Toast.LENGTH_SHORT).show();
+//                this.finish();
+                onBackPressed();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public void createBottomSheetDialog(){
@@ -164,7 +210,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         Log.d("murad", "start_date of event: " + event.getStart_date());
         Log.d("murad", "end_date of event: " + event.getEnd_date());
 
-        eventsDatabase = firebase.getReference("EventsDatabase");
+        eventsDatabase = FirebaseUtils.eventsDatabase;
 
         LocalDate tmp = start_date;
 
@@ -177,7 +223,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         Log.d("murad", "CHAIN ID IS " + event.getEvent_chain_id());
 
         do {
-            eventsDatabase = firebase.getReference("EventsDatabase");
+            eventsDatabase = FirebaseUtils.eventsDatabase;
             eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
             eventsDatabase = eventsDatabase.child(private_key);
@@ -194,7 +240,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
     public void addEventForTimes(CalendarEventWithTextOnly2FromSuper event){
 //        LocalDate end_date = event.receiveEnd_date();
 
-        eventsDatabase = firebase.getReference("EventsDatabase");
+        eventsDatabase = FirebaseUtils.eventsDatabase;
         String key = event.getEvent_chain_id();
 
         int frequency = event.getFrequency();
@@ -210,7 +256,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         switch(event.getFrequencyType()) {
             case DAY_BY_AMOUNT:
                 for(int i = 0; i < amount; i++) {
-                    eventsDatabase = firebase.getReference("EventsDatabase");
+                    eventsDatabase = FirebaseUtils.eventsDatabase;
                     eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                     eventsDatabase = eventsDatabase.child(key);
@@ -232,7 +278,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     for(int j = 0; j < event_array_frequencyDayOfWeek.size(); j++) {
                         if(event_array_frequencyDayOfWeek.get(j)) {
 
-                            eventsDatabase = firebase.getReference("EventsDatabase");
+                            eventsDatabase = FirebaseUtils.eventsDatabase;
                             eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                             eventsDatabase = eventsDatabase.child(key);
@@ -254,7 +300,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                 for(int i = 0; i < amount; i++) {
                     if(tmp.lengthOfMonth() >= event.getDay()) {
 
-                        eventsDatabase = firebase.getReference("EventsDatabase");
+                        eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                         eventsDatabase = eventsDatabase.child(key);
@@ -276,7 +322,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
                     Log.d("frequency_dayOfWeek_and_month", Utils_Calendar.DateToTextOnline(tmp));
 
-                    eventsDatabase = firebase.getReference("EventsDatabase");
+                    eventsDatabase = FirebaseUtils.eventsDatabase;
                     eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                     eventsDatabase = eventsDatabase.child(key);
@@ -314,7 +360,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     for(int i = 0; i < amount; i++) {
                         Log.d("frequency_dayOfWeek_and_month", Utils_Calendar.DateToTextOnline(tmp));
 
-                        eventsDatabase = firebase.getReference("EventsDatabase");
+                        eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                         eventsDatabase = eventsDatabase.child(key);
@@ -332,7 +378,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                         Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
                         Log.d("frequency_dayOfWeek_and_month", Utils_Calendar.DateToTextOnline(tmp));
 
-                        eventsDatabase = firebase.getReference("EventsDatabase");
+                        eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                         eventsDatabase = eventsDatabase.child(key);
@@ -370,7 +416,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
                 for(int i = 0; i < amount; i++) {
 
-                    eventsDatabase = firebase.getReference("EventsDatabase");
+                    eventsDatabase = FirebaseUtils.eventsDatabase;
                     eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                     eventsDatabase = eventsDatabase.child(key);
@@ -389,7 +435,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
                     Log.d("frequency_dayOfWeek_and_month", Utils_Calendar.DateToTextOnline(tmp));
 
-                    eventsDatabase = firebase.getReference("EventsDatabase");
+                    eventsDatabase = FirebaseUtils.eventsDatabase;
                     eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                     eventsDatabase = eventsDatabase.child(key);
@@ -433,7 +479,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
     public void addEventForUntil(CalendarEventWithTextOnly2FromSuper event){
 
-        eventsDatabase = firebase.getReference("EventsDatabase");
+        eventsDatabase = FirebaseUtils.eventsDatabase;
         String key = event.getEvent_chain_id();
 
         int frequency = event.getFrequency();
@@ -449,7 +495,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         switch(event.getFrequencyType()) {
             case DAY_BY_END:
                 do {
-                    eventsDatabase = firebase.getReference("EventsDatabase");
+                    eventsDatabase = FirebaseUtils.eventsDatabase;
                     eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                     eventsDatabase = eventsDatabase.child(key);
@@ -471,7 +517,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                 do {
                     for(int j = 0; j < event_array_frequencyDayOfWeek.size(); j++) {
                         if(event_array_frequencyDayOfWeek.get(j)) {
-                            eventsDatabase = firebase.getReference("EventsDatabase");
+                            eventsDatabase = FirebaseUtils.eventsDatabase;
                             eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                             eventsDatabase = eventsDatabase.child(key);
@@ -493,7 +539,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                 do {
                     if(tmp.lengthOfMonth() >= event.getDay()) {
 
-                        eventsDatabase = firebase.getReference("EventsDatabase");
+                        eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                         eventsDatabase = eventsDatabase.child(key);
@@ -518,7 +564,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
                     Log.d("frequency_dayOfWeek_and_month", Utils_Calendar.DateToTextOnline(tmp));
 
-                    eventsDatabase = firebase.getReference("EventsDatabase");
+                    eventsDatabase = FirebaseUtils.eventsDatabase;
                     eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                     eventsDatabase = eventsDatabase.child(key);
@@ -564,7 +610,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                 }
 
                 do {
-                    eventsDatabase = firebase.getReference("EventsDatabase");
+                    eventsDatabase = FirebaseUtils.eventsDatabase;
                     eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                     eventsDatabase = eventsDatabase.child(key);
@@ -585,7 +631,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
                     Log.d("frequency_dayOfWeek_and_month", Utils_Calendar.DateToTextOnline(tmp));
 
-                    eventsDatabase = firebase.getReference("EventsDatabase");
+                    eventsDatabase = FirebaseUtils.eventsDatabase;
                     eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                     eventsDatabase = eventsDatabase.child(key);
@@ -638,7 +684,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         Log.d("murad", " ");
         Log.d("murad", "ADDING BY AMOUNT STARTED");
 
-        eventsDatabase = firebase.getReference("EventsDatabase");
+        eventsDatabase = FirebaseUtils.eventsDatabase;
 
         int frequency = event.getFrequency();
         Log.d("murad", "FREQUENCY IS " + (frequency));
@@ -731,7 +777,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
                 event.updateFrequency_start(tmp);
 
-                        *//*eventsDatabase = firebase.getReference("EventsDatabase");
+                        *//*eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));*//*
 
                 private_key = eventsDatabase.push().getKey();
@@ -757,7 +803,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                             event.updateStart_date(startDate);
                             event.updateEnd_date(endDate);
 
-                            *//*eventsDatabase = firebase.getReference("EventsDatabase");
+                            *//*eventsDatabase = FirebaseUtils.eventsDatabase;
                             eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));*//*
 
                             String private_key = eventsDatabase.push().getKey();
@@ -799,7 +845,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                             event.updateStart_date(startDate);
                             event.updateEnd_date(endDate);
 
-                        /*eventsDatabase = firebase.getReference("EventsDatabase");
+                        /*eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));*/
 
                             addEventToFirebaseForTextWithPUSH(event, null);
@@ -838,7 +884,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                         event.updateEnd_date(endDate);
 
                         */
-/*eventsDatabase = firebase.getReference("EventsDatabase");
+/*eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));*//*
 
 
@@ -876,7 +922,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
 
 
-                            /*eventsDatabase = firebase.getReference("EventsDatabase");
+                            /*eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));*/
 
                         }
@@ -885,7 +931,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                             tmp = tmp.withDayOfMonth(day);
                             Log.d("murad", "The " + day + " day of current month is " + Utils_Calendar.DateToTextForFirebase(tmp));
 
-                            /*eventsDatabase = firebase.getReference("EventsDatabase");
+                            /*eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));*/
 
                         }
@@ -945,7 +991,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     event.updateStart_date(startDate);
                     event.updateEnd_date(endDate);
 
-                        /*eventsDatabase = firebase.getReference("EventsDatabase");
+                        /*eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));*/
 
                     addEventToFirebaseForTextWithPUSH(event, null);
@@ -980,7 +1026,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     for(int i = 0; i < amount; i++) {
                         Log.d("frequency_dayOfWeek_and_month", Utils_Calendar.DateToTextOnline(tmp));
 
-                        eventsDatabase = firebase.getReference("EventsDatabase");
+                        eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                         eventsDatabase = eventsDatabase.child(key);
@@ -998,7 +1044,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                         Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
                         Log.d("frequency_dayOfWeek_and_month", Utils_Calendar.DateToTextOnline(tmp));
 
-                        eventsDatabase = firebase.getReference("EventsDatabase");
+                        eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
                         eventsDatabase = eventsDatabase.child(key);
@@ -1058,7 +1104,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     event.updateStart_date(startDate);
                     event.updateEnd_date(endDate);
 
-                        /*eventsDatabase = firebase.getReference("EventsDatabase");
+                        /*eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));*/
 
                     addEventToFirebaseForTextWithPUSH(event, null);
@@ -1105,7 +1151,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     event.updateStart_date(startDate);
                     event.updateEnd_date(endDate);
 
-                        /*eventsDatabase = firebase.getReference("EventsDatabase");
+                        /*eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));*/
 
                     addEventToFirebaseForTextWithPUSH(event, null);
@@ -1166,7 +1212,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         Log.d("murad", " ");
         Log.d("murad", "ADDING BY END STARTED");
 
-        eventsDatabase = firebase.getReference("EventsDatabase");
+        eventsDatabase = FirebaseUtils.eventsDatabase;
 
         int frequency = event.getFrequency();
         Log.d("murad", "FREQUENCY IS " + (frequency));
@@ -1490,6 +1536,12 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         return true;
     }
 
+    @Override
+    public void setOnMessage(String msg) {
+        btn_repeat.setText(msg);
+        et_name.setText(msg);
+    }
+
     //sets time
     protected class SetTime implements TimePickerDialog.OnTimeSetListener {
         private String time_start_or_end;
@@ -1554,7 +1606,6 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                 case "start":
                     startDate = LocalDate.of(year, month, day);
                     date_text = Utils_Calendar.DateToTextLocal(startDate);
-                    btn_choose_start_date.setText(date_text);
 
                     start_day = day;
                     start_month = month;
@@ -1580,7 +1631,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
     public void onFocusChange(View view, boolean b) {
         if(view instanceof EditText){
             String text = ((EditText) view).getText().toString();
-            if(!b){
+            if(!b  && !text.isEmpty() && text.charAt(0) == ' '){
                 text = text.replaceFirst("\\s+", "");
                 ((EditText) view).setText(text);
             }
@@ -1588,8 +1639,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
     }
 
-
-    public boolean isRow_event(CalendarEventWithTextOnly2FromSuper event){
+    public boolean isRow_event(CalendarEventWithTextOnly2FromSuper event) {
         return true;
     }
 
@@ -1607,8 +1657,9 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
         String msg = "Every " + selected_frequency + " days, " + selected_amount + " times";
 
-        btn_repeat.setText(msg);
-        et_name.setText(msg);
+//        btn_repeat.setText(msg);
+        btn_repeat.getCompoundDrawables()[0].setTint(getColor(R.color.colorAccent));
+//        et_name.setText(msg);
     }
 
     @Override
@@ -1625,8 +1676,9 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
         String msg = "Every " + selected_frequency + " days until " + Utils_Calendar.DateToTextLocal(selected_end);
 
-        btn_repeat.setText(msg);
-        et_name.setText(msg);
+//        btn_repeat.setText(msg);
+        btn_repeat.getCompoundDrawables()[0].setTint(getColor(R.color.colorAccent));
+//        et_name.setText(msg);
     }
 
     @Override
@@ -1651,8 +1703,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         }
         String msg = "Every " + selected_frequency + " weeks on " + days_of_week + " " + selected_amount + " times";
 
-        btn_repeat.setText(msg);
-        et_name.setText(msg);
+        btn_repeat.getCompoundDrawables()[0].setTint(getColor(R.color.colorAccent));
     }
 
     @Override
@@ -1687,8 +1738,9 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
         String msg = "Every " + selected_frequency + " weeks on " + days_of_week + " until " + Utils_Calendar.DateToTextLocal(selected_end);
 
-        btn_repeat.setText(msg);
-        et_name.setText(msg);
+//        btn_repeat.setText(msg);
+        btn_repeat.getCompoundDrawables()[0].setTint(getColor(R.color.colorAccent));
+//        et_name.setText(msg);
     }
 
     @Override
@@ -1707,10 +1759,11 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
         event.setDay(selected_day);
 
-        String msg = "Every month on " + selected_day + " day with frequency of " + selected_frequency + ", " + selected_amount + " times";
+        String msg = "Every " + selected_frequency + " months on " + selected_day + ", " + selected_amount + " times";
 
-        btn_repeat.setText(msg);
-        et_name.setText(msg);
+//        btn_repeat.setText(msg);
+        btn_repeat.getCompoundDrawables()[0].setTint(getColor(R.color.colorAccent));
+//        et_name.setText(msg);
     }
 
     @Override
@@ -1731,10 +1784,11 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
         event.setDay(selected_day);
 
-        String msg = "Every month on " + selected_day + " day with frequency of " + selected_frequency + " until " + Utils_Calendar.DateToTextLocal(selected_end);
+        String msg = "Every " + selected_frequency + " months on " + selected_day + " until " + Utils_Calendar.DateToTextLocal(selected_end);
 
-        btn_repeat.setText(msg);
-        et_name.setText(msg);
+//        btn_repeat.setText(msg);
+        btn_repeat.getCompoundDrawables()[0].setTint(getColor(R.color.colorAccent));
+//        et_name.setText(msg);
     }
 
     @Override
@@ -1755,12 +1809,13 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         event.setDayOfWeekPosition( selected_dayOfWeekPosition);
         event.setWeekNumber(selected_weekNumber);
 
-        String msg = "Every month on " + selected_weekNumber + " " +
+        String msg = "Every " + selected_frequency + " months on " + selected_weekNumber + " " +
                 DayOfWeek.of(selected_dayOfWeekPosition +1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
-                " with frequency of " + selected_frequency + ", " + selected_amount + " times";
+                ", " + selected_amount + " times";
 
-        btn_repeat.setText(msg);
-        et_name.setText(msg);
+//        btn_repeat.setText(msg);
+        btn_repeat.getCompoundDrawables()[0].setTint(getColor(R.color.colorAccent));
+//        et_name.setText(msg);
     }
 
     @Override
@@ -1783,12 +1838,13 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         event.setDayOfWeekPosition( selected_dayOfWeekPosition);
         event.setWeekNumber(selected_weekNumber);
 
-        String msg = "Every month on " + selected_weekNumber + " " +
+        String msg = "Every " + selected_frequency + " months on " + selected_weekNumber + " " +
                 DayOfWeek.of(selected_dayOfWeekPosition+1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
-                " with frequency of " + selected_frequency + " until " + Utils_Calendar.DateToTextLocal(selected_end);
+                " until " + Utils_Calendar.DateToTextLocal(selected_end);
 
-        btn_repeat.setText(msg);
-        et_name.setText(msg);
+//        btn_repeat.setText(msg);
+        btn_repeat.getCompoundDrawables()[0].setTint(getColor(R.color.colorAccent));
+//        et_name.setText(msg);
     }
 
     @Override
@@ -1808,12 +1864,13 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         event.setDay(selected_day);
         event.setMonth(selected_month);
 
-        String msg = "Every year on " + selected_day + " of " +
+        String msg = "Every " + selected_frequency + " years on " + selected_day + " of " +
                 Month.of(selected_month).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
-                " with frequency of " + selected_frequency + ", " + selected_amount + " times";
+                ", " + selected_amount + " times";
 
-        btn_repeat.setText(msg);
-        et_name.setText(msg);
+//        btn_repeat.setText(msg);
+        btn_repeat.getCompoundDrawables()[0].setTint(getColor(R.color.colorAccent));
+//        et_name.setText(msg);
     }
 
     @Override
@@ -1835,17 +1892,25 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
         event.setMonth(selected_month);
 
-        String msg = "Every year on " + selected_day + " of " +
-                Month.of(selected_month).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
-                " with frequency of " + selected_frequency + " until " + Utils_Calendar.DateToTextLocal(selected_end);
+        String msg = String.format(Utils_Calendar.locale,
+                "Every %d years on %d of %s until %s",
+                selected_frequency,
+                selected_day,
+                Month.of(selected_month).getDisplayName(TextStyle.FULL, Utils_Calendar.locale),
+                Utils_Calendar.DateToTextLocal(selected_end));
 
-        btn_repeat.setText(
-                String.format(Utils_Calendar.locale, "Every year on %d of %s with frequency of %d until %s",
-                        selected_day,
-                        Month.of(selected_month).getDisplayName(TextStyle.FULL,
-                        Utils_Calendar.locale), selected_frequency,
-                        Utils_Calendar.DateToTextLocal(selected_end)));
-        et_name.setText(msg);
+//        btn_repeat.setText(msg);
+        btn_repeat.getCompoundDrawables()[0].setTint(getColor(R.color.colorAccent));
+
+        String text = getString(R.string.day_and_year_text,
+                selected_frequency,
+                selected_day,
+                Month.of(selected_month).getDisplayName(TextStyle.FULL, Utils_Calendar.locale),
+                Utils_Calendar.DateToTextLocal(selected_end));
+
+        btn_repeat.setText(text);
+        btn_repeat.getCompoundDrawables()[0].setTint(getColor(R.color.colorAccent));
+//        et_name.setText(msg);
 
     }
 
@@ -1866,12 +1931,13 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         event.setWeekNumber(selected_weekNumber);;
         event.setMonth(selected_month);
 
-        String msg = "Every " + Month.of(selected_month).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
-                " on " + selected_weekNumber + " " + DayOfWeek.of(selected_dayOfWeekPosition +1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
-                " with frequency of " + selected_frequency + ", " + selected_amount + " times";
+        String msg = "Every " + selected_frequency + " years on " + selected_weekNumber + " " + DayOfWeek.of(selected_dayOfWeekPosition+1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
+                " of " + Month.of(selected_month).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
+                ", " + selected_amount + " times";
 
-        btn_repeat.setText(msg);
-        et_name.setText(msg);
+//        btn_repeat.setText(msg);
+        btn_repeat.getCompoundDrawables()[0].setTint(getColor(R.color.colorAccent));
+//        et_name.setText(msg);
     }
 
     @Override
@@ -1893,12 +1959,13 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         event.setWeekNumber(selected_weekNumber);;
         event.setMonth(selected_month);
 
-        String msg = "Every " + Month.of(selected_month).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
-                " on " + selected_weekNumber + " " + DayOfWeek.of(selected_dayOfWeekPosition +1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
-                " with frequency of " + selected_frequency + " until " + Utils_Calendar.DateToTextLocal(selected_end);
+        String msg = "Every " + selected_frequency + " years on " + selected_weekNumber + " " + DayOfWeek.of(selected_dayOfWeekPosition+1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
+                " of " + Month.of(selected_month).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
+                " until " + Utils_Calendar.DateToTextLocal(selected_end);
 
-        btn_repeat.setText(msg);
-        et_name.setText(msg);
+//        btn_repeat.setText(msg);
+        btn_repeat.getCompoundDrawables()[0].setTint(getColor(R.color.colorAccent));
+//        et_name.setText(msg);
     }
 
     @Override
@@ -1911,7 +1978,9 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
         row_event = true;
 
-        btn_repeat.setText("Never");
+        btn_repeat.setHint(R.string.does_not_repeat);
+        btn_repeat.getCompoundDrawables()[0].setTint(getColor(R.color.black));
+
     }
 
     @Override

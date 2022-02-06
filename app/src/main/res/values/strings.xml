@@ -2,8 +2,8 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="app_name" translatable="false">CalendarAppExample</string>
-    <string name="back" translatable="false"><![CDATA[<-]]></string>
-    <string name="forward" translatable="false"><![CDATA[->]]></string>
+    <string name="calendar_back" translatable="false"><![CDATA[<-]]></string>
+    <string name="calendar_forward" translatable="false"><![CDATA[->]]></string>
     <string name="title_activity_my_super" translatable="false">MySuperActivity</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label" translatable="false">First Fragment</string>
@@ -11,11 +11,21 @@
     <string name="next" translatable="false">Next</string>
     <string name="previous" translatable="false">Previous</string>
 
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel_id</string>
+    <!--
+        This is the name that users will see when interacting with this channel.
+        It should describe the category of notifications that will be sent through this channel
+     -->
+    <!-- [START fcm_default_icon_string] -->
+    <string name="default_notification_channel_name" translatable="false">fcm_default_channel_name</string>
+    <!-- [END fcm_default_icon_string] -->
+
     <string name="hello_first_fragment" translatable="false">Hello first fragment</string>
     <string name="hello_second_fragment" translatable="false">Hello second fragment. Arg: %1$s</string>
     <string name="all_day">All day</string>
     <string name="every">Every</string>
     <string name="until">Until</string>
+    <string name="until...">Until %s</string>
 
     <string name="days">days</string>
     <string name="weeks">weeks</string>
@@ -29,5 +39,36 @@
         <item>@string/years</item>
     </string-array>
 
-
+    <string name="day_and_year_text">Every %d years on %d of %s until %s</string>
+    <string name="never">Never</string>
+    <string name="times_in_total">Times in total:</string>
+    <string name="back">Back</string>
+    <string name="repeat">Repeat</string>
+    <string name="place">Place</string>
+    <string name="name">Name</string>
+    <string name="description">Description</string>
+    <string name="calendar">Calendar</string>
+    <string name="no_events">No events</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="period">Period</string>
+<!--    <string name="this_event_will_never_repeat">This event will never repeat</string>-->
+<!--    <string name="this_event_will_repeat_every_d_s_s_s">This event will repeat every %d %s %s %s</string>-->
+    <string name="this_event_will_repeat_every_d_s_s_s">Every %d %s %s %s</string>
+    <string name="on_d_day">On %d day</string>
+    <string name="on_the_last_day">On the last day</string>
+    <string name="on_s_d">On %s №%d</string>
+    <string name="on_the_last_s">On the last %s</string>
+    <string name="on_d_of_s">On %d of %s</string>
+    <string name="on_the_last_day_of_s">On the last day of %s</string>
+    <string name="on_s_d_of_s">On %s №%d of %s</string>
+    <string name="on_the_last_s_of_s">On the last %s of %s</string>
+    <string name="_d_times">, overall %d times</string>
+    <string name="sample_times">10 times</string>
+    <string name="one_time">one time</string>
+    <string name="starting_time_s_s">Starting time: %s, %s</string>
+    <string name="ending_time_s_s">Ending time: %s, %s</string>
+    <string name="does_not_repeat">Does not repeat</string>
+    <string name="on">on</string>
+    <string name="events_notifications" translatable="false">events notifications</string>
 </resources>

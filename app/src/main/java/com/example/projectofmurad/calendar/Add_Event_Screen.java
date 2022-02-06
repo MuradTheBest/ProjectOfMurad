@@ -1,9 +1,19 @@
 package com.example.projectofmurad.calendar;
 
+import static com.google.firebase.messaging.Constants.MessagePayloadKeys.SENDER_ID;
+
+import android.animation.Animator;
+import android.annotation.SuppressLint;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -12,39 +22,48 @@ import android.transition.ChangeBounds;
 import android.transition.Slide;
 import android.transition.TransitionManager;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.CompoundButton;
+import android.widget.DatePicker;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.core.util.Pair;
+import androidx.fragment.app.FragmentTransaction;
 
-import com.example.projectofmurad.MySuperTouchActivity;
+import com.example.projectofmurad.AlarmReceiver;
+import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.R;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
 public class Add_Event_Screen extends MySuperTouchActivity implements
         ChooseEventFrequencyDialogCustomWithExposedDropdown.OnSwitchDialog{
 
-
-
     /*private Button btn_choose_start_time;
     private Button btn_choose_start_date;
     private Button btn_choose_end_time;
     private Button btn_choose_end_date;*/
-
-
 
 /*    private int start_hour;
     private int start_min;
@@ -75,6 +94,7 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
 
     private DatePickerDialog startDatePickerDialog;
     private DatePickerDialog endDatePickerDialog;
+
     private TimePickerDialog startTimePickerDialog;
     private TimePickerDialog endTimePickerDialog;
 
@@ -91,24 +111,57 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
 
     private boolean initial = true;
 
+    int x;
+    int y;
+
+    protected PendingIntent pendingIntent;
+    protected AlarmManager alarmManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_event_screen);
+        overridePendingTransition(R.anim.anim_do_not_move, R.anim.anim_do_not_move);
+        setContentView(R.layout.activity_add_event_screen_linear_layout);
+
+        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        gotten_intent = getIntent();
+
+        x = gotten_intent.getIntExtra("cx", 0);
+        y = gotten_intent.getIntExtra("cy", 0);
+
+        sv_add_event_screen = findViewById(R.id.sv_add_event_screen);
+
+        if (savedInstanceState == null) {
+            sv_add_event_screen.setVisibility(View.INVISIBLE);
+
+            final ViewTreeObserver viewTreeObserver = sv_add_event_screen.getViewTreeObserver();
+
+            if (viewTreeObserver.isAlive()) {
+                viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+                    @Override
+                    public void onGlobalLayout() {
+                        circularRevealActivity();
+                        sv_add_event_screen.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+
+                });
+            }
+
+        }
 
         event.setFrequencyType(DAY_BY_END);
         event.setFrequency(1);
 
-        chooseEventFrequencyDialog = new ChooseEventFrequencyDialogCustomWithExposedDropdown(Add_Event_Screen.this);
+        chooseEventFrequencyDialog = new ChooseEventFrequencyDialogCustomWithExposedDropdown(this);
 
         firebase = FirebaseDatabase.getInstance();
-        eventsDatabase = firebase.getReference("EventsDatabase");
+        eventsDatabase = FirebaseUtils.eventsDatabase;
 
         selectedColor = Color.GREEN;
 
-        gotten_intent = getIntent();
         selected_day = gotten_intent.getIntExtra("day", 0);
-        selected_dayOfWeek = gotten_intent.getStringExtra("dayOfWeek");
         selected_month = gotten_intent.getIntExtra("month", 0);
         selected_year = gotten_intent.getIntExtra("year", 0);
 
@@ -130,6 +183,8 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
 
         Log.d("murad", "Receiving selectedDate " + selected_day + " " + selected_month + " " + selected_year);
 
+        sv_add_event_screen = findViewById(R.id.sv_add_event_screen);
+
         et_name = findViewById(R.id.et_name);
         et_name.setOnFocusChangeListener(this);
 
@@ -141,6 +196,8 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
 
         ib_color = findViewById(R.id.ib_color);
         ib_color.setOnClickListener(v -> createColorPickerDialog());
+
+        rl_event_setup = findViewById(R.id.rl_event_setup);
 
         switch_all_day = findViewById(R.id.switch_all_day);
         switch_all_day.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -155,29 +212,113 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
                     }*/
                     btn_choose_start_time.setVisibility(isChecked ? View.GONE : View.VISIBLE);
                     btn_choose_end_time.setVisibility(isChecked ? View.GONE : View.VISIBLE);
+//                    animate(ll_add_event_screen);
+                    animate(rl_event_setup);
                 }
         );
+
+        event_time_picker = findViewById(R.id.event_time_picker);
+        event_time_picker.setIs24HourView(true);
+        event_time_picker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+            @Override
+            public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+                start_hour = hourOfDay;
+                start_min = minute;
+                LocalTime startTime = LocalTime.of(hourOfDay, minute);
+                btn_choose_start_time.setText(Utils_Calendar.TimeToText(startTime));
+            }
+        });
 
         btn_choose_start_date = findViewById(R.id.btn_choose_start_date);
         btn_choose_start_date.setText(Utils_Calendar.DateToTextLocal(selectedDate));
         btn_choose_start_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startDatePickerDialog = new DatePickerDialog(Add_Event_Screen.this, AlertDialog.THEME_HOLO_LIGHT, new SetDate("start"), selected_year, selected_month, selected_day);
+                startDatePickerDialog = new DatePickerDialog(Add_Event_Screen.this,
+                        AlertDialog.THEME_HOLO_LIGHT,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int month,
+                                                  int dayOfMonth) {
+                                month = month+1;
+
+                                start_year = year;
+                                start_month = month;
+                                start_day = dayOfMonth;
+
+                                startDate = LocalDate.of(start_year, start_month, start_day);
+                                String date_text = Utils_Calendar.DateToTextLocal(startDate);
+                                btn_choose_start_date.setText(date_text);
+
+                            }
+                        },
+                        selected_year, selected_month-1, selected_day);
+
+                startDatePickerDialog.getDatePicker().setFirstDayOfWeek(Calendar.SUNDAY);
                 startDatePickerDialog.updateDate(start_year, start_month-1, start_day);
-//                startDatePickerDialog.getDatePicker().setMinDate(LocalDate.now().);
+                startDatePickerDialog.getDatePicker().setMinDate(Calendar.getInstance().getTimeInMillis());
 
                 startDatePickerDialog.show();
             }
         });
+
+
+        btn_choose_start_date.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked){
+                            startDatePickerDialog = new DatePickerDialog(getApplicationContext(),
+                                    AlertDialog.THEME_HOLO_LIGHT,
+                                    (view, year, month, dayOfMonth) -> {
+                                        month = month+1;
+
+                                        start_year = year;
+                                        start_month = month;
+                                        start_day = dayOfMonth;
+
+                                        startDate = LocalDate.of(start_year, start_month, start_day);
+                                        String date_text = Utils_Calendar.DateToTextLocal(startDate);
+                                        btn_choose_start_date.setText(date_text);
+                                    },
+                                    selected_year, selected_month-1, selected_day);
+
+                            startDatePickerDialog.updateDate(start_year, start_month-1, start_day);
+                            startDatePickerDialog.getDatePicker().setMinDate(Calendar.getInstance().getTimeInMillis());
+
+                            startDatePickerDialog.show();
+                        }
+                        else{
+                            startDatePickerDialog.dismiss();
+                        }
+                    }
+                });
 
         btn_choose_end_date = findViewById(R.id.btn_choose_end_date);
         btn_choose_end_date.setText(Utils_Calendar.DateToTextLocal(selectedDate));
         btn_choose_end_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                endDatePickerDialog = new DatePickerDialog(Add_Event_Screen.this, android.R.style.ThemeOverlay_Material_Dialog, new SetDate("end"), selected_year, selected_month, selected_day);
+
+                endDatePickerDialog = new DatePickerDialog(Add_Event_Screen.this,
+                        android.R.style.ThemeOverlay_Material_Dialog,
+                        (view1, year, month, dayOfMonth) -> {
+                            month = month+1;
+
+                            end_year = year;
+                            end_month = month;
+                            end_day = dayOfMonth;
+
+                            endDate = LocalDate.of(end_year, end_month, end_day);
+                            String date_text = Utils_Calendar.DateToTextLocal(endDate);
+                            btn_choose_end_date.setText(date_text);
+
+                        },
+                        selected_year, selected_month-1, selected_day);
+
+                endDatePickerDialog.getDatePicker().setFirstDayOfWeek(Calendar.SUNDAY);
                 endDatePickerDialog.updateDate(end_year, end_month-1, end_day);
+                endDatePickerDialog.getDatePicker().setMinDate(Calendar.getInstance().getTimeInMillis());
+
                 endDatePickerDialog.show();
             }
         });
@@ -189,7 +330,16 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
                 //Initialize time picker dialog
                 startTimePickerDialog = new TimePickerDialog(Add_Event_Screen.this,
                         AlertDialog.THEME_HOLO_LIGHT,
-                        new SetTime("start"), start_hour, start_min, true);
+                        (view, hourOfDay, minute) -> {
+                            start_hour = hourOfDay;
+                            start_min = minute;
+
+                            LocalTime startTime = LocalTime.of(start_hour, start_min);
+
+                            String time_text = Utils_Calendar.TimeToText(startTime);
+                            btn_choose_start_time.setText(time_text);
+                        },
+                        start_hour, start_min, true);
 
                 startTimePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
@@ -205,15 +355,23 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
                 //Initialize time picker dialog
                 endTimePickerDialog = new TimePickerDialog(Add_Event_Screen.this,
                         android.R.style.ThemeOverlay_Material_Dialog,
-                        new SetTime("end"), end_hour, end_min, true);
+                        (view, hourOfDay, minute) -> {
+                            end_hour = hourOfDay;
+                            end_min = minute;
+
+                            LocalTime endTime = LocalTime.of(end_hour, end_min);
+
+                            String time_text = Utils_Calendar.TimeToText(endTime);
+                            btn_choose_end_time.setText(time_text);
+                        },
+                        end_hour, end_min, true);
 
                 endTimePickerDialog.updateTime(end_hour, end_min);
                 endTimePickerDialog.show();
             }
         });
 
-        btn_color = findViewById(R.id.btn_color);
-        btn_color.setOnClickListener(view -> createColorPickerDialog());
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
         btn_repeat = findViewById(R.id.btn_repeat);
         btn_repeat.setOnClickListener(new View.OnClickListener() {
@@ -236,8 +394,7 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
 
                 chooseEventFrequencyDialog.setStartDateForRepeatInitial(startDate);
 
-
-                intentToChooseEventFrequencyDialogCustom = new Intent(Add_Event_Screen.this, ChooseEventFrequencyDialogCustom.class);
+                intentToChooseEventFrequencyDialogCustom = new Intent(Add_Event_Screen.this, ChooseEventFrequencyDialogCustomWithExposedDropdown.class);
                 intentToChooseEventFrequencyDialogCustom.putExtra("end_year", start_year);
                 intentToChooseEventFrequencyDialogCustom.putExtra("end_month", start_month);
                 intentToChooseEventFrequencyDialogCustom.putExtra("end_day", start_day);
@@ -262,26 +419,24 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
                  * dialog, so make our own transaction and take care of that here.
                  */
 
-/*                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction ft = fragmentManager.beginTransaction();
-                Fragment prev = fragmentManager.findFragmentByTag(ChooseEventFrequency_Screen.TAG);
+      /*          Fragment prev = getSupportFragmentManager().findFragmentByTag(ChooseEventFrequency_Screen.TAG);
                 if (prev != null) {
-//                    prev.show(ft, ChooseEventFrequency_Screen.TAG);
-                    ((ChooseEventFrequency_Screen) prev).show(fragmentManager, ChooseEventFrequency_Screen.TAG);
+                    prev.show(ft, ChooseEventFrequency_Screen.TAG);
+//                    ((ChooseEventFrequency_Screen) prev).show(getSupportFragmentManager(), ChooseEventFrequency_Screen.TAG);
 //                    fragmentManager.beginTransaction().show(prev).commit();
                     Toast.makeText(getApplicationContext(), "Showing created dialog", Toast.LENGTH_SHORT).show();
 
+                    ft.show(prev);
+
                 }
                 else{
-                    fragmentManager.beginTransaction()
-                            .setReorderingAllowed(true)
+                    ft.setReorderingAllowed(true)
                             .add(ChooseEventFrequency_Screen.class, bundle, ChooseEventFrequency_Screen.TAG)
-                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                             .commit();
                     Toast.makeText(getApplicationContext(), "Creating dialog", Toast.LENGTH_SHORT).show();
 
-                }*/
-//                ft.addToBackStack(null);
+                }
+                ft.addToBackStack(null);*/
 
                 // Create and show the dialog.
 /*                ChooseEventFrequency_Screen newFragment = ChooseEventFrequency_Screen.newInstance(start_year, start_month, start_day);
@@ -311,12 +466,99 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
         MaterialDatePicker materialDatePicker = materialDateBuilder.build();
     }
 
+    private void circularRevealActivity() {
+        int cx = /*ll_add_event_screen.getRight() - */x;
+        int cy = /*ll_add_event_screen.getBottom() -*/ y;
+
+        float finalRadius = Math.max(sv_add_event_screen.getWidth(), sv_add_event_screen.getHeight());
+
+        Animator circularReveal = ViewAnimationUtils.createCircularReveal(
+                sv_add_event_screen,
+                cx,
+                cy,
+                0,
+                finalRadius);
+
+        circularReveal.setDuration(1300);
+        sv_add_event_screen.setVisibility(View.VISIBLE);
+        circularReveal.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {}
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                getSupportActionBar().show();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {}
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {}
+        });
+
+        circularReveal.start();
+
+    }
+
+    private int getDips(int dps) {
+        Resources resources = getResources();
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dps,
+                resources.getDisplayMetrics());
+    }
+
+    @Override
+    public void onBackPressed() {
+        int cx =/* ll_add_event_screen.getWidth() - */x;
+        int cy =/* ll_add_event_screen.getBottom() -*/ y;
+
+        float finalRadius = Math.max(sv_add_event_screen.getWidth(), sv_add_event_screen.getHeight());
+        Animator circularReveal = ViewAnimationUtils.createCircularReveal(sv_add_event_screen, cx, cy, finalRadius, 0);
+
+        circularReveal.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+                getSupportActionBar().hide();
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                sv_add_event_screen.setVisibility(View.INVISIBLE);
+
+                Intent toCalendar_Screen = new Intent(getApplicationContext(), Calendar_Screen.class);
+
+                int day = selectedDate.getDayOfMonth();
+                int month = selectedDate.getMonthValue();
+                int year = selectedDate.getYear();
+
+                toCalendar_Screen.putExtra("day", day);
+                toCalendar_Screen.putExtra("month", month);
+                toCalendar_Screen.putExtra("year", year);
+
+//                startActivity(toCalendar_Screen);
+                finish();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {}
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {}
+        });
+
+        circularReveal.setDuration(800);
+        circularReveal.start();
+    }
+
     private void createColorPickerDialog() {
         ColorPicker colorPicker = new ColorPicker(this);
         colorPicker.setDefaultColorButton(Color.GREEN);
         colorPicker.setRoundColorButton(true);
         colorPicker.setColorButtonSize(30, 30);
         colorPicker.setColorButtonTickColor(Color.BLACK);
+        colorPicker.getDialogViewLayout().setBackgroundResource(R.drawable.round_dialog_background);
 
 /*        colorPicker.setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
             @Override
@@ -338,10 +580,6 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
             @Override
             public void setOnFastChooseColorListener(int position, int color) {
                 selectedColor = color;
-                btn_color.setBackgroundColor(color);
-//                ib_color.setBackgroundColor(color);
-//                ib_color.getBackground().setTint(color);
-//                ib_color.setBackgroundColor(color);
                 ib_color.getDrawable().setTint(color);
             }
 
@@ -357,7 +595,7 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
 
     public void animate(ViewGroup viewGroup){
         AutoTransition trans = new AutoTransition();
-        trans.setDuration(100);
+//        trans.setDuration(100);
         trans.setInterpolator(new AccelerateDecelerateInterpolator());
         //trans.setInterpolator(new DecelerateInterpolator());
         //trans.setInterpolator(new FastOutSlowInInterpolator());
@@ -367,13 +605,10 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
         changeBounds.setInterpolator(new AccelerateDecelerateInterpolator());
 
         Slide slide = new Slide(Gravity.TOP);
-        TransitionManager.beginDelayedTransition(viewGroup, slide);
-
+        TransitionManager.beginDelayedTransition(viewGroup, trans);
 //        TransitionManager.beginDelayedTransition(viewGroup, trans);
 
-
     }
-
 
     public void onAddEventClick(View view) {
 
@@ -459,11 +694,13 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
                 success = addEventForUntilAdvanced(event);
             }
 
+            createAlarm();
+
             //ToDo adjust chain_id for row events in database
  /*           if(event.getStart_date().equals(event.getFrequency_start()) &&
                     event.getEnd_date().equals(event.getFrequency_end())){
 
-                eventsDatabase = firebase.getReference("EventsDatabase");
+                eventsDatabase = FirebaseUtils.eventsDatabase;
                 eventsDatabase = eventsDatabase.child(event.getStart_date());
 
                 eventsDatabase.child(chain_key).setValue(event.getEvent_private_id());
@@ -511,475 +748,306 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
     }
 
 
-    /*@Override
-    public void onFocusChange(View view, boolean b) {
-        if(view instanceof EditText){
-            String text = ((EditText) view).getText().toString();
-            if(!b){
-                text = text.replaceFirst("\\s+", "");
-                ((EditText) view).setText(text);
+    public void onAddEventClick(MenuItem item) {
+
+        String name = et_name.getText().toString();
+        String description = et_description.getText().toString();
+        String place = et_place.getText().toString();
+
+        boolean editTextsFilled = Utils_Calendar.areEventDetailsValid(this, name, description, place);
+
+        if(editTextsFilled) {
+                /*if(start_day <= end_day && start_month <= end_month && start_year <= end_year ){
+
+                    if(start_hour == end_hour && start_min <= end_min || start_hour < end_hour){
+                        Toast.makeText(this, "Event was successfully added " +
+                                        "\n NAME: " + name +
+                                        "\n DESCRIPTION: " + description +
+                                        "\n PLACE: " + place +
+                                        "\n STARTS AT " + start_hour + " : " + start_min + " on " + start_day + "." + start_month + "." + start_year +
+                                        "\n ENDS AT " + end_hour + " : " + end_min + " on " + end_day + "." + end_month + "." + end_year,
+                                Toast.LENGTH_SHORT).show();
+                        error = false;
+                    }
+                    //CalendarEvent calendarEvent = new CalendarEvent(selectedDate, name, place, description, start_hour, start_min, end_hour, end_min);
+                }
+                //TODO check all the possibilities and write if/else conditions
+
+                if(error)
+                    Toast.makeText(this, "Ups... Something is wrong", Toast.LENGTH_LONG).show();*/
+            Toast.makeText(getApplicationContext(), "Event was successfully added " +
+                            "\n NAME: " + name +
+                            "\n DESCRIPTION: " + description +
+                            "\n PLACE: " + place +
+                            "\n STARTS AT " + start_hour + " : " + start_min + " on " + start_day + "." + start_month + "." + start_year +
+                            "\n ENDS AT " + end_hour + " : " + end_min + " on " + end_day + "." + end_month + "." + end_year,
+                    Toast.LENGTH_SHORT).show();
+
+            startDate = LocalDate.of(start_year, start_month, start_day);
+            endDate = LocalDate.of(end_year, end_month, end_day);
+
+            LocalTime startTime = LocalTime.of(start_hour, start_min);
+            LocalTime endTime = LocalTime.of(end_hour, end_min);
+
+//            event = new CalendarEventWithTextOnly2FromSuper(selectedColor, name, description, place, timestamp, startDate, startTime, endDate, endTime);
+/*            event.setColor(selectedColor);
+            event.setName(name);
+            event.setDescription(description);
+            event.setPlace(place);
+
+            event.updateStart_date(startDate);
+
+
+            event.updateStart_time(startTime);
+
+            event.updateEnd_date(endDate);
+
+            event.updateEnd_time(endTime);*/
+
+            event.addDefaultParams(selectedColor, name, description, place, timestamp, startDate, startTime, endDate, endTime);
+
+            eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(startDate));
+            eventsDatabase = eventsDatabase.push();
+
+            if (event.getTimestamp() == 0){
+                event.setStart_time("");
+                event.setEnd_time("");
             }
+
+            String chain_key = eventsDatabase.getKey();
+            event.setEvent_chain_id(chain_key);
+
+            boolean success = true;
+
+            if(row_event) {
+                event.updateFrequency_start(startDate);
+                event.updateFrequency_end(endDate);
+
+                addEventToFirebaseForTextWithPUSH(event, chain_key);
+            }
+            else if(event.getFrequencyType().endsWith("amount")){
+                success = addEventForTimesAdvanced(event);
+            }
+            else if(event.getFrequencyType().endsWith("end")){
+                success = addEventForUntilAdvanced(event);
+            }
+
+            startAlarm();
+
+            //ToDo adjust chain_id for row events in database
+ /*           if(event.getStart_date().equals(event.getFrequency_start()) &&
+                    event.getEnd_date().equals(event.getFrequency_end())){
+
+                eventsDatabase = FirebaseUtils.eventsDatabase;
+                eventsDatabase = eventsDatabase.child(event.getStart_date());
+
+                eventsDatabase.child(chain_key).setValue(event.getEvent_private_id());
+            }*/
+
+/*            Intent intent_toCalendar = new Intent(getApplicationContext(), Calendar_Screen.class);
+            intent_toCalendar.putExtra("selected_day", start_);
+            intent_toCalendar.putExtra("selected_month", month);
+            intent_toCalendar.putExtra("selected_year", year);
+            startActivity();*/
+
+//            startActivity(new Intent(getApplicationContext(), Calendar_Screen.class));
+
+            Intent toCalendar_Screen = new Intent(getApplicationContext(), Calendar_Screen.class);
+
+            int day = event.receiveFrequency_start().getDayOfMonth();
+            int month = event.receiveFrequency_start().getMonth().getValue();
+            int year = event.receiveFrequency_start().getYear();
+
+            toCalendar_Screen.putExtra("day", day);
+            toCalendar_Screen.putExtra("month", month);
+            toCalendar_Screen.putExtra("year", year);
+
+            if (success) {
+                startActivity(toCalendar_Screen);
+
+//                sendNotification();
+            }
+            else {
+                createBottomSheetDialog();
+            }
+
         }
 
-    }*/
-
-/*    //sets time
-    public class SetTime implements TimePickerDialog.OnTimeSetListener {
-        private String time_start_or_end;
-
-        public SetTime(String time_start_or_end) {
-            this.time_start_or_end = time_start_or_end;
-        }
-
-        @Override
-        public void onTimeSet(TimePicker timePicker, int hourOfDay, int minuteOfDay) {
-            //Initialize hour and minute
-
-            LocalTime time = LocalTime.of(hourOfDay, minuteOfDay);
-            int u = time.toSecondOfDay();
-            LocalTime f = LocalTime.ofSecondOfDay(u);
-
-            String time_text = Utils_Calendar.TimeToText(time);
-
-            *//*if(hour < 10){
-                time += "0";
-            }
-            time += hour + ":";
-            if(min < 10){
-                time += "0";
-            }
-            time += min;*//*
-
-            switch(time_start_or_end) {
-                case "start":
-                    btn_choose_start_time.setText(time_text);
-
-                    start_hour = hourOfDay;
-                    start_min = minuteOfDay;
-
-                    break;
-                case "end":
-                    btn_choose_end_time.setText(time_text);
-
-                    end_hour = hourOfDay;
-                    end_min = minuteOfDay;
-
-                    break;
-            }
-        }
     }
 
-    //sets date
-    public class SetDate implements DatePickerDialog.OnDateSetListener {
-        private String date_start_or_end;
-
-        public SetDate(String date_start_or_end) {
-            this.date_start_or_end = date_start_or_end;
-        }
-
-        @Override
-        public void onDateSet(DatePicker view, int year, int month, int day) {
-            month = month + 1;
-            LocalDate date = LocalDate.of(year, month, day);
-            String date_text = Utils_Calendar.DateToTextOnline(date);
-
-            switch(date_start_or_end) {
-                case "start":
-                    btn_choose_start_date.setText(date_text);
-
-                    start_day = day;
-                    start_month = month;
-                    start_year = year;
-
-                    break;
-                case "end":
-                    btn_choose_end_date.setText(date_text);
-
-                    end_day = day;
-                    end_month = month;
-                    end_year = year;
-
-                    break;
-            }
-        }
-    }*/
-
 /*
-    public CalendarEventWithTextOnly2FromSuper createEventAccordingToFrequencyType(CalendarEventWithTextOnly2FromSuper event) {
-        Log.d("frequency_dayOfWeek_and_month", "frequencyType = " + frequencyType);
-        switch(frequencyType) {
-            case 1:
-                Add_Event_Screen.this.event.clearFrequencyData();
+    public void sendMulticast() throws FirebaseMessagingException {
+        // [START send_multicast]
+        // Create a list containing up to 500 registration tokens.
+        // These registration tokens come from the client FCM SDKs.
+        List<String> registrationTokens = Arrays.asList(
+                "YOUR_REGISTRATION_TOKEN_1",
+                // ...
+                "YOUR_REGISTRATION_TOKEN_n"
+        );
 
-                event.setFrequencyType(1);
-                event.setFrequency(frequency);
-                event.setAmount(amount);
-                break;
-            case 10:
-                Add_Event_Screen.this.event.clearFrequencyData();
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 */
+/* Request code *//*
+, intent,
+                PendingIntent.FLAG_ONE_SHOT);
 
-                event.setFrequencyType(1);
-                event.setFrequency(frequency);
-                event.updateFrequency_end(end);
-                break;
-            case 2:
-                Add_Event_Screen.this.event.clearFrequencyData();
+        String channelId = getString(R.string.default_notification_channel_id);
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-                event.setFrequencyType(2);
-                event.setFrequency(frequency);
-                event.setAmount(amount);
-                event.setArray_frequencyDayOfWeek(array_frequencyDayOfWeek);
-                break;
-            case 20:
-                Add_Event_Screen.this.event.clearFrequencyData();
+        NotificationCompat.Builder notificationBuilder =
+                new NotificationCompat.Builder(this, channelId)
+//                        .setSmallIcon(R.drawable.ic_stat_ic_notification)
+                        .setContentTitle(title != null ? title : "Firebase notification")
+                        .setContentText(body)
+                        .setAutoCancel(true)
+                        .setSound(defaultSoundUri)
+                        .setContentIntent(pendingIntent);
 
-                event.setFrequencyType(2);
-                event.setFrequency(frequency);
-                event.updateFrequency_end(end);
-                event.setArray_frequencyDayOfWeek(array_frequencyDayOfWeek);
-                break;
-            case 3:
-                Add_Event_Screen.this.event.clearFrequencyData();
+        Message message = Message.builder().setNotification(Notification.builder()
+                .setTitle("Event added")
+                .setBody("New Event added1")
+//                .setImage()
+                .build())
+                .setTopic("Adding Event")
+//                .putData("score", "850")
+//                .putData("time", "2:45")
+                .build();
 
-                event.setFrequencyType(3);
-                event.setFrequency(frequency);
-                event.setAmount(amount);
-                event.setDay(day);
-                break;
-            case 30:
-                Add_Event_Screen.this.event.clearFrequencyData();
+        // See the BatchResponse reference documentation
+        // for the contents of response.
 
-                event.setFrequencyType(3);
-                event.setFrequency(frequency);
-                event.updateFrequency_end(end);
-                event.setDay(day);
-                break;
-            case 4:
-                Add_Event_Screen.this.event.clearFrequencyData();
-
-                event.setFrequencyType(4);
-                event.setFrequency(frequency);
-                event.setAmount(amount);
-                event.setDayOfWeekPosition(dayOfWeekPosition);
-                event.setWeekNumber(weekNumber);
-                break;
-            case 40:
-                Add_Event_Screen.this.event.clearFrequencyData();
-
-                event.setFrequencyType(4);
-                event.setFrequency(frequency);
-                event.updateFrequency_end(end);
-                event.setDayOfWeekPosition(dayOfWeekPosition);
-                event.setWeekNumber(weekNumber);
-                break;
-            case 5:
-                Add_Event_Screen.this.event.clearFrequencyData();
-
-                event.setFrequencyType(5);
-                event.setFrequency(frequency);
-                event.setAmount(amount);
-                event.setDay(day);
-                event.setMonth(month);
-                break;
-            case 50:
-                Add_Event_Screen.this.event.clearFrequencyData();
-
-                event.setFrequencyType(5);
-                event.setFrequency(frequency);
-                event.updateFrequency_end(end);
-                event.setDay(day);
-                event.setMonth(month);
-                break;
-            case 6:
-                Add_Event_Screen.this.event.clearFrequencyData();
-
-                event.setFrequencyType(6);
-                event.setFrequency(frequency);
-                event.setAmount(amount);
-                event.setDayOfWeekPosition(dayOfWeekPosition);
-                event.setWeekNumber(weekNumber);
-                event.setMonth(month);
-                break;
-            case 60:
-                Add_Event_Screen.this.event.clearFrequencyData();
-
-                event.setFrequencyType(6);
-                event.setFrequency(frequency);
-                event.updateFrequency_end(end);
-                event.setDayOfWeekPosition(dayOfWeekPosition);
-                event.setWeekNumber(weekNumber);
-                event.setMonth(month);
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + frequencyType);
-        }
-
-        return event;
+        // [END send_multicast]
     }
 */
 
-/*    public void addEventToFirebaseForTextWithPUSH(CalendarEventWithTextOnly2FromSuper event) {
-        LocalDate start_date = event.receiveStart_date();
-        LocalDate end_date = event.receiveEnd_date();
+    public void sendNotification(){
+        // Create channel to show notifications.
+        String channelId  = getString(R.string.default_notification_channel_id);
+        String channelName = getString(R.string.default_notification_channel_name);
 
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
+        AtomicInteger msgId = new AtomicInteger();
 
-        if(firebaseUser != null) {
-            //ToDo check if current user is madrich
+        NotificationManager notificationManager =
+                getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(new NotificationChannel(channelId,
+                channelName, NotificationManager.IMPORTANCE_LOW));
+
+        FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(SENDER_ID + "@fcm.googleapis.com")
+                                                .setMessageId(String.valueOf(msgId.get()))
+                                                .setMessageType("ADDING EVENT")
+                                                .addData("message_body", "New Event added!")
+                                                .addData("message_title", "New Event")
+                                                .build()
+        );
+/*
+        *//**
+         * If a notification message is tapped, any data accompanying the notification
+         * message is available in the intent extras. In this sample the launcher
+         * intent is fired when the notification is tapped, so any accompanying data would
+         * be handled here. If you want a different intent fired, set the click_action
+         * field of the notification message to the desired intent. The launcher intent
+         * is used when no click_action is specified.
+         * Handle possible data accompanying notification message.
+         * [START handle_data_extras]
+         *//*
+        if (getIntent().getExtras() != null) {
+            for (String key : getIntent().getExtras().keySet()) {
+                Object value = getIntent().getExtras().get(key);
+                Log.d(TAG, "Key: " + key + " Value: " + value);
+            }
         }
+        // [END handle_data_extras]
 
-        eventsDatabaseForText = firebase.getReference("EventsDatabase");
+// Create a list containing up to 500 registration tokens.
+// These registration tokens come from the client FCM SDKs.
+        List<String> registrationTokens = Arrays.asList(
+                "YOUR_REGISTRATION_TOKEN_1",
+                // ...
+                "YOUR_REGISTRATION_TOKEN_n"
+        );
 
-        LocalDate tmp = start_date;
 
-        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(start_date));
-        eventsDatabaseForText = eventsDatabaseForText.push();
+        MulticastMessage message = MulticastMessage.builder()
+                .putData("score", "850")
+                .putData("time", "2:45")
+                .addAllTokens(registrationTokens)
+                .build();
+        BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(message);
+// See the BatchResponse reference documentation
+// for the contents of response.
+        System.out.println(response.getSuccessCount() + " messages were sent successfully");
 
-        String key = eventsDatabaseForText.getKey();
-        event.setEvent_id(key);
 
-        Log.d("murad", eventsDatabaseForText.getKey());
-
-        do {
-            eventsDatabaseForText = firebase.getReference("EventsDatabase");
-            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
-
-            eventsDatabaseForText = eventsDatabaseForText.child(key);
-            eventsDatabaseForText.setValue(event);
-
-            event.setTimestamp(0);
-
-            tmp = tmp.plusDays(1);
-        }
-        while(!tmp.isEqual(end_date.plusDays(1)));
-
-    }
-
-    public void addEventForTimes(CalendarEventWithTextOnly2FromSuper event){
-        LocalDate start_date = event.receiveStart_date();
-//        LocalDate end_date = event.receiveEnd_date();
-
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
-
-        if(firebaseUser != null) {
-            //ToDo check if current user is madrich
-        }
-
-        eventsDatabaseForText = firebase.getReference("EventsDatabase");
-
-        LocalDate tmp = start_date;
-
-        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(start_date));
-        eventsDatabaseForText = eventsDatabaseForText.push();
-
-        String key = eventsDatabaseForText.getKey();
-        event.setEvent_id(key);
-
-        switch(event.getFrequencyType()) {
-            case 1:
-                for(int i = 0; i < event.getAmount(); i++) {
-                    eventsDatabaseForText = firebase.getReference("EventsDatabase");
-                    eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
-
-                    eventsDatabaseForText = eventsDatabaseForText.child(key);
-                    eventsDatabaseForText.setValue(event);
-
-//                event.setTimestamp(0);
-
-                    tmp = tmp.plusDays(event.getFrequency());
-                }
-                break;
-            case 2:
-                List<Boolean> event_array_frequencyDayOfWeek = event.getArray_frequencyDayOfWeek();
-
-                for(int i = 0; i < event.getAmount(); i++) {
-                    for(int j = 0; j < event_array_frequencyDayOfWeek.size(); j++) {
-                        if(event_array_frequencyDayOfWeek.get(j)) {
-                            eventsDatabaseForText = firebase.getReference("EventsDatabase");
-                            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
-
-                            eventsDatabaseForText = eventsDatabaseForText.child(key);
-                            eventsDatabaseForText.setValue(event);
-
-//                          event.setTimestamp(0);
-
+        // Get token
+        // [START log_reg_token]
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                            return;
                         }
 
-                        tmp = tmp.plusDays(1);
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        // Log and toast
+                        Log.d(TAG, "The token is " + token);
+                        Toast.makeText(getApplicationContext(), "The token is " + token, Toast.LENGTH_SHORT).show();
                     }
+                });
+        // [END log_reg_token]*/
+    }
 
-                    tmp = tmp.plusWeeks(event.getFrequency());
-                }
-                break;
-            case 3:
-                for(int i = 0; i < event.getAmount(); i++) {
-                    if(tmp.lengthOfMonth() >= event.getDay()) {
+    @SuppressLint("MissingPermission")
+    public void createAlarm(){
 
-                        eventsDatabaseForText = firebase.getReference("EventsDatabase");
-                        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
+        long time;
 
-                        eventsDatabaseForText = eventsDatabaseForText.child(key);
-                        eventsDatabaseForText.setValue(event);
+        Toast.makeText(getApplicationContext(), "ALARM ON", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_MUTABLE);
 
-//                      event.setTimestamp(0);
-                    }
-                    tmp = tmp.plusMonths(event.getFrequency());
-                }
-                break;
-            case 4:
-                int weekNumber = event.getWeekNumber();
-                Log.d("frequency_dayOfWeek_and_month", "weekNumber = " + weekNumber);
+        time = event.receiveStart_time().toSecondOfDay() * 1000L;
+/*
 
-                for(int i = 0; i < event.getAmount(); i++) {
-                    Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
-                    Log.d("frequency_dayOfWeek_and_month", Utils_Calendar.DateToTextOnline(tmp));
-
-                    eventsDatabaseForText = firebase.getReference("EventsDatabase");
-                    eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
-
-                    eventsDatabaseForText = eventsDatabaseForText.child(key);
-                    eventsDatabaseForText.setValue(event);
-
-                    tmp = tmp.plusMonths(event.getFrequency());
-                    Log.d("frequency_dayOfWeek_and_month", "the next month is " + Utils_Calendar.DateToTextOnline(tmp));
-
-                    if(weekNumber > 4) {
-
-                        tmp = Utils_Calendar.getNextOccurrenceForLast(tmp, event.getDayOfWeekPosition());
-                    }
-                    else {
-
-                        tmp = Utils_Calendar.getFirstDayWithDayOfWeek(tmp, event.getDayOfWeekPosition());
-                        Log.d("frequency_dayOfWeek_and_month", "the first day of this month on " +
-                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale)
-                                + " is " + Utils_Calendar.DateToTextOnline(tmp));
-
-                        tmp = Utils_Calendar.getNextOccurrence(tmp, event.getWeekNumber());
-                        Log.d("frequency_dayOfWeek_and_month", "the " + weekNumber + " occurrence of " +
-                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
-                                " is on " + Utils_Calendar.DateToTextOnline(tmp));
-                        Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
-
-                    }
-
-                }
-
-                *//*if(weekNumber > 4) {
-                    for(int i = 0; i < event.getAmount(); i++) {
-                        Log.d("frequency_dayOfWeek_and_month", Utils_Calendar.DateToTextOnline(tmp));
-
-                        eventsDatabaseForText = firebase.getReference("EventsDatabase");
-                        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
-
-                        eventsDatabaseForText = eventsDatabaseForText.child(key);
-                        eventsDatabaseForText.setValue(event);
-
-                        tmp = tmp.plusMonths(event.getFrequency());
-                        Log.d("frequency_dayOfWeek_and_month", "the next month is " + Utils_Calendar.DateToTextOnline(tmp));
-
-                        tmp = Utils_Calendar.getNextOccurrenceForLast(tmp, event.getDayOfWeekPosition());
-
-                    }
-                }
-                else {
-                    for(int i = 0; i < event.getAmount(); i++) {
-                        Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
-                        Log.d("frequency_dayOfWeek_and_month", Utils_Calendar.DateToTextOnline(tmp));
-
-                        eventsDatabaseForText = firebase.getReference("EventsDatabase");
-                        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
-
-                        eventsDatabaseForText = eventsDatabaseForText.child(key);
-                        eventsDatabaseForText.setValue(event);
-
-//                      event.setTimestamp(0);
-
-                        tmp = tmp.plusMonths(event.getFrequency());
-                        Log.d("frequency_dayOfWeek_and_month", "the next month is " + Utils_Calendar.DateToTextOnline(tmp));
-
-                        tmp = Utils_Calendar.getFirstDayWithDayOfWeek(tmp, event.getDayOfWeekPosition());
-                        Log.d("frequency_dayOfWeek_and_month", "the first day of this month on " +
-                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale)
-                                + " is " + Utils_Calendar.DateToTextOnline(tmp));
-
-                        tmp = Utils_Calendar.getNextOccurrence(tmp, event.getWeekNumber());
-                        Log.d("frequency_dayOfWeek_and_month", "the " + weekNumber + " occurrence of " +
-                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
-                                " is on " + Utils_Calendar.DateToTextOnline(tmp));
-                        Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
-
-                    }
-                }*//*
-                break;
-            case 5:
-                int selected_frequency = event.getFrequency();
-                int selected_amount = event.getAmount();
-
-                int selected_day = event.getDay();
-                int selected_month = event.getMonth();
-
-                if(event.receiveStart_date().getMonth() == Month.FEBRUARY && selected_day == 29){
-                    event.setFrequency(4);
-
-                    Toast.makeText(getApplicationContext(), "This event will repeat every 4 years", Toast.LENGTH_SHORT).show();
-                }
-
-                for(int i = 0; i < event.getAmount(); i++) {
-
-                    eventsDatabaseForText = firebase.getReference("EventsDatabase");
-                    eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
-
-                    eventsDatabaseForText = eventsDatabaseForText.child(key);
-                    eventsDatabaseForText.setValue(event);
-
-                    tmp = tmp.plusYears(event.getFrequency());
-                }
-                break;
-            case 6:
-                weekNumber = event.getWeekNumber();
-                Log.d("frequency_dayOfWeek_and_month", "weekNumber = " + weekNumber);
-
-                for(int i = 0; i < event.getAmount(); i++) {
-                    Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
-                    Log.d("frequency_dayOfWeek_and_month", Utils_Calendar.DateToTextOnline(tmp));
-
-                    eventsDatabaseForText = firebase.getReference("EventsDatabase");
-                    eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
-
-                    eventsDatabaseForText = eventsDatabaseForText.child(key);
-                    eventsDatabaseForText.setValue(event);
-
-                    tmp = tmp.plusYears(event.getFrequency());
-                    Log.d("frequency_dayOfWeek_and_month", "the next month is " + Utils_Calendar.DateToTextOnline(tmp));
-
-                    if(weekNumber > 4) {
-
-                        tmp = Utils_Calendar.getNextOccurrenceForLast(tmp, event.getDayOfWeekPosition());
-                    }
-                    else {
-
-                        tmp = Utils_Calendar.getFirstDayWithDayOfWeek(tmp, event.getDayOfWeekPosition());
-                        Log.d("frequency_dayOfWeek_and_month", "the first day of this month on " +
-                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale)
-                                + " is " + Utils_Calendar.DateToTextOnline(tmp));
-
-                        tmp = Utils_Calendar.getNextOccurrence(tmp, event.getWeekNumber());
-                        Log.d("frequency_dayOfWeek_and_month", "the " + weekNumber + " occurrence of " +
-                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
-                                " is on " + Utils_Calendar.DateToTextOnline(tmp));
-                        Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
-
-                    }
-
-                }
-
-                break;
-
+        if(System.currentTimeMillis() > time) {
+            if (Calendar.AM_PM == 0)
+                time = time + (1000*60*60*12);
+            else
+                time = time + (1000*60*60*24);
         }
+*/
 
-    }*/
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pendingIntent);
 
+        Toast.makeText(getApplicationContext(), "Alarm is set for " + event.getStart_time(), Toast.LENGTH_SHORT).show();
+        //   alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (time * 1000), pendingIntent);
+    }
 
+    @SuppressLint("MissingPermission")
+    private void startAlarm() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, PendingIntent.FLAG_IMMUTABLE);
+
+        long time = event.receiveStart_time().toSecondOfDay() * 1000L;
+/*        if (c.before(Calendar.getInstance())) {
+            c.add(Calendar.DATE, 1);
+        }*/
+
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pendingIntent);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
+    }
+
+    private void cancelAlarm() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
+
+        alarmManager.cancel(pendingIntent);
+    }
 }

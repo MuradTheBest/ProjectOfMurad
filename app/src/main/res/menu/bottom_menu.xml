@@ -18,7 +18,7 @@
         android:icon="@drawable/ic_baseline_home_24"/>
 
     <item
-        android:id="@+id/map_Fragment"
+        android:id="@+id/tracking_Fragment"
         android:title="Map"
         android:icon="@drawable/ic_baseline_location_on_24"/>
 

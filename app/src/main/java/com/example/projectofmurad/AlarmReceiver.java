@@ -1,0 +1,36 @@
+package com.example.projectofmurad;
+
+import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Vibrator;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+
+public class AlarmReceiver extends BroadcastReceiver {
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onReceive(@NonNull Context context, Intent intent) {
+        //we will use vibrator first
+        Vibrator vibrator = (Vibrator)context.getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(4000);
+
+        Toast.makeText(context, "Alarm! Wake up! Wake up!", Toast.LENGTH_LONG).show();
+        Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+
+        if (alarmUri == null) {
+            alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        }
+
+        Ringtone ringtone = RingtoneManager.getRingtone(context, alarmUri);
+        ringtone.play();
+
+    }
+}
+

@@ -1,12 +1,17 @@
 package com.example.projectofmurad;
 
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.example.projectofmurad.calendar.Calendar_Screen;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,6 +28,8 @@ public class Chat_Fragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    Button button;
 
     public Chat_Fragment() {
         // Required empty public constructor
@@ -60,5 +67,13 @@ public class Chat_Fragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_chat_, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        button = view.findViewById(R.id.button);
+        button.setOnClickListener(v -> startActivity(new Intent(getActivity(), Calendar_Screen.class)));
     }
 }

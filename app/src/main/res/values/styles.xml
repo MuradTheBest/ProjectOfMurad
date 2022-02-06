@@ -26,10 +26,22 @@
 		<item name="android:textColor">@drawable/toggle_text_color</item>
 	</style>
 
+	<style name="Widget.Button.ToggleButtonForDateTime" parent="android:Widget">
+		<item name="android:backgroundTint">@drawable/toggle_date_time_bg</item>
+	</style>
+
+	<style name="toggleButtonForDateTime" >
+<!--		<item name="android:checkboxStyle">@style/Widget.Button.ToggleButtonForDateTime</item>-->
+<!--		<item name="android:checkedButton">@style/Widget.Button.ToggleButtonForDateTime</item>-->
+		<item name="chipBackgroundColor">@drawable/toggle_date_time_bg</item>
+		<item name="android:textColor">@color/black</item>
+		<item name="android:textAppearance">@drawable/toggle_button_text_style</item>
+]	</style>
+
 	<style name="radioButton" >
 		<item name="android:radioButtonStyle">@style/Widget.AppCompat.CompoundButton.RadioButton</item>
 		<item name="android:textColor">@drawable/radio_button_text_color</item>
-		<item name="android:buttonTint">@color/colorAccent</item>
+		<item name="android:buttonTint">@drawable/radio_button_text_color</item>
 	</style>
 
 <!--	<style name="radioButton" >
@@ -54,5 +66,17 @@
 	</style>
 
 
+
+	<style name="MaterialAlertDialog_rounded" parent="@style/ThemeOverlay.MaterialComponents.Dialog">
+<!--		<item name="shapeAppearanceOverlay">@style/DialogCorners</item>-->
+		<item name="dialogCornerRadius">16dp</item>
+	</style>
+
+	<style name="DialogCorners">
+		<item name="cornerFamily">rounded</item>
+<!--		<item name="cornerSize">16dp</item>-->
+		<item name="dialogCornerRadius">16dp</item>
+
+	</style>
 
 </resources>

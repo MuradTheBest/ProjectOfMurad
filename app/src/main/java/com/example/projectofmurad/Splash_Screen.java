@@ -4,8 +4,6 @@ package com.example.projectofmurad;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-
-
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -32,6 +30,7 @@ public class Splash_Screen extends Activity {
     private RelativeLayout group_1;
 
     private Button button;
+    private Button btn_sign_out;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,13 +55,29 @@ public class Splash_Screen extends Activity {
         d = (TextView) findViewById(R.id.d);
         group_1 = findViewById(R.id.group_1);
 
+
+        btn_sign_out = findViewById(R.id.btn_sign_out);
+        btn_sign_out.setOnClickListener(v -> FirebaseUtils.getFirebaseAuth().signOut());
+
         group_1.setOnClickListener(view -> {
-            Intent nextScreen = new Intent(getApplicationContext(), Log_In_Screen.class);
+            Intent nextScreen = new Intent(Splash_Screen.this,
+                    FirebaseUtils.isUserLoggedIn() ? MainActivity.class : Log_In_Screen.class);
+/*            if (FirebaseUtils.isUserLoggedIn()){
+                nextScreen = new Intent(getApplicationContext(), MainActivity.class);
+            }
+            else {
+                nextScreen = new Intent(getApplicationContext(), Log_In_Screen.class);
+            }*/
+
+            finish();
             startActivity(nextScreen);
         });
 
         button = findViewById(R.id.button);
-        button.setOnClickListener(view -> startActivity(new Intent(getApplicationContext(), MainActivity.class)));
+        button.setOnClickListener(view -> {
+            finish();
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+        });
 
         //custom code goes here
 

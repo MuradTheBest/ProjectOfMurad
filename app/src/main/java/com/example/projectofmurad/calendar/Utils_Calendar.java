@@ -10,8 +10,7 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Toast;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import androidx.annotation.NonNull;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -25,18 +24,17 @@ import java.util.Locale;
 
 public class Utils_Calendar {
 
-    public final static Locale locale = Locale.getDefault();
+    public static Locale locale = Locale.getDefault();
+    public static Locale getLocale(){
+      return locale;
+    }
 
-    /*public final static Locale locale = Locale.ENGLISH;*/
 
-    public static String[] narrowDaysOfWeek = getNarrowDaysOfWeek();
-    public static String[] shortDaysOfWeek = getShortDaysOfWeek();
+    public /*final*/ static DateTimeFormatter dateFormatOnline = DateTimeFormatter.ofPattern("E, dd.MM.yyyy", Locale.ENGLISH);
+    public /*final*/ static DateTimeFormatter dateFormatLocal = DateTimeFormatter.ofPattern("E, dd.MM.yyyy", locale).withLocale(locale);
 
-    public final static DateTimeFormatter dateFormatOnline = DateTimeFormatter.ofPattern("E, dd.MM.yyyy", Locale.ENGLISH);
-    public final static DateTimeFormatter dateFormatLocal = DateTimeFormatter.ofPattern("E, dd.MM.yyyy").withLocale(locale);
-
-    public final static DateTimeFormatter dateFormatForFBOnline= DateTimeFormatter.ofPattern("dd-MM-yyyy");
-    public final static DateTimeFormatter dateFormatForFBOffline = DateTimeFormatter.ofPattern("dd-MM-yyyy").withLocale(locale);
+    public /*final*/ static DateTimeFormatter dateFormatForFBOnline= DateTimeFormatter.ofPattern("dd-MM-yyyy", locale);
+    public /*final*/ static DateTimeFormatter dateFormatForFBOffline = DateTimeFormatter.ofPattern("dd-MM-yyyy", locale).withLocale(locale);
 
     public final static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -55,15 +53,42 @@ public class Utils_Calendar {
     public final static String INTENT_KEY_EVENT_END_TIME = "intent_key_event_end_time";
 
 
-    public static HashMap<LocalDate, ArrayList<CalendarEvent>> map = new HashMap<>();
+    public final static String INTENT_KEY_SELECTED_YEAR = "intent_key_selected_year";
+    public final static String INTENT_KEY_SELECTED_MONTH = "intent_key_selected_month";
+    public final static String INTENT_KEY_SELECTED_DAY = "intent_key_selected_day";
 
-    public static DatabaseReference eventsDatabase = FirebaseDatabase.getInstance().getReference("EventsDatabase");
+    public final static String INTENT_KEY_PASSING_YEAR = "intent_key_passing_year";
+    public final static String INTENT_KEY_PASSING_MONTH = "intent_key_passing_month";
+    public final static String INTENT_KEY_PASSING_DAY = "intent_key_passing_day";
 
+    public static HashMap<LocalDate, ArrayList<CalendarEventWithTextOnly2FromSuper>> map = new HashMap<>();
+
+    public static void setLocale(){
+        if(Locale.getDefault().getLanguage().equals(new Locale("he").getLanguage())){
+            Log.d("murad", "LOCALE IS HEBREW");
+            locale = Locale.getDefault();
+            Log.d("murad", "Locale " + locale.getDisplayName());
+        }
+        else{
+            Log.d("murad", "LOCALE IS NOT HEBREW");
+            Locale.setDefault(Locale.ENGLISH);
+            Log.d("murad", "Locale " + locale.getDisplayName());
+
+            locale = Locale.ENGLISH;
+
+            dateFormatOnline = DateTimeFormatter.ofPattern("E, dd.MM.yyyy", Locale.ENGLISH).withLocale(locale);
+            dateFormatLocal = DateTimeFormatter.ofPattern("E, dd.MM.yyyy", locale).withLocale(locale);
+            dateFormatForFBOnline = DateTimeFormatter.ofPattern("dd-MM-yyyy", locale).withLocale(locale);
+            dateFormatForFBOffline = DateTimeFormatter.ofPattern("dd-MM-yyyy", locale).withLocale(locale);
+        }
+
+    }
 
     public static boolean isEmailValid(String email){
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
+    @NonNull
     public static String[] getNarrowDaysOfWeek(){
         ArrayList<String> days = new ArrayList<>(7);
 
@@ -71,7 +96,7 @@ public class Utils_Calendar {
 
         for(int i = 0; i < DayOfWeek.values().length; i++) {
             DayOfWeek d = DayOfWeek.of(i+1);
-            days.add(d.getDisplayName(TextStyle.NARROW, locale)) ;
+            days.add(d.getDisplayName(TextStyle.NARROW, locale));
             Log.d("murad", "position " + i + " is " + days.get(i));
         }
 
@@ -82,10 +107,10 @@ public class Utils_Calendar {
             i++;
         }
 
-
         return tmp;
     }
 
+    @NonNull
     public static String[] getShortDaysOfWeek(){
         ArrayList<String> days = new ArrayList<>(7);
 
@@ -114,7 +139,7 @@ public class Utils_Calendar {
         return date.get(weekFields.weekOfMonth());
     }*/
 
-    public static int getWeekNumber(LocalDate date){
+    public static int getWeekNumber(@NonNull LocalDate date){
         Month month = date.getMonth();
 
         int count = 0;
@@ -150,7 +175,7 @@ public class Utils_Calendar {
         return count;
     }*/
 
-    public static LocalDate getNextOccurrence(LocalDate date, int weekNumber){
+    public static LocalDate getNextOccurrence(@NonNull LocalDate date, int weekNumber){
         int dayOfWeek = date.getDayOfWeek().getValue();
 
         LocalDate tmp = date;
@@ -173,7 +198,7 @@ public class Utils_Calendar {
         return date;
     }
 
-    public static LocalDate getNextOccurrenceForLast(LocalDate date, int dayOfWeek){
+    public static LocalDate getNextOccurrenceForLast(@NonNull LocalDate date, int dayOfWeek){
         int month_length = date.lengthOfMonth();
         LocalDate tmp = date.withDayOfMonth(month_length);
 
@@ -188,13 +213,11 @@ public class Utils_Calendar {
         return tmp;
     }
 
-
-
-    public static String DateToTextOnline(LocalDate date){
+    public static String DateToTextOnline(@NonNull LocalDate date){
         return date.format(dateFormatOnline);
     }
 
-    public static String DateToTextLocal(LocalDate date){
+    public static String DateToTextLocal(@NonNull LocalDate date){
         return date.format(dateFormatLocal);
     }
 
@@ -207,7 +230,7 @@ public class Utils_Calendar {
         return LocalDate.parse(date, dateFormatOnline);
     }
 
-    public static String DateToTextForFirebase(LocalDate date){
+    public static String DateToTextForFirebase(@NonNull LocalDate date){
         return date.format(dateFormatForFBOnline);
     }
 
@@ -215,7 +238,7 @@ public class Utils_Calendar {
         return LocalDate.parse(date, dateFormat);
     }*/
 
-    public static String TimeToText(LocalTime time){
+    public static String TimeToText(@NonNull LocalTime time){
         return time.format(timeFormat);
     }
 
@@ -233,16 +256,16 @@ public class Utils_Calendar {
         return DateToTextOnline(date);
     }*/
 
-    public static void printHashMap(HashMap<LocalDate, ArrayList<CalendarEvent>> map){
+    public static void printHashMap(@NonNull HashMap<LocalDate, ArrayList<CalendarEventWithTextOnly2FromSuper>> map){
         for (LocalDate date : map.keySet()) {
-            ArrayList<CalendarEvent> eventArrayList = map.get(date);
+            ArrayList<CalendarEventWithTextOnly2FromSuper> eventArrayList = map.get(date);
             if(eventArrayList != null){
-                for(CalendarEvent e : eventArrayList){
+                for(CalendarEventWithTextOnly2FromSuper e : eventArrayList){
                     Log.d("murad",  "------------------------------------------------------------------------------------------------------------------------------------");
 
                     Log.d("murad", "key: " + Utils_Calendar.DateToTextOnline(date) + " value: " + e.getName() + " | " + e.getPlace() + " | " + e.getDescription());
-                    Log.d("murad",  Utils_Calendar.DateToTextOnline(e.getStart_date()) + " | " + e.getStart_hour() + ":" + e.getStart_min());
-                    Log.d("murad",  Utils_Calendar.DateToTextOnline(e.getEnd_date()) + " | " + e.getEnd_hour() + ":" + e.getEnd_min());
+                    Log.d("murad",  e.getStart_date() + " | " + e.getStart_time());
+                    Log.d("murad",  e.getEnd_date() + " | " + e.getEnd_time());
 
                     Log.d("murad",  "------------------------------------------------------------------------------------------------------------------------------------");
                 }
@@ -250,9 +273,9 @@ public class Utils_Calendar {
         }
     }
 
-    public static void addEvent(CalendarEvent event){
-        LocalDate start_date = event.getStart_date();
-        LocalDate end_date = event.getEnd_date();
+    public static void addEvent(@NonNull CalendarEventWithTextOnly2FromSuper event){
+        LocalDate start_date = event.receiveStart_date();
+        LocalDate end_date = event.receiveStart_date();
         addOrCreateObjectInHashMap(start_date, event);
 
         if(!start_date.equals(end_date)){
@@ -260,10 +283,10 @@ public class Utils_Calendar {
         }
     }
 
-    private static void addOrCreateObjectInHashMap(LocalDate date, CalendarEvent event){
+    private static void addOrCreateObjectInHashMap(LocalDate date, CalendarEventWithTextOnly2FromSuper event){
         if(Utils_Calendar.map.containsKey(date)){
             if(Utils_Calendar.map.get(date) == null){
-                ArrayList<CalendarEvent> eventArrayList = new ArrayList<>();
+                ArrayList<CalendarEventWithTextOnly2FromSuper> eventArrayList = new ArrayList<>();
                 eventArrayList.add(event);
                 Utils_Calendar.map.put(date, eventArrayList);
                 Log.d("murad", "eventArrayList on this key is null");
@@ -274,13 +297,13 @@ public class Utils_Calendar {
             }
         }
         else {
-            ArrayList<CalendarEvent> eventArrayList = new ArrayList<>();
+            ArrayList<CalendarEventWithTextOnly2FromSuper> eventArrayList = new ArrayList<>();
             eventArrayList.add(event);
             Utils_Calendar.map.put(date, eventArrayList);
         }
     }
 
-    public static boolean areEventDetailsValid(Context context, String name, String description, String place){
+    public static boolean areEventDetailsValid(Context context, @NonNull String name, String description, String place){
         String msg = "";
 
         boolean editTextsFilled = true;
@@ -317,6 +340,32 @@ public class Utils_Calendar {
 
         if(!editTextsFilled){
             Toast.makeText(context, "Please enter event's " + msg, Toast.LENGTH_LONG).show();
+        }
+
+        return editTextsFilled;
+    }
+
+    public static boolean areObjectDetailsValid(Context context, String object, @NonNull HashMap<String, String> list){
+        StringBuilder msg = new StringBuilder();
+
+        boolean editTextsFilled = true;
+
+        for (String key : list.keySet()){
+            String input = list.get(key);
+
+            if (input != null && input.isEmpty()) {
+    /*                if(!editTextsFilled) {
+                        msg += ", ";
+                    }*/
+                msg.append(editTextsFilled ? "" : ", ");
+
+                msg.append(key);
+                editTextsFilled = false;
+            }
+        }
+
+        if(!editTextsFilled){
+            Toast.makeText(context, "Please enter " + object + "'s " + msg, Toast.LENGTH_LONG).show();
         }
 
         return editTextsFilled;

@@ -23,7 +23,6 @@ public class ChooseEventFrequency_Screen extends DialogFragment {
 
     private Context context;
 
-
     private static final String YEAR = "year";
     private static final String MONTH = "month";
     private static final String DAY = "day";
@@ -48,11 +47,9 @@ public class ChooseEventFrequency_Screen extends DialogFragment {
         return fragment;
     }
 
-
     public ChooseEventFrequency_Screen() {
+
     }
-
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -83,7 +80,7 @@ public class ChooseEventFrequency_Screen extends DialogFragment {
     public void onCancel(@NonNull DialogInterface dialog) {
         super.onCancel(dialog);
 //        getParentFragmentManager().beginTransaction().hide(ChooseEventFrequency_Screen.this).commit();
-        getDialog().hide();
+//        getDialog().hide();
         Toast.makeText(getContext(), "Hiding DialogFragment", Toast.LENGTH_SHORT).show();
     }
 
@@ -99,7 +96,6 @@ public class ChooseEventFrequency_Screen extends DialogFragment {
     }
 
     public static String TAG = "ChooseEventFrequencyDialogCustomWithExposedDropdown";
-
 
     @Nullable
     @Override

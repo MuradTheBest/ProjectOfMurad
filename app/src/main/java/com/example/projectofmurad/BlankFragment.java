@@ -1,12 +1,16 @@
 package com.example.projectofmurad;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,6 +57,26 @@ public class BlankFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        ((AppCompatActivity) getActivity()).getSupportActionBar();
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.home_fragment_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    // methods to control the operations that will
+    // happen when user clicks on the action buttons
+    @Override
+    public boolean onOptionsItemSelected( @NonNull MenuItem item ) {
+
+        switch (item.getItemId()){
+            case R.id.go_to_settings:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

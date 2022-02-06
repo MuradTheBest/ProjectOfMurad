@@ -3,31 +3,48 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_bottom"
-    app:startDestination="@id/blankFragment">
+    app:startDestination="@id/blankFragment" >
 
     <fragment
         android:id="@+id/blankFragment"
         android:name="com.example.projectofmurad.BlankFragment"
         android:label="fragment_blank"
         tools:layout="@layout/fragment_blank" />
+
     <fragment
         android:id="@+id/map_Fragment"
         android:name="com.example.projectofmurad.Map_Fragment"
         android:label="fragment_map_"
         tools:layout="@layout/fragment_map_" />
+
     <fragment
         android:id="@+id/graph_Fragment"
         android:name="com.example.projectofmurad.Graph_Fragment"
         android:label="fragment_graph_"
         tools:layout="@layout/fragment_graph_" />
+
     <fragment
         android:id="@+id/tables_Fragment"
         android:name="com.example.projectofmurad.Tables_Fragment"
         android:label="fragment_tables_"
         tools:layout="@layout/fragment_tables_" />
+
     <fragment
         android:id="@+id/chat_Fragment"
         android:name="com.example.projectofmurad.Chat_Fragment"
         android:label="fragment_chat_"
         tools:layout="@layout/fragment_chat_" />
+
+    <fragment
+        android:id="@+id/tracking_Fragment"
+        android:name="com.example.projectofmurad.Tracking_Fragment"
+        android:label="fragment_tracking_"
+        tools:layout="@layout/fragment_tracking_" />
+
+<!--    <activity
+        android:id="@+id/tracking_Fragment"
+        android:name="com.example.projectofmurad.MainActivity"
+        android:label="main_activity"
+        tools:layout="@layout/activity_main" />-->
+
 </navigation>

@@ -1,4 +1,5 @@
-<TextView android:id="@+id/tv_choose_frequency"
+<TextView
+    android:id="@+id/tv_choose_frequency"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:text="TextView"

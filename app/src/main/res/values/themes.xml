@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Base application theme. -->
     <style name="Theme.ProjectOfMurad" parent="Theme.MaterialComponents.Light">
         <!-- Primary brand color. -->
@@ -15,10 +15,22 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-
+<!--        <item name="colorControlNormal"> @color/colorAccent</item>-->
+<!--        <item name="materialTimePickerTheme">Widget.Material3.MaterialTimePicker.Custom</item>-->
         <!-- Customize your theme here. -->
         <!-- ToDo custom switchStyle -->
 <!--        <item name="switchStyle">@style/Widget.App.Switch</item>-->
+
+    </style>
+
+
+    <style name="Widget.Material3.MaterialTimePicker.Custom" parent="Widget.Material3.MaterialTimePicker">
+        <item name="colorControlNormal">@android:color/transparent</item>
+        <item name="colorControlActivated">@color/colorAccent</item>
+        <item name="android:numbersSelectorColor">@color/colorAccent</item>
+        <item name="android:headerTimeTextAppearance">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textSize">20sp</item>
     </style>
 
     <style name="Theme.ProjectOfMurad.NoActionBar">
@@ -29,4 +41,23 @@
     <style name="Theme.ProjectOfMurad.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.ProjectOfMurad.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="RoundedCornersDialog" parent="Theme.MaterialComponents.Light.Dialog">
+<!--        <item name="dialogCornerRadius">16dp</item>-->
+<!--        <item name="android:windowAnimationStyle">@style/MyAnimation.Window</item>-->
+<!--        <item name="android:windowAnimationStyle">@style/Animation.WindowSlideUpDown</item>-->
+        <item name="android:windowAnimationStyle">@style/MyAnimationWindow</item>
+<!--        <item name="android:background">@drawable/round_dialog_background</item>-->
+    </style>
+
+    <style name="Animation.WindowSlideUpDown" parent="@android:style/Animation.Activity">
+        <item name="android:windowEnterAnimation">@anim/slide_up</item>
+        <item name="android:windowExitAnimation">@anim/slide_down</item>
+    </style>
+
+    <style name="MyAnimationWindow" parent="@android:style/Animation.Activity">
+<!--        <item name="android:windowEnterAnimation">@anim/anim_in</item>-->
+        <item name="android:windowEnterAnimation">@anim/anim_in</item>
+        <item name="android:windowExitAnimation">@anim/anim_out</item>
+    </style>
 </resources>

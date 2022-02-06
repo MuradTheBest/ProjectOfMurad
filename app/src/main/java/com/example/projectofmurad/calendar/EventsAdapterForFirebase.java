@@ -1,8 +1,13 @@
 package com.example.projectofmurad.calendar;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.transition.AutoTransition;
+import android.transition.ChangeBounds;
+import android.transition.Slide;
 import android.transition.TransitionManager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +32,7 @@ import java.time.LocalDate;
 /** FirebaseRecyclerAdapter is a class provided by
    FirebaseUI. it provides functions to bind, adapt and show
    database contents in a Recycler View */
-public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWithTextOnly2FromSuper, AdapterForFirebase2.ViewHolderForFirebase> {
+public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEventWithTextOnly2FromSuper, EventsAdapterForFirebase.EventViewHolderForFirebase> {
 
     /**
      * Initialize a {@link RecyclerView.Adapter} that listens to a Firebase query. See
@@ -40,15 +45,17 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
     private ObservableSnapshotArray<CalendarEventWithTextOnly2FromSuper> calendarEventArrayList;
     private final OnEventListener onEventListener;
     private FirebaseRecyclerOptions<CalendarEventWithTextOnly2FromSuper> options;
+    private Context context;
 
-    public AdapterForFirebase2(@NonNull FirebaseRecyclerOptions<CalendarEventWithTextOnly2FromSuper> options, LocalDate selectedDate, OnEventListener onEventListener) {
+    public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEventWithTextOnly2FromSuper> options, LocalDate selectedDate, Context context, OnEventListener onEventListener) {
         super(options);
         this.calendarEventArrayList = options.getSnapshots();
         this.selectedDate = selectedDate;
         this.onEventListener = onEventListener;
+        this.context = context;
     }
 
-    public class ViewHolderForFirebase extends RecyclerView.ViewHolder implements View.OnClickListener, AdapterForFirebase2.OnExpandedListener {
+    public class EventViewHolderForFirebase extends RecyclerView.ViewHolder implements View.OnClickListener, EventsAdapterForFirebase.OnExpandedListener {
         private ConstraintLayout constraintLayout;
 
         private ImageView iv_circle;
@@ -70,7 +77,7 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
 
         private boolean expanded = false;
 
-        public ViewHolderForFirebase(@NonNull View itemView, OnEventListener onEventListener) {
+        public EventViewHolderForFirebase(@NonNull View itemView, OnEventListener onEventListener) {
             super(itemView);
 
             constraintLayout = itemView.findViewById(R.id.constraintLayout);
@@ -100,12 +107,12 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
         @Override
         public void onClick(View view) {
             if(view == iv_edit){
-                onEventListener.onEventClick(getAdapterPosition(), calendarEventArrayList.get(getAdapterPosition()));
-                Log.d("murad", "getAdapterPosition " + getAdapterPosition() );
+                onEventListener.onEventClick(getBindingAdapterPosition(), calendarEventArrayList.get(getBindingAdapterPosition()));
+                Log.d("murad", "getAdapterPosition " + getBindingAdapterPosition() );
             }
             if(view == itemView){
                 expanded = !expanded;
-                onExpandClick(getAdapterPosition(), expanded);
+                onExpandClick(getBindingAdapterPosition(), expanded);
                 /*if(expanded){
                     wrapped_layout.setVisibility(View.GONE);
                     expanded_layout.setVisibility(View.VISIBLE);
@@ -132,14 +139,25 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
             }
         }
 
-        public void animateConstraintLayout(ConstraintLayout constraintLayout, ConstraintSet set, long duration) {
+        public void animateConstraintLayout(ConstraintLayout constraintLayout, ConstraintSet set,
+                                            long duration, int direction) {
             AutoTransition trans = new AutoTransition();
             trans.setDuration(duration);
             trans.setInterpolator(new AccelerateDecelerateInterpolator());
             //trans.setInterpolator(new DecelerateInterpolator());
             //trans.setInterpolator(new FastOutSlowInInterpolator());
 
-            TransitionManager.beginDelayedTransition(constraintLayout, trans);
+            Slide slide = new Slide(direction);
+//            slide.setInterpolator(new AccelerateDecelerateInterpolator());
+
+            slide.setDuration(500);
+
+            ChangeBounds changeBounds = new ChangeBounds();
+            changeBounds.setDuration(300);
+            changeBounds.setInterpolator(new AccelerateDecelerateInterpolator());
+
+            TransitionManager.beginDelayedTransition(constraintLayout, changeBounds);
+
             set.applyTo(constraintLayout);
         }
 
@@ -154,7 +172,7 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
                 constraintSet.connect(R.id.tv_event_place, ConstraintSet.TOP, R.id.linearLayout, ConstraintSet.BOTTOM);
                 //constraintSet.applyTo(constraintLayout);
 
-                animateConstraintLayout(constraintLayout, constraintSet, 300);
+                animateConstraintLayout(constraintLayout, constraintSet, 300, Gravity.TOP);
             }
             else {
                 expanded_layout.setVisibility(View.GONE);
@@ -165,13 +183,13 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
                 constraintSet.connect(R.id.tv_event_place, ConstraintSet.TOP, R.id.tv_event_description, ConstraintSet.BOTTOM);
                 //constraintSet.applyTo(constraintLayout);
 
-                animateConstraintLayout(constraintLayout, constraintSet, 300);
+                animateConstraintLayout(constraintLayout, constraintSet, 300, Gravity.BOTTOM);
             }
         }
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull AdapterForFirebase2.ViewHolderForFirebase holder, int position, @NonNull CalendarEventWithTextOnly2FromSuper model) {
+    protected void onBindViewHolder(@NonNull EventViewHolderForFirebase holder, int position, @NonNull CalendarEventWithTextOnly2FromSuper model) {
         Log.d("murad", "RECYCLING STARTED");
         String info = "";
 
@@ -208,24 +226,29 @@ public class AdapterForFirebase2 extends FirebaseRecyclerAdapter<CalendarEventWi
 
         }
         else{
-            holder.tv_hyphen.setText("All day");
+            holder.tv_hyphen.setText(R.string.all_day);
         }
         Log.d("murad", "position = " + position);
 
+        Resources res = context.getResources();
+
         holder.expanded_layout.setVisibility(View.GONE);
-        holder.tv_event_start_date_time.setText("Starting time: " + Utils_Calendar.OnlineTextToLocal(model.getStart_date()) + ", " + model.getStart_time());
-        holder.tv_event_end_date_time.setText("Ending time: " + Utils_Calendar.OnlineTextToLocal(model.getEnd_date()) + ", " + model.getEnd_time());
+        holder.tv_event_start_date_time.setText(String.format(res.getString(R.string.starting_time_s_s),
+                Utils_Calendar.OnlineTextToLocal(model.getStart_date()), model.getStart_time()));
+
+        holder.tv_event_end_date_time.setText(String.format(res.getString(R.string.ending_time_s_s),
+                Utils_Calendar.OnlineTextToLocal(model.getEnd_date()), model.getEnd_time()));
+
+        holder.itemView.getBackground().setTint(model.getColor());
     }
-
-
 
     @NonNull
     @Override
-    public AdapterForFirebase2.ViewHolderForFirebase onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public EventViewHolderForFirebase onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.event_info_expanded_with_card_view, parent, false);
 
-        return new AdapterForFirebase2.ViewHolderForFirebase(view, onEventListener);
+        return new EventViewHolderForFirebase(view, onEventListener);
     }
 
     public interface OnEventListener {

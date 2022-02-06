@@ -1,10 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="all_day">כל יום</string>
-    <string name="every">כל</string>
+    <string name="all_day">יום שלם</string>
+    <string name="every">חזרה כל</string>
     <string name="until">עד</string>
     <string name="days">ימים</string>
     <string name="weeks">שבועות</string>
     <string name="months">חודשים</string>
     <string name="years">שנים</string>
+
+    <string name="day_and_year_text">כל %d שנים ב-%d ל%s עד %s</string>
+    <string name="never">אף פעם</string>
+    <string name="times_in_total">מספר פעמים ספציפי:</string>
+    <string name="back">חזרה</string>
+    <string name="repeat">תציג שוב</string>
+    <string name="place">מיקום</string>
+    <string name="name">כותרת</string>
+    <string name="description">תיאור</string>
+    <string name="calendar">יומן</string>
+    <string name="no_events">אין אירועים</string>
+    <string name="cancel">ביטול</string>
+    <string name="ok">אישור</string>
+    <string name="period">תקופה</string>
+    <string name="until...">עד %s</string>
+<!--    <string name="this_event_will_never_repeat">"האירוע זה לא יחזור על עצמו"</string>-->
+    <string name="on">ב</string>
+    <string name="on_d_day">ב-%d</string>
+    <string name="on_the_last_day">ביום האחרון</string>
+    <string name="on_s_d">ב%s מס\' %d</string>
+    <string name="on_the_last_s">ב%s האחרון</string>
+    <string name="on_d_of_s">ב-%d ל%s</string>
+    <string name="on_the_last_day_of_s">ביום האחרון של %s</string>
+    <string name="on_s_d_of_s">ב%s מס\' %d של %s</string>
+    <string name="on_the_last_s_of_s">ב%s האחרון של %s</string>
+<!--    <string name="this_event_will_repeat_every_d_s_s_s">אירוע זה יחזור על עצמן כל %d %s %s %s</string>-->
+    <string name="this_event_will_repeat_every_d_s_s_s">כל %d %s %s %s</string>
+    <string name="_d_times">, בסה"כ %d פעמים</string>
+    <string name="one_time">פעם אחת</string>
+    <string name="sample_times">10 פעמים</string>
+    <string name="starting_time_s_s">זמן ההתחלה: %s, %s</string>
+    <string name="ending_time_s_s">זמן הסיום: %s, %s</string>
+    <string name="does_not_repeat">לא חוזר על עצמו</string>
+
 </resources>

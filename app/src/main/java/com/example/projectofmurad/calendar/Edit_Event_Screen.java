@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.projectofmurad.MySuperTouchActivity;
+import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -107,7 +107,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
 
         firebase = FirebaseDatabase.getInstance();
-        eventsDatabase = firebase.getReference("EventsDatabase");
+        eventsDatabase = FirebaseUtils.eventsDatabase;
 
         start_day = startDate.getDayOfMonth();
         start_month = startDate.getMonthValue();
@@ -189,15 +189,6 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 endTimePickerDialog.show();
             }
         });
-
-        btn_color = findViewById(R.id.btn_color);
-        btn_color.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createColorPickerDialog();
-            }
-        });
-
 
         btn_add_event = findViewById(R.id.btn_add_event);
         btn_add_event.setOnClickListener(new View.OnClickListener() {
@@ -308,7 +299,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    /*eventsDatabase = firebase.getReference("EventsDatabase");
+                    /*eventsDatabase = FirebaseUtils.eventsDatabase;
 
                     eventsDatabase = eventsDatabase.child(private_key);
 
@@ -487,7 +478,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             //ToDo check if current user is madrich
         }
 
-        eventsDatabaseForText = firebase.getReference("EventsDatabase");
+        eventsDatabaseForText = FirebaseUtils.eventsDatabase;
 
         LocalDate tmp = start_date;
 
@@ -495,7 +486,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         Log.d("murad", eventsDatabaseForText.getKey());
 
         do {
-            eventsDatabaseForText = firebase.getReference("EventsDatabase");
+            eventsDatabaseForText = FirebaseUtils.eventsDatabase;
             eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
             eventsDatabaseForText.child(key).removeValue();
@@ -508,7 +499,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
     public void deleteEvent(LocalDate start, LocalDate end){
 
-        eventsDatabaseForText = firebase.getReference("EventsDatabase");
+        eventsDatabaseForText = FirebaseUtils.eventsDatabase;
 
         LocalDate tmp = start;
 
@@ -516,7 +507,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         Log.d("murad", eventsDatabaseForText.getKey());
 
         do {
-            eventsDatabaseForText = firebase.getReference("EventsDatabase");
+            eventsDatabaseForText = FirebaseUtils.eventsDatabase;
             eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
             eventsDatabaseForText.child(chain_key).getParent().removeValue();
@@ -528,7 +519,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
     public void deleteSingleEvent(String private_key, LocalDate start, LocalDate end){
 
-        eventsDatabaseForText = firebase.getReference("EventsDatabase");
+        eventsDatabaseForText = FirebaseUtils.eventsDatabase;
 
         LocalDate tmp = start;
 
@@ -536,7 +527,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         Log.d("murad", eventsDatabaseForText.getKey());
 
         do {
-            eventsDatabaseForText = firebase.getReference("EventsDatabase");
+            eventsDatabaseForText = FirebaseUtils.eventsDatabase;
             eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
             eventsDatabaseForText.child(private_key).removeValue();
@@ -548,7 +539,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
     public void deleteAllEventsInChain(String chain_key, LocalDate chain_start, LocalDate chain_end){
 
-        eventsDatabaseForText = firebase.getReference("EventsDatabase");
+        eventsDatabaseForText = FirebaseUtils.eventsDatabase;
 
         LocalDate tmp = chain_start;
 
@@ -556,7 +547,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         Log.d("murad", eventsDatabaseForText.getKey());
 
         do {
-            eventsDatabaseForText = firebase.getReference("EventsDatabase");
+            eventsDatabaseForText = FirebaseUtils.eventsDatabase;
             eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
 
             eventsDatabaseForText.child(chain_key).getParent().removeValue();
@@ -569,7 +560,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
     boolean finished = true;
 
     public void superDelete(String key) {
-        eventsDatabaseForText = firebase.getReference("EventsDatabase");
+        eventsDatabaseForText = FirebaseUtils.eventsDatabase;
 
         eventsDatabaseForText.addValueEventListener(new ValueEventListener() {
             @Override
@@ -594,6 +585,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                         }*/
 
                         if(d.child("event_chain_id").getValue().toString().equals(key)){
+                            finished = false;
 
                             CalendarEventWithTextOnly2FromSuper c = d.getValue(CalendarEventWithTextOnly2FromSuper.class);
                             if(c == null){
@@ -603,7 +595,16 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                                 Toast.makeText(getApplicationContext(), "SUCCEEDED " + c.toString(), Toast.LENGTH_SHORT).show();
                             }
 
-                            d.getRef().removeValue();
+                            /*d.getRef().removeValue(new DatabaseReference.CompletionListener() {
+                                @Override
+                                public void onComplete(@Nullable DatabaseError error,
+                                                       @NonNull DatabaseReference ref) {
+                                    finished = true;
+                                }
+                            });*/
+
+                            d.getRef().setValue(null);
+
 //                            d.getRef().child(d.getKey()).removeValue();
                             Log.d("murad", " ");
 
@@ -613,9 +614,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                         Log.d("murad", " ");
                         Log.d("murad", "-----------------------------------------------------------------------");
 
-                        finished = false;
                     }
-
 
                 }
             }

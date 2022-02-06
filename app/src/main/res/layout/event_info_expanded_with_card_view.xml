@@ -6,9 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     style="@style/ThemeOverlay.AppCompat.Dark"
+    android:background="@drawable/event_background"
     app:cardUseCompatPadding="true"
-    app:cardCornerRadius="5sp"
-
+    app:cardCornerRadius="10sp"
+    app:cardElevation="3sp"
     android:gravity="start"
     >
 
@@ -16,6 +17,7 @@
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/event_background"
         android:padding="10dp"
         >
 
@@ -57,10 +59,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="start"
             android:text="Name: "
             android:textSize="22sp"
             android:layout_marginStart="5dp"
+            android:textAlignment="textStart"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@id/iv_circle"

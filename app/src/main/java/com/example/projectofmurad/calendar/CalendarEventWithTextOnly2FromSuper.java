@@ -4,14 +4,27 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.projectofmurad.MySuperTouchActivity;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-public class CalendarEventWithTextOnly2FromSuper extends CalendarEventSuperClass implements Serializable {
+public class CalendarEventWithTextOnly2FromSuper implements Serializable {
+
+    private String event_chain_id;
+    private int timestamp;
+
+    private String name;
+    private String description;
+    private String place;
+
+    private String start_date;
+    private String start_time;
+
+    private String end_date;
+    private String end_time;
+
+    private int color;
 
     private String frequencyType;
     private String event_private_id;
@@ -30,12 +43,14 @@ public class CalendarEventWithTextOnly2FromSuper extends CalendarEventSuperClass
     private String frequency_start;
     private String frequency_end;
 
-
     public CalendarEventWithTextOnly2FromSuper(){
         super();
 
         this.frequencyType = MySuperTouchActivity.DAY_BY_END;
         this.frequency = 1;
+
+        this.start_time = "08:00";
+        this.end_time = "09:00";
 
 /*
         this.event_id = "";
@@ -59,255 +74,35 @@ public class CalendarEventWithTextOnly2FromSuper extends CalendarEventSuperClass
         this.frequencyYear = "";*/
     }
 
-    public CalendarEventWithTextOnly2FromSuper(int color, String name, String description,
-                                               String place, int timestamp,
-                                               LocalDate startDate, LocalTime startTime,
-                                               LocalDate endDate, LocalTime endTime) {
-
-        super(color, name, description, place, timestamp, startDate, startTime, endDate, endTime);
-
-/*        this.name = name;
-        this.description = description;
-        this.place = place;
-
-        this.start_date = Utils_Calendar.DateToTextOnline(startDate);
-
-        this.start_time = Utils_Calendar.TimeToText(startTime);
-
-        this.end_date = Utils_Calendar.DateToTextOnline(endDate);
-
-        this.end_time = Utils_Calendar.TimeToText(endTime);
-
-        this.timestamp = startTime.toSecondOfDay();
-
-        this.event_id = this.start_date + "-" + this.timestamp;
-
-        this.color = color;*/
-    }
-
-    public CalendarEventWithTextOnly2FromSuper(int color, String name, String description, String place,
-                                               LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime,
-                                               int selected_frequency, int selected_amount) {
-
-        super(color, name, description, place, startDate, startTime, endDate, endTime);
-
-
-        this.frequency = selected_frequency;
-        this.amount = selected_amount;
-
-/*        this.name = name;
-        this.description = description;
-        this.place = place;
-
-        this.start_date = Utils_Calendar.DateToTextOnline(startDate);
-
-        this.start_time = Utils_Calendar.TimeToText(startTime);
-
-        this.end_date = Utils_Calendar.DateToTextOnline(endDate);
-
-        this.end_time = Utils_Calendar.TimeToText(endTime);
-
-        this.timestamp = startTime.toSecondOfDay();
-
-        this.event_id = this.start_date + "-" + this.timestamp;
-
-        this.color = color;*/
-    }
-    public CalendarEventWithTextOnly2FromSuper(int color, String name, String description, String place,
-                                               LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime,
-                                               List<Boolean> selected_array_frequencyDayOfWeek,
-                                               int selected_frequency, int selected_amount) {
-
-        super(color, name, description, place, startDate, startTime, endDate, endTime);
-
-
-        this.frequency = selected_frequency;
-        this.amount = selected_amount;
-
-        this.array_frequencyDayOfWeek = selected_array_frequencyDayOfWeek;
-
-/*        this.name = name;
-        this.description = description;
-        this.place = place;
-
-        this.start_date = Utils_Calendar.DateToTextOnline(startDate);
-
-        this.start_time = Utils_Calendar.TimeToText(startTime);
-
-        this.end_date = Utils_Calendar.DateToTextOnline(endDate);
-
-        this.end_time = Utils_Calendar.TimeToText(endTime);
-
-        this.timestamp = startTime.toSecondOfDay();
-
-        this.event_id = this.start_date + "-" + this.timestamp;
-
-        this.color = color;*/
-    }
-
-    public CalendarEventWithTextOnly2FromSuper(int color, String name, String description, String place,
-                                               LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime,
-                                               int selected_day,
-                                               int selected_frequency, int selected_amount) {
-
-        super(color, name, description, place, startDate, startTime, endDate, endTime);
-
-
-        this.frequency = selected_frequency;
-        this.amount = selected_amount;
-
-        this.day = selected_day;
-
-/*        this.name = name;
-        this.description = description;
-        this.place = place;
-
-        this.start_date = Utils_Calendar.DateToTextOnline(startDate);
-
-        this.start_time = Utils_Calendar.TimeToText(startTime);
-
-        this.end_date = Utils_Calendar.DateToTextOnline(endDate);
-
-        this.end_time = Utils_Calendar.TimeToText(endTime);
-
-        this.timestamp = startTime.toSecondOfDay();
-
-        this.event_id = this.start_date + "-" + this.timestamp;
-
-        this.color = color;*/
-    }
-
-    public CalendarEventWithTextOnly2FromSuper(int flag, int color, String name, String description, String place,
-                                               LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime,
-                                               int selected_weekNumber, int selected_dayOfWeekPosition,
-                                               int selected_frequency, int selected_amount) {
-
-        super(color, name, description, place, startDate, startTime, endDate, endTime);
-
-
-        this.frequency = selected_frequency;
-        this.amount = selected_amount;
-
-        this.dayOfWeekPosition = selected_dayOfWeekPosition;
-        this.weekNumber = selected_weekNumber;
-
-/*        this.name = name;
-        this.description = description;
-        this.place = place;
-
-        this.start_date = Utils_Calendar.DateToTextOnline(startDate);
-
-        this.start_time = Utils_Calendar.TimeToText(startTime);
-
-        this.end_date = Utils_Calendar.DateToTextOnline(endDate);
-
-        this.end_time = Utils_Calendar.TimeToText(endTime);
-
-        this.timestamp = startTime.toSecondOfDay();
-
-        this.event_id = this.start_date + "-" + this.timestamp;
-
-        this.color = color;*/
-    }
-
-
-    public CalendarEventWithTextOnly2FromSuper(int color, String name, String description, String place,
-                                               LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime,
-                                               int selected_day, int selected_month,
-                                               int selected_frequency, int selected_amount) {
-
-        super(color, name, description, place, startDate, startTime, endDate, endTime);
-
-
-        this.frequency = selected_frequency;
-        this.amount = selected_amount;
-
-        this.day = selected_day;
-        this.month = selected_month;
-/*        this.name = name;
-        this.description = description;
-        this.place = place;
-
-        this.start_date = Utils_Calendar.DateToTextOnline(startDate);
-
-        this.start_time = Utils_Calendar.TimeToText(startTime);
-
-        this.end_date = Utils_Calendar.DateToTextOnline(endDate);
-
-        this.end_time = Utils_Calendar.TimeToText(endTime);
-
-        this.timestamp = startTime.toSecondOfDay();
-
-        this.event_id = this.start_date + "-" + this.timestamp;
-
-        this.color = color;*/
-    }
-
-
-    public CalendarEventWithTextOnly2FromSuper(int color, String name, String description, String place,
-                                               LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime,
-                                               int selected_weekNumber, int selected_dayOfWeekPosition, int selected_month,
-                                               int selected_frequency, int selected_amount) {
-
-        super(color, name, description, place, startDate, startTime, endDate, endTime);
-
-
-        this.frequency = selected_frequency;
-        this.amount = selected_amount;
-
-        this.dayOfWeekPosition = selected_dayOfWeekPosition;
-        this.weekNumber = selected_weekNumber;
-        this.month = selected_month;
-
-/*        this.name = name;
-        this.description = description;
-        this.place = place;
-
-        this.start_date = Utils_Calendar.DateToTextOnline(startDate);
-
-        this.start_time = Utils_Calendar.TimeToText(startTime);
-
-        this.end_date = Utils_Calendar.DateToTextOnline(endDate);
-
-        this.end_time = Utils_Calendar.TimeToText(endTime);
-
-        this.timestamp = startTime.toSecondOfDay();
-
-        this.event_id = this.start_date + "-" + this.timestamp;
-
-        this.color = color;*/
-    }
-
-
-    public CalendarEventWithTextOnly2FromSuper(int color, String name, String description, String place, String start_date, String start_time, String end_date, String end_time) {
-
-        super(color, name, description, place, start_date, start_time, end_date, end_time);
-
-/*        this.timestamp = Utils_Calendar.TextToTime(start_time).toSecondOfDay();
-
-        this.event_id = start_date + "-" + this.timestamp;
+    public void addDefaultParams(int color, String name, String description, String place, int timestamp,LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
 
         this.name = name;
         this.description = description;
         this.place = place;
 
-        this.start_date = start_date;
+        this.timestamp = timestamp;
 
-        this.start_time = start_time;
+        this.start_date = Utils_Calendar.DateToTextOnline(startDate);
 
-        this.end_date = end_date;
+        this.start_time = Utils_Calendar.TimeToText(startTime);
 
-        this.end_time = end_time;
+        this.end_date = Utils_Calendar.DateToTextOnline(endDate);
 
-        this.color = color;*/
+        this.end_time = Utils_Calendar.TimeToText(endTime);
+
+        this.timestamp = startTime.toSecondOfDay();
+
+        this.event_chain_id = this.start_date + "-" + this.timestamp;
+
+        this.color = color;
     }
 
-/*    public String getEvent_id() {
-        return event_id;
+    public String getEvent_chain_id() {
+        return event_chain_id;
     }
 
-    public void setEvent_id(String event_id) {
-        this.event_id = event_id;
+    public void setEvent_chain_id(String event_chain_id) {
+        this.event_chain_id = event_chain_id;
     }
 
     public String getName() {
@@ -417,7 +212,7 @@ public class CalendarEventWithTextOnly2FromSuper extends CalendarEventSuperClass
 
     public void setColor(int color) {
         this.color = color;
-    }*/
+    }
 
     public String getFrequencyType() {
         return frequencyType;

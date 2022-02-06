@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -38,24 +39,28 @@ import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 
 public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog implements
-        CompoundButton.OnCheckedChangeListener,
-        AdapterView.OnItemSelectedListener,
-        RadioGroup.OnCheckedChangeListener,
-        AdapterView.OnItemClickListener,
-        View.OnFocusChangeListener,
-        View.OnClickListener, ChipGroup.OnCheckedChangeListener {
+                                                                CompoundButton.OnCheckedChangeListener,
+                                                                AdapterView.OnItemSelectedListener,
+                                                                RadioGroup.OnCheckedChangeListener,
+                                                                ChipGroup.OnCheckedChangeListener,
+                                                                AdapterView.OnItemClickListener,
+                                                                View.OnFocusChangeListener,
+                                                                View.OnClickListener {
 
     public Context context;
 
     public LinearLayout ll_choose_day_of_week;
-    public ScrollView scrollView;
+    public ScrollView scrollview_frequency;
 
     public TextInputEditText et_frequency;
     public TextInputEditText et_times;
+
+    public TextView tv_event_frequency_info;
 
     public RadioGroup rg_repeat_for_month;
 
@@ -100,6 +105,7 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
     public int month;
 
     public OnSwitchDialog onSwitchDialog;
+    public OnSendMessageListener onSendMessageListener;
 
     public OnDayFrequencyListener onDayFrequencyListener;
     public OnDayOfWeekFrequencyListener onDayOfWeekFrequencyListener;
@@ -160,6 +166,8 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
 
     ChooseEventFrequencyDialogCustomWithExposedDropdown copy;
 
+    Resources res;
+
     public ChooseEventFrequencyDialogCustomWithExposedDropdown(@NonNull Context context, LocalDate startDate) {
         super(context);
         this.context = context;
@@ -168,6 +176,7 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         Toast.makeText(context, Utils_Calendar.DateToTextLocal(startDate), Toast.LENGTH_SHORT).show();
 
         this.onSwitchDialog = (OnSwitchDialog) context;
+        this.onSendMessageListener = (OnSendMessageListener) context;
 
         this.onNeverFrequencyListener = (OnNeverFrequencyListener) context;
         this.onDayFrequencyListener = (OnDayFrequencyListener) context;
@@ -187,6 +196,7 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
 
 
         this.onSwitchDialog = (OnSwitchDialog) context;
+        this.onSendMessageListener = (OnSendMessageListener) context;
 
         this.onNeverFrequencyListener = (OnNeverFrequencyListener) context;
         this.onDayFrequencyListener = (OnDayFrequencyListener) context;
@@ -198,7 +208,6 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
 
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -206,6 +215,8 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);*/
         setContentView(R.layout.choose_event_frequency_dialogcustom_with_exposed_dropdown_scroll_view);
         setCancelable(true);
+
+        res = getContext().getResources();
 
         array_frequencyDayOfWeek = new ArrayList<>();
         array_frequencyDayOfWeek.add(false);
@@ -230,7 +241,7 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         ll_choose_day_of_week = this.findViewById(R.id.choose_day_of_week_layout);
         ll_choose_day_of_week.setVisibility(View.GONE);
 
-        scrollView = this.findViewById(R.id.scrollview_frequency);
+        scrollview_frequency = this.findViewById(R.id.scrollview_frequency);
 
         et_frequency = this.findViewById(R.id.et_frequency);
         et_frequency.setOnFocusChangeListener(this);
@@ -279,37 +290,51 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
 
         initAllToggleButtons();
 
+        tv_event_frequency_info = this.findViewById(R.id.tv_event_frequency_info);
+
         rg_repeat_for_month = this.findViewById(R.id.rg_repeat_for_month);
-        rg_repeat_for_month.setOnCheckedChangeListener(this);
         rg_repeat_for_month.setVisibility(View.GONE);
+        rg_repeat_for_month.setOnCheckedChangeListener(this);
 
             rb_with_day_and_month = this.findViewById(R.id.rb_with_day_and_month);
+            rb_with_day_and_month.setText(res.getString(R.string.on_d_day, day));
             rb_with_day_and_month.setOnCheckedChangeListener(this);
 
             rb_with_last_day_and_month = this.findViewById(R.id.rb_with_last_day_and_month);
+            rb_with_last_day_and_month.setText(R.string.on_the_last_day);
             rb_with_last_day_and_month.setOnCheckedChangeListener(this);
 
             rb_with_dayOfWeek_and_month = this.findViewById(R.id.rb_with_dayOfWeek_and_month);
+            rb_with_dayOfWeek_and_month.setText(res.getString(R.string.on_s_d, dayOfWeek, weekNumber));
             rb_with_dayOfWeek_and_month.setOnCheckedChangeListener(this);
 
             rb_with_last_dayOfWeek_and_month = this.findViewById(R.id.rb_with_last_dayOfWeek_and_month);
+            rb_with_last_dayOfWeek_and_month.setText(res.getString(R.string.on_the_last_s, dayOfWeek));
             rb_with_last_dayOfWeek_and_month.setOnCheckedChangeListener(this);
 
 
         rg_repeat_for_year = this.findViewById(R.id.rg_repeat_for_year);
-        rg_repeat_for_year.setOnCheckedChangeListener(this);
         rg_repeat_for_year.setVisibility(View.GONE);
+        rg_repeat_for_year.setOnCheckedChangeListener(this);
 
             rb_with_day_and_year = this.findViewById(R.id.rb_with_day_and_year);
+            rb_with_day_and_year.setText(res.getString(R.string.on_d_of_s, day, month_name));
+//            rb_with_day_and_year.setText("On " + day + " of " + month_name);
             rb_with_day_and_year.setOnCheckedChangeListener(this);
 
             rb_with_last_day_and_year = this.findViewById(R.id.rb_with_last_day_and_year);
+            rb_with_last_day_and_year.setText(res.getString(R.string.on_the_last_day_of_s, month_name));
+//            rb_with_last_day_and_year.setText("On the last day of " + month_name);
             rb_with_last_day_and_year.setOnCheckedChangeListener(this);
 
             rb_with_dayOfWeek_and_year = this.findViewById(R.id.rb_with_dayOfWeek_and_year);
+            rb_with_dayOfWeek_and_year.setText(res.getString(R.string.on_s_d_of_s, dayOfWeek, weekNumber, month_name));
+//            rb_with_dayOfWeek_and_year.setText("On " + weekNumber + " " + dayOfWeek + " of " + month_name);
             rb_with_dayOfWeek_and_year.setOnCheckedChangeListener(this);
 
             rb_with_last_dayOfWeek_and_year = this.findViewById(R.id.rb_with_last_dayOfWeek_and_year);
+            rb_with_last_dayOfWeek_and_year.setText(res.getString(R.string.on_the_last_s_of_s, dayOfWeek, month_name));
+//            rb_with_last_dayOfWeek_and_year.setText("On the last " + dayOfWeek + " of " + month_name);
             rb_with_last_dayOfWeek_and_year.setOnCheckedChangeListener(this);
 
         rg_duration = this.findViewById(R.id.rg_duration);
@@ -341,8 +366,6 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         frequencyTypesArrayPlural[1] = "weeks";
         frequencyTypesArrayPlural[2] = "months";
         frequencyTypesArrayPlural[3] = "years";*/
-
-        Resources res = getContext().getResources();
 
         String[] frequencyTypesArrayPlural = res.getStringArray(R.array.frequencyTypes);
 
@@ -379,11 +402,15 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
 */
 
         autoCompleteTextView_frequencyType.setAdapter(arrayAdapter);
+        autoCompleteTextView_frequencyType.setSelected(true);
         autoCompleteTextView_frequencyType.setText(frequencyTypesArrayPlural[0], false);
 
         frequency_day = true;
 
         autoCompleteTextView_frequencyType.setOnItemClickListener(this);
+//        autoCompleteTextView_frequencyType.setListSelection(2);
+//        autoCompleteTextView_frequencyType.setSelection(2);
+//        autoCompleteTextView_frequencyType.extendSelection(2);
 
         textInputLayout_times = this.findViewById(R.id.textInputLayout_times);
 
@@ -399,11 +426,14 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
                 end_month = month;
                 end_day = day;
 
-                rb_until.setText("Until " + date_text);
+                rb_until.setText(res.getString(R.string.until___, date_text));
             }
         });
+        date_picker_end.setMinDate(Calendar.getInstance().getTimeInMillis());
+        date_picker_end.setFirstDayOfWeek(Calendar.SUNDAY);
         date_picker_end.setVisibility(View.GONE);
-        date_picker_end.setFirstDayOfWeek(7);
+
+        rb_until.setText(R.string.until);
 
         btn_ok = this.findViewById(R.id.btn_ok);
         btn_ok.setOnClickListener(this);
@@ -497,10 +527,74 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
 
     private boolean never_is_checked = true;
 
+    public String frequency_text = "";
+    public String repeat_text = "";
+
     @Override
     public void onCheckedChanged(RadioGroup radioGroup, int i) {
+        frequency_text = "";
+        repeat_text = "";
+        String event_frequency_info;
+
+        String text = ((RadioButton) getWindow().findViewById(radioGroup.getCheckedRadioButtonId())).getText().toString();
+
+        Log.d("murad", "*****************************************************************************************************");
+        Log.d("murad", "rb_never is set to to " + rb_never.isChecked() + " |  frequency_never = " + frequency_never);
+        Log.d("murad", "rb_times is set to to " + rb_times.isChecked() + " |  isFrequency_by_amount = " + isFrequency_by_amount);
+        Log.d("murad", "rb_until is set to to " + rb_until.isChecked() + " |  frequency_by_end = " + !isFrequency_by_amount);
+        Log.d("murad", "*****************************************************************************************************");
+
+        if(radioGroup.getCheckedRadioButtonId() == R.id.rb_times /*|| frequency_never*/){
+
+            Log.d("murad", "rb_times is " + rb_times.isChecked());
+            Log.d("murad", "rb_until is " + rb_until.isChecked());
+
+            textInputLayout_times.setVisibility(View.VISIBLE);
+            date_picker_end.setVisibility(View.GONE);
+//            rb_until.setText("Until");
+
+            animate(radioGroup);
+            animate(date_picker_end);
+
+            isFrequency_by_amount = true;
+            frequency_never = false;
+        }
+        else if(radioGroup.getCheckedRadioButtonId() == R.id.rb_until){
+
+            rb_times.setChecked(false);
+            Log.d("murad", "rb_until is checked = " + rb_until.isChecked());
+            Log.d("murad", "rb_times is checked = " + rb_times.isChecked());
+
+            textInputLayout_times.setVisibility(View.GONE);
+            date_picker_end.setVisibility(View.VISIBLE);
+            date_picker_end.updateDate(end_year, end_month-1, end_day);
+
+            animate(radioGroup);
+            animate(date_picker_end);
+
+            isFrequency_by_amount = false;
+            frequency_never = false;
+
+            scrollview_frequency.post(new Runnable() {
+                @Override
+                public void run() {
+                    scrollview_frequency.fullScroll(ScrollView.FOCUS_DOWN);
+                }
+            });
+        }
+
+        if (radioGroup.getId() == rg_repeat_for_month.getId() || (radioGroup.getId() == rg_repeat_for_year.getId())){
+            if(rb_never.isChecked()){
+                rb_never.setChecked(false);
+                frequency_never = false;
+                Toast.makeText(getContext(), "rb_never is set to false", Toast.LENGTH_SHORT).show();
+            }
+            frequency_text = ((RadioButton) getWindow().findViewById(radioGroup.getCheckedRadioButtonId())).getText().toString();
+            frequency_text = frequency_text.substring(0, 1).toLowerCase() + frequency_text.substring(1);
+        }
 
         if(radioGroup.getCheckedRadioButtonId() == R.id.rb_never){
+
             never_is_checked = true;
 
             textInputLayout_times.setVisibility(View.GONE);
@@ -531,58 +625,7 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
             rg_repeat_for_month.setVisibility(View.GONE);
             animate(rg_repeat_for_month);
         }
-        else if(radioGroup.getCheckedRadioButtonId() == R.id.rb_times /*|| frequency_never*/){
-            Log.d("murad", "rb_times is " + rb_times.isChecked());
-            Log.d("murad", "rb_until is " + rb_until.isChecked());
 
-            textInputLayout_times.setVisibility(View.VISIBLE);
-            date_picker_end.setVisibility(View.GONE);
-            rb_until.setText("Until");
-
-            animate(radioGroup);
-            animate(date_picker_end);
-
-            isFrequency_by_amount = true;
-            frequency_never = false;
-        }
-        else if(radioGroup.getCheckedRadioButtonId() == R.id.rb_until){
-            rb_times.setChecked(false);
-            Log.d("murad", "rb_until is checked = " + rb_until.isChecked());
-            Log.d("murad", "rb_times is checked = " + rb_times.isChecked());
-
-            textInputLayout_times.setVisibility(View.GONE);
-            date_picker_end.setVisibility(View.VISIBLE);
-            date_picker_end.updateDate(end_year, end_month-1, end_day);
-
-
-            animate(radioGroup);
-            animate(date_picker_end);
-
-            isFrequency_by_amount = false;
-            frequency_never = false;
-
-            scrollView.post(new Runnable() {
-                @Override
-                public void run() {
-                    scrollView.fullScroll(ScrollView.FOCUS_DOWN);
-                }
-            });
-        }
-
-        Log.d("murad", "*****************************************************************************************************");
-        Log.d("murad", "rb_never is set to to " + rb_never.isChecked() + " |  frequency_never = " + frequency_never);
-        Log.d("murad", "rb_times is set to to " + rb_times.isChecked() + " |  isFrequency_by_amount = " + isFrequency_by_amount);
-        Log.d("murad", "rb_until is set to to " + rb_until.isChecked() + " |  frequency_by_end = " + !isFrequency_by_amount);
-        Log.d("murad", "*****************************************************************************************************");
-
-
-        if (radioGroup.getId() == rg_repeat_for_month.getId() || (radioGroup.getId() == rg_repeat_for_year.getId())){
-            if(rb_never.isChecked()){
-                rb_never.setChecked(false);
-                frequency_never = false;
-                Toast.makeText(getContext(), "rb_never is set to false", Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 
     // method onCheckedChanged for ToggleButtons and RadioButtons
@@ -604,6 +647,7 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         }*/
 
         int pos=0;
+
         for(int i = 0; i < toggleButtons.size(); i++) {
             if(toggleButtons.get(i) == compoundButton){
                 pos = i;
@@ -611,26 +655,22 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
                 frequency_dayOfWeek = true;
             }
         }
+        if (frequency_dayOfWeek){
+            StringBuilder days_of_week = new StringBuilder();
+            for(int i = 0; i < array_frequencyDayOfWeek.size(); i++) {
+                if(array_frequencyDayOfWeek.get(i)){
+                    days_of_week.append(DayOfWeek.of(i + 1).getDisplayName(TextStyle.FULL,
+                            Utils_Calendar.locale)).append(", ");
+                }
+            }
+            days_of_week.deleteCharAt(days_of_week.length()-1);
+            frequency_text = res.getString(R.string.on) + days_of_week;
+        }
 
         Log.d("murad", toggleButtons.get(pos).getText().toString() + " is checked = " + isChecked);
-
-        if(compoundButton == rb_with_day_and_month){
-            msg = "Every month on " + day + " day";
-        }
-        else if(compoundButton == rb_with_dayOfWeek_and_month){
-            msg = "Every month on " + weekNumber + " " + dayOfWeek;
-        }
-        else if(compoundButton == rb_with_day_and_year){
-            msg = "Every year on " + day + " of " + month_name;
-        }
-        else if(compoundButton == rb_with_dayOfWeek_and_year){
-            msg = "Every " + month_name + " on " + weekNumber + " " + dayOfWeek;
-
-        }
         /*else if(compoundButton == rb_never){
             msg = "The event never repeats";
         }*/
-
 
         frequency_never = rb_never.isChecked();
 
@@ -719,6 +759,9 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        frequency_text = "";
+        repeat_text = "";
+
         frequency_day = false;
 
         frequency_day_and_month = false;
@@ -759,11 +802,11 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         String item = adapterView.getItemAtPosition(i).toString();
 
         // manages content after clicking on dropdown menu item
-        if(item.equals("day") || item.equals("days")){
+        if(item.equals("day") || item.equals(res.getString(R.string.days))){
             Toast.makeText(context, "DAY", Toast.LENGTH_SHORT).show();
             frequency_day = true;
         }
-        else if(item.equals("week") || item.equals("weeks")){
+        else if(item.equals("week") || item.equals(res.getString(R.string.weeks))){
             expanded_choose_day_of_week_layout = true;
             frequency_dayOfWeek = true;
 
@@ -773,67 +816,44 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
             toggleButtons.get(dayOfWeekPosition).setChecked(true);
 
         }
-        else if(item.equals("month") || item.equals("months")){
+        else if(item.equals("month") || item.equals(res.getString(R.string.months))){
             expanded_rg_month = true;
-
-            //Todo fix this
-            /*if(rg_repeat_for_month.getVisibility() == View.GONE){
-                rg_repeat_for_month.setVisibility(View.VISIBLE);
-                animate(rg_repeat_for_month);
-            }*/
 
             rg_repeat_for_month.setVisibility(View.VISIBLE);
 
-            if(day == startDate.lengthOfMonth()){
-                rb_with_last_day_and_month.setText("Every month on the last day");
-
-                rb_with_day_and_month.setText("Every month on " + day + " day");
+            if (day != startDate.lengthOfMonth()) {
+                rb_with_last_day_and_month.setVisibility(View.GONE);
+            }
+            else {
 /*                if(day == 30 || day == 31){
                 }
                 else{
                     rb_with_day_and_month.setVisibility(View.GONE);
                 }*/
             }
-            else{
-                rb_with_day_and_month.setText("Every month on " + day + " day");
-                rb_with_last_day_and_month.setVisibility(View.GONE);
-            }
 
             if(startDate.with(TemporalAdjusters.lastInMonth(DayOfWeek.of(dayOfWeekPosition+1))).equals(startDate)){
-                rb_with_last_dayOfWeek_and_month.setText("Every month on the last " + DayOfWeek.of(dayOfWeekPosition+1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale));
 
-                if(weekNumber == 4){
-                    rb_with_dayOfWeek_and_month.setText("Every month on " + weekNumber + " " + dayOfWeek);
-                }
-                else{
+                if (weekNumber != 4) {
                     rb_with_dayOfWeek_and_month.setVisibility(View.GONE);
                 }
             }
             else{
-                rb_with_dayOfWeek_and_month.setText("Every month on " + weekNumber + " " + dayOfWeek);
                 rb_with_last_dayOfWeek_and_month.setVisibility(View.GONE);
             }
 
             animate(rg_repeat_for_month);
 
         }
-        else if(item.equals("year") || item.equals("years")){
+        else if(item.equals("year") || item.equals(res.getString(R.string.years))){
             expanded_rg_year = true;
-
-            //Todo fix this
-            /*if(rg_repeat_for_month.getVisibility() == View.GONE){
-                rg_repeat_for_month.setVisibility(View.VISIBLE);
-                animate(rg_repeat_for_month);
-            }*/
 
             rg_repeat_for_year.setVisibility(View.VISIBLE);
 
-            rb_with_day_and_year.setText("Every year on " + day + " of " + month_name);
-            rb_with_dayOfWeek_and_year.setText("Every year on " + weekNumber + " " + dayOfWeek + " of " + month_name);
-
-            if(day == startDate.lengthOfMonth()){
-                rb_with_last_day_and_year.setText("Every year on the last day of " + month_name);
-                rb_with_day_and_year.setText("Every year on " + day + " of " + month_name);
+            if (day != startDate.lengthOfMonth()) {
+                rb_with_last_day_and_year.setVisibility(View.GONE);
+            }
+            else {
 
 /*                if(day == 30){
 
@@ -842,31 +862,22 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
                     rb_with_day_and_year.setVisibility(View.GONE);
                 }*/
             }
-            else{
-                rb_with_day_and_year.setText("Every year on " + day + " of " + month_name);
-                rb_with_last_day_and_year.setVisibility(View.GONE);
-            }
 
             if(startDate.with(TemporalAdjusters.lastInMonth(DayOfWeek.of(dayOfWeekPosition+1))).equals(startDate)){
-                rb_with_last_dayOfWeek_and_year.setText("Every year on the last " + DayOfWeek.of(dayOfWeekPosition+1).getDisplayName(TextStyle.FULL, Utils_Calendar.locale) +
-                        " of " + month_name);
 
-                if(weekNumber == 4){
-                    rb_with_dayOfWeek_and_year.setText("Every year on " + weekNumber + " " + dayOfWeek + " of " + month_name);
-                }
-                else{
+                if (weekNumber != 4) {
                     rb_with_dayOfWeek_and_year.setVisibility(View.GONE);
                 }
             }
             else{
-                rb_with_dayOfWeek_and_year.setText("Every year on " + weekNumber + " " + dayOfWeek + " of " + month_name);
                 rb_with_last_dayOfWeek_and_year.setVisibility(View.GONE);
             }
-
 
             animate(rg_repeat_for_year);
 
         }
+
+        animate(scrollview_frequency);
 
         Log.d("murad", "getItemAtPosition(i) = " + item);
 
@@ -954,17 +965,16 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
             date_picker_end.setVisibility(View.VISIBLE);
             date_picker_end.updateDate(end_year, end_month-1, end_day);
 
-
             animate(group);
             animate(date_picker_end);
 
             isFrequency_by_amount = false;
             frequency_never = false;
 
-            scrollView.post(new Runnable() {
+            scrollview_frequency.post(new Runnable() {
                 @Override
                 public void run() {
-                    scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                    scrollview_frequency.fullScroll(ScrollView.FOCUS_DOWN);
                 }
             });
         }
@@ -985,9 +995,12 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         }
     }
 
-
     public interface OnSwitchDialog {
         void switchDialog(ChooseEventFrequencyDialogCustomWithExposedDropdown copy);
+    }
+
+    public interface OnSendMessageListener {
+        void setOnMessage(String msg);
     }
 
     public interface OnDayFrequencyListener {
@@ -1003,9 +1016,6 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
     }
 
     public interface OnDayAndMonthFrequencyListener {
-/*        void setOnDayAndMonthFrequency(int selected_day, int selected_frequency, int selected_amount);
-        void setOnDayAndMonthFrequency(int selected_day, int selected_frequency, LocalDate selected_end);*/
-
         void setOnDayAndMonthFrequency(int selected_day, int selected_frequency, int selected_amount, boolean isLast);
         void setOnDayAndMonthFrequency(int selected_day, int selected_frequency, LocalDate selected_end, boolean isLast);
     }
@@ -1092,8 +1102,6 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         frequency_day_and_year = selected_frequency_day_and_year;
         frequency_dayOfWeek_and_year = selected_frequency_dayOfWeek_and_year;
 
-
-
     }
 
     @Override
@@ -1105,6 +1113,36 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
             frequency = Integer.parseInt(et_frequency.getText().toString());
             amount = Integer.parseInt(et_times.getText().toString());
 
+            if(isFrequency_by_amount){
+                if(amount == 1){
+                    repeat_text = res.getString(R.string.one_time);
+                }
+                else{
+                    repeat_text = res.getString(R.string._d_times, amount);
+                }
+            }
+            else {
+                repeat_text = rb_until.getText().toString();
+                repeat_text = repeat_text.substring(0, 1).toLowerCase() + repeat_text.substring(1);
+            }
+
+            String event_frequency_info = res.getString(R.string.this_event_will_repeat_every_d_s_s_s,
+                    frequency,
+                    autoCompleteTextView_frequencyType.getText().toString(),
+                    frequency_text,
+                    repeat_text);
+
+            msg = event_frequency_info;
+
+            if (msg.contains("  ")){
+                msg = msg.replace("  ", " ");
+            }
+
+            if (frequency_never){
+                msg = res.getString(R.string.does_not_repeat);
+            }
+
+            onSendMessageListener.setOnMessage(msg);
 
             if(expanded_rg_month){
 
@@ -1168,6 +1206,9 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
                     Log.d("murad", "frequency_day is " + true + "\n isFrequency_by_amount is " + false);
                     onDayFrequencyListener.setOnDayFrequency(frequency, frequency_end_date);
                 }
+                else if (frequency_never){
+                    onNeverFrequencyListener.setOnNeverFrequency();
+                }
 
             }
 
@@ -1230,9 +1271,9 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
             }*/
 
             if(toDismiss){
-                copy = this;
+//                copy = this;
                 Toast.makeText(context, "Copy saved", Toast.LENGTH_SHORT).show();
-                dismiss();
+                hide();
 
 //            cancel();
             }
@@ -1284,7 +1325,8 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         /*            frequency_never = true;
             onNeverFrequencyListener.setOnNeverFrequency();*/
         /*cancel();*/
-        if (copy == null){
+
+        /*if (copy == null){
             onSwitchDialog.switchDialog(copy);
             Toast.makeText(getContext(), "Copy Dialog is null", Toast.LENGTH_SHORT).show();
         }
@@ -1299,7 +1341,7 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         else{
             Toast.makeText(getContext(), "Dialogs are not equal!", Toast.LENGTH_SHORT).show();
         }
-
+*/
         dismiss();
     }
 
@@ -1330,7 +1372,7 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
 
 
         //getting Root View that gets focus
-        View rootView =((ViewGroup)ChooseEventFrequencyDialogCustomWithExposedDropdown.this.findViewById(android.R.id.content)).
+        View rootView = ((ViewGroup)ChooseEventFrequencyDialogCustomWithExposedDropdown.this.findViewById(android.R.id.content)).
                 getChildAt(0);
         rootView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override

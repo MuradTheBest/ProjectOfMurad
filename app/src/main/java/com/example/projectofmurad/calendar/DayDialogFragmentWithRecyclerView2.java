@@ -13,6 +13,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.R;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -27,22 +28,36 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class DayDialogFragmentWithRecyclerView2 extends Dialog implements AdapterForFirebase2.OnEventListener{
-    LocalDate passingDate;
-    Context context;
+public class DayDialogFragmentWithRecyclerView2 extends Dialog implements EventsAdapterForFirebase.OnEventListener {
+    private LocalDate passingDate;
+    private Context context;
 
-    ArrayList<CalendarEventWithTextOnly2FromSuper> calendarEventArrayList;
+    private ArrayList<CalendarEventWithTextOnly2FromSuper> calendarEventArrayList;
+
+    private FloatingActionButton fab_add_event;
 
     private RecyclerView rv_events;
-    private AdapterForFirebase2 adapterForFirebase;
+    private EventsAdapterForFirebase adapterForFirebase;
 
-    FirebaseDatabase firebase;
-    DatabaseReference databaseReference;
+    private FirebaseDatabase firebase;
+    private DatabaseReference eventsDatabase;
 
     public DayDialogFragmentWithRecyclerView2(@NonNull Context context, LocalDate passingDate) {
         super(context);
         this.passingDate = passingDate;
         this.context = context;
+
+        this.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+        this.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
+    }
+
+    public DayDialogFragmentWithRecyclerView2(@NonNull Context context, LocalDate passingDate, int themeResId) {
+        super(context, themeResId);
+        this.passingDate = passingDate;
+        this.context = context;
+
+//        this.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+        this.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
     }
 
     /*public DayDialogFragment(@NonNull Context context, LocalDate passingDate, int themeResId) {
@@ -56,7 +71,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Adapte
         this.setCancelable(true);
 
         String day = String.valueOf(passingDate.getDayOfMonth());
-        String full_date = passingDate.format(DateTimeFormatter.ofPattern("E, MMMM yyyy"));
+        String full_date = passingDate.format(DateTimeFormatter.ofPattern("E, MMMM yyyy", Utils_Calendar.locale));
 
         TextView tv_day = this.findViewById(R.id.tv_day);
         tv_day.setText(day);
@@ -70,12 +85,12 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Adapte
         tv_no_events.setVisibility(View.GONE);
 
         firebase = FirebaseDatabase.getInstance();
-        databaseReference = firebase.getReference("EventsDatabase");
+        eventsDatabase = FirebaseUtils.eventsDatabase;
 
         calendarEventArrayList = new ArrayList<>();
 
-        databaseReference = databaseReference.child(Utils_Calendar.DateToTextForFirebase(passingDate));
-        Query query = databaseReference.orderByChild("timestamp");
+        eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(passingDate));
+        Query query = eventsDatabase.orderByChild("timestamp");
 
         FirebaseRecyclerOptions<CalendarEventWithTextOnly2FromSuper> options
                 = new FirebaseRecyclerOptions.Builder<CalendarEventWithTextOnly2FromSuper>()
@@ -84,7 +99,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Adapte
                 .build();
 
 
-        adapterForFirebase = new AdapterForFirebase2(options, passingDate, DayDialogFragmentWithRecyclerView2.this);
+        adapterForFirebase = new EventsAdapterForFirebase(options, passingDate, context, this);
         Log.d("murad", "adapterForFirebase.getItemCount() = " + adapterForFirebase.getItemCount());
         Log.d("murad", "options.getItemCount() = " + options.getSnapshots().size());
 
@@ -92,7 +107,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Adapte
         Log.d("murad", "rv_events.getChildCount() = " + rv_events.getChildCount());
         rv_events.setLayoutManager(new LinearLayoutManager(context));
 
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        eventsDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.hasChildren()){
@@ -113,7 +128,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Adapte
         });
 
 
-        FloatingActionButton fab_add_event = this.findViewById(R.id.fab_add_event);
+        fab_add_event = this.findViewById(R.id.fab_add_event);
         fab_add_event.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -130,13 +145,61 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Adapte
                 toAddEvent_Screen.putExtra("month", month);
                 toAddEvent_Screen.putExtra("year", year);
 
+                int cx = (int) (fab_add_event.getWidth()/2 + fab_add_event.getX());
+                int cy = (int) (fab_add_event.getHeight()/2 + fab_add_event.getY());
+
+                toAddEvent_Screen.putExtra("cx", cx);
+                toAddEvent_Screen.putExtra("cy", cy);
 
                 context.startActivity(toAddEvent_Screen);
-                dismiss();
+//                dismiss();
             }
         });
+
+
     }
 
+/*
+    private void revealShow(View dialogView, boolean b, final Dialog dialog) {
+
+        final View view = dialogView.findViewById(R.id.dialog);
+
+        int w = view.getWidth();
+        int h = view.getHeight();
+
+        int endRadius = (int) Math.hypot(w, h);
+
+        int cx = (int) (fab_add_event.getX() + (fab_add_event.getWidth()/2));
+        int cy = (int) (fab_add_event.getY())+ fab_add_event.getHeight() + 56;
+
+
+        if(b){
+            Animator revealAnimator = ViewAnimationUtils.createCircularReveal(view, cx,cy, 0, endRadius);
+
+            view.setVisibility(View.VISIBLE);
+            revealAnimator.setDuration(700);
+            revealAnimator.start();
+
+        } else {
+
+            Animator anim =
+                    ViewAnimationUtils.createCircularReveal(view, cx, cy, endRadius, 0);
+
+            anim.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    dialog.dismiss();
+                    view.setVisibility(View.INVISIBLE);
+
+                }
+            });
+            anim.setDuration(700);
+            anim.start();
+        }
+
+    }
+*/
 
     // Function to tell the app to start getting
     // data from database on starting of the activity

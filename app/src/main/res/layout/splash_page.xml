@@ -196,4 +196,14 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/ellipse_3" />
 
+	<Button
+		android:id="@+id/btn_sign_out"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Sign Out"
+		app:layout_constraintBottom_toTopOf="@+id/group_10"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/button" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

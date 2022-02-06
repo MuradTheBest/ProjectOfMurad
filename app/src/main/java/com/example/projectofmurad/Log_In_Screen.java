@@ -12,9 +12,16 @@ import android.widget.TextView;
 import android.content.Intent;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 
 import com.example.projectofmurad.calendar.Utils_Calendar;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class Log_In_Screen extends Activity {
 
@@ -30,10 +37,10 @@ public class Log_In_Screen extends Activity {
 	private TextView tv_don_t_have_an_account;
 	private Button btn_log_in;
 
-	String password = "";
-
 	SharedPreferences sp;
 
+	FirebaseAuth firebaseAuth;
+	FirebaseUser firebaseUser;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -45,15 +52,15 @@ public class Log_In_Screen extends Activity {
 		sp = getSharedPreferences(BuildConfig.APPLICATION_ID + " savedData", Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sp.edit();
 
-
+		firebaseAuth = FirebaseAuth.getInstance();
 
 		tv_sign_up_now = (TextView) findViewById(R.id.tv_sign_up_now);
 		ellipse_4 = (View) findViewById(R.id.ellipse_4);
 		tv_log_in = (TextView) findViewById(R.id.tv_log_in);
 		vector_ek1 = (ImageView) findViewById(R.id.vector_ek1);
-		rectangle_1_ek4 = (View) findViewById(R.id.rectangle_1_ek4);
+
 		et_email_address = (TextView) findViewById(R.id.et_email_address);
-		rectangle_1_ek5 = (View) findViewById(R.id.rectangle_1_ek5);
+
 		et_password = (TextView) findViewById(R.id.et_password);
 		tv_don_t_have_an_account = (TextView) findViewById(R.id.tv_don_t_have_an_account);
 		btn_log_in = findViewById(R.id.btn_log_in);
@@ -93,11 +100,30 @@ public class Log_In_Screen extends Activity {
 
 				if(editTextsFilled){
 					//ToDo Firebase authentication
+					firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(
+							new OnCompleteListener<AuthResult>() {
+								@Override
+								public void onComplete(@NonNull Task<AuthResult> task) {
+									if (task.isSuccessful()){
+//										firebaseUser = firebaseAuth.getCurrentUser();
+										finish();
+										startActivity(new Intent(Log_In_Screen.this, MainActivity.class));
+									}
+									else {
 
+									}
+								}
+							})
+							.addOnFailureListener(new OnFailureListener() {
+								@Override
+								public void onFailure(@NonNull Exception e) {
+									Toast.makeText(Log_In_Screen.this, e.getMessage(),
+											Toast.LENGTH_SHORT).show();
+								}
+							});
 				}
 				else {
 					Toast.makeText(getApplicationContext(), "Please enter " + msg, Toast.LENGTH_SHORT).show();
-
 				}
 			}
 		});

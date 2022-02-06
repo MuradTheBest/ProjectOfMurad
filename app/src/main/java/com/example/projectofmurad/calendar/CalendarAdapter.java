@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -26,8 +27,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder> {
-    private  ArrayList<LocalDate> daysOfMonth;
-    private  LocalDate selectedDate;
+    private ArrayList<LocalDate> daysOfMonth;
+    private LocalDate selectedDate;
     private final CalendarOnItemListener calendarOnItemListener;
     private LayoutInflater inflater;
     private FirebaseDatabase firebase;
@@ -97,8 +98,10 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         Log.d("murad ", "adapterPosition"+position);*/
 
         if(position > 0){
-            if(daysOfMonth.get(position).getDayOfWeek().getValue() == 5 ||
-                    daysOfMonth.get(position).getDayOfWeek().getValue() == 6){
+            if(daysOfMonth.get(position).getDayOfWeek().getValue() == 5) {
+                holder.dayOfMonth.setTextColor(Color.BLUE);
+            }
+            if (daysOfMonth.get(position).getDayOfWeek().getValue() == 6) {
                 holder.dayOfMonth.setTextColor(Color.RED);
             }
         }
@@ -110,7 +113,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
 
         firebase = FirebaseDatabase.getInstance();
-        eventsDatabase = firebase.getReference("EventsDatabase");
+        eventsDatabase = FirebaseUtils.eventsDatabase;
 
         query = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(daysOfMonth.get(position))).orderByChild("timestamp");
         query.keepSynced(true);
