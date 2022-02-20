@@ -282,6 +282,48 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         initAllDaysOfWeek();
         setMonthView();
 
+        if (gotten_intent.getAction() != null && gotten_intent.getAction().equals("eventShow")){
+
+            action = gotten_intent.getBooleanExtra("action", false);
+            String event_private_id = gotten_intent.getStringExtra("event_private_id");
+            if (action){
+                Toast.makeText(this, "Opening from notification", Toast.LENGTH_SHORT).show();
+//            onItemClick(positionOfToday, "" + today.getDayOfMonth(), today);
+                Log.d("murad", "===============================================");
+                Log.d("murad", "event_private_id = " + event_private_id);
+                Log.d("murad", "===============================================");
+                new Handler().postDelayed(() -> createDayDialog(today, event_private_id), 500);
+
+            }
+        }
+
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+
+        super.onNewIntent(intent);
+        Bundle extras = intent.getExtras();
+
+        if (extras != null){
+            action = extras.getBoolean("action", false);
+            String event_private_id = extras.getString("event_private_id");
+            if (action){
+                Toast.makeText(this, "Opening from notification", Toast.LENGTH_SHORT).show();
+//            onItemClick(positionOfToday, "" + today.getDayOfMonth(), today);
+                Log.d("murad", "===============================================");
+                Log.d("murad", "event_private_id = " + event_private_id);
+                Log.d("murad", "===============================================");
+                new Handler().postDelayed(() -> createDayDialog(today, event_private_id), 500);
+
+            }
+        }
+    }
+
+    public boolean action;
+
+    public interface OnEventShowListener{
+        void onEventShow(String event_private_id);
     }
 
     private void initAllDaysOfWeek(){
@@ -574,15 +616,30 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
             Log.d("murad", "child count after load = " + calendarRecyclerView.getChildCount());
 
             Handler handler = new Handler();
-            handler.postDelayed(() -> createDayDialog(passingDate), duration);
+            handler.postDelayed(() -> createDayDialog(passingDate, null), duration);
 
         }
     }
 
-    public void createDayDialog(LocalDate passingDate){
+    public OnEventShowListener onEventShowListener;
+
+    private DayDialogFragmentWithRecyclerView2 dayDialogFragment;
+
+
+    public void createDayDialog(LocalDate passingDate, String event_private_id){
 //        DayDialogFragmentWithRecyclerView2 dayDialogFragment = new DayDialogFragmentWithRecyclerView2(Calendar_Screen.this, passingDate, R.style.RoundedCornersDialog);
-        DayDialogFragmentWithRecyclerView2 dayDialogFragment = new DayDialogFragmentWithRecyclerView2(Calendar_Screen.this, passingDate);
+        if (dayDialogFragment != null && dayDialogFragment.isShowing()){
+            dayDialogFragment.dismiss();
+        }
+
+        dayDialogFragment = new DayDialogFragmentWithRecyclerView2(Calendar_Screen.this, passingDate);
         dayDialogFragment.show();
+
+        if (event_private_id != null){
+            Log.d("murad", "event_private_id is not null");
+            onEventShowListener = (OnEventShowListener) dayDialogFragment.getOwnerActivity();
+            onEventShowListener.onEventShow(event_private_id);
+        }
     }
 
     @Override

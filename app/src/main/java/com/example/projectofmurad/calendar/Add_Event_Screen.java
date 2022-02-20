@@ -3,7 +3,6 @@ package com.example.projectofmurad.calendar;
 import static com.google.firebase.messaging.Constants.MessagePayloadKeys.SENDER_ID;
 
 import android.animation.Animator;
-import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -24,7 +23,6 @@ import android.transition.TransitionManager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
@@ -115,15 +113,14 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
     int y;
 
     protected PendingIntent pendingIntent;
-    protected AlarmManager alarmManager;
+
+    protected Intent alarm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.anim_do_not_move, R.anim.anim_do_not_move);
         setContentView(R.layout.activity_add_event_screen_linear_layout);
-
-        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         gotten_intent = getIntent();
 
@@ -217,6 +214,8 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
                 }
         );
 
+        switch_alarm = findViewById(R.id.switch_alarm);
+
         event_time_picker = findViewById(R.id.event_time_picker);
         event_time_picker.setIs24HourView(true);
         event_time_picker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
@@ -261,7 +260,6 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
                 startDatePickerDialog.show();
             }
         });
-
 
         btn_choose_start_date.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
@@ -651,7 +649,7 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
             LocalTime startTime = LocalTime.of(start_hour, start_min);
             LocalTime endTime = LocalTime.of(end_hour, end_min);
 
-//            event = new CalendarEventWithTextOnly2FromSuper(selectedColor, name, description, place, timestamp, startDate, startTime, endDate, endTime);
+//            event = new CalendarEvent(selectedColor, name, description, place, timestamp, startDate, startTime, endDate, endTime);
 /*            event.setColor(selectedColor);
             event.setName(name);
             event.setDescription(description);
@@ -685,7 +683,7 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
                 event.updateFrequency_start(startDate);
                 event.updateFrequency_end(endDate);
 
-                addEventToFirebaseForTextWithPUSH(event, chain_key);
+                addEventToFirebaseForTextWithPUSH(event, null);
             }
             else if(event.getFrequencyType().endsWith("amount")){
                 success = addEventForTimesAdvanced(event);
@@ -694,7 +692,7 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
                 success = addEventForUntilAdvanced(event);
             }
 
-            createAlarm();
+//            createAlarm();
 
             //ToDo adjust chain_id for row events in database
  /*           if(event.getStart_date().equals(event.getFrequency_start()) &&
@@ -743,134 +741,6 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
         }
         else {
             chooseEventFrequencyDialog = copy;
-        }
-
-    }
-
-
-    public void onAddEventClick(MenuItem item) {
-
-        String name = et_name.getText().toString();
-        String description = et_description.getText().toString();
-        String place = et_place.getText().toString();
-
-        boolean editTextsFilled = Utils_Calendar.areEventDetailsValid(this, name, description, place);
-
-        if(editTextsFilled) {
-                /*if(start_day <= end_day && start_month <= end_month && start_year <= end_year ){
-
-                    if(start_hour == end_hour && start_min <= end_min || start_hour < end_hour){
-                        Toast.makeText(this, "Event was successfully added " +
-                                        "\n NAME: " + name +
-                                        "\n DESCRIPTION: " + description +
-                                        "\n PLACE: " + place +
-                                        "\n STARTS AT " + start_hour + " : " + start_min + " on " + start_day + "." + start_month + "." + start_year +
-                                        "\n ENDS AT " + end_hour + " : " + end_min + " on " + end_day + "." + end_month + "." + end_year,
-                                Toast.LENGTH_SHORT).show();
-                        error = false;
-                    }
-                    //CalendarEvent calendarEvent = new CalendarEvent(selectedDate, name, place, description, start_hour, start_min, end_hour, end_min);
-                }
-                //TODO check all the possibilities and write if/else conditions
-
-                if(error)
-                    Toast.makeText(this, "Ups... Something is wrong", Toast.LENGTH_LONG).show();*/
-            Toast.makeText(getApplicationContext(), "Event was successfully added " +
-                            "\n NAME: " + name +
-                            "\n DESCRIPTION: " + description +
-                            "\n PLACE: " + place +
-                            "\n STARTS AT " + start_hour + " : " + start_min + " on " + start_day + "." + start_month + "." + start_year +
-                            "\n ENDS AT " + end_hour + " : " + end_min + " on " + end_day + "." + end_month + "." + end_year,
-                    Toast.LENGTH_SHORT).show();
-
-            startDate = LocalDate.of(start_year, start_month, start_day);
-            endDate = LocalDate.of(end_year, end_month, end_day);
-
-            LocalTime startTime = LocalTime.of(start_hour, start_min);
-            LocalTime endTime = LocalTime.of(end_hour, end_min);
-
-//            event = new CalendarEventWithTextOnly2FromSuper(selectedColor, name, description, place, timestamp, startDate, startTime, endDate, endTime);
-/*            event.setColor(selectedColor);
-            event.setName(name);
-            event.setDescription(description);
-            event.setPlace(place);
-
-            event.updateStart_date(startDate);
-
-
-            event.updateStart_time(startTime);
-
-            event.updateEnd_date(endDate);
-
-            event.updateEnd_time(endTime);*/
-
-            event.addDefaultParams(selectedColor, name, description, place, timestamp, startDate, startTime, endDate, endTime);
-
-            eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(startDate));
-            eventsDatabase = eventsDatabase.push();
-
-            if (event.getTimestamp() == 0){
-                event.setStart_time("");
-                event.setEnd_time("");
-            }
-
-            String chain_key = eventsDatabase.getKey();
-            event.setEvent_chain_id(chain_key);
-
-            boolean success = true;
-
-            if(row_event) {
-                event.updateFrequency_start(startDate);
-                event.updateFrequency_end(endDate);
-
-                addEventToFirebaseForTextWithPUSH(event, chain_key);
-            }
-            else if(event.getFrequencyType().endsWith("amount")){
-                success = addEventForTimesAdvanced(event);
-            }
-            else if(event.getFrequencyType().endsWith("end")){
-                success = addEventForUntilAdvanced(event);
-            }
-
-            startAlarm();
-
-            //ToDo adjust chain_id for row events in database
- /*           if(event.getStart_date().equals(event.getFrequency_start()) &&
-                    event.getEnd_date().equals(event.getFrequency_end())){
-
-                eventsDatabase = FirebaseUtils.eventsDatabase;
-                eventsDatabase = eventsDatabase.child(event.getStart_date());
-
-                eventsDatabase.child(chain_key).setValue(event.getEvent_private_id());
-            }*/
-
-/*            Intent intent_toCalendar = new Intent(getApplicationContext(), Calendar_Screen.class);
-            intent_toCalendar.putExtra("selected_day", start_);
-            intent_toCalendar.putExtra("selected_month", month);
-            intent_toCalendar.putExtra("selected_year", year);
-            startActivity();*/
-
-//            startActivity(new Intent(getApplicationContext(), Calendar_Screen.class));
-
-            Intent toCalendar_Screen = new Intent(getApplicationContext(), Calendar_Screen.class);
-
-            int day = event.receiveFrequency_start().getDayOfMonth();
-            int month = event.receiveFrequency_start().getMonth().getValue();
-            int year = event.receiveFrequency_start().getYear();
-
-            toCalendar_Screen.putExtra("day", day);
-            toCalendar_Screen.putExtra("month", month);
-            toCalendar_Screen.putExtra("year", year);
-
-            if (success) {
-                startActivity(toCalendar_Screen);
-
-//                sendNotification();
-            }
-            else {
-                createBottomSheetDialog();
-            }
-
         }
 
     }
@@ -1000,47 +870,6 @@ public class Add_Event_Screen extends MySuperTouchActivity implements
                     }
                 });
         // [END log_reg_token]*/
-    }
-
-    @SuppressLint("MissingPermission")
-    public void createAlarm(){
-
-        long time;
-
-        Toast.makeText(getApplicationContext(), "ALARM ON", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_MUTABLE);
-
-        time = event.receiveStart_time().toSecondOfDay() * 1000L;
-/*
-
-        if(System.currentTimeMillis() > time) {
-            if (Calendar.AM_PM == 0)
-                time = time + (1000*60*60*12);
-            else
-                time = time + (1000*60*60*24);
-        }
-*/
-
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pendingIntent);
-
-        Toast.makeText(getApplicationContext(), "Alarm is set for " + event.getStart_time(), Toast.LENGTH_SHORT).show();
-        //   alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (time * 1000), pendingIntent);
-    }
-
-    @SuppressLint("MissingPermission")
-    private void startAlarm() {
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, PendingIntent.FLAG_IMMUTABLE);
-
-        long time = event.receiveStart_time().toSecondOfDay() * 1000L;
-/*        if (c.before(Calendar.getInstance())) {
-            c.add(Calendar.DATE, 1);
-        }*/
-
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pendingIntent);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
     }
 
     private void cancelAlarm() {

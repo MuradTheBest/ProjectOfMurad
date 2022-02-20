@@ -1045,7 +1045,7 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         void setOnNeverFrequency();
     }
 
-    public void setStartDateForRepeatInitial(LocalDate startDate){
+    public void setStartDateForRepeatInitial(@NonNull LocalDate startDate){
         this.startDate = startDate;
 
         this.end_year = startDate.getYear();

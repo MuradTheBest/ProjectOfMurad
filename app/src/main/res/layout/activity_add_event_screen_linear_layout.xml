@@ -326,6 +326,24 @@
             app:layout_constraintStart_toStartOf="@+id/ll_end"
             app:layout_constraintTop_toBottomOf="@+id/ll_end" />
 
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switch_alarm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_weight="1"
+            android:text="Set Alarm"
+            android:textSize="18sp"
+            android:drawableStart="@drawable/alarm_icon"
+            android:drawableTint="@drawable/checked_text_view_text_color"
+            android:drawablePadding="3dp"
+            android:gravity="center_vertical"
+            style="@style/Widget.AppCompat.CompoundButton.Switch"
+            android:theme="@style/Widget.AppCompat.CompoundButton.Switch"
+            app:useMaterialThemeColors="false"
+            />
+
         <EditText
             android:id="@+id/et_description"
             android:layout_width="match_parent"

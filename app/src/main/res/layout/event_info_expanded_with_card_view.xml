@@ -21,6 +21,13 @@
         android:padding="10dp"
         >
 
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switch_alarm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <ImageView
             android:id="@+id/iv_circle"
             android:layout_width="wrap_content"
@@ -37,7 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             app:layout_constraintEnd_toEndOf="@+id/iv_circle"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="@+id/iv_circle"
             app:layout_constraintTop_toBottomOf="@+id/iv_circle"
             app:srcCompat="@drawable/ic_baseline_edit_24" />
@@ -48,23 +55,21 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="39dp"
             app:layout_constraintEnd_toEndOf="@+id/iv_circle"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="@+id/iv_circle"
             app:layout_constraintTop_toBottomOf="@+id/iv_circle"
             app:srcCompat="@drawable/ic_baseline_assignment_turned_in_24" />
-
 
         <TextView
             android:id="@+id/tv_event_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:layout_weight="1"
             android:text="Name: "
-            android:textSize="22sp"
-            android:layout_marginStart="5dp"
             android:textAlignment="textStart"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toStartOf="@+id/switch_alarm"
             app:layout_constraintStart_toEndOf="@id/iv_circle"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -165,8 +170,19 @@
             app:layout_constraintStart_toEndOf="@+id/linearLayout"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
-
-
+        <CheckBox
+            android:id="@+id/checkbox__all_attendances"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:checked="false"
+            android:enabled="false"
+            android:gravity="center"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/switch_alarm"
+            app:layout_constraintTop_toBottomOf="@+id/switch_alarm"
+            app:layout_constraintVertical_bias="0.0" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

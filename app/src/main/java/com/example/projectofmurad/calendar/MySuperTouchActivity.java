@@ -25,8 +25,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 
+import com.example.projectofmurad.AlarmManagerForToday;
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.R;
+import com.example.projectofmurad.Utils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -59,6 +61,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
     protected AppCompatImageButton ib_color;
     protected SwitchMaterial switch_all_day;
+    protected SwitchMaterial switch_alarm;
 
     protected Button btn_choose_start_time;
     protected Chip btn_choose_start_date;
@@ -77,7 +80,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
     protected Button btn_color;
     protected TextView btn_repeat;
 
-    protected CalendarEventWithTextOnly2FromSuper event = new CalendarEventWithTextOnly2FromSuper();
+    protected CalendarEvent event = new CalendarEvent();
 
     protected int selectedColor;
 
@@ -185,6 +188,144 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
+    public void onAddEventClick(MenuItem item) {
+
+        String name = et_name.getText().toString();
+        String description = et_description.getText().toString();
+        String place = et_place.getText().toString();
+
+        boolean editTextsFilled = Utils_Calendar.areEventDetailsValid(this, name, description, place);
+
+        if(editTextsFilled) {
+                /*if(start_day <= end_day && start_month <= end_month && start_year <= end_year ){
+
+                    if(start_hour == end_hour && start_min <= end_min || start_hour < end_hour){
+                        Toast.makeText(this, "Event was successfully added " +
+                                        "\n NAME: " + name +
+                                        "\n DESCRIPTION: " + description +
+                                        "\n PLACE: " + place +
+                                        "\n STARTS AT " + start_hour + " : " + start_min + " on " + start_day + "." + start_month + "." + start_year +
+                                        "\n ENDS AT " + end_hour + " : " + end_min + " on " + end_day + "." + end_month + "." + end_year,
+                                Toast.LENGTH_SHORT).show();
+                        error = false;
+                    }
+                    //CalendarEvent calendarEvent = new CalendarEvent(selectedDate, name, place, description, start_hour, start_min, end_hour, end_min);
+                }
+                //TODO check all the possibilities and write if/else conditions
+
+                if(error)
+                    Toast.makeText(this, "Ups... Something is wrong", Toast.LENGTH_LONG).show();*/
+            Toast.makeText(getApplicationContext(), "Event was successfully added " +
+                            "\n NAME: " + name +
+                            "\n DESCRIPTION: " + description +
+                            "\n PLACE: " + place +
+                            "\n STARTS AT " + start_hour + " : " + start_min + " on " + start_day + "." + start_month + "." + start_year +
+                            "\n ENDS AT " + end_hour + " : " + end_min + " on " + end_day + "." + end_month + "." + end_year,
+                    Toast.LENGTH_SHORT).show();
+
+            startDate = LocalDate.of(start_year, start_month, start_day);
+            endDate = LocalDate.of(end_year, end_month, end_day);
+
+            LocalTime startTime = LocalTime.of(start_hour, start_min);
+            LocalTime endTime = LocalTime.of(end_hour, end_min);
+
+//            event = new CalendarEvent(selectedColor, name, description, place, timestamp, startDate, startTime, endDate, endTime);
+/*            event.setColor(selectedColor);
+            event.setName(name);
+            event.setDescription(description);
+            event.setPlace(place);
+
+            event.updateStart_date(startDate);
+
+
+            event.updateStart_time(startTime);
+
+            event.updateEnd_date(endDate);
+
+            event.updateEnd_time(endTime);*/
+
+            event.addDefaultParams(selectedColor, name, description, place, timestamp, startDate, startTime, endDate, endTime);
+
+            eventsDatabase = FirebaseUtils.eventsDatabase;
+            eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(startDate));
+            eventsDatabase = eventsDatabase.push();
+
+            if (event.getTimestamp() == 0){
+                event.setStart_time("");
+                event.setEnd_time("");
+            }
+
+            String chain_key = eventsDatabase.getKey();
+            event.setEvent_chain_id(chain_key);
+
+            boolean success = true;
+
+            if(row_event) {
+                event.updateFrequency_start(startDate);
+                event.updateFrequency_end(endDate);
+
+                addEventToFirebaseForTextWithPUSH(event, null);
+            }
+            else if(event.getFrequencyType().endsWith("amount")){
+                success = addEventForTimesAdvanced(event);
+            }
+            else if(event.getFrequencyType().endsWith("end")){
+                success = addEventForUntilAdvanced(event);
+            }
+
+//            startAlarm();
+            if(success){
+                if (switch_alarm.isChecked()){
+                    AlarmManagerForToday.addAlarm(this, event, 0);
+                }
+                if (Utils.isMadrich){
+                    FirebaseUtils.attendanceDatabase.child(event.getEvent_private_id())
+                            .child(FirebaseUtils.getCurrentUID()).setValue(true);
+                }
+
+            }
+
+            //ToDo adjust chain_id for row events in database
+ /*           if(event.getStart_date().equals(event.getFrequency_start()) &&
+                    event.getEnd_date().equals(event.getFrequency_end())){
+
+                eventsDatabase = FirebaseUtils.eventsDatabase;
+                eventsDatabase = eventsDatabase.child(event.getStart_date());
+
+                eventsDatabase.child(chain_key).setValue(event.getEvent_private_id());
+            }*/
+
+/*            Intent intent_toCalendar = new Intent(getApplicationContext(), Calendar_Screen.class);
+            intent_toCalendar.putExtra("selected_day", start_);
+            intent_toCalendar.putExtra("selected_month", month);
+            intent_toCalendar.putExtra("selected_year", year);
+            startActivity();*/
+
+//            startActivity(new Intent(getApplicationContext(), Calendar_Screen.class));
+
+            Intent toCalendar_Screen = new Intent(getApplicationContext(), Calendar_Screen.class);
+
+            int day = event.receiveFrequency_start().getDayOfMonth();
+            int month = event.receiveFrequency_start().getMonth().getValue();
+            int year = event.receiveFrequency_start().getYear();
+
+            toCalendar_Screen.putExtra("day", day);
+            toCalendar_Screen.putExtra("month", month);
+            toCalendar_Screen.putExtra("year", year);
+
+            if (success) {
+                startActivity(toCalendar_Screen);
+
+//                sendNotification();
+            }
+            else {
+                createBottomSheetDialog();
+            }
+
+        }
+
+    }
+
     public void createBottomSheetDialog(){
 //        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.Widget_Design_BottomSheet_Modal);
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.Theme_Design_Light_BottomSheetDialog);
@@ -201,7 +342,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         bottomSheetDialog.show();
     }
 
-    public void addEventToFirebaseForTextWithPUSH(CalendarEventWithTextOnly2FromSuper event,
+    public void addEventToFirebaseForTextWithPUSH(@NonNull CalendarEvent event,
                                                   String chain_key) {
 
         LocalDate start_date = event.receiveStart_date();
@@ -217,10 +358,15 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         String private_key = eventsDatabase.push().getKey();
 //        event.setEvent_private_id(private_key);
 
-        event.setEvent_private_id(chain_key == null ? private_key : chain_key);
+        event.setEvent_private_id(private_key);
+        event.setEvent_chain_id(chain_key == null ? private_key : chain_key);
+
+
 
         Log.d("murad", "PRIVATE ID IS " + event.getEvent_private_id());
         Log.d("murad", "CHAIN ID IS " + event.getEvent_chain_id());
+
+        FirebaseUtils.allEventsDatabase.child(private_key).setValue(event);
 
         do {
             eventsDatabase = FirebaseUtils.eventsDatabase;
@@ -237,7 +383,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
     }
 
-    public void addEventForTimes(CalendarEventWithTextOnly2FromSuper event){
+    public void addEventForTimes(@NonNull CalendarEvent event){
 //        LocalDate end_date = event.receiveEnd_date();
 
         eventsDatabase = FirebaseUtils.eventsDatabase;
@@ -477,7 +623,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         Log.d("murad", event.getFrequency_end());
     }
 
-    public void addEventForUntil(CalendarEventWithTextOnly2FromSuper event){
+    public void addEventForUntil(@NonNull CalendarEvent event){
 
         eventsDatabase = FirebaseUtils.eventsDatabase;
         String key = event.getEvent_chain_id();
@@ -674,7 +820,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         event.updateFrequency_end(absolute_end_date);
     }
 
-    public boolean addEventForTimesAdvanced(CalendarEventWithTextOnly2FromSuper event){
+    public boolean addEventForTimesAdvanced(@NonNull CalendarEvent event){
 
         Log.d("murad", "------------------------------------------------------------------------------------------");
         Log.d("murad", "//////////////////////////////////////////////////////////////////////////////////////////");
@@ -685,6 +831,8 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         Log.d("murad", "ADDING BY AMOUNT STARTED");
 
         eventsDatabase = FirebaseUtils.eventsDatabase;
+
+        String chain_key = event.getEvent_chain_id();
 
         int frequency = event.getFrequency();
         Log.d("murad", "FREQUENCY IS " + (frequency));
@@ -731,7 +879,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     Log.d("murad", "CIRCLE NUMBER " + (i+1));
                     Log.d("murad", "Frequency Start of event: " + event.getFrequency_start());
 
-                    addEventToFirebaseForTextWithPUSH(event, null);
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
 
                     tmp = tmp.plusDays(frequency);
 
@@ -848,7 +996,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                         /*eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));*/
 
-                            addEventToFirebaseForTextWithPUSH(event, null);
+                            addEventToFirebaseForTextWithPUSH(event, chain_key);
                             Log.d("murad", "___________________________________________________________");
 
                         }
@@ -942,7 +1090,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                         event.updateStart_date(startDate);
                         event.updateEnd_date(endDate);
 
-                        addEventToFirebaseForTextWithPUSH(event, null);
+                        addEventToFirebaseForTextWithPUSH(event, chain_key);
                     }
 
                     absolute_end_date = tmp;
@@ -994,7 +1142,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                         /*eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));*/
 
-                    addEventToFirebaseForTextWithPUSH(event, null);
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
 
                     absolute_end_date = tmp;
 
@@ -1107,7 +1255,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                         /*eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));*/
 
-                    addEventToFirebaseForTextWithPUSH(event, null);
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
 
                     absolute_end_date = tmp;
 
@@ -1154,7 +1302,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                         /*eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(tmp));*/
 
-                    addEventToFirebaseForTextWithPUSH(event, null);
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
 
                     absolute_end_date = tmp;
 
@@ -1202,7 +1350,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         return true;
     }
 
-    public boolean addEventForUntilAdvanced(CalendarEventWithTextOnly2FromSuper event){
+    public boolean addEventForUntilAdvanced(@NonNull CalendarEvent event){
 
         Log.d("murad", "------------------------------------------------------------------------------------------");
         Log.d("murad", "//////////////////////////////////////////////////////////////////////////////////////////");
@@ -1213,6 +1361,8 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         Log.d("murad", "ADDING BY END STARTED");
 
         eventsDatabase = FirebaseUtils.eventsDatabase;
+
+        String chain_key = event.getEvent_chain_id();
 
         int frequency = event.getFrequency();
         Log.d("murad", "FREQUENCY IS " + (frequency));
@@ -1263,7 +1413,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     Log.d("murad", "CIRCLE NUMBER " + (i));
                     Log.d("murad", "Frequency Start of event: " + event.getFrequency_start());
 
-                    addEventToFirebaseForTextWithPUSH(event, null);
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
 
                     absolute_end_date = tmp;
 
@@ -1316,7 +1466,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                             event.updateStart_date(startDate);
                             event.updateEnd_date(endDate);
 
-                            addEventToFirebaseForTextWithPUSH(event, null);
+                            addEventToFirebaseForTextWithPUSH(event, chain_key);
                             Log.d("murad", "___________________________________________________________");
 
                         }
@@ -1369,7 +1519,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                         event.updateStart_date(startDate);
                         event.updateEnd_date(endDate);
 
-                        addEventToFirebaseForTextWithPUSH(event, null);
+                        addEventToFirebaseForTextWithPUSH(event, chain_key);
                     }
 
                     absolute_end_date = tmp;
@@ -1417,7 +1567,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     event.updateStart_date(startDate);
                     event.updateEnd_date(endDate);
 
-                    addEventToFirebaseForTextWithPUSH(event, null);
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
 
                     absolute_end_date = tmp;
 
@@ -1460,7 +1610,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     event.updateStart_date(startDate);
                     event.updateEnd_date(endDate);
 
-                    addEventToFirebaseForTextWithPUSH(event, null);
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
 
                     absolute_end_date = tmp;
 
@@ -1505,7 +1655,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     event.updateStart_date(startDate);
                     event.updateEnd_date(endDate);
 
-                    addEventToFirebaseForTextWithPUSH(event, null);
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
 
                     absolute_end_date = tmp;
 
@@ -1639,7 +1789,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
     }
 
-    public boolean isRow_event(CalendarEventWithTextOnly2FromSuper event) {
+    public boolean isRow_event(CalendarEvent event) {
         return true;
     }
 

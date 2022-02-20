@@ -9,6 +9,11 @@ public class UserData {
     private String username;
     private String phone;
     private boolean isMadrich;
+    private String profile_picture;
+
+    private double latitude;
+    private double longitude;
+    private boolean locationAvailable;
 
     public UserData(){}
 
@@ -76,5 +81,38 @@ public class UserData {
                 ", username = '" + username + '\'' +
                 ", isMadrich = " + isMadrich +
                 '}';
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(int latitude) {
+        this.latitude = latitude;
+
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(int longitude) {
+        this.longitude = longitude;
+    }
+
+    public boolean isLocationAvailable() {
+        return locationAvailable;
+    }
+
+    public void setLocationAvailable(boolean locationAvailable) {
+        this.locationAvailable = locationAvailable;
+    }
+
+    public String getProfile_picture() {
+        return profile_picture;
+    }
+
+    public void setProfile_picture(String profile_picture) {
+        this.profile_picture = profile_picture;
     }
 }

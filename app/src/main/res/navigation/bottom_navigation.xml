@@ -41,10 +41,5 @@
         android:label="fragment_tracking_"
         tools:layout="@layout/fragment_tracking_" />
 
-<!--    <activity
-        android:id="@+id/tracking_Fragment"
-        android:name="com.example.projectofmurad.MainActivity"
-        android:label="main_activity"
-        tools:layout="@layout/activity_main" />-->
 
 </navigation>

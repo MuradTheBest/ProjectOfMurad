@@ -85,6 +85,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event_screen);
+        getSupportActionBar().show();
 
         gotten_intent = getIntent();
 
@@ -96,11 +97,11 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         place = gotten_intent.getStringExtra("event_place");
         selectedColor = gotten_intent.getIntExtra("event_color", Color.GREEN);
 
-        startDate = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_start_date"));
-        endDate = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_end_date"));
+        startDate = Utils_Calendar.TextToDateForFirebase(gotten_intent.getStringExtra("event_start_date"));
+        endDate = Utils_Calendar.TextToDateForFirebase(gotten_intent.getStringExtra("event_end_date"));
 
-        chain_start_date = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_start_date"));
-        chain_end_date = Utils_Calendar.TextToDate(gotten_intent.getStringExtra("event_end_date"));
+        chain_start_date = Utils_Calendar.TextToDateForFirebase(gotten_intent.getStringExtra("event_start_date"));
+        chain_end_date = Utils_Calendar.TextToDateForFirebase(gotten_intent.getStringExtra("event_end_date"));
 
         startTime = Utils_Calendar.TextToTime(gotten_intent.getStringExtra("event_start_time"));
         endTime = Utils_Calendar.TextToTime(gotten_intent.getStringExtra("event_end_time"));
@@ -128,11 +129,13 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         et_description = findViewById(R.id.et_description);
         et_place = findViewById(R.id.et_place);
 
+        switch_alarm = findViewById(R.id.switch_alarm);
+
         et_name.setText(name);
         et_description.setText(description);
         et_place.setText(place);
 
-        btn_choose_start_date = findViewById(R.id.btn_choose_start_date);
+/*        btn_choose_start_date = findViewById(R.id.btn_choose_start_date);
         btn_choose_start_date.setText(Utils_Calendar.DateToTextLocal(startDate));
         btn_choose_start_date.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,7 +147,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
                 startDatePickerDialog.show();
             }
-        });
+        });*/
 
         btn_choose_end_date = findViewById(R.id.btn_choose_end_date);
         btn_choose_end_date.setText(Utils_Calendar.DateToTextLocal(endDate));
@@ -325,7 +328,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                             Log.d("murad", " ");
                             Log.d("murad", "-------------------------------------------------------------------");
 
-                            tmp = snapshot.getValue(CalendarEventWithTextOnly2FromSuper.class);
+                            tmp = snapshot.getValue(CalendarEvent.class);
                         }
 
                         @Override
@@ -360,7 +363,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         });
     }
 
-    CalendarEventWithTextOnly2FromSuper tmp = new CalendarEventWithTextOnly2FromSuper();
+    CalendarEvent tmp = new CalendarEvent();
 
 /*    //sets time
     public class SetTime implements TimePickerDialog.OnTimeSetListener{
@@ -580,14 +583,14 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                         Log.d("murad", "RIGHT NOW AT " + data.getKey() + " / " + d.getKey());
 
 
-/*                        if(d.getValue(CalendarEventWithTextOnly2FromSuper.class).getEvent_chain_id().equals(key)){
+/*                        if(d.getValue(CalendarEvent.class).getEvent_chain_id().equals(key)){
                             d.getRef().removeValue();
                         }*/
 
                         if(d.child("event_chain_id").getValue().toString().equals(key)){
                             finished = false;
 
-                            CalendarEventWithTextOnly2FromSuper c = d.getValue(CalendarEventWithTextOnly2FromSuper.class);
+                            CalendarEvent c = d.getValue(CalendarEvent.class);
                             if(c == null){
                                 Toast.makeText(getApplicationContext(), "FAILED", Toast.LENGTH_SHORT).show();
                             }

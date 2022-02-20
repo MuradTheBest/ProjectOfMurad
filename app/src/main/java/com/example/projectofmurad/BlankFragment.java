@@ -1,5 +1,6 @@
 package com.example.projectofmurad;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -41,6 +42,7 @@ public class BlankFragment extends Fragment {
      * @return A new instance of fragment BlankFragment.
      */
     // TODO: Rename and change types and number of parameters
+    @NonNull
     public static BlankFragment newInstance(String param1, String param2) {
         BlankFragment fragment = new BlankFragment();
         Bundle args = new Bundle();
@@ -70,17 +72,18 @@ public class BlankFragment extends Fragment {
     // methods to control the operations that will
     // happen when user clicks on the action buttons
     @Override
-    public boolean onOptionsItemSelected( @NonNull MenuItem item ) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
         switch (item.getItemId()){
-            case R.id.go_to_settings:
+            case R.id.go_to_profile:
+                startActivity(new Intent(requireContext(), Profile_Screen.class));
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_blank, container, false);

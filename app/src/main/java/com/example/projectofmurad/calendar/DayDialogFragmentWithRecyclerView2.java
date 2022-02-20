@@ -3,9 +3,11 @@ package com.example.projectofmurad.calendar;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -28,19 +30,23 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class DayDialogFragmentWithRecyclerView2 extends Dialog implements EventsAdapterForFirebase.OnEventListener {
+public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
+        EventsAdapterForFirebase.OnEventListener, Calendar_Screen.OnEventShowListener {
     private LocalDate passingDate;
     private Context context;
 
-    private ArrayList<CalendarEventWithTextOnly2FromSuper> calendarEventArrayList;
+    private ArrayList<CalendarEvent> calendarEventArrayList;
 
     private FloatingActionButton fab_add_event;
+    private Button btn_clear_all;
 
     private RecyclerView rv_events;
     private EventsAdapterForFirebase adapterForFirebase;
 
     private FirebaseDatabase firebase;
     private DatabaseReference eventsDatabase;
+
+    private FirebaseRecyclerOptions<CalendarEvent> options;
 
     public DayDialogFragmentWithRecyclerView2(@NonNull Context context, LocalDate passingDate) {
         super(context);
@@ -92,9 +98,9 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Events
         eventsDatabase = eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(passingDate));
         Query query = eventsDatabase.orderByChild("timestamp");
 
-        FirebaseRecyclerOptions<CalendarEventWithTextOnly2FromSuper> options
-                = new FirebaseRecyclerOptions.Builder<CalendarEventWithTextOnly2FromSuper>()
-                .setQuery(query, CalendarEventWithTextOnly2FromSuper.class)
+        options
+                = new FirebaseRecyclerOptions.Builder<CalendarEvent>()
+                .setQuery(query, CalendarEvent.class)
                 .setLifecycleOwner((LifecycleOwner) this.getOwnerActivity())
                 .build();
 
@@ -154,6 +160,16 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Events
                 context.startActivity(toAddEvent_Screen);
 //                dismiss();
             }
+        });
+
+        btn_clear_all = this.findViewById(R.id.btn_clear_all);
+        btn_clear_all.setOnClickListener(v -> {
+            FirebaseUtils.eventsDatabase
+                    .child(Utils_Calendar.DateToTextForFirebase(passingDate)).setValue(null);
+
+            rv_events.setVisibility(View.INVISIBLE);
+            Log.d("murad", "Visibility set to " + rv_events.getVisibility());
+            tv_no_events.setVisibility(View.VISIBLE);
         });
 
 
@@ -224,7 +240,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Events
     }
 
     @Override
-    public void onEventClick(int position, CalendarEventWithTextOnly2FromSuper calendarEventWithTextOnly) {
+    public void onEventClick(int position, @NonNull CalendarEvent calendarEventWithTextOnly) {
         this.dismiss();
         String chain_key = calendarEventWithTextOnly.getEvent_chain_id();
         String private_key = calendarEventWithTextOnly.getEvent_private_id();
@@ -254,5 +270,31 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements Events
         intent.putExtra("event_end_time", end_time);
 
         getContext().startActivity(intent);
+    }
+
+    @Override
+    public void onEventShow(String event_private_id) {
+        View view = rv_events.findViewWithTag(event_private_id);
+        view.getBackground().setTint(Color.BLACK);
+
+        int position = rv_events.getChildViewHolder(view).getAbsoluteAdapterPosition();
+
+        Log.d("murad", "event_private_id is " + event_private_id);
+
+
+        for (int i = 0; i < options.getSnapshots().size(); i++) {
+            if(options.getSnapshots().get(i).getEvent_private_id().equals(event_private_id)){
+                Log.d("murad", options.getSnapshots().get(i).toString());
+                position = i;
+                break;
+            }
+        }
+
+
+//        rv_events.getChildViewHolder(view);
+//        rv_events.getChildViewHolder(view).itemView.getBackground().setTint(Color.WHITE);
+        rv_events.scrollToPosition(position);
+        rv_events.findViewHolderForAdapterPosition(position).itemView.getBackground().setTint(Color.WHITE);
+
     }
 }

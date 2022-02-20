@@ -67,7 +67,9 @@ public class Tables_Fragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         btn_calendar = view.findViewById(R.id.btn_calendar);
-        btn_calendar.setOnClickListener(v -> startActivity(new Intent(getActivity(), Calendar_Screen.class)));
+            btn_calendar.setOnClickListener(v -> startActivity(new Intent(getActivity(), Calendar_Screen.class)));
+        if (Utils.isMadrich){
+        }
     }
 
     public class SetDate implements DatePickerDialog.OnDateSetListener {

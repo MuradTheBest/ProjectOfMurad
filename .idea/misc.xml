@@ -93,6 +93,7 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable-v24/event_background.xml" value="0.17" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable-v24/toggle_button_text_style.xml" value="0.1445" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable-v24/toggle_date_time_bg.xml" value="0.1445" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/alarm_icon.xml" value="0.1485" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/bottom_sheet_dialog_background.xml" value="0.2203125" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/calendar_cell_text_has_events_background.xml" value="0.2203125" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/calendar_cell_text_has_events_rounded_background.xml" value="0.2203125" />
@@ -104,34 +105,47 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/day_of_week_selected_background.xml" value="0.1445" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_access_time_24.xml" value="0.2203125" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_arrow_forward_24.xml" value="0.1445" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_assignment_turned_in_24.xml" value="0.119" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_choose_color_24.xml" value="0.2203125" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_circle_24.xml" value="0.2203125" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_done_24.xml" value="0.114" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_edit_24.xml" value="0.119" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_email_24.xml" value="0.1445" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_home_24.xml" value="0.121" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_notifications_active_24.xml" value="0.1" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_password_24.xml" value="0.1445" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_person_24.xml" value="0.119" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_repeat_24.xml" value="0.18076923076923077" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_launcher_background.xml" value="0.119" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_search_black_24dp.xml" value="0.1445" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/linear_layout_divider.xml" value="0.1445" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/marker_icon.xml" value="0.119" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/profile_pic_background.xml" value="0.119" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/radio_button_text_color.xml" value="0.2203125" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/round_dialog_background.xml" value="0.1445" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/sample_profile_background.xml" value="0.119" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/shape_oval.xml" value="0.1445" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/time_picker_text_color.xml" value="0.1445" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/toggle_bg.xml" value="0.18076923076923077" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/toggle_text_color.xml" value="0.18076923076923077" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_add_event_screen.xml" value="0.3632286995515695" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_add_event_screen_linear_layout.xml" value="0.22" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_all_attendancies.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_calendar_screen.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_choose_event_frequency_screen.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_event_attendance_screen.xml" value="0.21" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_main.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_profile_screen.xml" value="0.2" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/alarm_dialog_layout.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/bottom_sheet_dialog_event_frequency.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/calendar_cell.xml" value="1.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/choose_event_frequency_dialogcustom_with_exposed_dropdown_scroll_view.xml" value="0.33" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/day_dialog.xml" value="0.1675213675213675" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/day_dialog_with_recyclerview.xml" value="0.33" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/day_dialog_with_recyclerview.xml" value="0.2" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/dropdown_item.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/event_info.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/event_info_expanded.xml" value="0.6549865229110512" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/event_info_expanded_with_card_view.xml" value="0.4646271510516252" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/event_info_expanded_with_card_view.xml" value="0.40329218106995884" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_blank.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_calendar__month_.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_chat_.xml" value="0.1675213675213675" />
@@ -143,10 +157,15 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_fragment_list.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/sign_up_page.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/splash_page.xml" value="0.2" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/user_info_expanded_with_card_view.xml" value="0.25" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/user_shimmer_layout.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/bottom_menu.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/calendar_menu.xml" value="0.1675213675213675" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/event_menu.xml" value="0.67" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/event_menu.xml" value="0.5" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/home_fragment_menu.xml" value="0.1675213675213675" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/profile_screen_menu.xml" value="0.1675213675213675" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.121" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.119" />
       </map>
     </option>
   </component>

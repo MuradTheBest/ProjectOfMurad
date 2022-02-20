@@ -52,8 +52,8 @@
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="period">Period</string>
-<!--    <string name="this_event_will_never_repeat">This event will never repeat</string>-->
-<!--    <string name="this_event_will_repeat_every_d_s_s_s">This event will repeat every %d %s %s %s</string>-->
+    <!--    <string name="this_event_will_never_repeat">This event will never repeat</string>-->
+    <!--    <string name="this_event_will_repeat_every_d_s_s_s">This event will repeat every %d %s %s %s</string>-->
     <string name="this_event_will_repeat_every_d_s_s_s">Every %d %s %s %s</string>
     <string name="on_d_day">On %d day</string>
     <string name="on_the_last_day">On the last day</string>

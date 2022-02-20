@@ -8,6 +8,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import com.example.projectofmurad.calendar.Utils_Calendar;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,13 +30,13 @@ public class Sign_Up_Screen extends Activity implements TextWatcher {
     private TextView tv_already_have_an_account;
     private ImageView vector;
     private View rectangle_1;
-    private TextView et_username;
+    private EditText et_username;
     private View rectangle_2;
-    private TextView et_email_address;
+    private EditText et_email_address;
     private View rectangle_3;
-    private TextView et_password;
+    private EditText et_password;
     private View rectangle_4;
-    private TextView et_confirm_password;
+    private EditText et_confirm_password;
     private View ellipse_5;
     private TextView sign_up;
 
@@ -64,16 +66,14 @@ public class Sign_Up_Screen extends Activity implements TextWatcher {
         tv_sign_in = (TextView) findViewById(R.id.tv_sign_in);
         tv_already_have_an_account = (TextView) findViewById(R.id.tv_already_have_an_account);
         vector = (ImageView) findViewById(R.id.vector);
-        rectangle_1 = (View) findViewById(R.id.rectangle_1);
-        et_username = (TextView) findViewById(R.id.et_username);
-        rectangle_2 = (View) findViewById(R.id.rectangle_2);
-        et_email_address = (TextView) findViewById(R.id.et_email_address);
-        rectangle_3 = (View) findViewById(R.id.rectangle_3);
-        et_password = (TextView) findViewById(R.id.et_password);
-        rectangle_4 = (View) findViewById(R.id.rectangle_4);
-        et_confirm_password = (TextView) findViewById(R.id.et_confirm_password);
         ellipse_5 = (View) findViewById(R.id.ellipse_5);
         sign_up = (TextView) findViewById(R.id.tv_sign_up);
+
+
+        et_username = ((TextInputLayout) findViewById(R.id.et_username)).getEditText();
+        et_email_address = ((TextInputLayout) findViewById(R.id.et_email_address)).getEditText();
+        et_password = ((TextInputLayout) findViewById(R.id.et_password)).getEditText();
+        et_confirm_password = ((TextInputLayout) findViewById(R.id.et_confirm_password)).getEditText();
 
         tv_match = findViewById(R.id.tv_match);
         tv_match.setVisibility(View.INVISIBLE);

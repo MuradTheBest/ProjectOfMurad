@@ -6,10 +6,11 @@ import androidx.annotation.NonNull;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-public class CalendarEventWithTextOnly2FromSuper implements Serializable {
+public class CalendarEvent implements Serializable {
 
     private String event_chain_id;
     private int timestamp;
@@ -43,14 +44,20 @@ public class CalendarEventWithTextOnly2FromSuper implements Serializable {
     private String frequency_start;
     private String frequency_end;
 
-    public CalendarEventWithTextOnly2FromSuper(){
-        super();
+    private boolean alarm;
+
+    //ToDo save in local database
+    private boolean alarmAlreadySet;
+
+    public CalendarEvent(){
 
         this.frequencyType = MySuperTouchActivity.DAY_BY_END;
         this.frequency = 1;
 
         this.start_time = "08:00";
         this.end_time = "09:00";
+
+        this.alarmAlreadySet = false;
 
 /*
         this.event_id = "";
@@ -95,6 +102,35 @@ public class CalendarEventWithTextOnly2FromSuper implements Serializable {
         this.event_chain_id = this.start_date + "-" + this.timestamp;
 
         this.color = color;
+
+        this.alarmAlreadySet = false;
+
+
+    }
+
+    public void addDefaultParams(int color, String name, String description, String place, int timestamp,LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime, boolean setAlarm) {
+
+        this.name = name;
+        this.description = description;
+        this.place = place;
+
+        this.timestamp = timestamp;
+
+        this.start_date = Utils_Calendar.DateToTextOnline(startDate);
+
+        this.start_time = Utils_Calendar.TimeToText(startTime);
+
+        this.end_date = Utils_Calendar.DateToTextOnline(endDate);
+
+        this.end_time = Utils_Calendar.TimeToText(endTime);
+
+        this.timestamp = startTime.toSecondOfDay();
+
+        this.event_chain_id = this.start_date + "-" + this.timestamp;
+
+        this.color = color;
+
+        this.alarm = setAlarm;
     }
 
     public String getEvent_chain_id() {
@@ -135,7 +171,7 @@ public class CalendarEventWithTextOnly2FromSuper implements Serializable {
     }
 
     public LocalDate receiveStart_date(){
-        return Utils_Calendar.TextToDate(start_date);
+        return Utils_Calendar.TextToDateForFirebase(start_date);
     }
 
     public void setStart_date(String start_date) {
@@ -167,7 +203,7 @@ public class CalendarEventWithTextOnly2FromSuper implements Serializable {
     }
 
     public LocalDate receiveEnd_date(){
-        return Utils_Calendar.TextToDate(end_date);
+        return Utils_Calendar.TextToDateForFirebase(end_date);
     }
 
     public void setEnd_date(String end_date) {
@@ -284,7 +320,7 @@ public class CalendarEventWithTextOnly2FromSuper implements Serializable {
 
     public LocalDate receiveFrequency_start(){
         Log.d("murad", "Frequency start date received " + frequency_start);
-        return Utils_Calendar.TextToDate(frequency_start);
+        return Utils_Calendar.TextToDateForFirebase(frequency_start);
     }
 
     public void setFrequency_start(String frequency_start) {
@@ -302,7 +338,7 @@ public class CalendarEventWithTextOnly2FromSuper implements Serializable {
 
     public LocalDate receiveFrequency_end(){
         Log.d("murad", "Frequency end date received " + frequency_end);
-        return Utils_Calendar.TextToDate(frequency_end);
+        return Utils_Calendar.TextToDateForFirebase(frequency_end);
     }
 
     public void setFrequency_end(String frequency_end) {
@@ -312,6 +348,22 @@ public class CalendarEventWithTextOnly2FromSuper implements Serializable {
     public void updateFrequency_end(LocalDate frequency_end) {
         this.frequency_end = Utils_Calendar.DateToTextOnline(frequency_end);
         Log.d("murad", "Absolute end date updated " + Utils_Calendar.DateToTextOnline(frequency_end));
+    }
+
+    public LocalDateTime receiveStart_dateTime(){
+        return LocalDateTime.of(receiveStart_date(), receiveStart_time());
+    }
+
+    public LocalDateTime receiveEnd_dateTime(){
+        return LocalDateTime.of(receiveEnd_date(), receiveEnd_time());
+    }
+
+    public String getStart_dateTime(){
+        return Utils_Calendar.DateTimeToTextOnline(LocalDateTime.of(receiveStart_date(), receiveStart_time()));
+    }
+
+    public String getEnd_dateTime(){
+        return Utils_Calendar.DateTimeToTextOnline(LocalDateTime.of(receiveEnd_date(), receiveEnd_time()));
     }
 
     public String getEvent_private_id() {
@@ -340,14 +392,53 @@ public class CalendarEventWithTextOnly2FromSuper implements Serializable {
         this.frequency_end = "";
     }
 
-    @NonNull
+/*    @NonNull
     public String toString(){
 
-        return /*"------------------------------------------------------------------------------------------------------------------------------------ \n" +*/
+        return *//*"------------------------------------------------------------------------------------------------------------------------------------ \n" +*//*
                 "\n" + this.getName() + " | " + this.getPlace() + " | " + this.getDescription() +
                 "\n" + this.getStart_date() + " | " + this.getStart_time() +
                 "\n" + this.getEnd_date() + " | " + this.getEnd_time() +
-                "\n"/* + "\n ------------------------------------------------------------------------------------------------------------------------------------ \n"*/;
+                "\n"*//* + "\n ------------------------------------------------------------------------------------------------------------------------------------ \n"*//*;
+    }*/
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "CalendarEvent{ " +
+                " \n event_chain_id = '" + event_chain_id + '\'' +
+                ", \n timestamp = " + timestamp +
+                ", \n name = '" + name + '\'' +
+                ", \n description = '" + description + '\'' +
+                ", \n place = '" + place + '\'' +
+                ", \n start_date = '" + start_date + '\'' +
+                ", \n start_time = '" + start_time + '\'' +
+                ", \n end_date = '" + end_date + '\'' +
+                ", \n end_time = '" + end_time + '\'' +
+                ", \n color = " + color +
+                ", \n frequencyType = '" + frequencyType + '\'' +
+                ", \n event_private_id = '" + event_private_id + '\'' +
+                ", \n frequency = " + frequency +
+                ", \n amount = " + amount +
+                ", \n day = " + day +
+                ", \n dayOfWeekPosition = " + dayOfWeekPosition +
+                ", \n array_frequencyDayOfWeek = " + array_frequencyDayOfWeek +
+                ", \n weekNumber = " + weekNumber +
+                ", \n month = " + month +
+                ", \n isLast = " + isLast +
+                ", \n frequency_start = '" + frequency_start + '\'' +
+                ", \n frequency_end = '" + frequency_end + '\'' +
+                ", \n alarm = " + alarm +
+                ", \n alarmAlreadySet = " + alarmAlreadySet +
+                '}';
+    }
+
+    public boolean isAlarm() {
+        return alarm;
+    }
+
+    public void setAlarm(boolean alarm) {
+        this.alarm = alarm;
     }
 
 }

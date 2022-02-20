@@ -139,7 +139,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                         if (count < ids.length){
                             int id = ids[count];
 
-                            CalendarEventWithTextOnly2FromSuper event = data.getValue(CalendarEventWithTextOnly2FromSuper.class);
+                            CalendarEvent event = data.getValue(CalendarEvent.class);
                             assert event != null;
                             LocalDate startDate = event.receiveStart_date();
                             Log.d("murad", "Start date of event: " + event.getStart_date());

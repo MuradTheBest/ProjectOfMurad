@@ -6,14 +6,19 @@ import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.projectofmurad.FirebaseUtils;
+import com.google.firebase.database.DatabaseReference;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
@@ -31,6 +36,7 @@ public class Utils_Calendar {
 
 
     public /*final*/ static DateTimeFormatter dateFormatOnline = DateTimeFormatter.ofPattern("E, dd.MM.yyyy", Locale.ENGLISH);
+    public /*final*/ static DateTimeFormatter dateTimeFormatOnline = DateTimeFormatter.ofPattern("E, dd.MM.yyyy, HH:mm", Locale.ENGLISH);
     public /*final*/ static DateTimeFormatter dateFormatLocal = DateTimeFormatter.ofPattern("E, dd.MM.yyyy", locale).withLocale(locale);
 
     public /*final*/ static DateTimeFormatter dateFormatForFBOnline= DateTimeFormatter.ofPattern("dd-MM-yyyy", locale);
@@ -61,7 +67,12 @@ public class Utils_Calendar {
     public final static String INTENT_KEY_PASSING_MONTH = "intent_key_passing_month";
     public final static String INTENT_KEY_PASSING_DAY = "intent_key_passing_day";
 
-    public static HashMap<LocalDate, ArrayList<CalendarEventWithTextOnly2FromSuper>> map = new HashMap<>();
+    @NonNull
+    public static DatabaseReference getEventByPrivate_Id(String private_id){
+        return FirebaseUtils.eventsDatabase.child(private_id).getRef();
+    }
+
+    public static HashMap<LocalDate, ArrayList<CalendarEvent>> map = new HashMap<>();
 
     public static void setLocale(){
         if(Locale.getDefault().getLanguage().equals(new Locale("he").getLanguage())){
@@ -82,10 +93,6 @@ public class Utils_Calendar {
             dateFormatForFBOffline = DateTimeFormatter.ofPattern("dd-MM-yyyy", locale).withLocale(locale);
         }
 
-    }
-
-    public static boolean isEmailValid(String email){
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     @NonNull
@@ -213,6 +220,10 @@ public class Utils_Calendar {
         return tmp;
     }
 
+    public static String DateTimeToTextOnline(@NonNull LocalDateTime dateTime){
+        return dateTime.format(dateTimeFormatOnline);
+    }
+
     public static String DateToTextOnline(@NonNull LocalDate date){
         return date.format(dateFormatOnline);
     }
@@ -226,7 +237,7 @@ public class Utils_Calendar {
         return h.format(dateFormatLocal);
     }
 
-    public static LocalDate TextToDate(String date){
+    public static LocalDate TextToDateForFirebase(String date){
         return LocalDate.parse(date, dateFormatOnline);
     }
 
@@ -247,7 +258,7 @@ public class Utils_Calendar {
     }
 
     public static String TextToTextForFirebase(String text){
-        LocalDate date = TextToDate(text);
+        LocalDate date = TextToDateForFirebase(text);
         return DateToTextForFirebase(date);
     }
 
@@ -256,11 +267,11 @@ public class Utils_Calendar {
         return DateToTextOnline(date);
     }*/
 
-    public static void printHashMap(@NonNull HashMap<LocalDate, ArrayList<CalendarEventWithTextOnly2FromSuper>> map){
+    public static void printHashMap(@NonNull HashMap<LocalDate, ArrayList<CalendarEvent>> map){
         for (LocalDate date : map.keySet()) {
-            ArrayList<CalendarEventWithTextOnly2FromSuper> eventArrayList = map.get(date);
+            ArrayList<CalendarEvent> eventArrayList = map.get(date);
             if(eventArrayList != null){
-                for(CalendarEventWithTextOnly2FromSuper e : eventArrayList){
+                for(CalendarEvent e : eventArrayList){
                     Log.d("murad",  "------------------------------------------------------------------------------------------------------------------------------------");
 
                     Log.d("murad", "key: " + Utils_Calendar.DateToTextOnline(date) + " value: " + e.getName() + " | " + e.getPlace() + " | " + e.getDescription());
@@ -273,7 +284,7 @@ public class Utils_Calendar {
         }
     }
 
-    public static void addEvent(@NonNull CalendarEventWithTextOnly2FromSuper event){
+    public static void addEvent(@NonNull CalendarEvent event){
         LocalDate start_date = event.receiveStart_date();
         LocalDate end_date = event.receiveStart_date();
         addOrCreateObjectInHashMap(start_date, event);
@@ -283,10 +294,10 @@ public class Utils_Calendar {
         }
     }
 
-    private static void addOrCreateObjectInHashMap(LocalDate date, CalendarEventWithTextOnly2FromSuper event){
+    private static void addOrCreateObjectInHashMap(LocalDate date, CalendarEvent event){
         if(Utils_Calendar.map.containsKey(date)){
             if(Utils_Calendar.map.get(date) == null){
-                ArrayList<CalendarEventWithTextOnly2FromSuper> eventArrayList = new ArrayList<>();
+                ArrayList<CalendarEvent> eventArrayList = new ArrayList<>();
                 eventArrayList.add(event);
                 Utils_Calendar.map.put(date, eventArrayList);
                 Log.d("murad", "eventArrayList on this key is null");
@@ -297,7 +308,7 @@ public class Utils_Calendar {
             }
         }
         else {
-            ArrayList<CalendarEventWithTextOnly2FromSuper> eventArrayList = new ArrayList<>();
+            ArrayList<CalendarEvent> eventArrayList = new ArrayList<>();
             eventArrayList.add(event);
             Utils_Calendar.map.put(date, eventArrayList);
         }
@@ -369,6 +380,18 @@ public class Utils_Calendar {
         }
 
         return editTextsFilled;
+    }
+
+    public static boolean isEmailValid(String email){
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    public static boolean isPhoneValid(String phone){
+        return Patterns.PHONE.matcher(phone).matches();
+    }
+
+    public static boolean isBooleanValid(@NonNull String bool){
+        return bool.equals("true") || bool.equals("false");
     }
 
     public static int lighten(int color, double fraction) {
