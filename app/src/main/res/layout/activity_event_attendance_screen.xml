@@ -106,16 +106,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-        android:animateLayoutChanges="true"
-        android:animationCache="true"
         app:shimmer_repeat_mode="restart"
-        app:shimmer_shape="radial">
+        app:shimmer_direction="left_to_right"
+        app:shimmer_dropoff="30"
+        app:shimmer_base_alpha="0.3"
+        app:shimmer_highlight_alpha="0.8"
+        app:shimmer_clip_to_children="true"
+        app:shimmer_shape="linear">
 
         <!--For shimmer we are creating a same
             layout but setting its background
             as a gray colour and not providing
             any view inside it-->
-        <ScrollView
+        <!--<ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
@@ -125,9 +128,9 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!--below we are displaying multiple
+                &lt;!&ndash;below we are displaying multiple
                  shimmer layouts using include
-                 to show them in list format-->
+                 to show them in list format&ndash;&gt;
                 <include layout="@layout/user_shimmer_layout" />
                 <include layout="@layout/user_shimmer_layout" />
                 <include layout="@layout/user_shimmer_layout" />
@@ -140,7 +143,26 @@
 
             </LinearLayout>
 
-        </ScrollView>
+        </ScrollView>-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!--below we are displaying multiple
+             shimmer layouts using include
+             to show them in list format-->
+            <include layout="@layout/user_shimmer_layout" />
+            <include layout="@layout/user_shimmer_layout" />
+            <include layout="@layout/user_shimmer_layout" />
+            <include layout="@layout/user_shimmer_layout" />
+            <include layout="@layout/user_shimmer_layout" />
+            <include layout="@layout/user_shimmer_layout" />
+            <include layout="@layout/user_shimmer_layout" />
+            <include layout="@layout/user_shimmer_layout" />
+
+        </LinearLayout>
 
     </com.facebook.shimmer.ShimmerFrameLayout>
 

@@ -13,9 +13,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.R;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -47,7 +50,22 @@ public class All_Attendances extends AppCompatActivity  implements
 
         calendarEventArrayList = new ArrayList<>();
 
-        Query query = FirebaseUtils.eventsDatabase.orderByChild("/");
+        Query query = FirebaseUtils.allEventsDatabase.orderByChild("start");
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot data : snapshot.getChildren()){
+                    Log.d("snapshot", "===============================================================");
+                    Log.d("snapshot", data.getKey());
+                    Log.d("snapshot", "=====================================================================");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
         rv_events = findViewById(R.id.rv_events);
 
@@ -75,23 +93,22 @@ public class All_Attendances extends AppCompatActivity  implements
         Log.d("murad", "rv_events.getChildCount() = " + rv_events.getChildCount());
         rv_events.setLayoutManager(new LinearLayoutManager(this));
 
-
     }
 
     @Override
     public void onEventClick(int position, @NonNull CalendarEvent calendarEventWithTextOnly) {
-        String chain_key = calendarEventWithTextOnly.getEvent_chain_id();
-        String private_key = calendarEventWithTextOnly.getEvent_private_id();
+        String chain_key = calendarEventWithTextOnly.getChainId();
+        String private_key = calendarEventWithTextOnly.getPrivateId();
 
         int timestamp = calendarEventWithTextOnly.getTimestamp();
         String name = calendarEventWithTextOnly.getName();
         String description = calendarEventWithTextOnly. getDescription();
         String place = calendarEventWithTextOnly.getPlace();
         int color = calendarEventWithTextOnly.getColor();
-        String start_date = calendarEventWithTextOnly.getStart_date();
-        String start_time = calendarEventWithTextOnly.getStart_time();
-        String end_date = calendarEventWithTextOnly.getEnd_date();
-        String end_time = calendarEventWithTextOnly.getEnd_time();
+        String start_date = calendarEventWithTextOnly.getStartDate();
+        String start_time = calendarEventWithTextOnly.getStartTime();
+        String end_date = calendarEventWithTextOnly.getEndDate();
+        String end_time = calendarEventWithTextOnly.getEndTime();
 
         Intent intent = new Intent(this, Edit_Event_Screen.class);
 

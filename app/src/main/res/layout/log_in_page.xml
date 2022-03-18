@@ -108,6 +108,7 @@
 		android:textSize="20sp"
 		app:endIconMode="password_toggle"
 		app:endIconTint="@color/colorAccent"
+		app:passwordToggleEnabled="false"
 		app:layout_constraintEnd_toEndOf="@+id/textInputLayout_email_address"
 		app:layout_constraintStart_toStartOf="@+id/textInputLayout_email_address"
 		app:layout_constraintTop_toBottomOf="@+id/textInputLayout_email_address"
@@ -155,9 +156,10 @@
 		android:textSize="22sp"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="@+id/textInputLayout_password"
+		app:layout_constraintHorizontal_bias="0.496"
 		app:layout_constraintStart_toStartOf="@+id/textInputLayout_password"
-		app:layout_constraintTop_toBottomOf="@+id/btn_log_in"
-		app:layout_constraintVertical_bias="0.108" />
+		app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
+		app:layout_constraintVertical_bias="0.28" />
 
 	<TextView
 		android:id="@+id/tv_sign_up_now"
@@ -201,5 +203,77 @@
 		app:layout_constraintStart_toStartOf="@+id/textInputLayout_password"
 		app:layout_constraintTop_toBottomOf="@+id/textInputLayout_password"
 		app:layout_constraintHorizontal_bias="0.0" />
+
+	<TextView
+		android:id="@+id/tv_log_in_with"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="5dp"
+		android:text="Or log in with:"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="@+id/btn_log_in"
+		app:layout_constraintStart_toStartOf="@+id/btn_log_in"
+		app:layout_constraintTop_toBottomOf="@+id/btn_log_in"
+		app:layout_constraintVertical_bias="0.056" />
+
+	<LinearLayout
+		android:id="@+id/linearLayout4"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="@+id/tv_log_in_with"
+		app:layout_constraintStart_toStartOf="@+id/tv_log_in_with"
+		app:layout_constraintTop_toBottomOf="@+id/tv_log_in_with"
+		app:layout_constraintVertical_bias="0.11">
+
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/sign_up_with_google"
+			android:layout_width="0dp"
+			android:layout_weight="1"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="20sp"
+			android:padding="5dp"
+			app:backgroundTint="@color/white"
+			app:cornerRadius="10dp"
+			app:elevation="3dp"
+			app:icon="@drawable/ic_google"
+			app:iconGravity="textStart"
+			app:iconSize="30dp"
+			app:iconTintMode="multiply" />
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/sign_up_with_facebook"
+			android:layout_width="0dp"
+			android:layout_weight="1"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="20sp"
+			android:padding="5dp"
+			app:backgroundTint="@color/white"
+			app:cornerRadius="10dp"
+			app:elevation="3dp"
+			app:icon="@drawable/facebook_icon_transparent"
+			app:iconGravity="textStart"
+			app:iconSize="35dp"
+			app:iconTintMode="multiply" />
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/sign_up_with_phone"
+			android:layout_width="0dp"
+			android:layout_weight="1"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="20sp"
+			android:padding="5dp"
+			app:backgroundTint="@color/white"
+			app:cornerRadius="10dp"
+			app:elevation="3dp"
+			app:icon="@drawable/ic_baseline_local_phone_24"
+			app:iconTint="@color/black"
+			app:iconGravity="textStart"
+			app:iconSize="28dp"
+			app:iconTintMode="multiply" />
+
+	</LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,8 +8,16 @@ public class UserData {
     private String email;
     private String username;
     private String phone;
-    private boolean isMadrich;
+    private String token;
+
+    private boolean madrich;
+    private boolean notMadrich = true;
+
     private String profile_picture;
+    private boolean emailVerified;
+
+    private boolean online;
+    private boolean offline = true;
 
     private double latitude;
     private double longitude;
@@ -17,19 +25,42 @@ public class UserData {
 
     public UserData(){}
 
+    public UserData(String UID, String email, String username, String phone) {
+        this.UID = UID;
+        this.email = email;
+        this.username = username;
+        this.madrich = false;
+        this.notMadrich = true;
+        this.phone = phone;
+    }
+
+    public UserData(String UID, String email, String username, String phone, String profile_picture) {
+        this.UID = UID;
+        this.email = email;
+        this.username = username;
+        this.madrich = false;
+        this.notMadrich = true;
+        this.phone = phone;
+        this.profile_picture = profile_picture;
+    }
+
     public UserData(String UID, String email, String username) {
         this.UID = UID;
         this.email = email;
         this.username = username;
-        this.isMadrich = false;
+        this.madrich = false;
+        this.notMadrich = true;
+        this.online = true;
+        this.offline = false;
     }
 
-    public UserData(String UID, String email, String username, String phone, boolean isMadrich) {
+    public UserData(String UID, String email, String username, String phone, boolean madrich, String token) {
         this.UID = UID;
         this.email = email;
         this.username = username;
         this.phone = phone;
-        this.isMadrich = isMadrich;
+        this.madrich = madrich;
+        this.notMadrich = !madrich;
     }
 
     public String getUsername() {
@@ -64,40 +95,32 @@ public class UserData {
         this.phone = phone;
     }
 
-    public boolean isMadrich() {
-        return isMadrich;
-    }
-
-    public void setMadrich(boolean madrich) {
-        isMadrich = madrich;
-    }
-
     @NonNull
     @Override
     public String toString() {
         return "UserData{" +
-                "UID = '" + UID + '\'' +
-                ", email = '" + email + '\'' +
-                ", username = '" + username + '\'' +
-                ", isMadrich = " + isMadrich +
-                '}';
+                "\n UID = '" + UID + '\'' +
+                ", \n email = '" + email + '\'' +
+                ", \n username = '" + username + '\'' +
+                ", \n phone = '" + phone + '\'' +
+                ", \n token = '" + token + '\'' +
+                ", \n madrich = " + madrich +
+                ", \n notMadrich = " + notMadrich +
+                ", \n profile_picture = '" + profile_picture + '\'' +
+                ", \n online = " + online +
+                ", \n offline = " + offline +
+                ", \n latitude = " + latitude +
+                ", \n longitude = " + longitude +
+                ", \n locationAvailable = " + locationAvailable +
+                "\n}";
     }
 
     public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(int latitude) {
-        this.latitude = latitude;
-
-    }
-
     public double getLongitude() {
         return longitude;
-    }
-
-    public void setLongitude(int longitude) {
-        this.longitude = longitude;
     }
 
     public boolean isLocationAvailable() {
@@ -114,5 +137,64 @@ public class UserData {
 
     public void setProfile_picture(String profile_picture) {
         this.profile_picture = profile_picture;
+    }
+
+    public boolean isMadrich() {
+        return madrich;
+    }
+
+    public void setMadrich(boolean madrich) {
+        this.madrich = madrich;
+        this.notMadrich = !madrich;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public boolean isNotMadrich() {
+        return notMadrich;
+    }
+
+    public void setNotMadrich(boolean notMadrich) {
+        this.notMadrich = notMadrich;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
+        this.offline = !online;
+    }
+
+    public boolean isOffline() {
+        return offline;
+    }
+
+    public void setOffline(boolean offline) {
+        this.offline = offline;
+        this.online = !offline;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
     }
 }

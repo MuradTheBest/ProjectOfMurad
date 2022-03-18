@@ -1,30 +1,30 @@
 package com.example.projectofmurad;
 
-import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Rect;
 import android.os.Bundle;
-
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.content.Intent;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatDelegate;
 
-import com.example.projectofmurad.calendar.Utils_Calendar;
+import com.example.projectofmurad.calendar.UtilsCalendar;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
-public class Log_In_Screen extends Activity {
-
+public class Log_In_Screen extends UserSigningActivity {
 
 	private TextView tv_sign_up_now;
 	private View ellipse_4;
@@ -37,22 +37,23 @@ public class Log_In_Screen extends Activity {
 	private TextView tv_don_t_have_an_account;
 	private Button btn_log_in;
 
-	SharedPreferences sp;
+	private MaterialButton btn_log_in_with_google;
+	private MaterialButton btn_log_in_with_facebook;
+	private MaterialButton btn_log_in_with_phone;
 
-	FirebaseAuth firebaseAuth;
-	FirebaseUser firebaseUser;
+	SharedPreferences sp;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.log_in_page);
-		AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+
+		getSupportActionBar().hide();
 
 		sp = getSharedPreferences(BuildConfig.APPLICATION_ID + " savedData", Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = sp.edit();
 
-		firebaseAuth = FirebaseAuth.getInstance();
+		progressDialog = new ProgressDialog(this);
 
 		tv_sign_up_now = (TextView) findViewById(R.id.tv_sign_up_now);
 		ellipse_4 = (View) findViewById(R.id.ellipse_4);
@@ -81,7 +82,7 @@ public class Log_In_Screen extends Activity {
 					editTextsFilled = false;
 					//Toast.makeText(getApplicationContext(), "Please enter e-mail address", Toast.LENGTH_SHORT).show();
 				}
-				else if(!Utils_Calendar.isEmailValid(email)){
+				else if(!UtilsCalendar.isEmailValid(email)){
 					et_email_address.setError("E-mail invalid");
 					msg += "valid E-mail and ";
 					editTextsFilled = false;
@@ -99,14 +100,16 @@ public class Log_In_Screen extends Activity {
 				}
 
 				if(editTextsFilled){
-					//ToDo Firebase authentication
-					firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(
+
+					progressDialog.setMessage("Registering, please wait...");
+					progressDialog.show();
+
+					FirebaseUtils.getFirebaseAuth().signInWithEmailAndPassword(email, password).addOnCompleteListener(
 							new OnCompleteListener<AuthResult>() {
 								@Override
 								public void onComplete(@NonNull Task<AuthResult> task) {
 									if (task.isSuccessful()){
-//										firebaseUser = firebaseAuth.getCurrentUser();
-										finish();
+										progressDialog.dismiss();
 										startActivity(new Intent(Log_In_Screen.this, MainActivity.class));
 									}
 									else {
@@ -117,6 +120,7 @@ public class Log_In_Screen extends Activity {
 							.addOnFailureListener(new OnFailureListener() {
 								@Override
 								public void onFailure(@NonNull Exception e) {
+									progressDialog.dismiss();
 									Toast.makeText(Log_In_Screen.this, e.getMessage(),
 											Toast.LENGTH_SHORT).show();
 								}
@@ -137,7 +141,32 @@ public class Log_In_Screen extends Activity {
 
 			}
 		});
-		//custom code goes here
+
+		btn_log_in_with_google = findViewById(R.id.sign_up_with_google);
+		btn_log_in_with_google.setOnClickListener(v -> showGoogleSignIn());
+
+		btn_log_in_with_facebook = findViewById(R.id.sign_up_with_facebook);
+
+		btn_log_in_with_phone = findViewById(R.id.sign_up_with_phone);
+		btn_log_in_with_phone.setOnClickListener(v -> createPhoneAuthenticationDialog());
 
 	}
+
+	@Override
+	public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			View v = getCurrentFocus();
+			if (v instanceof EditText) {
+				Rect outRect = new Rect();
+				v.getGlobalVisibleRect(outRect);
+				if (!outRect.contains((int) event.getRawX(), (int) event.getRawY())) {
+					v.clearFocus();
+					InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+				}
+			}
+		}
+		return super.dispatchTouchEvent(event);
+	}
+
 }

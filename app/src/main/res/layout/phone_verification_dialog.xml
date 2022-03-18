@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.textfield.TextInputLayout android:id="@+id/et_verify_phone"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    android:hint="Phone"
+    android:textColor="@color/colorAccent"
+    android:textSize="20sp"
+    android:paddingVertical="5sp"
+    android:paddingHorizontal="20sp"
+    app:endIconMode="clear_text"
+    app:endIconTint="@color/colorAccent"
+    app:startIconDrawable="@drawable/ic_baseline_local_phone_24"
+    app:prefixText="+972"
+    android:focusable="true"
+    android:autofillHints="phone"
+    app:prefixTextColor="@color/black"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:maxLength="12"
+        android:inputType="phone"
+        android:focusable="true"
+        android:autofillHints="phone"
+        />
+
+
+</com.google.android.material.textfield.TextInputLayout>

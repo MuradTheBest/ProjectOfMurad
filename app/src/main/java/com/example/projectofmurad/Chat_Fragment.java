@@ -41,6 +41,7 @@ public class Chat_Fragment extends Fragment {
      * @return A new instance of fragment Chat_Fragment.
      */
     // TODO: Rename and change types and number of parameters
+    @NonNull
     public static Chat_Fragment newInstance(String param1, String param2) {
         Chat_Fragment fragment = new Chat_Fragment();
         Bundle args = new Bundle();
@@ -60,7 +61,7 @@ public class Chat_Fragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_chat_, container, false);

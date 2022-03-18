@@ -10,17 +10,109 @@
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".Tracking_Fragment"
-        />
 
-    <!--<androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/switch_last_location"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/rl_training"
+        tools:context=".map.Tracking_Fragment" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switch_map_type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/map" />-->
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <RelativeLayout
+        android:id="@+id/rl_training"
+        android:layout_width="match_parent"
+        android:layout_height="100sp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        >
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20sp"
+            android:layout_alignParentStart="true"
+            android:text="0:00:00"
+            android:layout_below="@+id/tv_distance"
+            android:layout_marginTop="20sp"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tv_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="20sp"
+            android:layout_marginTop="20sp"
+            android:text="0.00 m"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tv_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20sp"
+            android:layout_alignParentEnd="true"
+            android:text="0.00 m/s"
+            android:layout_below="@+id/tv_max_speed"
+            android:layout_marginTop="20sp"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tv_max_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="20sp"
+            android:layout_marginEnd="20sp"
+            android:text="0.00 m/s"
+            android:textSize="18sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_start_tracking"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Start" />
+
+        <LinearLayout
+            android:id="@+id/ll_stop_or_finish_training"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_centerInParent="true"
+            >
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_stop_tracking"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5sp"
+                android:text="Stop" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_finish_tracking"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5sp"
+                android:text="Finish" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

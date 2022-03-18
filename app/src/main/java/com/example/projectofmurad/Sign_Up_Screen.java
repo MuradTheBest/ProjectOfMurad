@@ -1,11 +1,11 @@
 package com.example.projectofmurad;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,16 +15,19 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.projectofmurad.calendar.Utils_Calendar;
+import com.example.projectofmurad.calendar.UtilsCalendar;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.storage.UploadTask;
 
-public class Sign_Up_Screen extends Activity implements TextWatcher {
+public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
 
     private TextView tv_sign_in;
     private TextView tv_already_have_an_account;
@@ -50,18 +53,19 @@ public class Sign_Up_Screen extends Activity implements TextWatcher {
     FirebaseAuth firebaseAuth;
     FirebaseUser firebaseUser;
 
-    ProgressDialog progressDialog;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_up_page);
 
+        getSupportActionBar().hide();
+
+
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
 
-        progressDialog = new ProgressDialog(this);
+
 
         tv_sign_in = (TextView) findViewById(R.id.tv_sign_in);
         tv_already_have_an_account = (TextView) findViewById(R.id.tv_already_have_an_account);
@@ -103,7 +107,7 @@ public class Sign_Up_Screen extends Activity implements TextWatcher {
                     editTextsFilled = false;
                     //Toast.makeText(getApplicationContext(), "Please enter e-mail address", Toast.LENGTH_SHORT).show();
                 }
-                else if(!Utils_Calendar.isEmailValid(email)){
+                else if(!UtilsCalendar.isEmailValid(email)){
                     et_email_address.setError("E-mail invalid");
                     msg += "valid E-mail, ";
                     editTextsFilled = false;
@@ -146,9 +150,36 @@ public class Sign_Up_Screen extends Activity implements TextWatcher {
 
                                         FirebaseUtils.usersDatabase.child(firebaseUser.getUid()).setValue(data);
 
-                                        progressDialog.dismiss();
-                                        finish();
-                                        startActivity(new Intent(Sign_Up_Screen.this, MainActivity.class));
+                                        Uri sample_profile = Utils.getUriToDrawable(Sign_Up_Screen.this, R.drawable.images);
+
+                                        UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder().setPhotoUri(sample_profile);
+                                        builder.setDisplayName(username);
+
+                                        Log.d("murad", "username " + username + "\n uri " + sample_profile.toString());
+
+                                        FirebaseUtils.getCurrentFirebaseUser().updateProfile(builder.build());
+                                        FirebaseUtils.getCurrentFirebaseUser().updateEmail(email);
+
+
+                                        FirebaseUtils.getProfilePicturesRef().child(FirebaseUtils.getCurrentUID()).putFile(sample_profile)
+                                                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+//                                    String profile_picture = taskSnapshot.getUploadSessionUri().toString();
+                                                        FirebaseUtils.getProfilePicturesRef().child(FirebaseUtils.getCurrentUID()).getDownloadUrl().addOnCompleteListener(
+                                                                new OnCompleteListener<Uri>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<Uri> task) {
+                                                                        if (task.isSuccessful()){
+                                                                            String profile_picture = task.getResult().toString();
+                                                                            FirebaseUtils.getCurrentUserDataRef().child("profile_picture").setValue(profile_picture);
+
+                                                                            getToken();
+                                                                        }
+                                                                    }
+                                                                });
+                                                    }
+                                                });
                                     }
                                     else{
 /*                                        Toast.makeText(Sign_Up_Screen.this,
@@ -228,8 +259,21 @@ public class Sign_Up_Screen extends Activity implements TextWatcher {
             }
         });
 
+        btn_log_in_with_google = findViewById(R.id.sign_up_with_google);
+        btn_log_in_with_google.setOnClickListener(v -> showGoogleSignIn());
 
+        btn_log_in_with_facebook = findViewById(R.id.sign_up_with_facebook);
 
+        btn_log_in_with_phone = findViewById(R.id.sign_up_with_phone);
+        btn_log_in_with_phone.setOnClickListener(v -> createPhoneAuthenticationDialog());
+
+    }
+
+    public void createNewAccount(){
+
+    }
+
+    private void uploadToken() {
     }
 
     @Override
@@ -241,10 +285,14 @@ public class Sign_Up_Screen extends Activity implements TextWatcher {
 
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        if(et_password.getText().toString().equals(et_confirm_password.getText().toString())){
+
+        String password = et_password.getText().toString();
+        String confirm_password = et_confirm_password.getText().toString();
+
+        if(password.equals(confirm_password)){
             tv_match.setVisibility(View.INVISIBLE);
         }
-        else if(et_password.getText().toString().isEmpty() || et_confirm_password.getText().toString().isEmpty()){
+        else if(password.isEmpty() || confirm_password.isEmpty()){
             tv_match.setVisibility(View.INVISIBLE);
         }
         else if(et_password.getText().toString().isEmpty() && et_confirm_password.getText().toString().isEmpty()){

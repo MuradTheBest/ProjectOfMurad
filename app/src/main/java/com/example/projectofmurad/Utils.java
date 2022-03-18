@@ -1,24 +1,48 @@
 package com.example.projectofmurad;
 
+import android.app.AlertDialog;
+
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Path;
+import android.net.Uri;
+import android.util.Log;
 
+import androidx.annotation.AnyRes;
 import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+
+import org.jetbrains.annotations.Contract;
+
+import java.util.Random;
 
 public class Utils {
 
-    public static String TAG = "murad";
+    public final static String TAG = "murad";
+
+    public static final int ALARM_FOR_EVENT_NOTIFICATION_CODE = 100;
+    public static final int ADD_EVENT_NOTIFICATION_CODE = 200;
+    public static final int EDIT_EVENT_NOTIFICATION_CODE = 300;
 
     public final static String APPLICATION_ID = BuildConfig.APPLICATION_ID;
 
-    public static boolean isMadrich = FirebaseUtils.getCurrentUserData().isMadrich();
+//    public static boolean madrich = FirebaseUtils.getCurrentUserData().isMadrich();
+    public static boolean madrich;
 
     private static Context getContext(){
         return MyApplication.getContext();
@@ -31,6 +55,9 @@ public class Utils {
     public final static String TABLE_AlARM_COL_EVENT_PRIVATE_ID = "event_private_id";
     public final static String TABLE_AlARM_COL_EVENT_DATE = "event_date";
     public final static String TABLE_AlARM_COL_ALARM_ALREADY_SET = "alarmAlreadySet";
+
+    public final static String TABLE_NOTIFICATION_NAME = "tbl_notification";
+    public final static String TABLE_AlARM_COL_NOTIFICATION_ID = "notification_id";
 
     public final static String TABLE_TODAY_NAME = "tbl_today";
 
@@ -46,6 +73,33 @@ public class Utils {
 
         db.execSQL("create table if not exists " +
                 " tbl_today(today text)");
+
+        db.execSQL("create table if not exists " +
+                " tbl_notification(notification_id integer primary key autoincrement)");
+
+        if (FirebaseUtils.isUserLoggedIn()){
+            FirebaseUtils.getCurrentUserDataRef().child("madrich").get().addOnCompleteListener(
+                    new OnCompleteListener<DataSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task< DataSnapshot > task) {
+                            if (task.isSuccessful()){
+                             madrich = task.getResult().getValue(boolean.class);
+                            }
+                        }
+                    });
+        }
+
+
+    }
+
+    public static int getNotificationId(@NonNull SQLiteDatabase db){
+        ContentValues contentValues = new ContentValues();
+        db.insert(TABLE_NOTIFICATION_NAME, "notification_id", contentValues);
+        Cursor cursor = db.rawQuery("select * from tbl_notification",null);
+        cursor.moveToLast();
+        int count = cursor.getInt(0);
+        cursor.close();
+        return count;
     }
 
     public static void deleteAllTables(@NonNull SQLiteDatabase db) {
@@ -56,6 +110,8 @@ public class Utils {
 
     public static void addAlarm(@NonNull String event_private_id, String event_date, @NonNull SQLiteDatabase db){
         System.out.println(event_private_id);
+
+        //Todo create screen will all set alarms
 
         ContentValues cv = new ContentValues();
         cv.put(Utils.TABLE_AlARM_COL_EVENT_PRIVATE_ID, event_private_id);
@@ -141,5 +197,127 @@ public class Utils {
         Intent mainIntent = Intent.makeRestartActivityTask(componentName);
         context.startActivity(mainIntent);
         Runtime.getRuntime().exit(0);
+    }
+
+    public static int generateRandomColor(){
+        Random rnd = new Random();
+        return Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+    }
+
+    /**
+     * get uri to drawable or any other resource type if u wish
+     * @param context - context
+     * @param drawableId - drawable res id
+     * @return - uri
+     */
+    public static Uri getUriToDrawable(@NonNull Context context, @AnyRes int drawableId) {
+
+        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
+                + "://" + context.getResources().getResourcePackageName(drawableId)
+                + '/' + context.getResources().getResourceTypeName(drawableId)
+                + '/' + context.getResources().getResourceEntryName(drawableId) );
+    }
+
+    /**
+     * get uri to any resource type Via Context Resource instance
+     * @param context - context
+     * @param resId - resource id
+     * @throws Resources.NotFoundException if the given ID does not exist.
+     * @return - Uri to resource by given id
+     */
+    public static Uri getUriToResource(@NonNull Context context,
+                                       @AnyRes int resId)
+            throws Resources.NotFoundException {
+        /* Return a Resources instance for your application's package. */
+        Resources res = context.getResources();
+        return getUriToResource(res, resId);
+    }
+
+    /**
+     * get uri to any resource type via given Resource Instance
+     * @param res - resources instance
+     * @param resId - resource id
+     * @throws Resources.NotFoundException if the given ID does not exist.
+     * @return - Uri to resource by given id
+     */
+    public static Uri getUriToResource(@NonNull Resources res,
+                                       @AnyRes int resId)
+            throws Resources.NotFoundException {
+        /*
+          Creates a Uri which parses the given encoded URI string.
+          @param uriString an RFC 2396-compliant, encoded URI
+         * @throws NullPointerException if uriString is null
+         * @return Uri for this given uri string
+         */
+        /* return uri */
+        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE +
+                "://" + res.getResourcePackageName(resId)
+                + '/' + res.getResourceTypeName(resId)
+                + '/' + res.getResourceEntryName(resId));
+    }
+
+    @NonNull
+    public static AlertDialog.Builder createSimpleAlertDialog(Context context, String title, String message){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setCancelable(false);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        return builder;
+    }
+
+    @NonNull
+    @Contract("_ -> param1")
+    public static ProgressDialog createCustomProgressDialog(@NonNull ProgressDialog progressDialog){
+        progressDialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+        progressDialog.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
+        return progressDialog;
+    }
+
+    @NonNull
+    @Contract("_ -> param1")
+    public static AlertDialog createCustomAlertDialog(@NonNull AlertDialog alertDialog){
+        alertDialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+        alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
+        return alertDialog;
+    }
+
+    @NonNull
+    @Contract("_ -> param1")
+    public static androidx.appcompat.app.AlertDialog createCustomAlertDialog(@NonNull androidx.appcompat.app.AlertDialog alertDialog){
+        alertDialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+        alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
+        return alertDialog;
+    }
+
+    @NonNull
+    @Contract("_ -> param1")
+    public static Dialog createCustomDialog(@NonNull Dialog dialog){
+        dialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
+        return dialog;
+    }
+
+    public static void log(String msg){
+//        Log.d("murad", "I'm in line #" + new Exception().getStackTrace()[0].getLineNumber());
+
+        StackTraceElement l = new Exception().getStackTrace()[0];
+        Log.d("murad", l.getClassName() + "/" + l.getMethodName() + ":" + l.getLineNumber()
+                + " | " + msg);
+    }
+
+    public static void log(String tag, String msg){
+//        Log.d("murad", "I'm in line #" + new Exception().getStackTrace()[0].getLineNumber());
+
+        StackTraceElement l = new Exception().getStackTrace()[0];
+        Log.d(tag, l.getClassName() + "/" + l.getMethodName() + ":" + l.getLineNumber()
+                + " | " + msg);
+    }
+
+    @NonNull
+    public static LinearLayoutManagerWrapper getLayoutForRecyclerView(Context context){
+        LinearLayoutManagerWrapper linearLayoutManagerWrapper = new LinearLayoutManagerWrapper(context);
+        linearLayoutManagerWrapper.setReverseLayout(true);
+//        linearLayoutManagerWrapper.setStackFromEnd(true);
+        return linearLayoutManagerWrapper;
     }
 }

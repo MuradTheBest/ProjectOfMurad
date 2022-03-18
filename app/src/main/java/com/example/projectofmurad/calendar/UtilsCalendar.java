@@ -2,11 +2,11 @@ package com.example.projectofmurad.calendar;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.icu.text.SimpleDateFormat;
 import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Toast;
@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
-public class Utils_Calendar {
+public class UtilsCalendar {
 
     public static Locale locale = Locale.getDefault();
     public static Locale getLocale(){
@@ -38,9 +38,17 @@ public class Utils_Calendar {
     public /*final*/ static DateTimeFormatter dateFormatOnline = DateTimeFormatter.ofPattern("E, dd.MM.yyyy", Locale.ENGLISH);
     public /*final*/ static DateTimeFormatter dateTimeFormatOnline = DateTimeFormatter.ofPattern("E, dd.MM.yyyy, HH:mm", Locale.ENGLISH);
     public /*final*/ static DateTimeFormatter dateFormatLocal = DateTimeFormatter.ofPattern("E, dd.MM.yyyy", locale).withLocale(locale);
+    public /*final*/ static DateTimeFormatter dateTimeFormatLocal = DateTimeFormatter.ofPattern("E, dd.MM.yyyy, HH:mm", locale).withLocale(locale);
 
-    public /*final*/ static DateTimeFormatter dateFormatForFBOnline= DateTimeFormatter.ofPattern("dd-MM-yyyy", locale);
+    public /*final*/ static DateTimeFormatter dateFormatForFBOnline = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.ENGLISH);
     public /*final*/ static DateTimeFormatter dateFormatForFBOffline = DateTimeFormatter.ofPattern("dd-MM-yyyy", locale).withLocale(locale);
+
+    public /*final*/ static SimpleDateFormat simpleDateFormatOnline = new SimpleDateFormat("E, dd.MM.yyyy", Locale.ENGLISH);
+    public /*final*/ static SimpleDateFormat simpleDateTimeFormatOnline = new SimpleDateFormat("E, dd.MM.yyyy, HH:mm", Locale.ENGLISH);
+    public /*final*/ static SimpleDateFormat simpleDateFormatLocal = new SimpleDateFormat("E, dd.MM.yyyy", locale);
+
+    public /*final*/ static SimpleDateFormat simpleDateFormatForFBOnline = new SimpleDateFormat("dd-MM-yyyy", locale);
+    public /*final*/ static SimpleDateFormat simpleDateFormatForFBOffline = new SimpleDateFormat("dd-MM-yyyy", locale);
 
     public final static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -75,6 +83,8 @@ public class Utils_Calendar {
     public static HashMap<LocalDate, ArrayList<CalendarEvent>> map = new HashMap<>();
 
     public static void setLocale(){
+        FirebaseUtils.getFirebaseAuth().setLanguageCode(Locale.getDefault().getLanguage());
+
         if(Locale.getDefault().getLanguage().equals(new Locale("he").getLanguage())){
             Log.d("murad", "LOCALE IS HEBREW");
             locale = Locale.getDefault();
@@ -86,6 +96,7 @@ public class Utils_Calendar {
             Log.d("murad", "Locale " + locale.getDisplayName());
 
             locale = Locale.ENGLISH;
+
 
             dateFormatOnline = DateTimeFormatter.ofPattern("E, dd.MM.yyyy", Locale.ENGLISH).withLocale(locale);
             dateFormatLocal = DateTimeFormatter.ofPattern("E, dd.MM.yyyy", locale).withLocale(locale);
@@ -187,7 +198,7 @@ public class Utils_Calendar {
 
         LocalDate tmp = date;
 
-//        Log.d("frequency_dayOfWeek_and_month", "getNextOccurrence: " + Utils_Calendar.DateToTextOnline(tmp));
+//        Log.d("frequency_dayOfWeek_and_month", "getNextOccurrence: " + UtilsCalendar.DateToTextOnline(tmp));
 
         for(int i = 1; i < weekNumber; i++) {
             tmp = tmp.plusWeeks(1);
@@ -226,6 +237,10 @@ public class Utils_Calendar {
 
     public static String DateToTextOnline(@NonNull LocalDate date){
         return date.format(dateFormatOnline);
+    }
+
+    public static String DateTimeToTextLocal(@NonNull LocalDateTime dateTime){
+        return dateTime.format(dateTimeFormatLocal);
     }
 
     public static String DateToTextLocal(@NonNull LocalDate date){
@@ -274,9 +289,9 @@ public class Utils_Calendar {
                 for(CalendarEvent e : eventArrayList){
                     Log.d("murad",  "------------------------------------------------------------------------------------------------------------------------------------");
 
-                    Log.d("murad", "key: " + Utils_Calendar.DateToTextOnline(date) + " value: " + e.getName() + " | " + e.getPlace() + " | " + e.getDescription());
-                    Log.d("murad",  e.getStart_date() + " | " + e.getStart_time());
-                    Log.d("murad",  e.getEnd_date() + " | " + e.getEnd_time());
+                    Log.d("murad", "key: " + UtilsCalendar.DateToTextOnline(date) + " value: " + e.getName() + " | " + e.getPlace() + " | " + e.getDescription());
+                    Log.d("murad",  e.getStartDate() + " | " + e.getStartTime());
+                    Log.d("murad",  e.getEndDate() + " | " + e.getEndTime());
 
                     Log.d("murad",  "------------------------------------------------------------------------------------------------------------------------------------");
                 }
@@ -295,22 +310,22 @@ public class Utils_Calendar {
     }
 
     private static void addOrCreateObjectInHashMap(LocalDate date, CalendarEvent event){
-        if(Utils_Calendar.map.containsKey(date)){
-            if(Utils_Calendar.map.get(date) == null){
+        if(UtilsCalendar.map.containsKey(date)){
+            if(UtilsCalendar.map.get(date) == null){
                 ArrayList<CalendarEvent> eventArrayList = new ArrayList<>();
                 eventArrayList.add(event);
-                Utils_Calendar.map.put(date, eventArrayList);
+                UtilsCalendar.map.put(date, eventArrayList);
                 Log.d("murad", "eventArrayList on this key is null");
             }
             else {
-                Utils_Calendar.map.get(date).add(event);
+                UtilsCalendar.map.get(date).add(event);
                 Log.d("murad", "event added to eventArrayList on this key ");
             }
         }
         else {
             ArrayList<CalendarEvent> eventArrayList = new ArrayList<>();
             eventArrayList.add(event);
-            Utils_Calendar.map.put(date, eventArrayList);
+            UtilsCalendar.map.put(date, eventArrayList);
         }
     }
 
@@ -387,7 +402,7 @@ public class Utils_Calendar {
     }
 
     public static boolean isPhoneValid(String phone){
-        return Patterns.PHONE.matcher(phone).matches();
+        return android.util.Patterns.PHONE.matcher(phone).matches();
     }
 
     public static boolean isBooleanValid(@NonNull String bool){

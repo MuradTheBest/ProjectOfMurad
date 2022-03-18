@@ -1,19 +1,26 @@
 package com.example.projectofmurad.calendar;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
 import com.facebook.shimmer.ShimmerFrameLayout;
@@ -25,7 +32,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
 public class Event_Attendance_Screen extends AppCompatActivity implements
-        UsersAdapterForFirebase.OnUserListener {
+        UsersAdapterForFirebase.OnUserListener,
+        UsersAdapterForFirebase.OnUserExpandListener {
+
+    public static final int REQUEST_CALL = 1;
+    public static final int REQUEST_EMAIL = 2;
+    public static final int REQUEST_MESSAGE = 3;
 
     private TextView tv_event_name;
     private TextView tv_event_place;
@@ -64,7 +76,7 @@ public class Event_Attendance_Screen extends AppCompatActivity implements
 
         event_private_id = gotten_intent.getStringExtra("event_private_id");
 
-        DatabaseReference allEvents = FirebaseUtils.allEventsDatabase;
+        DatabaseReference allEvents = FirebaseUtils.allEventsDatabase.child(event_private_id);
 
 
         tv_event_name = findViewById(R.id.tv_event_name);
@@ -89,10 +101,10 @@ public class Event_Attendance_Screen extends AppCompatActivity implements
                     Resources res = getResources();
 
                     tv_event_start_date_time.setText(String.format(res.getString(R.string.starting_time_s_s),
-                            Utils_Calendar.OnlineTextToLocal(event.getStart_date()), event.getStart_time()));
+                            UtilsCalendar.OnlineTextToLocal(event.getStartDate()), event.getStartTime()));
 
                     tv_event_end_date_time.setText(String.format(res.getString(R.string.ending_time_s_s),
-                            Utils_Calendar.OnlineTextToLocal(event.getEnd_date()), event.getEnd_time()));
+                            UtilsCalendar.OnlineTextToLocal(event.getEndDate()), event.getEndTime()));
                 }
             }
         });
@@ -110,7 +122,8 @@ public class Event_Attendance_Screen extends AppCompatActivity implements
         shimmer_rv_users = findViewById(R.id.shimmer_rv_users);
         shimmer_rv_users.startShimmer();
 
-        Query query = FirebaseUtils.usersDatabase.orderByChild("isMadrich");
+//        Query query = FirebaseUtils.usersDatabase.orderByChild("madrich").startAt(true);
+        Query query = FirebaseUtils.usersDatabase.orderByChild("madrich");
 
         FirebaseRecyclerOptions<UserData> options
                 = new FirebaseRecyclerOptions.Builder<UserData>()
@@ -118,14 +131,18 @@ public class Event_Attendance_Screen extends AppCompatActivity implements
                 .setLifecycleOwner(this)
                 .build();
 
-        userAdapter = new UsersAdapterForFirebase(options, event_private_id, this, this);
+        userAdapter = new UsersAdapterForFirebase(options, event_private_id, this, this, this);
         Log.d("murad", "adapterForFirebase.getItemCount() = " + userAdapter.getItemCount());
         Log.d("murad", "options.getItemCount() = " + options.getSnapshots().size());
 
         rv_users.setAdapter(userAdapter);
         rv_users.startLayoutAnimation();
         Log.d("murad", "rv_events.getChildCount() = " + rv_users.getChildCount());
-        rv_users.setLayoutManager(new LinearLayoutManager(this));
+
+        LinearLayoutManagerWrapper linearLayoutManagerWrapper = new LinearLayoutManagerWrapper(this, LinearLayoutManager.VERTICAL, true);
+//        linearLayoutManagerWrapper.setReverseLayout(true);
+//        linearLayoutManagerWrapper.setStackFromEnd(true);
+        rv_users.setLayoutManager(linearLayoutManagerWrapper);
 
         /*ObservableSnapshotArray<UserData> userDataArrayList = userAdapter.getSnapshots();
 //        usersArrayList = (UserData[]) userDataArrayList.toArray();
@@ -181,5 +198,54 @@ public class Event_Attendance_Screen extends AppCompatActivity implements
         intent.putExtra("event_private_id", event_private_id);
 
         startActivity(intent);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_CALL) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            }
+            else {
+                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else if(requestCode == REQUEST_EMAIL){
+
+        }
+        else if(requestCode == REQUEST_MESSAGE){
+
+        }
+    }
+
+    public boolean checkPermissions(){
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CALL_PHONE}, REQUEST_CALL);
+        } else {
+            String dial = "tel:";
+            startActivity(new Intent(Intent.ACTION_CALL, Uri.parse(dial)));
+        }
+        return true;
+    }
+
+    @Override
+    public void onUserExpand(int position, int oldPosition) {
+        if (oldPosition > -1){
+            Log.d("murad","=================position==================");
+
+            Log.d("murad","position is " + position);
+            Log.d("murad", "oldPosition is " + oldPosition);
+            Log.d("murad", "expanded is " + ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition))
+                    .expanded);
+            Log.d("murad","=================position==================");
+            ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition))
+                    .ll_contact.setVisibility(View.GONE);
+            ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition))
+                    .expanded = false;
+        }
     }
 }

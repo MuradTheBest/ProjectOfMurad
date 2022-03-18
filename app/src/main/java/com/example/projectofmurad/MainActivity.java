@@ -4,7 +4,10 @@ import static com.example.projectofmurad.Utils.TAG;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.transition.AutoTransition;
@@ -16,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,15 +32,13 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.projectofmurad.calendar.Utils_Calendar;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.map.TrackingService;
+import com.example.projectofmurad.map.Tracking_Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GetTokenResult;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 public class MainActivity extends AppCompatActivity implements NavigationBarView.OnItemSelectedListener {
 
@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         Handler handler = new Handler();
-
 
         NavController navController = Navigation.findNavController(this, R.id.fragment);
         navController.addOnDestinationChangedListener(
@@ -101,13 +100,13 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
 
-        Utils_Calendar.setLocale();
+        UtilsCalendar.setLocale();
 
         Log.d(TAG, "Subscribing to weather topic");
 
         MyFirebaseMessagingService.getToken();
         // [START subscribe_topics]
-        FirebaseMessaging.getInstance().subscribeToTopic("Adding Event")
+/*        FirebaseMessaging.getInstance().subscribeToTopic("Adding Event")
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -118,26 +117,25 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
                         Log.d(TAG, msg);
                         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
                     }
-                });
+                });*/
         // [END subscribe_topics]
 
-        FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
-        mUser.getIdToken(true)
-                .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-                    public void onComplete(@NonNull Task<GetTokenResult> task) {
-                        if (task.isSuccessful()) {
-                            String idToken = task.getResult().getToken();
-                            // Send token to your backend via HTTPS
-                            // ...
-                        } else {
-                            // Handle error -> task.getException();
-                        }
-                    }
-                });
+//        AlarmManagerForToday.check(MainActivity.this);
 
-        AlarmManagerForToday.check(MainActivity.this);
+        SQLiteDatabase db = openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
+        Utils.createAllTables(db);
+
+        Intent gotten_intent = getIntent();
+
+        if (gotten_intent.getAction() != null
+                && gotten_intent.getAction().equals(TrackingService.ACTION_MOVE_TO_TRACKING_FRAGMENT)){
+
+            Log.d("murad", "Going to Tracking_Fragment");
+
+            bottomNavigationView.setSelectedItemId(R.id.tracking_Fragment);
+        }
+
     }
-
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -175,12 +173,12 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         if (fragment == null) {
             fragment = newFragment;
         }
-        currentFragment = fragment;
 
-        if (FirebaseUtils.getCurrentUID().equals("AiqKQM3H8jhavJCFU3B4NmLa8ea2") && TAG.equals("blankFragment")){
+        /*if (FirebaseUtils.getCurrentUID().equals("AiqKQM3H8jhavJCFU3B4NmLa8ea2") && TAG.equals("blankFragment")){
             getSupportFragmentManager().beginTransaction().replace(
                     R.id.bottomNavigationView, fragment, TAG);
-        }
+        }*/
+        getSupportFragmentManager().beginTransaction().replace(R.id.bottomNavigationView, fragment, TAG);
 
         return true;
     }
@@ -206,6 +204,8 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
             slide.setDuration(duration);
             TransitionManager.beginDelayedTransition(viewGroup, slide);
         }
+
+
     }
 
     @Override
@@ -219,6 +219,7 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         else{
             super.onBackPressed();
         }
+
     }
 
     @Override

@@ -1,31 +1,52 @@
 package com.example.projectofmurad.calendar;
 
+import android.animation.Animator;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.transition.AutoTransition;
+import android.transition.ChangeBounds;
+import android.transition.Slide;
+import android.transition.TransitionManager;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewAnimationUtils;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.CompoundButton;
+import android.widget.DatePicker;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.R;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.example.projectofmurad.notifications.AlarmManagerForToday;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-
-import petrov.kristiyan.colorpicker.ColorPicker;
+import java.util.Calendar;
+import java.util.List;
 
 public class Edit_Event_Screen extends MySuperTouchActivity {
 
@@ -41,102 +62,217 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
     private String description;
     private String place;
 
-    private LocalDate startDate;
+
     private LocalDate chain_start_date;
 
    /* private int start_day;
     private int start_month;
     private int start_year;*/
 
-    private LocalTime startTime;
 
 /*    private int start_hour;
     private int start_min;*/
 
-    private LocalDate endDate;
     private LocalDate chain_end_date;
 
 /*    private int end_day;
     private int end_month;
     private int end_year;*/
 
-    private LocalTime endTime;
 
 /*    private int end_hour;
     private int end_min;*/
 
-    private LocalDate selectedDate;
 
     private FirebaseDatabase firebase;
     private DatabaseReference eventsDatabase;
     private DatabaseReference eventsDatabaseForText;
 
-    private FirebaseAuth firebaseAuth;
-    private FirebaseUser firebaseUser;
-
     private DatePickerDialog startDatePickerDialog;
     private DatePickerDialog endDatePickerDialog;
+
     private TimePickerDialog startTimePickerDialog;
     private TimePickerDialog endTimePickerDialog;
 
-    Intent gotten_intent;
+    private Intent gotten_intent;
+    private Intent intentToChooseEventFrequencyDialogCustom;
+
+    private final String[] days = UtilsCalendar.getNarrowDaysOfWeek();
+
+    private int day;
+    private int dayOfWeekPosition;
+    private List<Boolean> array_frequencyDayOfWeek;
+    private int weekNumber;
+    private int month;
+
+    private boolean initial = true;
+
+    int x;
+    int y;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_event_screen);
-        getSupportActionBar().show();
+        overridePendingTransition(R.anim.anim_do_not_move, R.anim.anim_do_not_move);
+        setContentView(R.layout.activity_add_event_screen_linear_layout);
 
         gotten_intent = getIntent();
 
-        chain_key = gotten_intent.getStringExtra("event_chain_key");
-        private_key = gotten_intent.getStringExtra("event_private_key");
+        x = gotten_intent.getIntExtra("cx", 0);
+        y = gotten_intent.getIntExtra("cy", 0);
 
-        name = gotten_intent.getStringExtra("event_name");
-        description = gotten_intent.getStringExtra("event_description");
-        place = gotten_intent.getStringExtra("event_place");
-        selectedColor = gotten_intent.getIntExtra("event_color", Color.GREEN);
+        sv_add_event_screen = findViewById(R.id.sv_add_event_screen);
 
-        startDate = Utils_Calendar.TextToDateForFirebase(gotten_intent.getStringExtra("event_start_date"));
-        endDate = Utils_Calendar.TextToDateForFirebase(gotten_intent.getStringExtra("event_end_date"));
+        if (savedInstanceState == null) {
+            sv_add_event_screen.setVisibility(View.INVISIBLE);
 
-        chain_start_date = Utils_Calendar.TextToDateForFirebase(gotten_intent.getStringExtra("event_start_date"));
-        chain_end_date = Utils_Calendar.TextToDateForFirebase(gotten_intent.getStringExtra("event_end_date"));
+            final ViewTreeObserver viewTreeObserver = sv_add_event_screen.getViewTreeObserver();
 
-        startTime = Utils_Calendar.TextToTime(gotten_intent.getStringExtra("event_start_time"));
-        endTime = Utils_Calendar.TextToTime(gotten_intent.getStringExtra("event_end_time"));
+            if (viewTreeObserver.isAlive()) {
+                viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
+                            @Override
+                            public void onGlobalLayout() {
+                                circularRevealActivity();
+                                sv_add_event_screen.getViewTreeObserver().removeOnGlobalLayoutListener(
+                                        this);
+                            }
 
-        firebase = FirebaseDatabase.getInstance();
-        eventsDatabase = FirebaseUtils.eventsDatabase;
+                        });
+            }
 
-        start_day = startDate.getDayOfMonth();
-        start_month = startDate.getMonthValue();
-        start_year = startDate.getYear();
-
-        end_day = endDate.getDayOfMonth();
-        end_month = endDate.getMonthValue();
-        end_year = endDate.getYear();
-
-        start_hour = startTime.getHour();
-        start_min = startTime.getMinute();
-
-        end_hour = endTime.getHour();
-        end_min = endTime.getMinute();
-
+        }
 
         et_name = findViewById(R.id.et_name);
         et_description = findViewById(R.id.et_description);
         et_place = findViewById(R.id.et_place);
-
         switch_alarm = findViewById(R.id.switch_alarm);
 
-        et_name.setText(name);
-        et_description.setText(description);
-        et_place.setText(place);
+        btn_choose_start_date = findViewById(R.id.btn_choose_start_date);
+        btn_choose_end_date = findViewById(R.id.btn_choose_end_date);
+        btn_choose_start_time = findViewById(R.id.btn_choose_start_time);
+        btn_choose_end_time = findViewById(R.id.btn_choose_end_time);
+
+        ib_color = findViewById(R.id.ib_color);
+        ib_color.setOnClickListener(v -> createColorPickerDialog());
+
+        rl_event_setup = findViewById(R.id.rl_event_setup);
+
+        switch_all_day = findViewById(R.id.switch_all_day);
+        switch_all_day.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        //                    event.setTimestamp(isChecked ? 0 : event.receiveStart_time().toSecondOfDay());
+                        timestamp = isChecked ? 0 : ((start_hour * 60 + start_min) * 60);
+
+                        event.setAllDay(isChecked);
+
+                        btn_choose_start_time.setVisibility(
+                                isChecked ? View.GONE : View.VISIBLE);
+                        btn_choose_end_time.setVisibility(
+                                isChecked ? View.GONE : View.VISIBLE);
+                        //                    animate(ll_add_event_screen);
+                        Edit_Event_Screen.this.animate(
+                                rl_event_setup);
+                    }
+                }
+        );
+
+        event.setFrequencyType(DAY_BY_END);
+        event.setFrequency(1);
+
+        eventsDatabase = FirebaseUtils.eventsDatabase;
+
+        selectedColor = getColor(R.color.colorAccent);
+
+        start_hour = 8;
+        start_min = 0;
+
+        startTime = LocalTime.of(start_hour, start_min);
+
+        end_hour = 9;
+        end_min = 0;
+
+        endTime = LocalTime.of(end_hour, end_min);
+
+        start_day = end_day = gotten_intent.getIntExtra("day", LocalDate.now().getDayOfMonth());
+        start_month = end_month = gotten_intent.getIntExtra("month", LocalDate.now().getMonthValue());
+        start_year = end_year = gotten_intent.getIntExtra("year", LocalDate.now().getYear());
+
+        startDate = endDate = LocalDate.of(start_year, start_month, start_day);
+
+        startDateTime = LocalDateTime.of(startDate, startTime);
+        endDateTime = LocalDateTime.of(endDate, endTime);
+
+        Log.d("murad", "startDateTime is " + UtilsCalendar.DateTimeToTextOnline(startDateTime));
+        Log.d("murad", "endDateTime is " + UtilsCalendar.DateTimeToTextOnline(endDateTime));
+
+        Log.d("murad", "Receiving selectedDate " + start_day + " " + start_month + " " + start_year);
+
+        if (gotten_intent.hasExtra("event")){
+            editMode = true;
+            Log.d("murad", "event is not null => Edit_Event_Screen");
+
+            event = (CalendarEvent) gotten_intent.getSerializableExtra("event");
+
+            chain_key = event.getChainId();
+            private_key = event.getPrivateId();
+
+            name = event.getName();
+            description = event.getDescription();
+            place = event.getPlace();
+
+            selectedColor = event.getColor();
+            boolean allDay = event.isAllDay();
+
+            startDate = event.receiveStartDateTime().toLocalDate();
+            endDate = event.receiveEndDateTime().toLocalDate();
+
+            chain_start_date = event.receiveFrequency_start();
+            chain_end_date = event.receiveFrequency_end();
+
+            startTime = event.receiveStart_time();
+            endTime = event.receiveEnd_time();
+
+            startDateTime = event.receiveStartDateTime();
+            endDateTime = event.receiveEndDateTime();
+
+            chain_start_date = event.receiveFrequency_start();
+            chain_end_date = event.receiveFrequency_end();
+
+            et_name.setText(name);
+            et_description.setText(description);
+            et_place.setText(place);
+
+            ib_color.getDrawable().setTint(selectedColor);
+
+            switch_all_day.setChecked(allDay);
+
+            switch_alarm.setChecked(AlarmManagerForToday.checkIfAlarmSet(this, private_key));
+
+        }
+
+        eventsDatabase = FirebaseUtils.eventsDatabase;
+
+        start_day = startDateTime.getDayOfMonth();
+        start_month = startDateTime.getMonthValue();
+        start_year = startDateTime.getYear();
+
+        end_day = endDateTime.getDayOfMonth();
+        end_month = endDateTime.getMonthValue();
+        end_year = endDateTime.getYear();
+
+        start_hour = startDateTime.getHour();
+        start_min = startDateTime.getMinute();
+
+        end_hour = endDateTime.getHour();
+        end_min = endDateTime.getMinute();
+
+
 
 /*        btn_choose_start_date = findViewById(R.id.btn_choose_start_date);
-        btn_choose_start_date.setText(Utils_Calendar.DateToTextLocal(startDate));
+        btn_choose_start_date.setText(UtilsCalendar.DateToTextLocal(startDate));
         btn_choose_start_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -149,27 +285,196 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             }
         });*/
 
-        btn_choose_end_date = findViewById(R.id.btn_choose_end_date);
-        btn_choose_end_date.setText(Utils_Calendar.DateToTextLocal(endDate));
+        event_time_picker = findViewById(R.id.event_time_picker);
+        event_time_picker.setIs24HourView(true);
+        event_time_picker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+            @Override
+            public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+                start_hour = hourOfDay;
+                start_min = minute;
+//                startTime = LocalTime.of(hourOfDay, minute);
+
+                startDateTime = startDateTime.withHour(hourOfDay);
+                startDateTime = startDateTime.withMinute(minute);
+
+                btn_choose_start_time.setText(UtilsCalendar.TimeToText(startDateTime.toLocalTime()));
+            }
+        });
+
+        btn_choose_start_date.setText(UtilsCalendar.DateToTextLocal(startDateTime.toLocalDate()));
+        btn_choose_start_date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                startDatePickerDialog = new DatePickerDialog(Edit_Event_Screen.this,
+                        AlertDialog.THEME_HOLO_LIGHT,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int month,
+                                                  int dayOfMonth) {
+                                month = month+1;
+
+                                start_year = year;
+                                start_month = month;
+                                start_day = dayOfMonth;
+
+                                /*startDate = LocalDate.of(start_year, start_month, start_day);*/
+
+                                startDateTime = startDateTime.withYear(year);
+                                startDateTime = startDateTime.withMonth(month);
+                                startDateTime = startDateTime.withDayOfMonth(dayOfMonth);
+
+                                String date_text = UtilsCalendar.DateToTextLocal(startDateTime.toLocalDate());
+                                btn_choose_start_date.setText(date_text);
+
+                                if (startDateTime.toLocalDate().isAfter(endDateTime.toLocalDate())) {
+//                                    endDate = startDate;
+
+                                    LocalDate startDate = startDateTime.toLocalDate();
+                                    LocalTime endTime = endDateTime.toLocalTime();
+
+                                    endDateTime = LocalDateTime.of(startDate, endTime);
+                                    btn_choose_end_date.setText(UtilsCalendar.DateToTextLocal(endDateTime.toLocalDate()));
+
+                                }
+                            }
+                        },
+                        start_year, start_month - 1, start_day);
+
+                startDatePickerDialog.getDatePicker().setFirstDayOfWeek(Calendar.SUNDAY);
+                startDatePickerDialog.updateDate(start_year, start_month - 1, start_day);
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.HOUR_OF_DAY, 0);
+                calendar.set(Calendar.MINUTE, 0);
+                startDatePickerDialog.getDatePicker().setMinDate(calendar.getTimeInMillis());
+
+                startDatePickerDialog.show();
+            }
+        });
+
+        btn_choose_start_date.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    startDatePickerDialog = new DatePickerDialog(getApplicationContext(),
+                            AlertDialog.THEME_HOLO_LIGHT,
+                            new DatePickerDialog.OnDateSetListener() {
+                                @Override
+                                public void onDateSet(DatePicker view, int year, int month,
+                                                      int dayOfMonth) {
+                                    month = month + 1;
+
+                                    start_year = year;
+                                    start_month = month;
+                                    start_day = dayOfMonth;
+
+                                    startDate = LocalDate.of(start_year, start_month, start_day);
+                                    String date_text = UtilsCalendar.DateToTextLocal(startDate);
+                                    btn_choose_start_date.setText(date_text);
+                                }
+                            },
+                            start_year, start_month-1, start_day);
+
+                    startDatePickerDialog.updateDate(start_year, start_month-1, start_day);
+                    startDatePickerDialog.getDatePicker().setMinDate(Calendar.getInstance().getTimeInMillis());
+
+                    startDatePickerDialog.show();
+                }
+                else{
+                    startDatePickerDialog.dismiss();
+                }
+            }
+        });
+
+        btn_choose_end_date.setText(UtilsCalendar.DateToTextLocal(endDateTime.toLocalDate()));
         btn_choose_end_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 endDatePickerDialog = new DatePickerDialog(Edit_Event_Screen.this,
-                        android.R.style.ThemeOverlay_Material_Dialog, new SetDate("end"), end_year, end_month, end_day);
-                endDatePickerDialog.updateDate(end_year, end_month-1, end_day);
+                        android.R.style.ThemeOverlay_Material_Dialog,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view1, int year, int month,
+                                                  int dayOfMonth) {
+                                month = month + 1;
+
+                                end_year = year;
+                                end_month = month;
+                                end_day = dayOfMonth;
+
+//                                endDate = LocalDate.of(end_year, end_month, end_day);
+
+                                endDateTime = endDateTime.withYear(end_year);
+                                endDateTime = endDateTime.withMonth(end_month);
+                                endDateTime = endDateTime.withDayOfMonth(end_day);
+
+                                String date_text = UtilsCalendar.DateToTextLocal(endDateTime.toLocalDate());
+                                btn_choose_end_date.setText(date_text);
+
+                                if (endDate.isBefore(startDate)) {
+                                    startDate = endDate;
+
+                                    LocalDate endDate = endDateTime.toLocalDate();
+                                    LocalTime startTime = startDateTime.toLocalTime();
+
+                                    startDateTime = LocalDateTime.of(endDate, startTime);
+
+                                    btn_choose_start_date.setText(
+                                            UtilsCalendar.DateToTextLocal(startDateTime.toLocalDate()));
+
+                                }
+                            }
+                        },
+                        end_year, end_month - 1, end_day);
+
+                endDatePickerDialog.getDatePicker().setFirstDayOfWeek(Calendar.SUNDAY);
+                endDatePickerDialog.updateDate(end_year, end_month - 1, end_day);
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.HOUR_OF_DAY, 0);
+                calendar.set(Calendar.MINUTE, 0);
+                endDatePickerDialog.getDatePicker().setMinDate(calendar.getTimeInMillis());
+
                 endDatePickerDialog.show();
             }
         });
 
-        btn_choose_start_time = findViewById(R.id.btn_choose_start_time);
-        btn_choose_start_time.setText(Utils_Calendar.TimeToText(startTime));
+        btn_choose_start_time.setText(UtilsCalendar.TimeToText(startDateTime.toLocalTime()));
         btn_choose_start_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Initialize time picker dialog
                 startTimePickerDialog = new TimePickerDialog(Edit_Event_Screen.this,
-                        android.R.style.Theme_Holo_Light_Dialog_NoActionBar_MinWidth,
-                        new SetTime("start"), 0, 0, true);
+                        AlertDialog.THEME_HOLO_LIGHT,
+                        new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                start_hour = hourOfDay;
+                                start_min = minute;
+
+//                                LocalTime startTime = LocalTime.of(start_hour, start_min);
+
+                                startDateTime = startDateTime.withHour(start_hour);
+                                startDateTime = startDateTime.withMinute(start_min);
+
+                                String time_text = UtilsCalendar.TimeToText(startDateTime.toLocalTime());
+
+                                Log.d("murad", "hour: " + hourOfDay);
+                                Log.d("murad", "minute: " + minute);
+                                Log.d("murad", "time: " + time_text);
+
+                                btn_choose_start_time.setText(time_text);
+
+                                if (startDateTime.isAfter(endDateTime)) {
+//                                    endTime = startTime.plusHours(1);
+
+                                    endDateTime = endDateTime.toLocalDate().atTime(LocalTime.from(startDateTime.plusHours(1)));
+
+                                    btn_choose_end_time.setText(UtilsCalendar.TimeToText(endDateTime.toLocalTime()));
+                                }
+                            }
+                        },
+                        start_hour, start_min, true);
 
                 startTimePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
@@ -178,182 +483,61 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             }
         });
 
-        btn_choose_end_time = findViewById(R.id.btn_choose_end_time);
-        btn_choose_end_time.setText(Utils_Calendar.TimeToText(endTime));
+        btn_choose_end_time.setText(UtilsCalendar.TimeToText(endDateTime.toLocalTime()));
         btn_choose_end_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Initialize time picker dialog
                 endTimePickerDialog = new TimePickerDialog(Edit_Event_Screen.this,
                         android.R.style.ThemeOverlay_Material_Dialog,
-                        new SetTime("end"), 0, 0, true);
+                        new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                end_hour = hourOfDay;
+                                end_min = minute;
+
+//                            LocalTime endTime = LocalTime.of(end_hour, end_min);
+
+                                endDateTime = endDateTime.withHour(end_hour);
+                                endDateTime = endDateTime.withMinute(end_min);
+
+                                String time_text = UtilsCalendar.TimeToText(endDateTime.toLocalTime());
+                                btn_choose_end_time.setText(time_text);
+
+                                if (endDateTime.isBefore(startDateTime)) {
+//                                    endTime = startTime.plusHours(1);
+
+                                    startDateTime = startDateTime.toLocalDate().atTime(LocalTime.from(endDateTime.minusHours(1)));
+
+                                    btn_choose_start_time.setText(UtilsCalendar.TimeToText(startDateTime.toLocalTime()));
+                                }
+                            }
+                        },
+                        end_hour, end_min, true);
 
                 endTimePickerDialog.updateTime(end_hour, end_min);
                 endTimePickerDialog.show();
             }
         });
 
-        btn_add_event = findViewById(R.id.btn_add_event);
-        btn_add_event.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                /*name = "";
-                description = "";
-                place = "";
-
-                String msg = "";
-
-                boolean editTextsFilled = true;
-
-                if(et_name.getText().toString().isEmpty()){
-                    msg += "name";
-                    editTextsFilled = false;
-                }
-                else {
-                    name = et_name.getText().toString();
-                }
-                if(et_description.getText().toString().isEmpty()){
-                    if(!editTextsFilled){
-                        msg += ", ";
-                    }
-                    msg += "description";
-                    editTextsFilled = false;
-                }
-                else {
-                    description = et_description.getText().toString();
-                }
-                if(et_place.getText().toString().isEmpty()){
-                *//*if(!editTextsFilled){
-                    msg += ", ";
-                }*//*
-                    msg += (editTextsFilled ? "" : ", ");
-                    msg += "place";
-                    editTextsFilled = false;
-                }
-                else {
-                    place = et_place.getText().toString();
-                }*/
-
-                String name = et_name.getText().toString();
-                String description = et_description.getText().toString();
-                String place = et_place.getText().toString();
-
-                boolean editTextsFilled = Utils_Calendar.areEventDetailsValid(Edit_Event_Screen.this, name, description, place);
-
-                if(editTextsFilled) {
-                /*if(start_day <= end_day && start_month <= end_month && start_year <= end_year ){
-
-                    if(start_hour == end_hour && start_min <= end_min || start_hour < end_hour){
-                        Toast.makeText(this, "Event was successfully added " +
-                                        "\n NAME: " + name +
-                                        "\n DESCRIPTION: " + description +
-                                        "\n PLACE: " + place +
-                                        "\n STARTS AT " + start_hour + " : " + start_min + " on " + start_day + "." + start_month + "." + start_year +
-                                        "\n ENDS AT " + end_hour + " : " + end_min + " on " + end_day + "." + end_month + "." + end_year,
-                                Toast.LENGTH_SHORT).show();
-                        error = false;
-                    }
-                    //CalendarEvent calendarEvent = new CalendarEvent(selectedDate, name, place, description, start_hour, start_min, end_hour, end_min);
-                }
-                //TODO check all the possibilities and write if/else conditions
-
-                if(error)
-                    Toast.makeText(this, "Ups... Something is wrong", Toast.LENGTH_LONG).show();*/
-                    Toast.makeText(Edit_Event_Screen.this, "Event was successfully added " +
-                                    "\n NAME: " + name +
-                                    "\n DESCRIPTION: " + description +
-                                    "\n PLACE: " + place +
-                                    "\n STARTS AT " + start_hour + " : " + start_min + " on " + start_day + "." + start_month + "." + start_year +
-                                    "\n ENDS AT " + end_hour + " : " + end_min + " on " + end_day + "." + end_month + "." + end_year,
-                            Toast.LENGTH_SHORT).show();
-
-                    LocalDate start_date = LocalDate.of(start_year, start_month, start_day);
-                    LocalDate end_date = LocalDate.of(end_year, end_month, end_day);
-
-                    LocalTime start_time = LocalTime.of(start_hour, start_min);
-                    LocalTime end_time = LocalTime.of(end_hour, end_min);
-
-                    event.addDefaultParams(selectedColor, name, description, place, 0, start_date, start_time, end_date, end_time);
-
-                    event.setEvent_chain_id(chain_key);
-
-                    if(event.getFrequencyType().endsWith("amount")){
-                        addEventForTimesAdvanced(event);
-                    }
-                    else if(event.getFrequencyType().endsWith("end")){
-//                        addEventForUntilAdvanced(event);
-                    }
-
-                    //addEventToFirebase(event);
-                    superDelete(chain_key);
-                    addEventToFirebaseForTextWithPUSH(event, chain_key);
-                    //addEventToFirebaseForAdvanced(eventAdvanced);
-
-                    startActivity(new Intent(Edit_Event_Screen.this, Calendar_Screen.class));
-
-                }
-
-            }
-        });
-
+        chooseEventFrequencyDialog = new ChooseEventFrequencyDialogCustomWithExposedDropdown(this);
 
         btn_delete_event = findViewById(R.id.btn_delete_event);
         btn_delete_event.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
-                    /*eventsDatabase = FirebaseUtils.eventsDatabase;
 
-                    eventsDatabase = eventsDatabase.child(private_key);
-
-                    Log.d("murad", "-------------------------------------------------------------------");
-                    Log.d("murad", " ");
-
-                    Log.d("murad", "RIGHT NOW AT " + eventsDatabase.getKey());
-                    Log.d("murad", "RIGHT NOW AT " + eventsDatabase.getRef().getKey());
-                    Log.d("murad", "Parent is  " + Objects.requireNonNull(eventsDatabase.getParent()).getKey());
-
-                    Log.d("murad", " ");
-                    Log.d("murad", "-------------------------------------------------------------------");
-
-                    eventsDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                    absoluteDelete(chain_key, new OnDeleteFinishedCallback() {
                         @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        public void onDeleteFinished() {
+                            deletingProgressDialog.dismiss();
+                            Log.d("murad", "DELETING EVENT HAS BEEN SUCCESSFULLY FINISHED");
+                            Toast.makeText(getApplicationContext(), "DELETING EVENT HAS BEEN SUCCESSFULLY FINISHED", Toast.LENGTH_SHORT).show();
 
-                            Log.d("murad", "-------------------------------------------------------------------");
-                            Log.d("murad", " ");
-
-                            Log.d("murad", "RIGHT NOW AT " + snapshot.getKey());
-
-                            Log.d("murad", " ");
-                            Log.d("murad", "-------------------------------------------------------------------");
-
-                            tmp = snapshot.getValue(CalendarEvent.class);
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
+                            startActivity(new Intent(Edit_Event_Screen.this, Calendar_Screen.class));
                         }
                     });
-
-                    startDate = tmp.receiveStart_date();
-                    endDate = tmp.receiveEnd_date();
-
-                    chain_start_date = tmp.receiveFrequency_start();
-                    chain_end_date = tmp.receiveFrequency_end();
-
-                    String private_key = tmp.getEvent_private_id();
-                    String chain_key = tmp.getEvent_chain_id();*/
-
-//                    deleteSingleEvent(private_key, startDate, endDate);
-//                    deleteAllEventsInChain(chain_key, chain_start_date, chain_end_date);
-
-                    superDelete(chain_key);
-
-
-//                    superDelete(chain_key);
-//                    startActivity(new Intent(Edit_Event_Screen.this, Calendar_Screen.class));
                 }
                 catch(Exception e) {
                     e.printStackTrace();
@@ -361,284 +545,279 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 }
             }
         });
-    }
 
-    CalendarEvent tmp = new CalendarEvent();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
-/*    //sets time
-    public class SetTime implements TimePickerDialog.OnTimeSetListener{
-        private String time_start_or_end;
-
-        public SetTime(String time_start_or_end){
-            this.time_start_or_end = time_start_or_end;
-        }
-
-        @Override
-        public void onTimeSet(TimePicker timePicker, int hourOfDay, int minuteOfDay) {
-            //Initialize hour and minute
-
-            LocalTime time = LocalTime.of(hourOfDay, minuteOfDay);
-            int u = time.toSecondOfDay();
-            LocalTime f = LocalTime.ofSecondOfDay(u);
-
-            String time_text = Utils_Calendar.TimeToText(time);
-
-            *//*if(hour < 10){
-                time += "0";
-            }
-            time += hour + ":";
-            if(min < 10){
-                time += "0";
-            }
-            time += min;*//*
-
-            switch(time_start_or_end) {
-                case "start":
-                    btn_choose_start_time.setText(time_text);
-
-                    start_hour = hourOfDay;
-                    start_min = minuteOfDay;
-
-                    break;
-                case "end":
-                    btn_choose_end_time.setText(time_text);
-
-                    end_hour = hourOfDay;
-                    end_min = minuteOfDay;
-
-                    break;
-            }
-        }
-    }
-
-    //sets date
-    public class SetDate implements DatePickerDialog.OnDateSetListener {
-        private String date_start_or_end;
-
-        public SetDate(String date_start_or_end){
-            this.date_start_or_end = date_start_or_end;
-        }
-
-        @Override
-        public void onDateSet(DatePicker view, int year, int month, int day) {
-            month = month + 1;
-            LocalDate date = LocalDate.of(year, month, day);
-            String date_text = Utils_Calendar.DateToTextOnline(date);
-
-            switch(date_start_or_end) {
-                case "start":
-                    btn_choose_start_date.setText(date_text);
-
-                    start_day = day;
-                    start_month = month;
-                    start_year = year;
-
-                    break;
-                case "end":
-                    btn_choose_end_date.setText(date_text);
-
-                    end_day = day;
-                    end_month = month;
-                    end_year = year;
-
-                    break;
-            }
-        }
-    }*/
-
-    private void createColorPickerDialog() {
-        ColorPicker colorPicker = new ColorPicker(this);
-        colorPicker.setDefaultColorButton(Color.GREEN);
-        colorPicker.setRoundColorButton(true);
-
-        colorPicker.setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
+        btn_repeat = findViewById(R.id.btn_repeat);
+        btn_repeat.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onChooseColor(int position, int color) {
-                if(color == 0){
-                    return;
+            public void onClick(View view) {
+                LocalDate startDate = LocalDate.of(start_year, start_month, start_day);
+                String start_date = UtilsCalendar.DateToTextLocal(startDate);
+
+                //ChooseEventFrequencyDialog chooseEventFrequencyDialog = new ChooseEventFrequencyDialog(Add_Event_Screen.this);
+                //AlertDialogToChooseFrequency chooseEventFrequencyDialog = new AlertDialogToChooseFrequency(Add_Event_Screen.this, startDate);
+/*                if (initial){
+                    Toast.makeText(getApplicationContext(), "Initial open", Toast.LENGTH_SHORT).show();
+                    chooseEventFrequencyDialog.setStartDateForRepeatInitial(startDate);
                 }
-                Log.d("murad", "color " + color);
-                selectedColor = color;
-                btn_color.setBackgroundColor(color);
-            }
+                else {
+                    Toast.makeText(getApplicationContext(), "Open", Toast.LENGTH_SHORT).show();
+                    chooseEventFrequencyDialog.setStartDateForRepeat(startDate);
+                }
+                initial = false;*/
 
-            @Override
-            public void onCancel() {
+                chooseEventFrequencyDialog.setStartDateForRepeatInitial(startDate);
+
+                intentToChooseEventFrequencyDialogCustom = new Intent(getApplicationContext(),
+                        ChooseEventFrequencyDialogCustomWithExposedDropdown.class);
+                intentToChooseEventFrequencyDialogCustom.putExtra("end_year", start_year);
+                intentToChooseEventFrequencyDialogCustom.putExtra("end_month", start_month);
+                intentToChooseEventFrequencyDialogCustom.putExtra("end_day", start_day);
+
+                chooseEventFrequencyDialog.show();
+
+                Bundle bundle = new Bundle();
+                bundle.putInt("year", start_year);
+                bundle.putInt("month", start_month);
+                bundle.putInt("day", start_day);
+
+/*
+                getSupportFragmentManager().beginTransaction()
+                        .setReorderingAllowed(true)
+                        .add(ChooseEventFrequency_Screen.class, bundle, ChooseEventFrequency_Screen.TAG)
+                        .commit();*/
+
+
+                /**
+                 * DialogFragment.show() will take care of adding the fragment
+                 * in a transaction.  We also want to remove any currently showing
+                 * dialog, so make our own transaction and take care of that here.
+                 */
+
+      /*          Fragment prev = getSupportFragmentManager().findFragmentByTag(ChooseEventFrequency_Screen.TAG);
+                if (prev != null) {
+                    prev.show(ft, ChooseEventFrequency_Screen.TAG);
+//                    ((ChooseEventFrequency_Screen) prev).show(getSupportFragmentManager(), ChooseEventFrequency_Screen.TAG);
+//                    fragmentManager.beginTransaction().show(prev).commit();
+                    Toast.makeText(getApplicationContext(), "Showing created dialog", Toast.LENGTH_SHORT).show();
+
+                    ft.show(prev);
+
+                }
+                else{
+                    ft.setReorderingAllowed(true)
+                            .add(ChooseEventFrequency_Screen.class, bundle, ChooseEventFrequency_Screen.TAG)
+                            .commit();
+                    Toast.makeText(getApplicationContext(), "Creating dialog", Toast.LENGTH_SHORT).show();
+
+                }
+                ft.addToBackStack(null);*/
+
+                // Create and show the dialog.
+/*                ChooseEventFrequency_Screen newFragment = ChooseEventFrequency_Screen.newInstance(start_year, start_month, start_day);
+                newFragment.show(ft, ChooseEventFrequency_Screen.TAG);*/
             }
         });
-        colorPicker.show();
+
+
     }
 
-    /*
-    public void deleteEvent(CalendarEventWithTextOnly event){
-        LocalDate start_date = event.receiveStart_date();
-        LocalDate end_date = event.receiveEnd_date();
+    private void circularRevealActivity() {
+        int cx = /*ll_add_event_screen.getRight() - */x;
+        int cy = /*ll_add_event_screen.getBottom() -*/ y;
 
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
+        float finalRadius = Math.max(sv_add_event_screen.getWidth(),
+                sv_add_event_screen.getHeight());
 
-        if(firebaseUser != null){
-            //ToDo check if current user is madrich
-        }
+        Animator circularReveal = ViewAnimationUtils.createCircularReveal(
+                sv_add_event_screen,
+                cx,
+                cy,
+                0,
+                finalRadius);
 
-        eventsDatabaseForText = FirebaseUtils.eventsDatabase;
+        circularReveal.setDuration(1300);
+        sv_add_event_screen.setVisibility(View.VISIBLE);
+        circularReveal.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+            }
 
-        LocalDate tmp = start_date;
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                getSupportActionBar().show();
+            }
 
-        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(old_start_date));
-        Log.d("murad", eventsDatabaseForText.getKey());
+            @Override
+            public void onAnimationCancel(Animator animation) {
+            }
 
-        do {
-            eventsDatabaseForText = FirebaseUtils.eventsDatabase;
-            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+            }
+        });
 
-            eventsDatabaseForText.child(key).removeValue();
+        circularReveal.start();
 
-            tmp = tmp.plusDays(1);
-        }
-        while(!tmp.isEqual(end_date.plusDays(1)));
-    }
-*/
-
-    public void deleteEvent(LocalDate start, LocalDate end){
-
-        eventsDatabaseForText = FirebaseUtils.eventsDatabase;
-
-        LocalDate tmp = start;
-
-        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(start));
-        Log.d("murad", eventsDatabaseForText.getKey());
-
-        do {
-            eventsDatabaseForText = FirebaseUtils.eventsDatabase;
-            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
-
-            eventsDatabaseForText.child(chain_key).getParent().removeValue();
-
-            tmp = tmp.plusDays(1);
-        }
-        while(!tmp.isEqual(end.plusDays(1)));
     }
 
-    public void deleteSingleEvent(String private_key, LocalDate start, LocalDate end){
-
-        eventsDatabaseForText = FirebaseUtils.eventsDatabase;
-
-        LocalDate tmp = start;
-
-        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(start));
-        Log.d("murad", eventsDatabaseForText.getKey());
-
-        do {
-            eventsDatabaseForText = FirebaseUtils.eventsDatabase;
-            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
-
-            eventsDatabaseForText.child(private_key).removeValue();
-
-            tmp = tmp.plusDays(1);
-        }
-        while(!tmp.isEqual(end.plusDays(1)));
+    private int getDips(int dps) {
+        Resources resources = getResources();
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dps,
+                resources.getDisplayMetrics());
     }
 
-    public void deleteAllEventsInChain(String chain_key, LocalDate chain_start, LocalDate chain_end){
+    @Override
+    public void onBackPressed() {
+        int cx =/* ll_add_event_screen.getWidth() - */x;
+        int cy =/* ll_add_event_screen.getBottom() -*/ y;
 
-        eventsDatabaseForText = FirebaseUtils.eventsDatabase;
+        float finalRadius = Math.max(sv_add_event_screen.getWidth(),
+                sv_add_event_screen.getHeight());
+        Animator circularReveal = ViewAnimationUtils.createCircularReveal(sv_add_event_screen, cx,
+                cy, finalRadius, 0);
 
-        LocalDate tmp = chain_start;
+        circularReveal.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+                getSupportActionBar().hide();
+            }
 
-        eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(chain_start));
-        Log.d("murad", eventsDatabaseForText.getKey());
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                sv_add_event_screen.setVisibility(View.INVISIBLE);
 
-        do {
-            eventsDatabaseForText = FirebaseUtils.eventsDatabase;
-            eventsDatabaseForText = eventsDatabaseForText.child(Utils_Calendar.DateToTextForFirebase(tmp));
+                Intent toCalendar_Screen = new Intent(getApplicationContext(),
+                        Calendar_Screen.class);
 
-            eventsDatabaseForText.child(chain_key).getParent().removeValue();
+                int day = startDate.getDayOfMonth();
+                int month = startDate.getMonthValue();
+                int year = startDate.getYear();
 
-            tmp = tmp.plusDays(1);
-        }
-        while(!tmp.isEqual(chain_end.plusDays(1)));
+                toCalendar_Screen.putExtra("day", day);
+                toCalendar_Screen.putExtra("month", month);
+                toCalendar_Screen.putExtra("year", year);
+
+//                startActivity(toCalendar_Screen);
+                ;
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+            }
+        });
+
+        circularReveal.setDuration(800);
+        circularReveal.start();
     }
 
-    boolean finished = true;
+    public void animate(ViewGroup viewGroup) {
+        AutoTransition trans = new AutoTransition();
+//        trans.setDuration(100);
+        trans.setInterpolator(new AccelerateDecelerateInterpolator());
+        //trans.setInterpolator(new DecelerateInterpolator());
+        //trans.setInterpolator(new FastOutSlowInInterpolator());
 
-    public void superDelete(String key) {
-        eventsDatabaseForText = FirebaseUtils.eventsDatabase;
+        ChangeBounds changeBounds = new ChangeBounds();
+        changeBounds.setDuration(300);
+        changeBounds.setInterpolator(new AccelerateDecelerateInterpolator());
 
-        eventsDatabaseForText.addValueEventListener(new ValueEventListener() {
+        Slide slide = new Slide(Gravity.TOP);
+        TransitionManager.beginDelayedTransition(viewGroup, trans);
+//        TransitionManager.beginDelayedTransition(viewGroup, trans);
+
+    }
+
+    ProgressDialog deletingProgressDialog;
+
+    @Override
+    public void onAddEventClick(MenuItem item) {
+        if (editMode){
+            absoluteDelete(chain_key, new OnDeleteFinishedCallback() {
+                @Override
+                public void onDeleteFinished() {
+                    Edit_Event_Screen.super.onAddEventClick(item);
+                }
+            });
+        }
+        else {
+            super.onAddEventClick(item);
+        }
+    }
+
+    public void absoluteDelete(String key, OnDeleteFinishedCallback onDeleteFinishedCallback){
+        DatabaseReference allEventsDatabase = FirebaseUtils.allEventsDatabase;
+
+        CircularProgressIndicator circularProgressIndicator = new CircularProgressIndicator(this);
+        circularProgressIndicator.setIndicatorDirection(CircularProgressIndicator.INDICATOR_DIRECTION_CLOCKWISE);
+        circularProgressIndicator.show();
+
+        deletingProgressDialog = new ProgressDialog(this);
+
+        deletingProgressDialog.setMessage("Deleting event");
+        deletingProgressDialog.setIndeterminate(true);
+        deletingProgressDialog.show();
+
+        Query query = allEventsDatabase.orderByKey().equalTo(key);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                for(DataSnapshot data : snapshot.getChildren()) {
-                    /*if(data.hasChild(key)) {
-                        data.child(key).getRef().removeValue();
-                    }*/
-
-                    for (DataSnapshot d : data.getChildren()){
-
-
-                        Log.d("murad", "-----------------------------------------------------------------------");
-                        Log.d("murad", " ");
-
-                        Log.d("murad", "RIGHT NOW AT " + data.getKey() + " / " + d.getKey());
-
-
-/*                        if(d.getValue(CalendarEvent.class).getEvent_chain_id().equals(key)){
-                            d.getRef().removeValue();
-                        }*/
-
-                        if(d.child("event_chain_id").getValue().toString().equals(key)){
-                            finished = false;
-
-                            CalendarEvent c = d.getValue(CalendarEvent.class);
-                            if(c == null){
-                                Toast.makeText(getApplicationContext(), "FAILED", Toast.LENGTH_SHORT).show();
-                            }
-                            else {
-                                Toast.makeText(getApplicationContext(), "SUCCEEDED " + c.toString(), Toast.LENGTH_SHORT).show();
-                            }
-
-                            /*d.getRef().removeValue(new DatabaseReference.CompletionListener() {
-                                @Override
-                                public void onComplete(@Nullable DatabaseError error,
-                                                       @NonNull DatabaseReference ref) {
-                                    finished = true;
-                                }
-                            });*/
-
-                            d.getRef().setValue(null);
-
-//                            d.getRef().child(d.getKey()).removeValue();
-                            Log.d("murad", " ");
-
-                            Log.d("murad", "EVENT " + "'" + d.child("name").getValue().toString() + "'" + " IS DELETED");
-                        }
-
-                        Log.d("murad", " ");
-                        Log.d("murad", "-----------------------------------------------------------------------");
-
-                    }
-
+                for (DataSnapshot data : snapshot.getChildren()){
+                    data.getRef().removeValue();
                 }
+//                onDeleteFinishedCallback.onDeleteFinished();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-
-
         });
 
+        DatabaseReference eventsDatabaseReference = FirebaseUtils.eventsDatabase;
+
+        eventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot date : snapshot.getChildren()){
+
+                    Log.d("murad", "========================================================");
+                    Log.d("murad", "Date key is " + date.getKey());
+                    Log.d("murad", "events on this date: " + date.getChildrenCount());
+
+                    for (DataSnapshot event : date.getChildren()){
+
+                        Log.d("murad", "Event key is " + date.getKey());
+                        Log.d("murad", event.getValue(CalendarEvent.class).toString());
+
+                        if (event.child(CalendarEvent.EVENT_CHAIN_ID).getValue(String.class).equals(key)){
+                            Log.d("murad", "Event found");
+                            event.getRef().removeValue();
+                        }
+                    }
 
 
-        Log.d("murad", "DELETING EVENT HAS BEEN SUCCESSFULLY FINISHED");
-        Toast.makeText(getApplicationContext(), "DELETING EVENT HAS BEEN SUCCESSFULLY FINISHED", Toast.LENGTH_SHORT).show();
+                    Log.d("murad", "========================================================");
+                }
+                onDeleteFinishedCallback.onDeleteFinished();
+                circularProgressIndicator.hide();
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
-        startActivity(new Intent(Edit_Event_Screen.this, Calendar_Screen.class));
-        startActivity(new Intent(Edit_Event_Screen.this, Calendar_Screen.class));
-//        Query query = eventsDatabase.equalTo(key);
+            }
+        });
+    }
 
+    public interface OnDeleteFinishedCallback {
+        void onDeleteFinished();
     }
 }

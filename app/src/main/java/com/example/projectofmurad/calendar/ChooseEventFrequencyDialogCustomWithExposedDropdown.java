@@ -140,7 +140,7 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
     public boolean frequency_dayOfWeek_and_year = false;
     public boolean frequency_last_dayOfWeek_and_year = false;
 
-    public final String[] days = Utils_Calendar.getNarrowDaysOfWeek();
+    public final String[] days = UtilsCalendar.getNarrowDaysOfWeek();
 
     public ArrayList<ToggleButton> toggleButtons;
 
@@ -173,7 +173,7 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         this.context = context;
         this.startDate = startDate;
 
-        Toast.makeText(context, Utils_Calendar.DateToTextLocal(startDate), Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, UtilsCalendar.DateToTextLocal(startDate), Toast.LENGTH_SHORT).show();
 
         this.onSwitchDialog = (OnSwitchDialog) context;
         this.onSendMessageListener = (OnSendMessageListener) context;
@@ -228,14 +228,14 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         array_frequencyDayOfWeek.add(false);
 
         day = startDate.getDayOfMonth();
-        dayOfWeek = startDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Utils_Calendar.locale);
+        dayOfWeek = startDate.getDayOfWeek().getDisplayName(TextStyle.FULL, UtilsCalendar.locale);
 
         dayOfWeekPosition = startDate.getDayOfWeek().getValue()-1;
 
         Log.d("murad", "dayOfWeek is " + dayOfWeek + " at position " + dayOfWeekPosition);
 
-        weekNumber = Utils_Calendar.getWeekNumber(startDate);
-        month_name = startDate.getMonth().getDisplayName(TextStyle.FULL, Utils_Calendar.locale);
+        weekNumber = UtilsCalendar.getWeekNumber(startDate);
+        month_name = startDate.getMonth().getDisplayName(TextStyle.FULL, UtilsCalendar.locale);
         month = startDate.getMonthValue();
 
         ll_choose_day_of_week = this.findViewById(R.id.choose_day_of_week_layout);
@@ -420,7 +420,7 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
             public void onDateChanged(DatePicker datePicker, int year, int month, int day) {
                 month = month + 1;
                 frequency_end_date = LocalDate.of(year, month, day);
-                String date_text = Utils_Calendar.DateToTextLocal(frequency_end_date);
+                String date_text = UtilsCalendar.DateToTextLocal(frequency_end_date);
 
                 end_year = year;
                 end_month = month;
@@ -660,7 +660,7 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
             for(int i = 0; i < array_frequencyDayOfWeek.size(); i++) {
                 if(array_frequencyDayOfWeek.get(i)){
                     days_of_week.append(DayOfWeek.of(i + 1).getDisplayName(TextStyle.FULL,
-                            Utils_Calendar.locale)).append(", ");
+                            UtilsCalendar.locale)).append(", ");
                 }
             }
             days_of_week.deleteCharAt(days_of_week.length()-1);
@@ -1073,14 +1073,14 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
         end_day = startDate.getDayOfMonth();
 
         day = startDate.getDayOfMonth();
-        dayOfWeek = startDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Utils_Calendar.locale);
+        dayOfWeek = startDate.getDayOfWeek().getDisplayName(TextStyle.FULL, UtilsCalendar.locale);
 
         dayOfWeekPosition = startDate.getDayOfWeek().getValue()-1;
 
         Log.d("murad", "dayOfWeek is " + dayOfWeek + " at position " + dayOfWeekPosition);
 
-        weekNumber = Utils_Calendar.getWeekNumber(startDate);
-        month_name = startDate.getMonth().getDisplayName(TextStyle.FULL, Utils_Calendar.locale);
+        weekNumber = UtilsCalendar.getWeekNumber(startDate);
+        month_name = startDate.getMonth().getDisplayName(TextStyle.FULL, UtilsCalendar.locale);
         month = startDate.getMonthValue();
 
         frequency = selected_frequency;

@@ -1,12 +1,12 @@
 package com.example.projectofmurad;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -37,6 +37,7 @@ public class Graph_Fragment extends Fragment {
      * @return A new instance of fragment Graph_Fragment.
      */
     // TODO: Rename and change types and number of parameters
+    @NonNull
     public static Graph_Fragment newInstance(String param1, String param2) {
         Graph_Fragment fragment = new Graph_Fragment();
         Bundle args = new Bundle();
@@ -53,11 +54,10 @@ public class Graph_Fragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_graph_, container, false);

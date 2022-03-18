@@ -1,4 +1,4 @@
-package com.example.projectofmurad;
+package com.example.projectofmurad.notifications;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
@@ -14,8 +14,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.MyApplication;
+import com.example.projectofmurad.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
-import com.example.projectofmurad.calendar.Utils_Calendar;
+import com.example.projectofmurad.calendar.UtilsCalendar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -37,7 +40,7 @@ public class AlarmManagerForToday {
     public static LocalDate tmp;
 
     public static String getTodayText(){
-        return Utils_Calendar.DateToTextOnline(getToday());
+        return UtilsCalendar.DateToTextOnline(getToday());
     }
 
     private static Context getContext(){
@@ -82,13 +85,13 @@ public class AlarmManagerForToday {
 
                     Log.d(TAG, "Is alarm already set? " + event.isAlarmAlreadySet());
 
-                    LocalTime time = Utils_Calendar.TextToTime(data.child("start_time").getValue(String.class));
-                    LocalDate date = Utils_Calendar.TextToDateForFirebase(data.child("start_date").getValue(String.class));
+                    LocalTime time = UtilsCalendar.TextToTime(data.child("start_time").getValue(String.class));
+                    LocalDate date = UtilsCalendar.TextToDateForFirebase(data.child("start_date").getValue(String.class));
 
-                    String text_date = Utils_Calendar.DateToTextOnline(date);
+                    String text_date = UtilsCalendar.DateToTextOnline(date);
                     Log.d(TAG, "Date is " + text_date);
 
-                    String text_time = Utils_Calendar.TimeToText(time);
+                    String text_time = UtilsCalendar.TimeToText(time);
                     Log.d(TAG, "Time is " + text_time);
 
 //                    createAlarm(context, time, event);
@@ -124,13 +127,28 @@ public class AlarmManagerForToday {
             editor.putString(KEY_TODAY, getTodayText());
             editor.apply();
 
-            addAllAlarmsForToday(context, db);
+//            addAllAlarmsForToday(context, db);
         }
 
 
     }
 
-    @SuppressLint("MissingPermission")
+    public static boolean checkIfAlarmSet(@NonNull Context context, String eventPrivateId){
+        boolean alarmSet = false;
+
+        SQLiteDatabase db = context.openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
+
+        Cursor cursor = db.rawQuery("select * from tbl_alarm where "
+                + Utils.TABLE_AlARM_COL_EVENT_PRIVATE_ID + " = '" + eventPrivateId + "'",  null);
+
+        if(cursor.moveToNext()){
+            alarmSet = true;
+        }
+        cursor.close();
+
+        return alarmSet;
+    }
+
     public static void createAlarm(@NonNull Context context, @NonNull LocalTime start_time, @NonNull CalendarEvent event){
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -156,7 +174,7 @@ public class AlarmManagerForToday {
         Intent intent = new Intent(context, AlarmReceiver.class);
 
         intent.putExtra("notification_body", "The event " + event.getName() + " started. \n" +
-                "It will finish at " + event.getEnd_time());
+                "It will finish at " + event.getEndTime());
         intent.putExtra("notification_color", event.getColor());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -182,11 +200,55 @@ public class AlarmManagerForToday {
 
     @SuppressLint("MissingPermission")
     public static void addAlarm(@NonNull Context context, @NonNull CalendarEvent event, long before){
+
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmReceiver.class);
 
-        intent.putExtra("notification_body", "The event " + event.getName() + " started. \n" +
-                "It will finish at " + event.getEnd_time());
+        String beforeText = "";
+
+        if (before != 0){
+//            LocalTime timeBefore = CalendarEvent.getTime(before);
+
+            Calendar time = Calendar.getInstance();
+            time.setTimeInMillis(before);
+            time.roll(Calendar.HOUR_OF_DAY, -2);
+
+            Log.d(TAG, time.toString());
+
+            int beforeHour = time.get(Calendar.HOUR_OF_DAY);
+            int beforeMinute = time.get(Calendar.MINUTE);
+
+
+/*            int beforeHour = timeBefore.getHour();
+            int beforeMinute = timeBefore.getMinute();*/
+
+            if (beforeHour == 1){
+                beforeText = beforeText + beforeHour + " hour and " ;
+            }
+            else if(beforeHour > 1){
+                beforeText = beforeText + beforeHour + " hours and ";
+            }
+
+            if (beforeMinute == 1){
+                beforeText = beforeText + beforeMinute + " minute";
+            }
+            else if(beforeMinute > 1){
+                beforeText = beforeText + beforeMinute + " minutes";
+            }
+            else{
+                beforeText = beforeText.replace(" and ", "");
+            }
+        }
+
+        if (beforeText.isEmpty()){
+            intent.putExtra("notification_body", "The event " + event.getName() + " started. \n" +
+                    "It will finish at " + event.getEndTime());
+        }
+        else {
+            intent.putExtra("notification_body", "The event " + event.getName() + " will start in "
+                    + beforeText + ". \n" + "It will finish at " + event.getEndTime());
+        }
+
         intent.putExtra("notification_color", event.getColor());
         intent.putExtra("event", event);
 
@@ -198,16 +260,16 @@ public class AlarmManagerForToday {
         Log.d(TAG, "" + event.getColor());
 
         SQLiteDatabase db = context.openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
-        Utils.addAlarm(event.getEvent_private_id(), event.getStart_date(), db);
+        Utils.addAlarm(event.getPrivateId(), event.getStartDate(), db);
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
-        int year = event.receiveStart_dateTime().getYear();
-        int month = event.receiveStart_dateTime().getMonthValue();
-        int day = event.receiveStart_dateTime().getDayOfMonth();
+        int year = event.receiveStartDateTime().getYear();
+        int month = event.receiveStartDateTime().getMonthValue();
+        int day = event.receiveStartDateTime().getDayOfMonth();
 
-        int hour = event.receiveStart_dateTime().getHour();
-        int minute = event.receiveStart_dateTime().getMinute();
+        int hour = event.receiveStartDateTime().getHour();
+        int minute = event.receiveStartDateTime().getMinute();
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getDefault());
@@ -260,13 +322,13 @@ public class AlarmManagerForToday {
         intent.putExtra("event", event);
 
         SQLiteDatabase db = context.openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
-        Utils.addAlarm(event.getEvent_private_id(), event.getStart_date(), db);
+        Utils.deleteAlarm(event.getPrivateId(), event.getStartDate(), db);
 
         Log.d(TAG, "===============================================================================================");
         Log.d(TAG, "Cancelling alarm");
         Log.d(TAG, " ");
         Log.d(TAG, "The event " + event.getName() + " started. \n" +
-                "It will finish at " + event.getEnd_time());
+                "It will finish at " + event.getEndTime());
         Log.d(TAG, "" + event.getColor());
         Log.d(TAG, "===============================================================================================");
 
@@ -279,7 +341,7 @@ public class AlarmManagerForToday {
     public static CalendarEvent findCalendarEventById(String event_private_id){
         final CalendarEvent[] event = {new CalendarEvent()};
 
-        FirebaseUtils.eventsDatabase.child(Utils_Calendar.DateToTextForFirebase(getToday())).child(event_private_id).addListenerForSingleValueEvent(
+        FirebaseUtils.eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(getToday())).child(event_private_id).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -327,5 +389,6 @@ public class AlarmManagerForToday {
         }
         cursor.close();
     }
+
 
 }

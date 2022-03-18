@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.textfield.TextInputLayout
+    android:id="@+id/et_verify_sms_code"
+    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="Verification Code"
+    android:textColor="@color/colorAccent"
+    android:textSize="20sp"
+    android:paddingVertical="5sp"
+    android:paddingHorizontal="20sp"
+    app:counterEnabled="true"
+    app:counterMaxLength="6"
+    app:endIconMode="clear_text"
+    app:endIconTint="@color/colorAccent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:maxLength="6"
+        android:inputType="number"
+        android:singleLine="true" />
+
+
+</com.google.android.material.textfield.TextInputLayout>

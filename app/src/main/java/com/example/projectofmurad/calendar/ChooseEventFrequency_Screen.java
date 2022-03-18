@@ -37,6 +37,7 @@ public class ChooseEventFrequency_Screen extends DialogFragment {
      * Create a new instance of MyDialogFragment, providing "num"
      * as an argument.
      */
+    @NonNull
     static ChooseEventFrequency_Screen newInstance(int year, int month, int day) {
         ChooseEventFrequency_Screen fragment = new ChooseEventFrequency_Screen();
         Bundle args = new Bundle();

@@ -26,14 +26,14 @@
             android:id="@+id/iv_profile_picture"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:scaleType="centerCrop"
-            android:src="@drawable/sample_profile"
+            android:src="@drawable/images"
             android:contentDescription="Profile picture" />
 
+<!--
         <com.facebook.shimmer.ShimmerFrameLayout
             android:id="@+id/shimmer_profile_picture"
             android:layout_width="60dp"
@@ -50,11 +50,50 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_centerInParent="true"
-                android:src="@drawable/sample_profile"
-                android:scaleType="centerCrop"
-                app:civ_circle_background_color="@color/gray"/>
+                android:src="@drawable/images"
+                android:scaleType="centerCrop"/>
 
         </com.facebook.shimmer.ShimmerFrameLayout>
+-->
+
+        <LinearLayout
+            android:id="@+id/ll_contact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:layout_marginTop="10sp"
+            app:layout_constraintTop_toBottomOf="@id/iv_profile_picture"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_phone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="30sp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_baseline_local_phone_24" />
+
+            <ImageView
+                android:id="@+id/iv_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="30sp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_baseline_email_24" />
+
+            <ImageView
+                android:id="@+id/iv_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="30sp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_baseline_chat_24" />
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tv_username"
@@ -68,10 +107,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintEnd_toStartOf="@id/checkbox_attendance"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@id/iv_profile_picture"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.322" />
+            app:layout_constraintVertical_bias="0.355" />
 
         <TextView
             android:id="@+id/tv_user_phone"
@@ -83,7 +121,6 @@
             android:text="Phone: "
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintEnd_toStartOf="@id/checkbox_attendance"
             app:layout_constraintStart_toEndOf="@id/iv_profile_picture"
             app:layout_constraintTop_toBottomOf="@id/tv_username"

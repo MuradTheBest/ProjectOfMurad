@@ -7,6 +7,8 @@
 	<!--<color name="colorAccent">#6A1B9A</color>-->
 	<color name="colorAccent">#0070FF</color>
 
+	<color name="alarm_off">#3B125EBF</color>
+
 	<color name="_bg__sign_up_page_ek2_color">#FFFFFF</color>
 	<color name="_sign_in__color">#02379D</color>
 	<color name="already_have_an_account__color">#031434</color>

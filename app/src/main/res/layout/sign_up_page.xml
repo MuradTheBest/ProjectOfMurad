@@ -248,10 +248,9 @@
 		android:textColor="@color/already_have_an_account__color"
 		android:textSize="22sp"
 		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintEnd_toEndOf="@+id/btn_sign_up"
-		app:layout_constraintHorizontal_bias="0.502"
-		app:layout_constraintStart_toStartOf="@+id/btn_sign_up"
-		app:layout_constraintTop_toBottomOf="@+id/btn_sign_up"
+		app:layout_constraintEnd_toEndOf="@+id/linearLayout4"
+		app:layout_constraintStart_toStartOf="@+id/linearLayout4"
+		app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
 		app:layout_constraintVertical_bias="0.0" />
 
 	<TextView
@@ -283,5 +282,66 @@
 		app:layout_constraintHorizontal_bias="0.05"
 		app:layout_constraintStart_toStartOf="@+id/et_confirm_password"
 		app:layout_constraintTop_toBottomOf="@+id/et_confirm_password" />
+
+	<LinearLayout
+		android:id="@+id/linearLayout4"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="@+id/btn_sign_up"
+		app:layout_constraintStart_toStartOf="@+id/btn_sign_up"
+		app:layout_constraintTop_toBottomOf="@+id/btn_sign_up"
+		app:layout_constraintVertical_bias="0.0">
+
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/sign_up_with_google"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="20sp"
+			android:layout_weight="1"
+			android:padding="5dp"
+			app:backgroundTint="@color/white"
+			app:cornerRadius="10dp"
+			app:elevation="3dp"
+			app:icon="@drawable/ic_google"
+			app:iconGravity="textStart"
+			app:iconSize="30dp"
+			app:iconTintMode="multiply" />
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/sign_up_with_facebook"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="20sp"
+			android:layout_weight="1"
+			android:padding="5dp"
+			app:backgroundTint="@color/white"
+			app:cornerRadius="10dp"
+			app:elevation="3dp"
+			app:icon="@drawable/facebook_icon_transparent"
+			app:iconGravity="textStart"
+			app:iconSize="35dp"
+			app:iconTintMode="multiply" />
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/sign_up_with_phone"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="20sp"
+			android:layout_weight="1"
+			android:padding="5dp"
+			app:backgroundTint="@color/white"
+			app:cornerRadius="10dp"
+			app:elevation="3dp"
+			app:icon="@drawable/ic_baseline_local_phone_24"
+			app:iconGravity="textStart"
+			app:iconSize="28dp"
+			app:iconTint="@color/black"
+			app:iconTintMode="multiply" />
+
+	</LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
