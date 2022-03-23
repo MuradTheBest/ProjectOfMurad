@@ -1,7 +1,6 @@
 package com.example.projectofmurad;
 
 import android.app.AlertDialog;
-
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
@@ -29,11 +28,14 @@ import com.google.firebase.database.DataSnapshot;
 
 import org.jetbrains.annotations.Contract;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Arrays;
 import java.util.Random;
 
 public class Utils {
 
-    public final static String TAG = "murad";
+    public final static String LOG_TAG = "murad";
 
     public static final int ALARM_FOR_EVENT_NOTIFICATION_CODE = 100;
     public static final int ADD_EVENT_NOTIFICATION_CODE = 200;
@@ -319,5 +321,57 @@ public class Utils {
         linearLayoutManagerWrapper.setReverseLayout(true);
 //        linearLayoutManagerWrapper.setStackFromEnd(true);
         return linearLayoutManagerWrapper;
+    }
+
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = BigDecimal.valueOf(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
+
+    @NonNull
+    public static String convertSpeedToPace(double speed){
+
+        if (speed == 0){
+            return "00'00" + '"' + "/km";
+        }
+
+        speed = convertSpeedToMinPerKm(speed);
+
+        String speedText = String.valueOf(speed);
+        Log.d(Utils.LOG_TAG, "speedText " + speedText);
+
+        String[] pace = speedText.split("\\.");
+
+        Log.d(Utils.LOG_TAG, "pace = " + Arrays.toString(pace));
+
+        Log.d(Utils.LOG_TAG, "pace[1] = " + pace[1]);
+
+        double ratio = Double.parseDouble("0." + pace[1]);
+
+        Log.d(Utils.LOG_TAG, "ratio " + ratio);
+        int seconds = (int) (60 * ratio);
+        Log.d(Utils.LOG_TAG, "seconds " + seconds);
+
+        int length = String.valueOf(seconds).length();
+
+        if (length > 2){
+            length = 2;
+        }
+        pace[1] = String.valueOf(seconds).substring(0, length);
+
+        return pace[0] + "'" + pace[1] +'"' + "/km";
+    }
+
+    public static double convertSpeedToMinPerKm(double speed){
+        speed /= 60;
+
+        speed = 1/speed;
+
+        speed = Utils.round(speed, 2);
+
+        return speed;
     }
 }

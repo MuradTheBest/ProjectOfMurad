@@ -16,7 +16,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/rl_training"
-        tools:context=".map.Tracking_Fragment" />
+        tools:context=".tracking.Tracking_Fragment" />
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/switch_map_type"
@@ -43,11 +43,11 @@
             android:id="@+id/tv_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20sp"
-            android:layout_alignParentStart="true"
-            android:text="0:00:00"
             android:layout_below="@+id/tv_distance"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="20sp"
             android:layout_marginTop="20sp"
+            android:text="00:00:00"
             android:textSize="18sp" />
 
         <TextView
@@ -57,18 +57,18 @@
             android:layout_alignParentStart="true"
             android:layout_marginStart="20sp"
             android:layout_marginTop="20sp"
-            android:text="0.00 m"
+            android:text="0.00 km"
             android:textSize="18sp" />
 
         <TextView
             android:id="@+id/tv_speed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="20sp"
-            android:layout_alignParentEnd="true"
-            android:text="0.00 m/s"
             android:layout_below="@+id/tv_max_speed"
+            android:layout_alignParentEnd="true"
             android:layout_marginTop="20sp"
+            android:layout_marginEnd="20sp"
+            android:text="0.00 km/h"
             android:textSize="18sp" />
 
         <TextView
@@ -78,7 +78,7 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="20sp"
             android:layout_marginEnd="20sp"
-            android:text="0.00 m/s"
+            android:text="0.00 km/h"
             android:textSize="18sp" />
 
         <com.google.android.material.button.MaterialButton

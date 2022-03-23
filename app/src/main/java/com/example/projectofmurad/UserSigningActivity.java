@@ -1,6 +1,6 @@
 package com.example.projectofmurad;
 
-import static com.example.projectofmurad.Utils.TAG;
+import static com.example.projectofmurad.Utils.LOG_TAG;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -241,7 +241,7 @@ public class UserSigningActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Logging failed", Toast.LENGTH_SHORT).show();
                 Log.d("murad", "signInWithCredential:failure", task.getException());
                 // Sign in failed, display a message and update the UI
-                Log.w(TAG, "signInWithCredential:failure", task.getException());
+                Log.w(LOG_TAG, "signInWithCredential:failure", task.getException());
                 if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                     Toast.makeText(getApplicationContext(), "The entered verification code is invalid", Toast.LENGTH_SHORT).show();
                 }

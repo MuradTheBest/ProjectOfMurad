@@ -1,6 +1,5 @@
 package com.example.projectofmurad;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -29,12 +28,17 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.projectofmurad.calendar.AlarmDialog;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.Edit_Event_Screen;
+import com.example.projectofmurad.calendar.EventSlidePageAdapter;
 import com.example.projectofmurad.calendar.UsersAdapterForFirebase;
+import com.example.projectofmurad.calendar.ZoomOutPageTransformer;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -46,7 +50,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -67,8 +70,6 @@ public class BlankFragment extends Fragment implements UsersAdapterForFirebase.O
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
-    CalendarEvent next_event;
 
     private RecyclerView rv_users;
     private UsersAdapterForFirebase userAdapter;
@@ -137,7 +138,7 @@ public class BlankFragment extends Fragment implements UsersAdapterForFirebase.O
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_blank, container, false);
+        return inflater.inflate(R.layout.fragment_blank_for_viewpager2, container, false);
     }
 
     //Todo dashboard screen
@@ -172,7 +173,16 @@ public class BlankFragment extends Fragment implements UsersAdapterForFirebase.O
 
     public SQLiteDatabase db;
 
-    @Override
+    private MutableLiveData<CalendarEvent> next_event = new MutableLiveData<>();
+    private MutableLiveData<CalendarEvent> last_event = new MutableLiveData<>();
+
+    private MutableLiveData<Boolean> isNext_event_ready = new MutableLiveData<>();
+    private MutableLiveData<Boolean> isLast_event_ready = new MutableLiveData<>();
+
+    private EventSlidePageAdapter pagerAdapter;
+    private ViewPager2 vp_event;
+
+/*    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -240,7 +250,119 @@ public class BlankFragment extends Fragment implements UsersAdapterForFirebase.O
             }
         });
 
+    }*/
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        MainViewModel.toSwipeFragments.setValue(true);
+
+        vp_event = view.findViewById(R.id.vp_event);
+
+/*        Query query = FirebaseUtils.allEventsDatabase.orderByChild("start")
+                .startAt(Calendar.getInstance().getTimeInMillis()).limitToFirst(1);*/
+
+        isNext_event_ready.setValue(false);
+        isLast_event_ready.setValue(false);
+
+        Query query = FirebaseUtils.allEventsDatabase;
+
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot data : snapshot.getChildren()){
+                    if (data.exists()){
+                        next_event.setValue(data.getValue(CalendarEvent.class));
+                        last_event.setValue(data.getValue(CalendarEvent.class));
+
+                        MainViewModel.toSwipeFragments.setValue(true);
+
+                        isNext_event_ready.setValue(true);
+                        isLast_event_ready.setValue(true);
+
+                        Log.d("murad", "next_event is " + next_event.toString());
+                        Log.d("murad", "last_event is " + last_event.toString());
+
+//                        tv_there_are_no_upcoming_events.setVisibility(View.GONE);
+
+                    }
+                    else {
+                        cv_event.setVisibility(View.GONE);
+                        tv_there_are_no_upcoming_events.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        next_event.observe(getViewLifecycleOwner(), event -> isNext_event_ready.setValue(true));
+
+        last_event.observe(getViewLifecycleOwner(), event -> isLast_event_ready.setValue(true));
+
+        isNext_event_ready.observe(getViewLifecycleOwner(), aBoolean -> {
+            if (isLast_event_ready.getValue()){
+                setPagerAdapter();
+            }
+        });
+
+        isLast_event_ready.observe(getViewLifecycleOwner(), aBoolean -> {
+            if (isNext_event_ready.getValue()){
+                setPagerAdapter();
+            }
+        });
+
+        vp_event.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset,
+                                       int positionOffsetPixels) {
+                if (MainViewModel.toSwipeFragments.getValue()){
+                }
+                    super.onPageScrolled(position, positionOffset, positionOffsetPixels);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (MainViewModel.toSwipeFragments.getValue()){
+                }
+                    super.onPageSelected(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if (MainViewModel.toSwipeFragments.getValue()){
+                }
+                    super.onPageScrollStateChanged(state);
+            }
+        });
+
+        MainViewModel.toSwipeFragments.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                Toast.makeText(requireContext(), "toSwipeFragments is " + aBoolean, Toast.LENGTH_SHORT).show();
+                Log.d("murad", "toSwipeFragments is " + aBoolean);
+                vp_event.setUserInputEnabled(aBoolean);
+
+            }
+        });
+
+
     }
+
+    private void setPagerAdapter() {
+
+        pagerAdapter = new EventSlidePageAdapter(BlankFragment.this, next_event.getValue(), last_event.getValue());
+        vp_event.setAdapter(pagerAdapter);
+        vp_event.setPageTransformer(new ZoomOutPageTransformer());
+
+        vp_event.setCurrentItem(1, true);
+        vp_event.setNestedScrollingEnabled(true);
+    }
+
 
     public void setUpNextEventData(@NonNull CalendarEvent event){
         iv_circle.getDrawable().setTint(event.getColor());
@@ -337,7 +459,7 @@ public class BlankFragment extends Fragment implements UsersAdapterForFirebase.O
                 .setLifecycleOwner(this)
                 .build();
 
-        userAdapter = new UsersAdapterForFirebase(options, next_event.getPrivateId(), requireContext(), this, this);
+        userAdapter = new UsersAdapterForFirebase(options, next_event.getValue().getPrivateId(), requireContext(), this, this);
         Log.d("murad", "adapterForFirebase.getItemCount() = " + userAdapter.getItemCount());
         Log.d("murad", "options.getItemCount() = " + options.getSnapshots().size());
 
@@ -405,7 +527,7 @@ public class BlankFragment extends Fragment implements UsersAdapterForFirebase.O
     public void onClick(View v) {
         if (v == iv_edit){
             Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
-            intent.putExtra("event", next_event);
+            intent.putExtra("event", next_event.getValue());
 
             requireContext().startActivity(intent);
         }
@@ -416,7 +538,7 @@ public class BlankFragment extends Fragment implements UsersAdapterForFirebase.O
             if (switch_alarm.isChecked()){
                 Log.d("murad", "Alarm added");
 
-                AlarmDialog alarmDialog = new AlarmDialog(requireContext() , next_event, 0, 2, 0);
+                AlarmDialog alarmDialog = new AlarmDialog(requireContext() , next_event.getValue(), 0, 2, 0);
                 alarmDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialog) {
@@ -436,7 +558,7 @@ public class BlankFragment extends Fragment implements UsersAdapterForFirebase.O
                 Log.d("murad", "swipe gotChecked = " + gotChecked.get());
                 if (gotChecked.get()){
                     Log.d("murad", "swipe gotChecked = " + gotChecked.get());
-                    AlarmManagerForToday.cancelAlarm(requireContext(), next_event);
+                    AlarmManagerForToday.cancelAlarm(requireContext(), next_event.getValue());
                 }
             }
         }

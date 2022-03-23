@@ -423,7 +423,7 @@ public class Add_Event_Screen extends MySuperTouchActivity {
 /*
                 getSupportFragmentManager().beginTransaction()
                         .setReorderingAllowed(true)
-                        .add(ChooseEventFrequency_Screen.class, bundle, ChooseEventFrequency_Screen.TAG)
+                        .add(ChooseEventFrequency_Screen.class, bundle, ChooseEventFrequency_Screen.LOG_TAG)
                         .commit();*/
 
 
@@ -433,10 +433,10 @@ public class Add_Event_Screen extends MySuperTouchActivity {
                  * dialog, so make our own transaction and take care of that here.
                  */
 
-      /*          Fragment prev = getSupportFragmentManager().findFragmentByTag(ChooseEventFrequency_Screen.TAG);
+      /*          Fragment prev = getSupportFragmentManager().findFragmentByTag(ChooseEventFrequency_Screen.LOG_TAG);
                 if (prev != null) {
-                    prev.show(ft, ChooseEventFrequency_Screen.TAG);
-//                    ((ChooseEventFrequency_Screen) prev).show(getSupportFragmentManager(), ChooseEventFrequency_Screen.TAG);
+                    prev.show(ft, ChooseEventFrequency_Screen.LOG_TAG);
+//                    ((ChooseEventFrequency_Screen) prev).show(getSupportFragmentManager(), ChooseEventFrequency_Screen.LOG_TAG);
 //                    fragmentManager.beginTransaction().show(prev).commit();
                     Toast.makeText(getApplicationContext(), "Showing created dialog", Toast.LENGTH_SHORT).show();
 
@@ -445,7 +445,7 @@ public class Add_Event_Screen extends MySuperTouchActivity {
                 }
                 else{
                     ft.setReorderingAllowed(true)
-                            .add(ChooseEventFrequency_Screen.class, bundle, ChooseEventFrequency_Screen.TAG)
+                            .add(ChooseEventFrequency_Screen.class, bundle, ChooseEventFrequency_Screen.LOG_TAG)
                             .commit();
                     Toast.makeText(getApplicationContext(), "Creating dialog", Toast.LENGTH_SHORT).show();
 
@@ -454,7 +454,7 @@ public class Add_Event_Screen extends MySuperTouchActivity {
 
                 // Create and show the dialog.
 /*                ChooseEventFrequency_Screen newFragment = ChooseEventFrequency_Screen.newInstance(start_year, start_month, start_day);
-                newFragment.show(ft, ChooseEventFrequency_Screen.TAG);*/
+                newFragment.show(ft, ChooseEventFrequency_Screen.LOG_TAG);*/
             }
         });
 

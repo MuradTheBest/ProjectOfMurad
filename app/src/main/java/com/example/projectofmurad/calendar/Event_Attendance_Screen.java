@@ -46,8 +46,6 @@ public class Event_Attendance_Screen extends AppCompatActivity implements
     private TextView tv_event_start_date_time;
     private TextView tv_event_end_date_time;
 
-    private UserData[] usersArrayList;
-
     private RecyclerView rv_users;
     private UsersAdapterForFirebase userAdapter;
 
@@ -147,26 +145,26 @@ public class Event_Attendance_Screen extends AppCompatActivity implements
         /*ObservableSnapshotArray<UserData> userDataArrayList = userAdapter.getSnapshots();
 //        usersArrayList = (UserData[]) userDataArrayList.toArray();
         for (UserData userData : userDataArrayList){
-            Log.d(TAG, userData.toString());
+            Log.d(LOG_TAG, userData.toString());
         }
 
-        Log.d(TAG, "event_private_id is " + event_private_id);
+        Log.d(LOG_TAG, "event_private_id is " + event_private_id);
 
         FirebaseUtils.eventsDatabase.child(event_private_id).child("attendance_UIDs").addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         for(DataSnapshot data : snapshot.getChildren()){
-                            Log.d(TAG, "---------------------------------------------------------------" );
-                            String UID = data.getKey();
-                            Log.d(TAG, "UID = " + UID);
+                            Log.d(LOG_TAG, "---------------------------------------------------------------" );
+                            String userID = data.getKey();
+                            Log.d(LOG_TAG, "userID = " + userID);
 
                             boolean attend = data.getValue(boolean.class);
-                            Log.d(TAG, "attend = " + attend);
+                            Log.d(LOG_TAG, "attend = " + attend);
 
-                            int position = userDataArrayList.indexOf(UID);
-                            Log.d(TAG, "position = " + position);
-                            Log.d(TAG, "---------------------------------------------------------------" );
+                            int position = userDataArrayList.indexOf(userID);
+                            Log.d(LOG_TAG, "position = " + position);
+                            Log.d(LOG_TAG, "---------------------------------------------------------------" );
 
 
                             ((CheckBox) rv_users.findViewHolderForAdapterPosition(position).itemView.findViewById(R.id.checkbox_attendance)).setChecked(attend);

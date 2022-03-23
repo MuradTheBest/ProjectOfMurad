@@ -1,12 +1,11 @@
-package com.example.projectofmurad.map;
+package com.example.projectofmurad.tracking;
 
-import static com.example.projectofmurad.Utils.TAG;
+import static com.example.projectofmurad.Utils.LOG_TAG;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -36,7 +35,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,6 +55,10 @@ import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.Utils;
+import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.ActivityTransition;
+import com.google.android.gms.location.ActivityTransitionRequest;
+import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
@@ -75,6 +77,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -87,6 +90,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -96,9 +100,13 @@ public class Tracking_Fragment extends Fragment implements
         GoogleMap.OnMyLocationButtonClickListener,
         GoogleMap.OnMyLocationClickListener,
         OnMapReadyCallback,
-        GoogleMap.OnMarkerClickListener {
+        GoogleMap.OnMarkerClickListener, CompoundButton.OnCheckedChangeListener,
+SaveTrainingDialog.OnAddTrainingListener{
 
     private GoogleMap map;
+
+    public final static String TRACKING_CHANNEL_ID = Utils.APPLICATION_ID + "tracking_channel_id";
+
 
     private boolean mapReady;
     private boolean selfTraining;
@@ -295,7 +303,7 @@ public class Tracking_Fragment extends Fragment implements
         PendingIntent pintent = PendingIntent.getBroadcast(requireContext(), 0, i,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(requireContext(), "CHANNEL_ID");
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(requireContext(), TRACKING_CHANNEL_ID);
         builder.setSmallIcon(R.drawable.ic_baseline_directions_bike_24)
                 .setContentTitle("Warning")
                 .setContentText("Turn off power saving mode in order to continue tracking")
@@ -307,14 +315,13 @@ public class Tracking_Fragment extends Fragment implements
                 (NotificationManager) requireActivity().getSystemService(Context.NOTIFICATION_SERVICE);
 
 
-        String channelId = "CHANNEL_ID";
         NotificationChannel channel = new NotificationChannel(
-                channelId,
-                "Channel human readable title",
+                TRACKING_CHANNEL_ID,
+                "Channel for tracking",
                 NotificationManager.IMPORTANCE_HIGH);
         notificationManager.createNotificationChannel(channel);
 
-        builder.setChannelId(channelId);
+        builder.setChannelId(TRACKING_CHANNEL_ID);
 
         notificationManager.notify(4321, builder.build());
     }
@@ -436,7 +443,7 @@ public class Tracking_Fragment extends Fragment implements
     public void stopTracking() {
         btn_stop_tracking.setText("Resume");
         Intent intent = new Intent(getContext(), TrackingService.class);
-        intent.setAction(TrackingService.ACTION_STOP_TRACKING_SERVICE);
+        intent.setAction(TrackingService.ACTION_PAUSE_TRACKING_SERVICE);
         requireActivity().startService(intent);
     }
 
@@ -458,6 +465,17 @@ public class Tracking_Fragment extends Fragment implements
         TrackingViewModel.avgSpeed.removeObservers(getViewLifecycleOwner());
         TrackingViewModel.maxSpeed.removeObservers(getViewLifecycleOwner());
 
+        TrackingViewModel.training.observe(getViewLifecycleOwner(), new Observer<Training>() {
+            @Override
+            public void onChanged(Training training) {
+                SaveTrainingDialog saveTrainingDialog = new SaveTrainingDialog(requireActivity(), training, Tracking_Fragment.this);
+
+                saveTrainingDialog.show();
+
+                TrackingViewModel.training.removeObservers(getViewLifecycleOwner());
+            }
+        });
+
         requireActivity().unregisterReceiver(broadcastReceiver);
 
         requireActivity().stopService(intent);
@@ -467,7 +485,14 @@ public class Tracking_Fragment extends Fragment implements
         createTurnOnPowerSavingDialog();
     }
 
+    @Override
+    public void onAddTraining(Training training) {
+        new MyRepository(requireActivity().getApplication()).insert(training);
+    }
+
     public void startTracking(){
+
+        TrackingViewModel trackingViewModel = new TrackingViewModel(requireActivity().getApplication());
 
         PowerManager powerManager = (PowerManager) requireContext().getSystemService(Context.POWER_SERVICE);
         if (powerManager.isPowerSaveMode()) {
@@ -476,7 +501,7 @@ public class Tracking_Fragment extends Fragment implements
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Log.d(TAG, "Permission " + Manifest.permission.ACCESS_BACKGROUND_LOCATION + " is granted");
+            Log.d(LOG_TAG, "Permission " + Manifest.permission.ACCESS_BACKGROUND_LOCATION + " is granted");
             if (!checkBackgroundLocationPermission()){
                 return;
             }
@@ -484,7 +509,7 @@ public class Tracking_Fragment extends Fragment implements
 
         btn_start_tracking.setVisibility(View.GONE);
         ll_stop_or_finish_training.setVisibility(View.VISIBLE);
-        btn_stop_tracking.setText("Stop");
+        btn_stop_tracking.setText("Pause");
 
         // Define the IntentFilter.
         IntentFilter intentFilter = new IntentFilter();
@@ -493,6 +518,8 @@ public class Tracking_Fragment extends Fragment implements
         intentFilter.addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED);
 
         requireContext().registerReceiver(broadcastReceiver, intentFilter);
+
+        initializeActivityBroadcastReceiver();
 
 //        startLocationUpdates();
 
@@ -505,11 +532,12 @@ public class Tracking_Fragment extends Fragment implements
             @Override
             public void onChanged(List<LatLng> latLngs) {
                 if (mapReady){
-                    LatLng lastLocation = latLngs.get(latLngs.size()-1);
+/*                    LatLng lastLocation = latLngs.get(latLngs.size()-1);
+
+                    Log.d("murad", "Latitude: " + lastLocation.latitude
+                            + "\nLongitude: " + lastLocation.longitude);*/
 
                     gpsTrack.setPoints(latLngs);
-                    Log.d("murad", "Latitude: " + lastLocation.latitude
-                            + "\nLongitude: " + lastLocation.longitude);
 
 //                map.animateCamera(CameraUpdateFactory.newLatLng(lastLocation));
                 }
@@ -536,23 +564,24 @@ public class Tracking_Fragment extends Fragment implements
         TrackingViewModel.totalDistance.observe(getViewLifecycleOwner(), new Observer<Double>() {
             @Override
             public void onChanged(Double totalDistance) {
-                tv_distance.setText(new DecimalFormat("####.##").format(totalDistance) + " m");
+                tv_distance.setText(new DecimalFormat("####.##").format(totalDistance) + " km");
             }
         });
 
         TrackingViewModel.avgSpeed.observe(getViewLifecycleOwner(), new Observer<Double>() {
             @Override
             public void onChanged(Double speed) {
-                tv_speed.setText(new DecimalFormat("##.##").format(speed) + " m/s");
+                tv_speed.setText(new DecimalFormat("##.##").format(speed) + " km/h");
             }
         });
 
         TrackingViewModel.maxSpeed.observe(getViewLifecycleOwner(), new Observer<Double>() {
             @Override
             public void onChanged(Double maxSpeed) {
-                tv_max_speed.setText(new DecimalFormat("##.##").format(maxSpeed) + " m/s");
+                tv_max_speed.setText(new DecimalFormat("##.##").format(maxSpeed) + " km/h");
             }
         });
+
     }
 
     public void resumeTracking(){
@@ -564,7 +593,7 @@ public class Tracking_Fragment extends Fragment implements
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Log.d(TAG, "Permission " + Manifest.permission.ACCESS_BACKGROUND_LOCATION + " is granted");
+            Log.d(LOG_TAG, "Permission " + Manifest.permission.ACCESS_BACKGROUND_LOCATION + " is granted");
             if (!checkBackgroundLocationPermission()){
                 return;
             }
@@ -582,6 +611,7 @@ public class Tracking_Fragment extends Fragment implements
 
     @Override
     public void onResume() {
+        super.onResume();
 
         PowerManager powerManager = (PowerManager) requireContext().getSystemService(Context.POWER_SERVICE);
         if (powerManager.isPowerSaveMode()) {
@@ -590,7 +620,7 @@ public class Tracking_Fragment extends Fragment implements
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Log.d(TAG, "Permission " + Manifest.permission.ACCESS_BACKGROUND_LOCATION + " is granted");
+            Log.d(LOG_TAG, "Permission " + Manifest.permission.ACCESS_BACKGROUND_LOCATION + " is granted");
             if (!checkBackgroundLocationPermission()){
                 return;
             }
@@ -600,30 +630,64 @@ public class Tracking_Fragment extends Fragment implements
             startTracking();
         }
 
-        super.onResume();
+
     }
 
-    public void initializeBroadcastReceiver(){
-        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, @NonNull Intent intent) {
-                if (TrackingViewModel.isRunning.getValue() && intent.getAction().equals(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)){
-                    PowerManager powerManager = (PowerManager) requireActivity().getSystemService(Context.POWER_SERVICE);
-                    if (!powerManager.isPowerSaveMode()){
-                        createTurnOffPowerSavingDialog();
+    public void initializeActivityBroadcastReceiver(){
+        checkActivityRecognitionPermission();
+        List<ActivityTransition> transitions = new ArrayList<>();;
+
+        /*transitions.add(
+                new ActivityTransition.Builder()
+                        .setActivityType(DetectedActivity.ON_BICYCLE)
+                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                        .build());*/
+
+        transitions.add(
+                new ActivityTransition.Builder()
+                        .setActivityType(DetectedActivity.WALKING)
+                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                        .build());
+
+        transitions.add(
+                new ActivityTransition.Builder()
+                        .setActivityType(DetectedActivity.WALKING)
+                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                        .build());
+
+        /*transitions.add(
+                new ActivityTransition.Builder()
+                        .setActivityType(DetectedActivity.RUNNING)
+                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                        .build());*/
+
+        ActivityTransitionRequest request = new ActivityTransitionRequest(transitions);
+
+        Intent intent = new Intent(requireContext(), ActivityBroadcastReceiver.class);
+        PendingIntent myPendingIntent = PendingIntent.getBroadcast(requireContext(), 1122, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // myPendingIntent is the instance of PendingIntent where the app receives callbacks.
+        @SuppressLint("MissingPermission") Task<Void> task = ActivityRecognition.getClient(requireContext())
+                .requestActivityTransitionUpdates(request, myPendingIntent);
+
+        task.addOnSuccessListener(
+                new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void result) {
+                        // Handle success
+                        Log.d(LOG_TAG, "receiving activity recognitions");
                     }
                 }
-            }
-        };
+        );
 
-        // Define the IntentFilter.
-        IntentFilter intentFilter = new IntentFilter();
-
-        // Adding system broadcast actions sent by the system when the power is connected and disconnected.
-        intentFilter.addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED);
-
-        requireContext().registerReceiver(broadcastReceiver, intentFilter);
-
+        task.addOnFailureListener(
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.d(LOG_TAG, "receiving activity recognitions failed");
+                    }
+                }
+        );
     }
 
 /*
@@ -666,38 +730,36 @@ public class Tracking_Fragment extends Fragment implements
     }
 */
 
+
+
     public void createSaveTrainingDialog(){
-        Dialog dialog = new Dialog(requireContext());
+        /*Dialog dialog = new Dialog(requireContext());
         dialog.setTitle("Choose training type");
         dialog.setCancelable(false);
         dialog.setContentView(R.layout.choose_training_dialog);
 
         RadioGroup rg_choose_training = dialog.findViewById(R.id.rg_choose_training);
 
-        
-        
+        RadioButton rb_private_training = dialog.findViewById(R.id.rb_private_training);
+        RadioButton rb_group_training = dialog.findViewById(R.id.rb_group_training);
 
-        rg_choose_training.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId){
-                    case R.id.ll_private_training:
-
-
-                        break;
-                    case R.id.ll_group_training:
-
-                        break;
-                }
-            }
-        });
+        rb_private_training.setOnCheckedChangeListener(this);
+        rb_group_training.setOnCheckedChangeListener(this);
 
         LinearLayout ll_private_training = dialog.findViewById(R.id.ll_private_training);
         LinearLayout ll_group_training = dialog.findViewById(R.id.ll_group_training);
 
         Utils.createCustomDialog(dialog);
 
-        dialog.show();
+        dialog.show();*/
+
+    }
+
+    @Override
+    public void onCheckedChanged(@NonNull CompoundButton buttonView, boolean isChecked) {
+        if (buttonView.getId() == R.id.rb_private_training){
+
+        }
     }
 
     public void createTurnOnPowerSavingDialog(){
@@ -886,10 +948,10 @@ public class Tracking_Fragment extends Fragment implements
                         Bitmap bitmap = Bitmap.createScaledBitmap(resource, pixels, pixels, true);
                         if (bitmap == null){
                             Toast.makeText(requireContext(), "Bitmap is null", Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, "Bitmap is null");
+                            Log.d(LOG_TAG, "Bitmap is null");
                         }
                         else {
-                            Log.d(TAG, "Bitmap is not null");
+                            Log.d(LOG_TAG, "Bitmap is not null");
                         }
 
                         if(bitmap != null){
@@ -900,10 +962,10 @@ public class Tracking_Fragment extends Fragment implements
                             Marker old_marker = markers.get(UID);
 
                             if (old_marker != null){
-//                            Log.d(TAG, "Old marker's tag is " + old_marker.getTag().toString());
-//                            last_markers.put(UID, old_marker);
+//                            Log.d(LOG_TAG, "Old marker's tag is " + old_marker.getTag().toString());
+//                            last_markers.put(userID, old_marker);
                                 old_marker.remove();
-                                Log.d(TAG, "Old marker is successfully removed");
+                                Log.d(LOG_TAG, "Old marker is successfully removed");
                             }
 
                             Marker marker = map.addMarker(markerOptions);
@@ -1054,39 +1116,39 @@ public class Tracking_Fragment extends Fragment implements
 
         for (String permission : permissions){
             if (ContextCompat.checkSelfPermission(requireActivity(), permission) == PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "Permission " + permission + " is granted");
+                Log.d(LOG_TAG, "Permission " + permission + " is granted");
             } else {
-                Log.d(TAG, "Permission " + permission + " is not granted");
+                Log.d(LOG_TAG, "Permission " + permission + " is not granted");
                 hasPermissions = false;
                 askLocationPermission(permission);
             }
         }
 
         /*if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Permission is granted");
+            Log.d(LOG_TAG, "Permission is granted");
         } else {
-            Log.d(TAG, "Permission is not granted");
+            Log.d(LOG_TAG, "Permission is not granted");
             askLocationPermission();
         }
 
         if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Permission is granted");
+            Log.d(LOG_TAG, "Permission is granted");
         } else {
-            Log.d(TAG, "Permission is not granted");
+            Log.d(LOG_TAG, "Permission is not granted");
             askLocationPermission();
         }
 
         if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Permission is granted");
+            Log.d(LOG_TAG, "Permission is granted");
         } else {
-            Log.d(TAG, "Permission is not granted");
+            Log.d(LOG_TAG, "Permission is not granted");
             askLocationPermission();
         }
 
         if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Permission is granted");
+            Log.d(LOG_TAG, "Permission is granted");
         } else {
-            Log.d(TAG, "Permission is not granted");
+            Log.d(LOG_TAG, "Permission is not granted");
             askLocationPermission();
         }
 */
@@ -1098,9 +1160,10 @@ public class Tracking_Fragment extends Fragment implements
         boolean hasPermissions = true;
 
         if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Permission " + Manifest.permission.ACCESS_BACKGROUND_LOCATION + " is granted");
-        } else {
-            Log.d(TAG, "Permission " + Manifest.permission.ACCESS_BACKGROUND_LOCATION + " is not granted");
+            Log.d(LOG_TAG, "Permission " + Manifest.permission.ACCESS_BACKGROUND_LOCATION + " is granted");
+        }
+        else {
+            Log.d(LOG_TAG, "Permission " + Manifest.permission.ACCESS_BACKGROUND_LOCATION + " is not granted");
             hasPermissions = false;
             askLocationPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
         }
@@ -1108,15 +1171,32 @@ public class Tracking_Fragment extends Fragment implements
         return hasPermissions;
     }
 
+    public void checkActivityRecognitionPermission(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+            if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+                Log.d(LOG_TAG, "Permission " + Manifest.permission.ACTIVITY_RECOGNITION + " is granted");
+            }
+            else {
+                Log.d(LOG_TAG, "Permission " + Manifest.permission.ACTIVITY_RECOGNITION + " is not granted");
+                askLocationPermission(Manifest.permission.ACTIVITY_RECOGNITION);
+            }
+        }
+
+    }
+
     private void askLocationPermission(String permission) {
         if (ContextCompat.checkSelfPermission(requireActivity(), permission) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Asking for the permission " + permission);
+            Log.d(LOG_TAG, "Asking for the permission " + permission);
             if (shouldShowRequestPermissionRationale(permission)) {
-                Log.d(TAG, "askLocationPermission: you should show an alert dialog...");
+                Log.d(LOG_TAG, "askLocationPermission: you should show an alert dialog...");
             }
 
             if (permission.equals(Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
                 requestPermissions(new String[]{permission}, 20000);
+            }
+            else if(permission.equals(Manifest.permission.ACTIVITY_RECOGNITION)){
+                requestPermissions(new String[]{permission}, 30000);
             }
             else{
                 requestPermissions(new String[]{permission}, 10000);
@@ -1137,12 +1217,12 @@ public class Tracking_Fragment extends Fragment implements
 
                 for (int i = 0; i < grantResults.length; i++) {
                     if (grantResults[i] != PackageManager.PERMISSION_GRANTED){
-                        Log.d(TAG, "Permission " + permissions[i] + " is yet not granted");
+                        Log.d(LOG_TAG, "Permission " + permissions[i] + " is yet not granted");
                     }
                 }
 
                 // Permission granted
-                Log.d(TAG, "Permission granted");
+                Log.d(LOG_TAG, "Permission granted");
                 map.setMyLocationEnabled(true);
 
                 map.setOnMyLocationButtonClickListener(this);
@@ -1160,11 +1240,27 @@ public class Tracking_Fragment extends Fragment implements
 
                 for (int i = 0; i < grantResults.length; i++) {
                     if (grantResults[i] != PackageManager.PERMISSION_GRANTED){
-                        Log.d(TAG, "Permission " + permissions[i] + " is yet not granted");
+                        Log.d(LOG_TAG, "Permission " + permissions[i] + " is yet not granted");
                     }
                 }
 
                 startTracking();
+
+            }
+            else {
+                //Permission not granted
+            }
+//            triggerRebirth(requireContext());
+        }
+        else if (requestCode == 30000) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                for (int i = 0; i < grantResults.length; i++) {
+                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED){
+                        Log.d(LOG_TAG, "Permission " + permissions[i] + " is yet not granted");
+                    }
+                }
+
 
             }
             else {
@@ -1179,8 +1275,7 @@ public class Tracking_Fragment extends Fragment implements
         map.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
         map.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
 
-//        Toast.makeText(requireContext(), "UID: " + marker.getTag().toString(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(requireContext(), "userID: " + marker.getTag().toString(), Toast.LENGTH_SHORT).show();
         return false;
     }
-
 }

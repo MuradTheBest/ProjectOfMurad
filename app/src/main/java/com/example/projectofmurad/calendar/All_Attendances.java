@@ -23,7 +23,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class All_Attendances extends AppCompatActivity  implements
-        EventsAdapterForFirebase.OnEventListener {
+        EventsAdapterForFirebase.OnEventClickListener {
 
     private ArrayList<CalendarEvent> calendarEventArrayList;
 

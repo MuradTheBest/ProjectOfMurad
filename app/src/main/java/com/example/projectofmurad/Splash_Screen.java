@@ -1,7 +1,7 @@
 
 package com.example.projectofmurad;
 
-import static com.example.projectofmurad.Utils.TAG;
+import static com.example.projectofmurad.Utils.LOG_TAG;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -120,7 +120,7 @@ public class Splash_Screen extends Activity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_NETWORK_STATE)) {
-                Log.d(TAG, "askLocationPermission: you should show an alert dialog...");
+                Log.d(LOG_TAG, "askLocationPermission: you should show an alert dialog...");
             }
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_NETWORK_STATE}, LOCATION_REQUEST_CODE);
 
@@ -129,7 +129,7 @@ public class Splash_Screen extends Activity {
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.INTERNET)) {
-                Log.d(TAG, "askLocationPermission: you should show an alert dialog...");
+                Log.d(LOG_TAG, "askLocationPermission: you should show an alert dialog...");
             }
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET},
                     LOCATION_REQUEST_CODE + 1);
@@ -142,39 +142,39 @@ public class Splash_Screen extends Activity {
 
         for (String permission : new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}){
             if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "Permission " + permission + " is granted");
+                Log.d(LOG_TAG, "Permission " + permission + " is granted");
             } else {
-                Log.d(TAG, "Permission " + permission + " is not granted");
+                Log.d(LOG_TAG, "Permission " + permission + " is not granted");
                 hasPermissions = false;
                 askLocationPermission(permission);
             }
         }
 
         /*if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Permission is granted");
+            Log.d(LOG_TAG, "Permission is granted");
         } else {
-            Log.d(TAG, "Permission is not granted");
+            Log.d(LOG_TAG, "Permission is not granted");
             askLocationPermission();
         }
 
         if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Permission is granted");
+            Log.d(LOG_TAG, "Permission is granted");
         } else {
-            Log.d(TAG, "Permission is not granted");
+            Log.d(LOG_TAG, "Permission is not granted");
             askLocationPermission();
         }
 
         if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Permission is granted");
+            Log.d(LOG_TAG, "Permission is granted");
         } else {
-            Log.d(TAG, "Permission is not granted");
+            Log.d(LOG_TAG, "Permission is not granted");
             askLocationPermission();
         }
 
         if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Permission is granted");
+            Log.d(LOG_TAG, "Permission is granted");
         } else {
-            Log.d(TAG, "Permission is not granted");
+            Log.d(LOG_TAG, "Permission is not granted");
             askLocationPermission();
         }
 */
@@ -182,9 +182,9 @@ public class Splash_Screen extends Activity {
 
     private void askLocationPermission(String permission) {
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Asking for the permission " + permission);
+            Log.d(LOG_TAG, "Asking for the permission " + permission);
             if (shouldShowRequestPermissionRationale(permission)) {
-                Log.d(TAG, "askLocationPermission: you should show an alert dialog...");
+                Log.d(LOG_TAG, "askLocationPermission: you should show an alert dialog...");
             }
 
             requestPermissions(new String[]{permission}, 10000);
@@ -203,7 +203,7 @@ public class Splash_Screen extends Activity {
 
                 for (int i = 0; i < grantResults.length; i++) {
                     if (grantResults[i] != PackageManager.PERMISSION_GRANTED){
-                        Log.d(TAG, "Permission " + permissions[i] + " is yet not granted");
+                        Log.d(LOG_TAG, "Permission " + permissions[i] + " is yet not granted");
                     }
                 }
 

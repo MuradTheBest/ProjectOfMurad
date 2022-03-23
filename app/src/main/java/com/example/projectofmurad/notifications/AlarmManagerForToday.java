@@ -83,23 +83,23 @@ public class AlarmManagerForToday {
 
                     CalendarEvent event = data.getValue(CalendarEvent.class);
 
-                    Log.d(TAG, "Is alarm already set? " + event.isAlarmAlreadySet());
+                    Log.d(LOG_TAG, "Is alarm already set? " + event.isAlarmAlreadySet());
 
                     LocalTime time = UtilsCalendar.TextToTime(data.child("start_time").getValue(String.class));
                     LocalDate date = UtilsCalendar.TextToDateForFirebase(data.child("start_date").getValue(String.class));
 
                     String text_date = UtilsCalendar.DateToTextOnline(date);
-                    Log.d(TAG, "Date is " + text_date);
+                    Log.d(LOG_TAG, "Date is " + text_date);
 
                     String text_time = UtilsCalendar.TimeToText(time);
-                    Log.d(TAG, "Time is " + text_time);
+                    Log.d(LOG_TAG, "Time is " + text_time);
 
 //                    createAlarm(context, time, event);
                     startAlarm(context, time, event);
 //                    startAlarm(context, time);
 
                     data.child("alarmAlreadySet").getRef().setValue(true);
-                    Log.d(TAG, "-------------------------------------------------------------------------------------------");
+                    Log.d(LOG_TAG, "-------------------------------------------------------------------------------------------");
 
                 }
             }

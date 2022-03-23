@@ -1,8 +1,8 @@
-package com.example.projectofmurad.map;
+package com.example.projectofmurad.tracking;
 
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -15,7 +15,6 @@ import android.location.Location;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
-import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -39,20 +38,25 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.SphericalUtil;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class TrackingService extends LifecycleService {
 
     public static final String ACTION_START_TRACKING_SERVICE = Utils.APPLICATION_ID + "action_start_tracking";
-    public static final String ACTION_STOP_TRACKING_SERVICE = Utils.APPLICATION_ID + "action_stop_tracking";
+    public static final String ACTION_PAUSE_TRACKING_SERVICE = Utils.APPLICATION_ID + "action_pause_tracking";
     public static final String ACTION_FINISH_TRACKING_SERVICE = Utils.APPLICATION_ID + "action_finish_tracking";
+
+    public static final String ACTION_AUTO_RESUME_TRACKING_SERVICE = Utils.APPLICATION_ID + "action_auto_resume_tracking";
+    public static final String ACTION_AUTO_PAUSE_TRACKING_SERVICE = Utils.APPLICATION_ID + "action_auto_pause_tracking";
+    public static final String ACTION_AUTO_RESUME_OR_PAUSE_TRACKING_SERVICE = Utils.APPLICATION_ID + "action_auto_resume_or_pause_tracking";
 
     public static final String ACTION_MOVE_TO_TRACKING_FRAGMENT = Utils.APPLICATION_ID + "action_move_to_tracking_fragment";
 
+    public static final int TRACKING_NOTIFICATION_ID = 0;
 
     public static final String TAG = "tracking";
 
@@ -69,24 +73,64 @@ public class TrackingService extends LifecycleService {
     private NotificationCompat.Builder notificationBuilder;
 
     private long start;
-    private long end;
+    private LocalDateTime startDateTime;
 
-    private LocationCallback locationCallback = new LocationCallback() {
+    private long end;
+    private LocalDateTime endDateTime;
+
+    private final Runnable runnable = new Runnable() {
+        @Override
+
+        public void run() {
+
+            // If running is true, increment the
+            // time variable.
+            if (TrackingViewModel.isRunning.getValue()) {
+                Log.d("tracking", "time = " + time);
+                TrackingViewModel.time.setValue(time);
+                time++;
+
+                int hours = (int) (time / 3600);
+                int minutes = (int) ((time % 3600) / 60);
+                int secs = (int) (time % 60);
+
+                // Format the time into hours, minutes,
+                // and time.
+                String time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
+
+                notificationBuilder.setContentText(time);
+
+                Notification notification = notificationBuilder.getNotification();
+                notification.flags = Notification.FLAG_ONGOING_EVENT;
+                notificationManager.notify(TRACKING_NOTIFICATION_ID, notification);
+            }
+
+            Log.d("tracking", "totalTime " + totalTime);
+            TrackingViewModel.totalTime.setValue(totalTime);
+            totalTime++;
+
+            // Post the code again
+            // with a delay of 1 second.
+            handler.postDelayed(this, 1000);
+        }
+    };
+
+    private final LocationCallback locationCallback = new LocationCallback() {
         @SuppressLint("MissingPermission")
         @Override
         public void onLocationResult(@NonNull LocationResult locationResult) {
             super.onLocationResult(locationResult);
 
             if (!FirebaseUtils.isUserLoggedIn()){
-                stopLocationUpdates();
+                pauseLocationUpdates();
                 return;
             }
 
 //            double latitude = locationResult.getLastLocation().getLatitude();
 //            double longitude = locationResult.getLastLocation().getLongitude();
 
-            double latitude = round(locationResult.getLastLocation().getLatitude(), 3);
-            double longitude = round(locationResult.getLastLocation().getLongitude(), 3);
+            double latitude = Utils.round(locationResult.getLastLocation().getLatitude(), 4);
+            double longitude = Utils.round(locationResult.getLastLocation().getLongitude(), 4);
 
             FirebaseUtils.getCurrentUserDataRef().child("latitude").setValue(latitude);
             FirebaseUtils.getCurrentUserDataRef().child("longitude").setValue(longitude);
@@ -123,26 +167,13 @@ public class TrackingService extends LifecycleService {
         }
     };
 
-    public static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
-
-        BigDecimal bd = BigDecimal.valueOf(value);
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
-        return bd.doubleValue();
-    }
-
-    private LocationRequest locationRequest = new LocationRequest()
+    //ToDo improve location request
+    private final LocationRequest locationRequest = new LocationRequest()
             .setWaitForAccurateLocation(true)
             .setInterval(2000)
             .setFastestInterval(1000)
             .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
             .setSmallestDisplacement(1);
-
-
-    public void addTraining(List<LatLng> locations){
-//        FirebaseUtils.getCurrentUserDataRef().child("Trainings").push().setValue(locations);
-        Log.d("murad", "Training added");
-    }
 
     @Override
     public Intent registerReceiver(@Nullable BroadcastReceiver receiver, @NonNull IntentFilter filter) {
@@ -150,8 +181,6 @@ public class TrackingService extends LifecycleService {
 
         return super.registerReceiver(receiver, filter);
     }
-
-
 
     @SuppressLint("MissingPermission")
     @Override
@@ -163,40 +192,47 @@ public class TrackingService extends LifecycleService {
         locations = new ArrayList<>();
 
 
-        notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     @SuppressLint("MissingPermission")
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand( Intent intent, int flags, int startId) {
 
         String action = intent.getAction();
 
-        if (action.equals(ACTION_START_TRACKING_SERVICE)) {
-            Toast.makeText(this, "Tracking Started", Toast.LENGTH_SHORT).show();
-            Log.d("murad", "Tracking Started");
+        switch (action) {
+            case ACTION_START_TRACKING_SERVICE:
+                Toast.makeText(this, "Tracking Started", Toast.LENGTH_SHORT).show();
+                Log.d("murad", "Tracking Started");
 
-            if (TrackingViewModel.isNewTraining.getValue() != null) {
-                if (TrackingViewModel.isNewTraining.getValue()){
-                    startLocationUpdates();
+                if (TrackingViewModel.isNewTraining.getValue() != null) {
+                    if (TrackingViewModel.isNewTraining.getValue()) {
+                        startLocationUpdates();
+                    }
+                    else {
+                        resumeLocationUpdates();
+                    }
                 }
-                else {
-                    resumeLocationUpdates();
+                break;
+            case ACTION_PAUSE_TRACKING_SERVICE:
+                pauseLocationUpdates();
+                break;
+            case ACTION_AUTO_RESUME_TRACKING_SERVICE:
+
+                break;
+            case ACTION_AUTO_PAUSE_TRACKING_SERVICE:
+
+                break;
+            case PowerManager.ACTION_POWER_SAVE_MODE_CHANGED:
+                PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+
+                Toast.makeText(this, "Power mode changed", Toast.LENGTH_SHORT).show();
+
+                if (powerManager.isPowerSaveMode()) {
+                    createTurnOffPowerSavingDialog();
                 }
-            }
-        }
-        else if (action.equals(ACTION_STOP_TRACKING_SERVICE)) {
-            stopLocationUpdates();
-        }
-        else if (action.equals(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)) {
-            PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-
-            Toast.makeText(this, "Power mode changed", Toast.LENGTH_SHORT).show();
-
-            if (powerManager.isPowerSaveMode()) {
-                createTurnOffPowerSavingDialog();
-            }
+                break;
         }
 
         return super.onStartCommand(intent, flags, startId);
@@ -231,15 +267,17 @@ public class TrackingService extends LifecycleService {
 
     @Override
     public void onTaskRemoved(Intent rootIntent){
-        Intent restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
+        this.getCacheDir().delete();
+       /* Intent restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
         restartServiceIntent.setPackage(getPackageName());
+        restartServiceIntent.setAction(ACTION_START_TRACKING_SERVICE);
 
         PendingIntent restartServicePendingIntent = PendingIntent.getService(getApplicationContext(), 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
         AlarmManager alarmService = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
         alarmService.set(
                 AlarmManager.ELAPSED_REALTIME,
                 SystemClock.elapsedRealtime() + 1000,
-                restartServicePendingIntent);
+                restartServicePendingIntent);*/
 
         super.onTaskRemoved(rootIntent);
     }
@@ -275,8 +313,10 @@ public class TrackingService extends LifecycleService {
                 .setContentTitle("Tracking started")
 //                .setContentText("0:00:00")
                 .setAutoCancel(false)
+                .setOnlyAlertOnce(true)
                 .setContentIntent(pintent)
-                .setUsesChronometer(true)
+//                .setUsesChronometer(true)
+                .setOngoing(true)
                 .setPriority(NotificationCompat.PRIORITY_MAX);
 
 
@@ -286,7 +326,7 @@ public class TrackingService extends LifecycleService {
                 "Channel human readable title",
                 NotificationManager.IMPORTANCE_HIGH);
 
-        channel.enableVibration(true);
+        channel.enableVibration(false);
         notificationManager.createNotificationChannel(channel);
 
         notificationBuilder.setChannelId(channelId);
@@ -294,29 +334,9 @@ public class TrackingService extends LifecycleService {
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
 
         start = System.currentTimeMillis()/1000;
+        startDateTime = LocalDateTime.now();
 
-        handler.post(new Runnable() {
-            @Override
-
-            public void run() {
-
-                // If running is true, increment the
-                // time variable.
-                if (TrackingViewModel.isRunning.getValue()) {
-                    Log.d("tracking", "time = " + time);
-                    TrackingViewModel.time.setValue(time);
-                    time++;
-                }
-
-                Log.d("tracking", "totalTime " + totalTime);
-                TrackingViewModel.totalTime.setValue(totalTime);
-                totalTime++;
-
-                // Post the code again
-                // with a delay of 1 second.
-                handler.postDelayed(this, 1000);
-            }
-        });
+        handler.post(runnable);
 
         /*TrackingViewModel.time.observe(this, new Observer<Long>() {
             @Override
@@ -327,16 +347,16 @@ public class TrackingService extends LifecycleService {
 
                 // Format the time into hours, minutes,
                 // and time.
-                String time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
+                String time = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, secs);
 
                 notificationBuilder.setContentText(time);
-                notificationManager.notify(1234, notificationBuilder.build());
+                notificationManager.notify(TRACKING_NOTIFICATION_ID, notificationBuilder.build());
             }
         });*/
 
-        TrackingViewModel.isRunning.setValue(true);
+        startForeground(TRACKING_NOTIFICATION_ID, notificationBuilder.build());
 
-        startForeground(1234, notificationBuilder.build());
+        TrackingViewModel.isRunning.setValue(true);
     }
 
     private void resumeLocationUpdates(){
@@ -345,16 +365,16 @@ public class TrackingService extends LifecycleService {
         TrackingViewModel.isRunning.setValue(true);
 
         notificationBuilder.setContentText("Tracking started");
-        notificationManager.notify(1234, notificationBuilder.build());
+        notificationManager.notify(TRACKING_NOTIFICATION_ID, notificationBuilder.build());
     }
 
-    private void stopLocationUpdates() {
+    private void pauseLocationUpdates() {
 //        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
 
         TrackingViewModel.isRunning.setValue(false);
 
         notificationBuilder.setContentText("Tracking stopped");
-        notificationManager.notify(1234, notificationBuilder.build());
+        notificationManager.notify(TRACKING_NOTIFICATION_ID, notificationBuilder.build());
     }
 
     private void finishLocationUpdates(){
@@ -363,7 +383,7 @@ public class TrackingService extends LifecycleService {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
 
         notificationBuilder.setContentText("Tracking finished");
-        notificationManager.notify(1234, notificationBuilder.build());
+        notificationManager.notify(TRACKING_NOTIFICATION_ID, notificationBuilder.build());
 
         TrackingViewModel.isRunning.setValue(false);
         TrackingViewModel.isNewTraining.setValue(true);
@@ -373,9 +393,10 @@ public class TrackingService extends LifecycleService {
         stopForeground(true);
         stopSelf();
 
-        notificationManager.cancel(1234);
+        notificationManager.cancel(TRACKING_NOTIFICATION_ID);
 
         end = System.currentTimeMillis()/1000;
+        endDateTime = LocalDateTime.now();
 
 //        end = Calendar.getInstance().getTimeInMillis();
 
@@ -386,6 +407,8 @@ public class TrackingService extends LifecycleService {
                 end = 0;
                 time = 0;
                 totalTime = 0;
+
+                handler.removeCallbacks(runnable);
 
                 TrackingViewModel.clearData();
             }
@@ -400,15 +423,21 @@ public class TrackingService extends LifecycleService {
 
         long time = TrackingViewModel.time.getValue();
         long totalTime = TrackingViewModel.totalTime.getValue();
+
         double speed = TrackingViewModel.avgSpeed.getValue();
-        double maxSpeed = TrackingViewModel.maxSpeed.getValue();
-        double totalDistance = TrackingViewModel.totalDistance.getValue();
         HashMap<String, Double> speeds = TrackingViewModel.speeds.getValue();
+        double maxSpeed = TrackingViewModel.maxSpeed.getValue();
+
+        double totalDistance = TrackingViewModel.totalDistance.getValue();
+
+        Log.d("murad", speeds.toString());
 
 
-        Training training = new Training(trainingId, start, end, time, totalTime, speed, maxSpeed, speeds, totalDistance);
+//        Training training = new Training(trainingId, start, end, time, totalTime, speed, maxSpeed, speeds, totalDistance);
+        Training training = new Training(trainingId, startDateTime, endDateTime, time, totalTime, speed, maxSpeed, speeds, totalDistance);
         Log.d("tracking", training.toString());
 
+        TrackingViewModel.training.setValue(training);
 
         return FirebaseUtils.getCurrentUserTrainingsRef().child(trainingId).setValue(training);
     }
@@ -428,20 +457,27 @@ public class TrackingService extends LifecycleService {
         endPoint.setLatitude(current.latitude);
         endPoint.setLongitude(current.longitude);
 
-//        double distance = round(startPoint.distanceTo(endPoint), 3);
+//        double distance = Utils.round(startPoint.distanceTo(endPoint), 3);
 
         double distance = SphericalUtil.computeDistanceBetween(previous, current);
+        distance /= 1000;
 
         double absoluteDistance = SphericalUtil.computeLength(TrackingViewModel.locations.getValue());
+        absoluteDistance /= 1000;
 
-        TrackingViewModel.totalDistance.setValue(TrackingViewModel.totalDistance.getValue() + distance);
+        double hours = (double) time / 3600;
 
-        TrackingViewModel.avgSpeed.setValue(round((double) TrackingViewModel.totalDistance.getValue()/TrackingViewModel.time.getValue(), 3));
+        TrackingViewModel.totalDistance.setValue(Utils.round(TrackingViewModel.totalDistance.getValue() + distance, 3));
+
+        TrackingViewModel.avgSpeed.setValue(Utils.round(TrackingViewModel.totalDistance.getValue()/hours, 3));
         HashMap<String, Double> addedSpeeds = TrackingViewModel.speeds.getValue();
-        addedSpeeds.put(String.valueOf(TrackingViewModel.time.getValue()), TrackingViewModel.avgSpeed.getValue());
+        addedSpeeds.put(""+TrackingViewModel.time.getValue(), TrackingViewModel.avgSpeed.getValue());
         TrackingViewModel.speeds.setValue(addedSpeeds);
 
         TrackingViewModel.maxSpeed.setValue(Math.max(TrackingViewModel.avgSpeed.getValue(), TrackingViewModel.maxSpeed.getValue()));
+
+        TrackingViewModel.avgPace.setValue(Utils.convertSpeedToPace(TrackingViewModel.avgSpeed.getValue()));
+        TrackingViewModel.maxPace.setValue(Utils.convertSpeedToPace(TrackingViewModel.maxSpeed.getValue()));
 
         Log.d(TAG, "-----------------------------------tracking-----------------------------");
         Log.d(TAG, "");
@@ -454,6 +490,10 @@ public class TrackingService extends LifecycleService {
         Log.d(TAG, "");
         Log.d(TAG, "-------------------------------tracking---------------------------------");
 
+    }
+
+    private double speedConverter(double speed){
+        return speed*18/5;
     }
 
     @Override
@@ -472,7 +512,7 @@ public class TrackingService extends LifecycleService {
     @Override
     public void onDestroy() {
         super.onDestroy();
-//        stopLocationUpdates();
+//        pauseLocationUpdates();
 
 
         finishLocationUpdates();

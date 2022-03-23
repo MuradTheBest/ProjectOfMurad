@@ -131,14 +131,14 @@ public class Profile_Screen extends AppCompatActivity {
 
 //        currentUserData = FirebaseUtils.getCurrentUserData();
 
-        /*String UID = currentUserData.getUID();
+        /*String userID = currentUserData.getUserID();
         String username = currentUserData.getUsername();
         String email = currentUserData.getEmail();
         String phone = currentUserData.getPhone();
         boolean isMadrich = currentUserData.isMadrich();
 
 
-        Log.d(TAG, currentUserData.toString());*/
+        Log.d(LOG_TAG, currentUserData.toString());*/
 
         et_username = ((TextInputLayout) findViewById(R.id.et_username)).getEditText();;
         et_email = ((TextInputLayout) findViewById(R.id.et_email)).getEditText();
@@ -972,7 +972,7 @@ public class Profile_Screen extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                /*String UID = snapshot.child("uid").getValue(String.class);
+                /*String userID = snapshot.child("uid").getValue(String.class);
                 String username = snapshot.child("username").getValue(String.class);
                 String email = snapshot.child("email").getValue(String.class);
                 String phone = snapshot.child("phone").getValue(String.class);
@@ -1097,7 +1097,7 @@ public class Profile_Screen extends AppCompatActivity {
                     }
                 }
 
-//                FirebaseUtils.getProfilePictureFromFB(UID, Profile_Screen.this, iv_profile_picture, shimmer_profile_picture);
+//                FirebaseUtils.getProfilePictureFromFB(userID, Profile_Screen.this, iv_profile_picture, shimmer_profile_picture);
 
                 Uri pp = user.getPhotoUrl();
                 selectedImageUri = pp;

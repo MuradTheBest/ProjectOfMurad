@@ -25,6 +25,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -52,7 +54,7 @@ import java.util.ArrayList;
 
 @RequiresApi(api = Build.VERSION_CODES.Q)
 public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
-        EventsAdapterForFirebase.OnEventListener, Calendar_Screen.OnEventShowListener,
+        EventsAdapterForFirebase.OnEventClickListener, Calendar_Screen.OnEventShowListener,
         EventsAdapterForFirebase.OnEventExpandListener{
 
     private LocalDate passingDate;
@@ -731,10 +733,24 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
     public void onEventClick(int position, @NonNull CalendarEvent event) {
 //        this.dismiss();
 
-        Intent intent = new Intent(context, Edit_Event_Screen.class);
+        /*Intent intent = new Intent(context, Edit_Event_Screen.class);
         intent.putExtra("event", event);
 
-        getContext().startActivity(intent);
+        getContext().startActivity(intent);*/
+
+        FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(CalendarEvent.KEY_EVENT, event);
+        bundle.putSerializable(Event_Info_DialogFragment.ARG_IS_SHOWS_DIALOG, true);
+
+/*        BlankFragment blankFragment = new BlankFragment();
+        blankFragment.show(fm, "event_details_fragment");*/
+
+        Event_Info_DialogFragment event_info_dialogFragment = new Event_Info_DialogFragment();
+        event_info_dialogFragment.show(fm, "event_details_fragment");
+        event_info_dialogFragment.setArguments(bundle);
+
     }
 
     @Override

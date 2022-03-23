@@ -1,6 +1,6 @@
 package com.example.projectofmurad;
 
-import static com.example.projectofmurad.Utils.TAG;
+import static com.example.projectofmurad.Utils.LOG_TAG;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -33,8 +33,8 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.projectofmurad.calendar.UtilsCalendar;
-import com.example.projectofmurad.map.TrackingService;
-import com.example.projectofmurad.map.Tracking_Fragment;
+import com.example.projectofmurad.tracking.TrackingService;
+import com.example.projectofmurad.tracking.Tracking_Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
 
         UtilsCalendar.setLocale();
 
-        Log.d(TAG, "Subscribing to weather topic");
+        Log.d(LOG_TAG, "Subscribing to weather topic");
 
         MyFirebaseMessagingService.getToken();
         // [START subscribe_topics]
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
                         if (!task.isSuccessful()) {
                             msg = "Notification sending failed";
                         }
-                        Log.d(TAG, msg);
+                        Log.d(LOG_TAG, msg);
                         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
                     }
                 });*/
@@ -174,9 +174,9 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
             fragment = newFragment;
         }
 
-        /*if (FirebaseUtils.getCurrentUID().equals("AiqKQM3H8jhavJCFU3B4NmLa8ea2") && TAG.equals("blankFragment")){
+        /*if (FirebaseUtils.getCurrentUID().equals("AiqKQM3H8jhavJCFU3B4NmLa8ea2") && LOG_TAG.equals("blankFragment")){
             getSupportFragmentManager().beginTransaction().replace(
-                    R.id.bottomNavigationView, fragment, TAG);
+                    R.id.bottomNavigationView, fragment, LOG_TAG);
         }*/
         getSupportFragmentManager().beginTransaction().replace(R.id.bottomNavigationView, fragment, TAG);
 
@@ -248,15 +248,15 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-                Log.d(TAG, "askLocationPermission: you should show an alert dialog...");
+                Log.d(LOG_TAG, "askLocationPermission: you should show an alert dialog...");
             }
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_NETWORK_STATE}, LOCATION_REQUEST_CODE+1);
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_NETWORK_STATE)) {
-                Log.d(TAG, "askLocationPermission: you should show an alert dialog...");
+                Log.d(LOG_TAG, "askLocationPermission: you should show an alert dialog...");
             }
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.INTERNET)) {
-                Log.d(TAG, "askLocationPermission: you should show an alert dialog...");
+                Log.d(LOG_TAG, "askLocationPermission: you should show an alert dialog...");
             }
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.INTERNET}, LOCATION_REQUEST_CODE);
 
@@ -272,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
                 // Permission granted
 //                getLastLocation();
                 getSupportFragmentManager().beginTransaction().replace(
-                        R.id.bottomNavigationView, new Tracking_Fragment(), TAG);
+                        R.id.bottomNavigationView, new Tracking_Fragment(), LOG_TAG);
             }
             else {
                 //Permission not granted

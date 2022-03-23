@@ -99,7 +99,7 @@ public class UserData {
     @Override
     public String toString() {
         return "UserData{" +
-                "\n UID = '" + UID + '\'' +
+                "\n userID = '" + UID + '\'' +
                 ", \n email = '" + email + '\'' +
                 ", \n username = '" + username + '\'' +
                 ", \n phone = '" + phone + '\'' +

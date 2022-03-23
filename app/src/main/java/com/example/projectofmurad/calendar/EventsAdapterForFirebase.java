@@ -67,7 +67,7 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
     private LocalDate selectedDate;
     private ObservableSnapshotArray<CalendarEvent> calendarEventArrayList;
-    private final OnEventListener onEventListener;
+    private final OnEventClickListener onEventClickListener;
     private OnEventExpandListener onEventExpandListener;
     private FirebaseRecyclerOptions<CalendarEvent> options;
     private Context context;
@@ -80,23 +80,23 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
     private int oldPosition = -1;
 
     public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, LocalDate selectedDate,
-                                    @NonNull Context context, OnEventListener onEventListener, OnEventExpandListener onEventExpandListener) {
+                                    @NonNull Context context, OnEventClickListener onEventClickListener, OnEventExpandListener onEventExpandListener) {
 
         super(options);
         this.calendarEventArrayList = options.getSnapshots();
         this.selectedDate = selectedDate;
-        this.onEventListener = onEventListener;
+        this.onEventClickListener = onEventClickListener;
         this.onEventExpandListener = onEventExpandListener;
         this.context = context;
         this.db = context.openOrCreateDatabase(Utils.DATABASE_NAME, MODE_PRIVATE, null);
     }
 
     public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, String selected_UID,
-                                    @NonNull Context context, OnEventListener onEventListener) {
+                                    @NonNull Context context, OnEventClickListener onEventClickListener) {
 
         super(options);
         this.calendarEventArrayList = options.getSnapshots();
-        this.onEventListener = onEventListener;
+        this.onEventClickListener = onEventClickListener;
         this.context = context;
         this.selected_UID = selected_UID;
         this.db = context.openOrCreateDatabase(Utils.DATABASE_NAME, MODE_PRIVATE, null);
@@ -112,7 +112,6 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         public ConstraintLayout constraintLayout;
 
         public ImageView iv_circle;
-        public ImageView iv_edit;
         public ImageView iv_attendance;
 
         public SwitchCompat switch_alarm;
@@ -134,13 +133,12 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
         public boolean expanded = false;
 
-        public EventViewHolderForFirebase(@NonNull View itemView, OnEventListener onEventListener) {
+        public EventViewHolderForFirebase(@NonNull View itemView, OnEventClickListener onEventClickListener) {
             super(itemView);
 
             constraintLayout = itemView.findViewById(R.id.constraintLayout);
 
             iv_circle = itemView.findViewById(R.id.iv_circle);
-            iv_edit = itemView.findViewById(R.id.iv_edit);
             iv_attendance = itemView.findViewById(R.id.iv_attendance);
             iv_attendance.setOnClickListener(this);
 
@@ -163,17 +161,12 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             checkbox_all_attendances = itemView.findViewById(R.id.checkbox__all_attendances);
             checkbox_all_attendances.setOnCheckedChangeListener(this);
 
-            iv_edit.setOnClickListener(this);
-            itemView.setOnClickListener(this);
-
+//            itemView.setOnClickListener(this);
+            itemView.setOnClickListener(v -> onEventClickListener.onEventClick(getBindingAdapterPosition(), getItem(getBindingAdapterPosition())));
         }
 
         @Override
         public void onClick(View view) {
-            if(view == iv_edit){
-                onEventListener.onEventClick(getBindingAdapterPosition(), getItem(getBindingAdapterPosition()));
-                Log.d("murad", "getAdapterPosition " + getBindingAdapterPosition() );
-            }
             if (view == iv_attendance){
                 Intent intent = new Intent(context, Event_Attendance_Screen.class);
                 String event_private_id = getItem(getBindingAdapterPosition()).getPrivateId();
@@ -182,34 +175,10 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
                 context.startActivity(intent);
             }
             if(view == itemView){
-                expanded = !expanded;
+                /*expanded = !expanded;
                 if (selectedDate != null){
                     onEventExpand(getBindingAdapterPosition(), expanded);
-                }
-
-                /*if(expanded){
-                    wrapped_layout.setVisibility(View.GONE);
-                    expanded_layout.setVisibility(View.VISIBLE);
-
-                    ConstraintSet constraintSet = new ConstraintSet();
-                    constraintSet.clone(constraintLayout);
-                    constraintSet.connect(R.id.tv_event_place, ConstraintSet.TOP, R.id.linearLayout, ConstraintSet.BOTTOM);
-                    //constraintSet.applyTo(constraintLayout);
-
-                    animateConstraintLayout(constraintLayout, constraintSet, 300);
-                }
-                else {
-                    expanded_layout.setVisibility(View.GONE);
-                    wrapped_layout.setVisibility(View.VISIBLE);
-
-                    ConstraintSet constraintSet = new ConstraintSet();
-                    constraintSet.clone(constraintLayout);
-                    constraintSet.connect(R.id.tv_event_place, ConstraintSet.TOP, R.id.tv_event_description, ConstraintSet.BOTTOM);
-                    //constraintSet.applyTo(constraintLayout);
-
-                    animateConstraintLayout(constraintLayout, constraintSet, 300);
                 }*/
-
 
             }
         }
@@ -572,15 +541,19 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.event_info_expanded_with_card_view, parent, false);
 
-        return new EventViewHolderForFirebase(view, onEventListener);
+        return new EventViewHolderForFirebase(view, onEventClickListener);
     }
 
     public interface svb extends CompoundButton.OnCheckedChangeListener{
 
     }
 
-    public interface OnEventListener {
-        void onEventClick(int position, CalendarEvent calendarEventWithTextOnly);
+    public interface OnEventClickListener {
+        void onEventClick(int position, CalendarEvent calendarEvent);
+    }
+
+    public interface OnEventEditListener {
+        void onEventEdit(int position, CalendarEvent calendarEvent);
     }
 
     public interface OnEventExpandListener {

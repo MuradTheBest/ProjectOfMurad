@@ -1,6 +1,6 @@
 package com.example.projectofmurad;
 
-import static com.example.projectofmurad.Utils.TAG;
+import static com.example.projectofmurad.Utils.LOG_TAG;
 
 import android.app.Activity;
 import android.content.Context;
@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.bumptech.glide.Glide;
+import com.example.projectofmurad.tracking.Training;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -92,10 +93,16 @@ public class FirebaseUtils {
     public static final DatabaseReference attendanceDatabase = getDatabase().getReference("Attendance").getRef();
     public static final DatabaseReference trackingDatabase = getDatabase().getReference("Tracking").getRef();
     public static final DatabaseReference usersDatabase = getDatabase().getReference("Users").getRef();
+    public static final DatabaseReference trainingsDatabase = getDatabase().getReference("Trainings").getRef();
 
     @NonNull
     public static DatabaseReference getCurrentUserTrainingsRefForEvent(String eventPrivateId){
-        return allEventsDatabase.child(eventPrivateId).child("Users").child("Trainings");
+        return allEventsDatabase.child(eventPrivateId).child("Users").child(getCurrentUID())/*.child("Trainings")*/;
+    }
+
+    @NonNull
+    public static Task<Void> addTrainingForEvent(String eventPrivateId, @NonNull Training training){
+        return getCurrentUserTrainingsRefForEvent(eventPrivateId).child(training.getPrivateId()).setValue(training);
     }
 
     public interface onSimpleFirebaseCallback{
@@ -201,7 +208,7 @@ public class FirebaseUtils {
                             currentUserData = snapshot.getValue(UserData.class);
                             onUserDataCallBack.onUserDataCallBack(currentUserData);
                             assert currentUserData != null;
-                            Log.d(TAG, currentUserData.toString());
+                            Log.d(LOG_TAG, currentUserData.toString());
                         }
                         else {
                             Toast.makeText(getContext(), "This user doesn't exist",
@@ -217,6 +224,8 @@ public class FirebaseUtils {
 
 //        return currentUserData;
     }
+
+
 
     @NonNull
     public static DatabaseReference getUserDataByUIDRef(String UID){
@@ -256,7 +265,7 @@ public class FirebaseUtils {
 
     @NonNull
     public static String getCurrentUID(){
-//        Log.d(TAG, "CurrentUID is " + getCurrentFirebaseUser().getUid());
+//        Log.d(LOG_TAG, "CurrentUID is " + getCurrentFirebaseUser().getUid());
         return getCurrentFirebaseUser().getUid();
     }
 
@@ -326,7 +335,7 @@ public class FirebaseUtils {
                 }
             }
         });
-        /*StorageReference sr = FirebaseUtils.getProfilePicturesRef().child(UID).getDownloadUrl().addOnCompleteListener(
+        /*StorageReference sr = FirebaseUtils.getProfilePicturesRef().child(userID).getDownloadUrl().addOnCompleteListener(
                 new OnCompleteListener<Uri>() {
                     @Override
                     public void onComplete(@NonNull Task<Uri> task) {

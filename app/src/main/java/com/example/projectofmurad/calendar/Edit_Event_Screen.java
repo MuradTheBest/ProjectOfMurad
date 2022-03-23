@@ -210,7 +210,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
         Log.d("murad", "Receiving selectedDate " + start_day + " " + start_month + " " + start_year);
 
-        if (gotten_intent.hasExtra("event")){
+        if (gotten_intent.hasExtra(CalendarEvent.KEY_EVENT)){
             editMode = true;
             Log.d("murad", "event is not null => Edit_Event_Screen");
 
@@ -585,7 +585,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 /*
                 getSupportFragmentManager().beginTransaction()
                         .setReorderingAllowed(true)
-                        .add(ChooseEventFrequency_Screen.class, bundle, ChooseEventFrequency_Screen.TAG)
+                        .add(ChooseEventFrequency_Screen.class, bundle, ChooseEventFrequency_Screen.LOG_TAG)
                         .commit();*/
 
 
@@ -595,10 +595,10 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                  * dialog, so make our own transaction and take care of that here.
                  */
 
-      /*          Fragment prev = getSupportFragmentManager().findFragmentByTag(ChooseEventFrequency_Screen.TAG);
+      /*          Fragment prev = getSupportFragmentManager().findFragmentByTag(ChooseEventFrequency_Screen.LOG_TAG);
                 if (prev != null) {
-                    prev.show(ft, ChooseEventFrequency_Screen.TAG);
-//                    ((ChooseEventFrequency_Screen) prev).show(getSupportFragmentManager(), ChooseEventFrequency_Screen.TAG);
+                    prev.show(ft, ChooseEventFrequency_Screen.LOG_TAG);
+//                    ((ChooseEventFrequency_Screen) prev).show(getSupportFragmentManager(), ChooseEventFrequency_Screen.LOG_TAG);
 //                    fragmentManager.beginTransaction().show(prev).commit();
                     Toast.makeText(getApplicationContext(), "Showing created dialog", Toast.LENGTH_SHORT).show();
 
@@ -607,7 +607,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 }
                 else{
                     ft.setReorderingAllowed(true)
-                            .add(ChooseEventFrequency_Screen.class, bundle, ChooseEventFrequency_Screen.TAG)
+                            .add(ChooseEventFrequency_Screen.class, bundle, ChooseEventFrequency_Screen.LOG_TAG)
                             .commit();
                     Toast.makeText(getApplicationContext(), "Creating dialog", Toast.LENGTH_SHORT).show();
 
@@ -616,7 +616,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
                 // Create and show the dialog.
 /*                ChooseEventFrequency_Screen newFragment = ChooseEventFrequency_Screen.newInstance(start_year, start_month, start_day);
-                newFragment.show(ft, ChooseEventFrequency_Screen.TAG);*/
+                newFragment.show(ft, ChooseEventFrequency_Screen.LOG_TAG);*/
             }
         });
 
@@ -740,19 +740,14 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
     @Override
     public void onAddEventClick(MenuItem item) {
         if (editMode){
-            absoluteDelete(chain_key, new OnDeleteFinishedCallback() {
-                @Override
-                public void onDeleteFinished() {
-                    Edit_Event_Screen.super.onAddEventClick(item);
-                }
-            });
+            absoluteDelete(chain_key, () -> Edit_Event_Screen.super.onAddEventClick(item));
         }
         else {
             super.onAddEventClick(item);
         }
     }
 
-    public void absoluteDelete(String key, OnDeleteFinishedCallback onDeleteFinishedCallback){
+    public void absoluteDelete(String key,  OnDeleteFinishedCallback onDeleteFinishedCallback){
         DatabaseReference allEventsDatabase = FirebaseUtils.allEventsDatabase;
 
         CircularProgressIndicator circularProgressIndicator = new CircularProgressIndicator(this);
@@ -761,7 +756,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
         deletingProgressDialog = new ProgressDialog(this);
 
-        deletingProgressDialog.setMessage("Deleting event");
+        deletingProgressDialog.setMessage("Editing event");
         deletingProgressDialog.setIndeterminate(true);
         deletingProgressDialog.show();
 
@@ -797,7 +792,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                         Log.d("murad", "Event key is " + date.getKey());
                         Log.d("murad", event.getValue(CalendarEvent.class).toString());
 
-                        if (event.child(CalendarEvent.EVENT_CHAIN_ID).getValue(String.class).equals(key)){
+                        if (event.child(CalendarEvent.KEY_EVENT_CHAIN_ID).getValue(String.class).equals(key)){
                             Log.d("murad", "Event found");
                             event.getRef().removeValue();
                         }
