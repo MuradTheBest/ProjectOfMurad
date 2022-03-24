@@ -283,15 +283,15 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                 event.updateFrequency_end(endDate);
 
                 addEventToFirebaseForTextWithPUSH(event, null);
-                FCMSend.pushNotificationsToAllUsers(this, event, editMode ? Utils.EDIT_EVENT_NOTIFICATION_CODE : Utils.ADD_EVENT_NOTIFICATION_CODE);
+                FCMSend.sendNotificationsToAllUsers(this, event, editMode ? Utils.EDIT_EVENT_NOTIFICATION_CODE : Utils.ADD_EVENT_NOTIFICATION_CODE);
             }
             else if(event.getFrequencyType().endsWith("amount")){
                 success = addEventForTimesAdvanced(event);
-                FCMSend.pushNotificationsToAllUsers(this, event, editMode ? Utils.EDIT_EVENT_NOTIFICATION_CODE : Utils.ADD_EVENT_NOTIFICATION_CODE);
+                FCMSend.sendNotificationsToAllUsers(this, event, editMode ? Utils.EDIT_EVENT_NOTIFICATION_CODE : Utils.ADD_EVENT_NOTIFICATION_CODE);
             }
             else if(event.getFrequencyType().endsWith("end")){
                 success = addEventForUntilAdvanced(event);
-                FCMSend.pushNotificationsToAllUsers(this, event, editMode ? Utils.EDIT_EVENT_NOTIFICATION_CODE : Utils.ADD_EVENT_NOTIFICATION_CODE);
+                FCMSend.sendNotificationsToAllUsers(this, event, editMode ? Utils.EDIT_EVENT_NOTIFICATION_CODE : Utils.ADD_EVENT_NOTIFICATION_CODE);
             }
 
 //            startAlarm();

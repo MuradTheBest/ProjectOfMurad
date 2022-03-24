@@ -143,6 +143,7 @@ public class ChooseEventClickDialog extends Dialog implements
 
     @Override
     public void onEventClick(int position, @NonNull CalendarEvent calendarEvent) {
+        dismiss();
         FirebaseUtils.addTrainingForEvent(calendarEvent.getPrivateId(), training).addOnCompleteListener(
                 new OnCompleteListener<Void>() {
                     @Override
@@ -152,7 +153,7 @@ public class ChooseEventClickDialog extends Dialog implements
                                     "The training will be added to private trainings", Toast.LENGTH_SHORT).show();
 //                            new MyRepository(getOwnerActivity().getApplication()).insert(training);
                             onAddTrainingListener.onAddTraining(training);
-                            dismiss();
+
                         }
 
                         Toast.makeText(context, "The training was added to this event successfully", Toast.LENGTH_SHORT).show();

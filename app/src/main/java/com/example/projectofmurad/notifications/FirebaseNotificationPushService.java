@@ -1,5 +1,7 @@
 package com.example.projectofmurad.notifications;
 
+import static com.example.projectofmurad.notifications.FCMSend.FCM_TAG;
+
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -28,6 +30,11 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
     @SuppressLint("NewApi")
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
+
+        Log.d(FCM_TAG, "******************************************************************************************");
+        Log.d(FCM_TAG, "remote message from server received");
+        Log.d(FCM_TAG, "******************************************************************************************");
+
 
         String title = remoteMessage.getNotification().getTitle();
         String body = remoteMessage.getNotification().getBody();

@@ -189,14 +189,20 @@ public class UsersAdapterForFirebase extends
 
                     break;
                 case R.id.iv_message:
-                    String phoneNumber = "0539180350";
-//                onMessageListener.OnMessage(getBindingAdapterPosition(), phoneNumber);
-                    String message = "You gay!";
-                    Intent intent_sms = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("sms:" + phoneNumber));
-                    intent_sms.putExtra("sms_body", message);
-                    context.startActivity(intent_sms);
-                    context.startActivity(Intent.createChooser(intent_sms, "Choose app"));
+
+                    String phoneNumber = getItem(getAbsoluteAdapterPosition()).getPhone();
+
+                    if (phoneNumber == null || phoneNumber.isEmpty()) {
+                        Toast.makeText(context, "This user has no registered phone number",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Intent intent_sms = new Intent(Intent.ACTION_VIEW,
+                                Uri.parse("sms:" + phoneNumber));
+//                        context.startActivity(intent_sms);
+                        context.startActivity(Intent.createChooser(intent_sms, "Choose app"));
+                    }
+
                     break;
 
             }

@@ -460,6 +460,7 @@ SaveTrainingDialog.OnAddTrainingListener{
         TrackingViewModel.locations.removeObservers(getViewLifecycleOwner());
 
         TrackingViewModel.time.removeObservers(getViewLifecycleOwner());
+        tv_time.setText("00:00:00");
 
         TrackingViewModel.totalDistance.removeObservers(getViewLifecycleOwner());
         TrackingViewModel.avgSpeed.removeObservers(getViewLifecycleOwner());

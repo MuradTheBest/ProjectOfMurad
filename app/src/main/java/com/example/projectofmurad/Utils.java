@@ -22,10 +22,6 @@ import android.util.Log;
 import androidx.annotation.AnyRes;
 import androidx.annotation.NonNull;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-
 import org.jetbrains.annotations.Contract;
 
 import java.math.BigDecimal;
@@ -79,7 +75,7 @@ public class Utils {
         db.execSQL("create table if not exists " +
                 " tbl_notification(notification_id integer primary key autoincrement)");
 
-        if (FirebaseUtils.isUserLoggedIn()){
+        /*if (FirebaseUtils.isUserLoggedIn()){
             FirebaseUtils.getCurrentUserDataRef().child("madrich").get().addOnCompleteListener(
                     new OnCompleteListener<DataSnapshot>() {
                         @Override
@@ -89,7 +85,7 @@ public class Utils {
                             }
                         }
                     });
-        }
+        }*/
 
 
     }

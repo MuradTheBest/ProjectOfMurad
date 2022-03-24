@@ -2,6 +2,7 @@ package com.example.projectofmurad.notifications;
 
 import android.content.Context;
 import android.os.StrictMode;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.R;
 import com.example.projectofmurad.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.google.firebase.database.DataSnapshot;
@@ -24,17 +26,28 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class FCMSend {
 
     private static final String BASE_URL = "https://fcm.googleapis.com/fcm/send";
-    private static final String SERVER_KEY = "key=AAAA9qIrU5w:APA91bFHE98eTclTHbx2zorhi97uhpZrwpJ3_dyPj9LB6Qlf3epcnDlKctJkfe2AWgjyc2ULMfa_y4i6S-o0P98TdJRoSu337Hvs23Qf4CkUchFV043IT0E8ekvh80SN1rkNR0Anmi2y";
+    private static String SERVER_KEY;
 
-    public static void pushNotification(Context context, @NonNull CalendarEvent event, int type, String token) {
+    public static final String FCM_TAG = "fcm";
+
+    public static void sendNotification(@NonNull Context context, @NonNull CalendarEvent event, int type, String token) {
+
+        Log.d(FCM_TAG, "******************************************************************************************");
+        Log.d(FCM_TAG, "sending notification to server");
+        Log.d(FCM_TAG, "******************************************************************************************");
+
+
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+
+        SERVER_KEY = context.getString(R.string.server_key);
 
         String title = "";
         String body = "";
@@ -113,18 +126,33 @@ public class FCMSend {
         }
     }
 
-    public static void pushNotificationsToAllUsers(Context context, CalendarEvent event, int notificationType){
+    public static void sendNotificationsToAllUsers(Context context, CalendarEvent event, int notificationType){
+
+        Log.d(FCM_TAG, "******************************************************************************************");
+        Log.d(FCM_TAG, "sending notification to all user");
+        Log.d(FCM_TAG, "******************************************************************************************");
 
         FirebaseUtils.usersDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot data : snapshot.getChildren()){
-                    /*if (data.exists() && !data.getKey().equals(FirebaseUtils.getCurrentUID())){
-                        String token = data.child("token").getValue(String.class);
-                        pushNotification(context, token, title, message, event);
-                    }*/
+
+                    data = data.child("tokens");
+
+                    ArrayList<String> tokens = new ArrayList<>();
+                    if (data.exists()){
+                        tokens = (ArrayList<String>) data.getValue();
+                    }
+
+                    Log.d(FCM_TAG, tokens.toString());
+
+                    for (String token : tokens){
+                        Log.d(FCM_TAG, "token is " + token);
+                        sendNotification(context, event, notificationType, token);
+                    }
+/*
                     String token = data.child("token").getValue(String.class);
-                    pushNotification(context, event, notificationType, token);
+                    sendNotification(context, event, notificationType, token);*/
                 }
             }
 
@@ -135,7 +163,7 @@ public class FCMSend {
         });
     }
 
-    public static void pushNotificationsToAllUsersExceptSender(Context context, CalendarEvent event, int notificationType){
+    public static void sendNotificationsToAllUsersExceptSender(Context context, CalendarEvent event, int notificationType){
 
         FirebaseUtils.usersDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -143,7 +171,7 @@ public class FCMSend {
                 for (DataSnapshot data : snapshot.getChildren()){
                     if (data.exists() && !data.getKey().equals(FirebaseUtils.getCurrentUID())){
                         String token = data.child("token").getValue(String.class);
-                        pushNotification(context, event, notificationType, token);
+                        sendNotification(context, event, notificationType, token);
                     }
                 }
             }

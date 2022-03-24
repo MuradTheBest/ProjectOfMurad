@@ -74,22 +74,15 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" /> <!-- [START firebase_service] -->
-        <!--
-<service
-            android:name=".MyFirebaseMessagingService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service> &lt;!&ndash; [END firebase_service] &ndash;&gt;
-        -->
+
+
         <service
             android:name=".notifications.FirebaseNotificationPushService"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </service> <!-- [END firebase_service] -->
+        </service>
         <service
             android:name=".tracking.TrackingService"
             android:enabled="true"

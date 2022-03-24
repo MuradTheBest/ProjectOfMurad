@@ -2,6 +2,8 @@ package com.example.projectofmurad;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
+
 public class UserData {
 
     private String UID;
@@ -9,6 +11,8 @@ public class UserData {
     private String username;
     private String phone;
     private String token;
+
+    private ArrayList<String> tokens;
 
     private boolean madrich;
     private boolean notMadrich = true;
@@ -196,5 +200,13 @@ public class UserData {
 
     public void setEmailVerified(boolean emailVerified) {
         this.emailVerified = emailVerified;
+    }
+
+    public ArrayList<String> getTokens() {
+        return tokens;
+    }
+
+    public void setTokens(ArrayList<String> tokens) {
+        this.tokens = tokens;
     }
 }

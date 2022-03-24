@@ -2,7 +2,6 @@ package com.example.projectofmurad.tracking;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -98,11 +97,11 @@ public class TrackingService extends LifecycleService {
                 // and time.
                 String time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
 
-                notificationBuilder.setContentText(time);
+/*                notificationBuilder.setContentText(time);
 
                 Notification notification = notificationBuilder.getNotification();
                 notification.flags = Notification.FLAG_ONGOING_EVENT;
-                notificationManager.notify(TRACKING_NOTIFICATION_ID, notification);
+                notificationManager.notify(TRACKING_NOTIFICATION_ID, notification);*/
             }
 
             Log.d("tracking", "totalTime " + totalTime);

@@ -42,20 +42,4 @@
         android:layout_height="wrap_content"
         android:text="Custom..." />
 
-    <TimePicker
-        android:id="@+id/tp_alarm"
-        android:layout_width="match_parent"
-        android:layout_gravity="center"
-        android:layout_height="wrap_content"
-        android:headerTimeTextAppearance="@color/colorAccent"
-        android:numbersInnerTextColor="@color/colorAccent"
-        android:numbersSelectorColor="@color/colorAccent"
-        android:numbersTextColor="@color/black"
-        android:theme="@style/Widget.Material3.MaterialTimePicker.Custom"
-        style="@style/Widget.Material3.MaterialTimePicker.Custom"
-        android:timePickerMode="spinner"
-        />
-
-
-
 </RadioGroup>

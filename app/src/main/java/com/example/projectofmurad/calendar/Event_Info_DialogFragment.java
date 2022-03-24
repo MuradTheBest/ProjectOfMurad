@@ -3,7 +3,6 @@ package com.example.projectofmurad.calendar;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -18,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,7 +59,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -154,10 +151,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements
 
     private ConstraintLayout constraintLayout;
 
-    private ImageView iv_circle;
-    private ImageView iv_edit;
-    private ImageView iv_attendance;
-
     private SwitchCompat switch_alarm;
 
     private TextView tv_event_name;
@@ -206,11 +199,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements
 
         constraintLayout = view.findViewById(R.id.constraintLayout);
 
-        iv_circle = view.findViewById(R.id.iv_circle);
-        iv_edit = view.findViewById(R.id.iv_edit);
-        iv_attendance = view.findViewById(R.id.iv_attendance);
-        iv_attendance.setOnClickListener(this);
-
         switch_alarm = view.findViewById(R.id.switch_alarm);
         switch_alarm.setOnCheckedChangeListener(this);
         switch_alarm.setOnClickListener(this);
@@ -232,8 +220,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements
         checkbox_all_attendances.setOnCheckedChangeListener(this);
 
         vp_trainings = view.findViewById(R.id.vp_trainings);
-
-        iv_edit.setOnClickListener(this);
 
         setUpEventData(event);
 
@@ -259,7 +245,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements
     }
 
     public void setUpEventData(@NonNull CalendarEvent event){
-        iv_circle.getDrawable().setTint(event.getColor());
 
         tv_event_name.setText(event.getName());
         Log.d("murad","name: " + event.getName());
@@ -596,42 +581,20 @@ public class Event_Info_DialogFragment extends DialogFragment implements
 
     @Override
     public void onClick(View v) {
-        if (v == iv_edit){
-            Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
-            intent.putExtra("event", event);
+        if (v == switch_alarm){
+           if (switch_alarm.isChecked()){
+               Log.d("murad", "Alarm added");
 
-            requireContext().startActivity(intent);
-        }
-        else if (v == switch_alarm){
+               AlarmDialog alarmDialog = new AlarmDialog(requireContext(), event, switch_alarm, 2, 0);
 
-            AtomicBoolean gotChecked = new AtomicBoolean(true);
-
-            if (switch_alarm.isChecked()){
-                Log.d("murad", "Alarm added");
-
-                AlarmDialog alarmDialog = new AlarmDialog(requireContext() , event, 0, 2, 0);
-                alarmDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        if (!alarmDialog.isGotChecked()){
-                            switch_alarm.setChecked(false);
-                        }
-                    }
-                });
-
-                alarmDialog.show();
-
-            }
-            else {
-                Log.d("murad", "Alarm deleted");
-                Toast.makeText(requireContext(), "Alarm canceled", Toast.LENGTH_SHORT).show();
+               alarmDialog.show();
+           }
+           else {
+               Log.d("murad", "Alarm deleted");
+               Toast.makeText(requireContext(), "Alarm deleted", Toast.LENGTH_SHORT).show();
 //                    Utils.deleteAlarm(event_private_id, event_date, event, db, context);
-                Log.d("murad", "swipe gotChecked = " + gotChecked.get());
-                if (gotChecked.get()){
-                    Log.d("murad", "swipe gotChecked = " + gotChecked.get());
-                    AlarmManagerForToday.cancelAlarm(requireContext(), event);
-                }
-            }
+               AlarmManagerForToday.cancelAlarm(requireContext(), event);
+           }
         }
         else if(v == btn_copy_event){
             String newPrivateId = FirebaseUtils.allEventsDatabase.push().getKey();
@@ -652,7 +615,16 @@ public class Event_Info_DialogFragment extends DialogFragment implements
             requireActivity().startActivity(intent);
         }
         else if(v == btn_share_event){
+            String text = event.getName() + "\n" + event.getStartTime() + " - " + event.getEndTime()
+                    + "\n" + event.getStartDate()
+                    + (event.getStartDate().equals(event.getEndDate()) ? "" : "\n - " + event.getEndDate())
+                    + "\n" + event.getPlace();
 
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.putExtra(Intent.EXTRA_TEXT, text);
+
+            requireActivity().startActivity(Intent.createChooser(intent, "Choose app"));
         }
         else if(v == btn_delete_event){
             absoluteDelete(event.getPrivateId(), new OnDeleteFinishedCallback() {

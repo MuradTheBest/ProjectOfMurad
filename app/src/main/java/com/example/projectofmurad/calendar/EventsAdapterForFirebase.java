@@ -2,16 +2,10 @@ package com.example.projectofmurad.calendar;
 
 import static android.content.Context.MODE_PRIVATE;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Handler;
 import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
 import android.transition.Slide;
@@ -24,11 +18,8 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -50,7 +41,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 
 import java.time.LocalDate;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /** FirebaseRecyclerAdapter is a class provided by
@@ -74,10 +64,6 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
     private String selected_UID;
 
     private final SQLiteDatabase db;
-
-    private boolean settingAlarm = false;
-
-    private int oldPosition = -1;
 
     public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, LocalDate selectedDate,
                                     @NonNull Context context, OnEventClickListener onEventClickListener, OnEventExpandListener onEventExpandListener) {
@@ -106,13 +92,9 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
     private int alarm_minute = 0;
 
     public class EventViewHolderForFirebase extends RecyclerView.ViewHolder implements
-            View.OnClickListener, OnEventExpandListener, CompoundButton.OnCheckedChangeListener,
-            RadioGroup.OnCheckedChangeListener {
+            View.OnClickListener, OnEventExpandListener, CompoundButton.OnCheckedChangeListener {
 
         public ConstraintLayout constraintLayout;
-
-        public ImageView iv_circle;
-        public ImageView iv_attendance;
 
         public SwitchCompat switch_alarm;
 
@@ -138,12 +120,8 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
             constraintLayout = itemView.findViewById(R.id.constraintLayout);
 
-            iv_circle = itemView.findViewById(R.id.iv_circle);
-            iv_attendance = itemView.findViewById(R.id.iv_attendance);
-            iv_attendance.setOnClickListener(this);
-
             switch_alarm = itemView.findViewById(R.id.switch_alarm);
-            switch_alarm.setOnCheckedChangeListener(this);
+            switch_alarm.setOnClickListener(this);
 
             tv_event_name = itemView.findViewById(R.id.tv_event_name);
             tv_event_place = itemView.findViewById(R.id.tv_event_place);
@@ -167,19 +145,38 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
         @Override
         public void onClick(View view) {
-            if (view == iv_attendance){
+            /*if (view == iv_attendance){
                 Intent intent = new Intent(context, Event_Attendance_Screen.class);
                 String event_private_id = getItem(getBindingAdapterPosition()).getPrivateId();
                 intent.putExtra("event_private_id", event_private_id);
 
                 context.startActivity(intent);
-            }
+            }*/
             if(view == itemView){
                 /*expanded = !expanded;
                 if (selectedDate != null){
                     onEventExpand(getBindingAdapterPosition(), expanded);
                 }*/
 
+            }
+            else if (view == switch_alarm){
+
+                CalendarEvent event = getItem(getAbsoluteAdapterPosition());
+
+                if (switch_alarm.isChecked()){
+
+                    Log.d("murad", "Alarm added");
+
+                    AlarmDialog alarmDialog = new AlarmDialog(context, event, switch_alarm, alarm_hour, alarm_minute);
+
+                    alarmDialog.show();
+                }
+                else {
+                    Log.d("murad", "Alarm deleted");
+                    Toast.makeText(context, "Alarm deleted", Toast.LENGTH_SHORT).show();
+//                    Utils.deleteAlarm(event_private_id, event_date, event, db, context);
+                    AlarmManagerForToday.cancelAlarm(context, event);
+                }
             }
         }
 
@@ -241,178 +238,11 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if (buttonView == switch_alarm){
-
-                if (!settingAlarm){
-                    CalendarEvent event = getItem(getAbsoluteAdapterPosition());
-
-                    AtomicBoolean gotChecked = new AtomicBoolean(true);
-
-                    if (isChecked){
-                        Log.d("murad", "Alarm added");
-
-                        Dialog dialog = new Dialog(context);
-                        dialog.setContentView(R.layout.alarm_dialog_layout);
-                        dialog.setCancelable(true);
-                        dialog.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
-                        dialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
-
-                        gotChecked.set(false);
-
-                        TimePickerDialog timePickerDialog = new TimePickerDialog(context, AlertDialog.THEME_HOLO_LIGHT,
-                                new TimePickerDialog.OnTimeSetListener() {
-                                    @Override
-                                    public void onTimeSet(TimePicker view, int hourOfDay,
-                                                          int minute) {
-                                        gotChecked.set(true);
-
-                                        alarm_hour = hourOfDay;
-                                        alarm_minute = minute;
-
-                                        long time = (hourOfDay* 60L + minute)*60*1000;
-
-                                        AlarmManagerForToday.addAlarm(context, event, time);
-
-                                        new Handler().postDelayed(dialog::dismiss,300);
-                                    }
-                                }, alarm_hour, alarm_minute, true);
-
-
-                        RadioGroup rg_alarm = dialog.findViewById(R.id.rg_alarm);
-                        rg_alarm.setOnCheckedChangeListener((group, checkedId) -> {
-                            gotChecked.set(true);
-                            long before = 0;
-                            String toast = "Alarm was set for time of beginning of the event";
-
-                            switch (checkedId){
-                                case R.id.rb_at_time:
-                                    before = 0;
-                                    toast = "Alarm was set for time of beginning of the event";
-                                    Toast.makeText(context, toast, Toast.LENGTH_SHORT).show();
-                                    break;
-                                case R.id.rb_5_mins_before:
-                                    before = 5 * 60 * 1000;
-                                    toast = "Alarm was set for 5 minutes before beginning of the event";
-                                    Toast.makeText(context, toast, Toast.LENGTH_SHORT).show();
-                                    break;
-                                case R.id.rb_15_mins_before:
-                                    before = 15 * 60 * 1000;
-                                    toast = "Alarm was set for 15 minutes before beginning of the event";
-                                    Toast.makeText(context, toast, Toast.LENGTH_SHORT).show();
-                                    break;
-                                case R.id.rb_30_mins_before:
-                                    before = 30 * 60 * 1000;
-                                    toast = "Alarm was set for 30 minutes before beginning of the event";
-                                    Toast.makeText(context, toast, Toast.LENGTH_SHORT).show();
-                                    break;
-                                case R.id.rb_1_hour_before:
-                                    before = 60 * 60 * 1000;
-                                    toast = "Alarm was set for 1 hour before beginning of the event";
-                                    Toast.makeText(context, toast, Toast.LENGTH_SHORT).show();
-                                    break;
-                                case R.id.rb_custom:
-                                    gotChecked.set(false);
-                                    timePickerDialog.show();
-                            }
-                            AlarmManagerForToday.addAlarm(context, event, before);
-
-                            new Handler().postDelayed(dialog::dismiss,300);
-
-                        });
-
-                        TimePicker timePicker = dialog.findViewById(R.id.tp_alarm);
-                        timePicker.setIs24HourView(true);
-                        timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
-                            @Override
-                            public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-                                int hour = hourOfDay;
-                                int min = minute;
-
-                                long time = (hourOfDay* 60L + minute)*60*1000;
-                            }
-                        });
-
-                        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                                if (!gotChecked.get()){
-                                    switch_alarm.setChecked(false);
-                                }
-                                dialog.dismiss();
-                            }
-                        });
-
-//                        dialog.show();
-
-                        AlarmDialog alarmDialog = new AlarmDialog(context , event, getBindingAdapterPosition(), alarm_hour, alarm_minute);
-                        alarmDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                                if (!alarmDialog.isGotChecked()){
-                                    switch_alarm.setChecked(false);
-                                }
-                            }
-                        });
-
-                        alarmDialog.timePickerDialog.setOnDismissListener(
-                                new DialogInterface.OnDismissListener() {
-                                    @Override
-                                    public void onDismiss(DialogInterface dialog) {
-                                        switch_alarm.setChecked(alarmDialog.isGotChecked());
-                                    }
-                                });
-
-
-                        alarmDialog.show();
-
-                    }
-                    else {
-                        Log.d("murad", "Alarm deleted");
-                        Toast.makeText(context, "Alarm deleted", Toast.LENGTH_SHORT).show();
-//                    Utils.deleteAlarm(event_private_id, event_date, event, db, context);
-                        Log.d("murad", "swipe gotChecked = " + gotChecked.get());
-                        if (gotChecked.get()){
-                            Log.d("murad", "swipe gotChecked = " + gotChecked.get());
-                            AlarmManagerForToday.cancelAlarm(context, event);
-                        }
-                    }
-                }
-                else {
-                    settingAlarm = false;
-                }
-            }
-            else if(buttonView == checkbox_all_attendances){
+            if(buttonView == checkbox_all_attendances){
                 FirebaseUtils.attendanceDatabase.child(getItem(getBindingAdapterPosition()).getPrivateId())
                         .child(FirebaseUtils.getCurrentUID()).setValue(isChecked);
                 Toast.makeText(context, "Attendance " + (isChecked ? "approved" : "disapproved"), Toast.LENGTH_SHORT).show();
             }
-        }
-
-        @Override
-        public void onCheckedChanged(@NonNull RadioGroup group, int checkedId) {
-
-            long before = 0;
-
-            switch (checkedId){
-                case R.id.rb_at_time:
-                    before = 0;
-                    break;
-                case R.id.rb_5_mins_before:
-                    before = 5 * 60 * 1000;
-                    break;
-                case R.id.rb_15_mins_before:
-                    before = 15 * 60 * 1000;
-                    break;
-                case R.id.rb_30_mins_before:
-                    before = 30 * 60 * 1000;
-                    break;
-                case R.id.rb_1_hour_before:
-                    before = 60 * 60 * 1000;
-                    break;
-            }
-
-            AlarmManagerForToday.addAlarm(context, getItem(getBindingAdapterPosition()), before);
-
         }
 
     }
@@ -422,7 +252,7 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         Log.d("murad", "RECYCLING STARTED");
         String info = "";
 
-        holder.iv_circle.getDrawable().setTint(model.getColor());
+//        holder.iv_circle.getDrawable().setTint(model.getColor());
 
         holder.tv_event_name.setText(model.getName());
         Log.d("murad","name: " + model.getName());
@@ -528,8 +358,6 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         }
 
         cursor.close();
-
-        settingAlarm = alarmSet;
         holder.switch_alarm.setChecked(alarmSet);
 
         holder.itemView.setTag(model.getPrivateId());
@@ -544,16 +372,8 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         return new EventViewHolderForFirebase(view, onEventClickListener);
     }
 
-    public interface svb extends CompoundButton.OnCheckedChangeListener{
-
-    }
-
     public interface OnEventClickListener {
         void onEventClick(int position, CalendarEvent calendarEvent);
-    }
-
-    public interface OnEventEditListener {
-        void onEventEdit(int position, CalendarEvent calendarEvent);
     }
 
     public interface OnEventExpandListener {

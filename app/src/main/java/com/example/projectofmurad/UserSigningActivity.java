@@ -43,9 +43,11 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.UploadTask;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class UserSigningActivity extends AppCompatActivity {
@@ -66,6 +68,7 @@ public class UserSigningActivity extends AppCompatActivity {
         getSupportActionBar().hide();
 
         progressDialog = new ProgressDialog(this);
+        Utils.createCustomProgressDialog(progressDialog);
     }
 
     public void createPhoneAuthenticationDialog(){
@@ -400,24 +403,44 @@ public class UserSigningActivity extends AppCompatActivity {
                         // Get new FCM registration token
                         String token = task.getResult();
                         System.out.println("Token " + token);
-                        FirebaseUtils.getCurrentUserDataRef().child("token").setValue(token).addOnCompleteListener(
-                                new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(
-                                            @NonNull Task<Void> task) {
-                                        if (task.isSuccessful()){
-                                            progressDialog.dismiss();
 
-                                            startActivity(new Intent(getApplicationContext(), Profile_Screen.class));
+                        FirebaseUtils.getCurrentUserDataRef().child("tokens").get().addOnCompleteListener(
+                                new OnCompleteListener<DataSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+
+                                        ArrayList<String> tokens;
+
+                                        if (task.getResult().exists()){
+                                            tokens = (ArrayList<String>) task.getResult().getValue();
                                         }
                                         else {
-                                            Toast.makeText(
-                                                    getApplicationContext(),
-                                                    "Something went wrong. Try again",
-                                                    Toast.LENGTH_SHORT).show();
+                                            tokens = new ArrayList<>();
                                         }
+
+                                        tokens.add(token);
+
+                                        FirebaseUtils.getCurrentUserDataRef().child("tokens").setValue(tokens).addOnCompleteListener(
+                                                new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(
+                                                            @NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()){
+                                                            progressDialog.dismiss();
+
+                                                            startActivity(new Intent(getApplicationContext(), Profile_Screen.class));
+                                                        }
+                                                        else {
+                                                            Toast.makeText(
+                                                                    getApplicationContext(),
+                                                                    "Something went wrong. Try again",
+                                                                    Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                });
                                     }
                                 });
+
                     }
                 });
     }

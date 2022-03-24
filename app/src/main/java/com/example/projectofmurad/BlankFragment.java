@@ -1,6 +1,5 @@
 package com.example.projectofmurad;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -33,13 +32,11 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.projectofmurad.calendar.AlarmDialog;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.Edit_Event_Screen;
 import com.example.projectofmurad.calendar.EventSlidePageAdapter;
 import com.example.projectofmurad.calendar.UsersAdapterForFirebase;
 import com.example.projectofmurad.calendar.ZoomOutPageTransformer;
-import com.example.projectofmurad.notifications.AlarmManagerForToday;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -49,8 +46,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -532,35 +527,6 @@ public class BlankFragment extends Fragment implements UsersAdapterForFirebase.O
             requireContext().startActivity(intent);
         }
         else if (v == switch_alarm){
-
-            AtomicBoolean gotChecked = new AtomicBoolean(true);
-
-            if (switch_alarm.isChecked()){
-                Log.d("murad", "Alarm added");
-
-                AlarmDialog alarmDialog = new AlarmDialog(requireContext() , next_event.getValue(), 0, 2, 0);
-                alarmDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        if (!alarmDialog.isGotChecked()){
-                            switch_alarm.setChecked(false);
-                        }
-                    }
-                });
-
-                alarmDialog.show();
-
-            }
-            else {
-                Log.d("murad", "Alarm deleted");
-                Toast.makeText(requireContext(), "Alarm canceled", Toast.LENGTH_SHORT).show();
-//                    Utils.deleteAlarm(event_private_id, event_date, event, db, context);
-                Log.d("murad", "swipe gotChecked = " + gotChecked.get());
-                if (gotChecked.get()){
-                    Log.d("murad", "swipe gotChecked = " + gotChecked.get());
-                    AlarmManagerForToday.cancelAlarm(requireContext(), next_event.getValue());
-                }
-            }
         }
     }
 

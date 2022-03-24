@@ -7,27 +7,30 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+import android.view.View;
 import android.widget.RadioGroup;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
 
 public class AlarmDialog extends Dialog {
 
-    private boolean gotChecked;
+    private Context context;
 
-//    private SetOnCancelAlarmListener setOnCancelAlarmListener;
+    private boolean gotChecked;
 
     private CalendarEvent event;
 
-    private int position;
-
     private int alarm_hour;
     private int alarm_minute;
+
+    private SwitchCompat switch_alarm;
 
     TimePickerDialog timePickerDialog;
 
@@ -35,42 +38,37 @@ public class AlarmDialog extends Dialog {
         return gotChecked;
     }
 
-    public void setGotChecked(boolean gotChecked){
-        this.gotChecked = gotChecked;
-    }
-
-    public AlarmDialog(@NonNull Context context, CalendarEvent event, int position, int alarm_hour, int alarm_minute) {
+    public AlarmDialog(@NonNull Context context, CalendarEvent event, SwitchCompat switch_alarm, int alarm_hour, int alarm_minute) {
         super(context);
 //        this.setOnCancelAlarmListener = (SetOnCancelAlarmListener) context;
+
+        this.context = context;
+
         this.gotChecked = false;
         this.event = event;
 
         this.alarm_hour = alarm_hour;
         this.alarm_minute = alarm_minute;
 
-        this.setCancelable(true);
+        this.switch_alarm = switch_alarm;
 
-        this.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+        setCancelable(true);
 
-        this.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
+        getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+
+        getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
     }
-
-    public AlarmDialog(@NonNull Context context, int themeResId) {
-        super(context, themeResId);
-    }
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
 
-        this.setContentView(R.layout.alarm_dialog_layout);
+        setContentView(R.layout.alarm_dialog_layout);
 
         gotChecked = false;
 
-        timePickerDialog = new TimePickerDialog(getContext(), AlertDialog.THEME_HOLO_LIGHT,
+        timePickerDialog = new TimePickerDialog(context, AlertDialog.THEME_HOLO_LIGHT,
                 new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay,
@@ -80,133 +78,90 @@ public class AlarmDialog extends Dialog {
                         alarm_hour = hourOfDay;
                         alarm_minute = minute;
 
-                        long time = (hourOfDay*60L + minute)*60*1000;
-
-                        AlarmManagerForToday.addAlarm(getContext(), event, time);
-
-                        new Handler().postDelayed(AlarmDialog.this::dismiss,300);
                     }
                 }, alarm_hour, alarm_minute, true);
 
-        timePickerDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new OnClickListener() {
+        timePickerDialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+
+        timePickerDialog.setOnShowListener(new OnShowListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                gotChecked = true;
+            public void onShow(DialogInterface dialog) {
+
+                timePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        switch_alarm.setChecked(true);
+                        Log.d("murad", "switch_alarm is " + (switch_alarm == null ? "" : " not ") + " null");
+                        Log.d("murad", "switch_alarm.isChecked() is " + switch_alarm.isChecked());
+
+                        long time = (alarm_hour*60L + alarm_minute)*60*1000;
+
+                        AlarmManagerForToday.addAlarm(getContext(), event, time);
+
+                        timePickerDialog.dismiss();
+
+//                        new Handler().postDelayed(AlarmDialog.this::dismiss,300);
+
+                    }
+                });
             }
         });
 
-        timePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                gotChecked = false;
-            }
-        });
+        timePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel",
+                (dialog, which) -> switch_alarm.setChecked(false));
 
-        /*timePickerDialog.setOnDismissListener(new OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                *//*if (gotChecked){
-                    AlarmDialog.this.cancel();
-                }
-                else {
-                    AlarmDialog newDialog = new AlarmDialog(getContext(), event, 0, alarm_hour, alarm_minute);
-                    newDialog.show();
-                }*//*
-
-                AlarmDialog.this.cancel();
-            }
-        });
-
-        timePickerDialog.setOnCancelListener(new OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                if (gotChecked){
-                    AlarmDialog.this.cancel();
-                }
-                else {
-                    AlarmDialog newDialog = new AlarmDialog(getContext(), event, 0, alarm_hour, alarm_minute);
-                    newDialog.show();
-                }
-            }
-        });*/
-
-        RadioGroup rg_alarm = this.findViewById(R.id.rg_alarm);
-        rg_alarm.setOnCheckedChangeListener((group, checkedId) -> {
-            gotChecked = true;
-            long before = 0;
-            String toast = "Alarm was set for time of beginning of the event";
-
-            switch (checkedId){
-                case R.id.rb_at_time:
-                    before = 0;
-                    toast = "Alarm was set for time of beginning of the event";
-                    Toast.makeText(getContext(), toast, Toast.LENGTH_SHORT).show();
-                    break;
-                case R.id.rb_5_mins_before:
-                    before = 5 * 60 * 1000;
-                    toast = "Alarm was set for 5 minutes before beginning of the event";
-                    Toast.makeText(getContext(), toast, Toast.LENGTH_SHORT).show();
-                    break;
-                case R.id.rb_15_mins_before:
-                    before = 15 * 60 * 1000;
-                    toast = "Alarm was set for 15 minutes before beginning of the event";
-                    Toast.makeText(getContext(), toast, Toast.LENGTH_SHORT).show();
-                    break;
-                case R.id.rb_30_mins_before:
-                    before = 30 * 60 * 1000;
-                    toast = "Alarm was set for 30 minutes before beginning of the event";
-                    Toast.makeText(getContext(), toast, Toast.LENGTH_SHORT).show();
-                    break;
-                case R.id.rb_1_hour_before:
-                    before = 60 * 60 * 1000;
-                    toast = "Alarm was set for 1 hour before beginning of the event";
-                    Toast.makeText(getContext(), toast, Toast.LENGTH_SHORT).show();
-                    break;
-                case R.id.rb_custom:
-                    gotChecked = false;
-                    timePickerDialog.show();
-            }
-            AlarmManagerForToday.addAlarm(getContext(), event, before);
-
-            new Handler().postDelayed(AlarmDialog.this::dismiss,300);
-
-        });
-
-/*        RadioGroup rg_alarm = this.findViewById(R.id.rg_alarm);
+        RadioGroup rg_alarm = findViewById(R.id.rg_alarm);
         rg_alarm.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                gotChecked = true;
+                switch_alarm.setChecked(true);
                 long before = 0;
                 String toast = "Alarm was set for time of beginning of the event";
 
+                int delay = 300;
+
                 switch (checkedId) {
+                    case R.id.rb_at_time:
+                        before = 0;
+                        toast = "Alarm was set for time of beginning of the event";
+                        Toast.makeText(AlarmDialog.this.getContext(), toast,
+                                Toast.LENGTH_SHORT).show();
+                        break;
                     case R.id.rb_5_mins_before:
                         before = 5 * 60 * 1000;
                         toast = "Alarm was set for 5 minutes before beginning of the event";
+                        Toast.makeText(AlarmDialog.this.getContext(), toast,
+                                Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.rb_15_mins_before:
                         before = 15 * 60 * 1000;
                         toast = "Alarm was set for 15 minutes before beginning of the event";
+                        Toast.makeText(AlarmDialog.this.getContext(), toast,
+                                Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.rb_30_mins_before:
                         before = 30 * 60 * 1000;
                         toast = "Alarm was set for 30 minutes before beginning of the event";
+                        Toast.makeText(AlarmDialog.this.getContext(), toast,
+                                Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.rb_1_hour_before:
                         before = 60 * 60 * 1000;
                         toast = "Alarm was set for 1 hour before beginning of the event";
+                        Toast.makeText(AlarmDialog.this.getContext(), toast,
+                                Toast.LENGTH_SHORT).show();
                         break;
+                    case R.id.rb_custom:
+                        delay = 0;
+                        switch_alarm.setChecked(false);
+                        timePickerDialog.show();
                 }
-                AlarmManagerForToday.addAlarm(getContext(), event, before);
-                Toast.makeText(getContext(), toast, Toast.LENGTH_SHORT).show();
 
-                new Handler().postDelayed(AlarmDialog.this::dismiss, 300);
+                AlarmManagerForToday.addAlarm(AlarmDialog.this.getContext(), event, before);
 
-
+                new Handler().postDelayed(AlarmDialog.this::dismiss, delay);
             }
-        });*/
-
+        });
     }
 
     @Override
@@ -215,18 +170,4 @@ public class AlarmDialog extends Dialog {
 
         hide();
     }
-
-    /*@Override
-    public void setOnDismissListener(@Nullable OnDismissListener listener) {
-        super.setOnDismissListener(listener);
-
-        if (!gotChecked){
-            setOnCancelAlarmListener.onCancelAlarm(position);
-        }
-        this.dismiss();
-    }
-
-    public interface SetOnCancelAlarmListener {
-        void onCancelAlarm(int position);
-    }*/
 }

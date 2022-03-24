@@ -661,6 +661,17 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        if (dayDialogFragment != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                dayDialogFragment.dismiss();
+            }
+            dayDialogFragment = null;
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
 

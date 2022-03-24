@@ -71,4 +71,5 @@
     <string name="does_not_repeat">Does not repeat</string>
     <string name="on">on</string>
     <string name="events_notifications" translatable="false">events notifications</string>
+    <string name="server_key" translatable="false">key=AAAA9qIrU5w:APA91bFHE98eTclTHbx2zorhi97uhpZrwpJ3_dyPj9LB6Qlf3epcnDlKctJkfe2AWgjyc2ULMfa_y4i6S-o0P98TdJRoSu337Hvs23Qf4CkUchFV043IT0E8ekvh80SN1rkNR0Anmi2y</string>
 </resources>

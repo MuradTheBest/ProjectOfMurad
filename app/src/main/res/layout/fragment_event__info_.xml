@@ -364,41 +364,6 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageView
-                        android:id="@+id/iv_circle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="5dp"
-                        app:layout_constraintBottom_toBottomOf="@+id/tv_event_name"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@+id/tv_event_name"
-                        app:srcCompat="@drawable/ic_baseline_circle_24"
-                        tools:ignore="ContentDescription" />
-
-                    <ImageView
-                        android:id="@+id/iv_edit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        app:layout_constraintEnd_toEndOf="@+id/iv_circle"
-                        app:layout_constraintHorizontal_bias="0.5"
-                        app:layout_constraintStart_toStartOf="@+id/iv_circle"
-                        app:layout_constraintTop_toBottomOf="@+id/iv_circle"
-                        app:srcCompat="@drawable/ic_baseline_edit_24"
-                        android:contentDescription="TODO" />
-
-                    <ImageView
-                        android:id="@+id/iv_attendance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="39dp"
-                        app:layout_constraintEnd_toEndOf="@+id/iv_circle"
-                        app:layout_constraintHorizontal_bias="0.5"
-                        app:layout_constraintStart_toStartOf="@+id/iv_circle"
-                        app:layout_constraintTop_toBottomOf="@+id/iv_circle"
-                        app:srcCompat="@drawable/ic_baseline_assignment_24"
-                        android:contentDescription="Attendance" />
-
                     <TextView
                         android:id="@+id/tv_event_name"
                         android:layout_width="0dp"
@@ -409,7 +374,7 @@
                         android:textAlignment="textStart"
                         android:textSize="18sp"
                         app:layout_constraintEnd_toStartOf="@+id/switch_alarm"
-                        app:layout_constraintStart_toEndOf="@id/iv_circle"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
