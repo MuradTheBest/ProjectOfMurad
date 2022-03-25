@@ -22,6 +22,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.projectofmurad.notifications.FCMSend;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -297,6 +298,7 @@ public class UserSigningActivity extends AppCompatActivity {
                                                                                     public void onComplete(@NonNull Task<Void> task) {
                                                                                         if (task.isSuccessful()){
                                                                                             getToken();
+                                                                                            subscribeToTopic();
                                                                                         }
                                                                                     }
                                                                                 });
@@ -327,6 +329,7 @@ public class UserSigningActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
                                     getToken();
+                                    subscribeToTopic();
                                 }
                             }
                         });
@@ -441,6 +444,18 @@ public class UserSigningActivity extends AppCompatActivity {
                                     }
                                 });
 
+                    }
+                });
+    }
+
+    protected void subscribeToTopic(){
+        FirebaseMessaging.getInstance().subscribeToTopic(FCMSend.ADD_EVENT_TOPIC).addOnCompleteListener(
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.d(FCMSend.FCM_TAG, "subscription to topic " + FCMSend.FCM_TAG + " is successful");
+                        }
                     }
                 });
     }

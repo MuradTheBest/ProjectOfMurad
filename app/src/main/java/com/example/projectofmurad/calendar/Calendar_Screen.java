@@ -41,6 +41,7 @@ import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
+import com.example.projectofmurad.notifications.FCMSend;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -329,6 +330,8 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
                 .child(calendarEvent.getPrivateId()).setValue(calendarEvent);
 
         FirebaseUtils.allEventsDatabase.child(calendarEvent.getPrivateId()).setValue(calendarEvent);
+
+        FCMSend.sendNotificationsToAllUsers(this, calendarEvent, Utils.ADD_EVENT_NOTIFICATION_CODE);
 
         AtomicInteger atomicInteger = new AtomicInteger();
         atomicInteger.set(atomicInteger.get()+1);

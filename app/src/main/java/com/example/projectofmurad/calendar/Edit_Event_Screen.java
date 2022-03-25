@@ -210,7 +210,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
         Log.d("murad", "Receiving selectedDate " + start_day + " " + start_month + " " + start_year);
 
-        if (gotten_intent.hasExtra(CalendarEvent.KEY_EVENT)){
+        if (gotten_intent.hasExtra(UtilsCalendar.KEY_EVENT)){
             editMode = true;
             Log.d("murad", "event is not null => Edit_Event_Screen");
 
@@ -677,6 +677,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
         float finalRadius = Math.max(sv_add_event_screen.getWidth(),
                 sv_add_event_screen.getHeight());
+
         Animator circularReveal = ViewAnimationUtils.createCircularReveal(sv_add_event_screen, cx,
                 cy, finalRadius, 0);
 
@@ -702,7 +703,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 toCalendar_Screen.putExtra("year", year);
 
 //                startActivity(toCalendar_Screen);
-                ;
+                Edit_Event_Screen.super.onBackPressed();
             }
 
             @Override
@@ -792,7 +793,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                         Log.d("murad", "Event key is " + date.getKey());
                         Log.d("murad", event.getValue(CalendarEvent.class).toString());
 
-                        if (event.child(CalendarEvent.KEY_EVENT_CHAIN_ID).getValue(String.class).equals(key)){
+                        if (event.child(UtilsCalendar.KEY_EVENT_CHAIN_ID).getValue(String.class).equals(key)){
                             Log.d("murad", "Event found");
                             event.getRef().removeValue();
                         }

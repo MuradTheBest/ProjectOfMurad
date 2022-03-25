@@ -336,7 +336,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
             if (success) {
                 startActivity(toCalendar_Screen);
 
-//                sendNotification();
+//                sendNotificationToOneUser();
             }
             else {
                 createBottomSheetDialog();

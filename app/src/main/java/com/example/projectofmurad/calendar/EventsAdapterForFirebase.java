@@ -48,6 +48,7 @@ import java.time.LocalDate;
    database contents in a Recycler View */
 public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEvent, EventsAdapterForFirebase.EventViewHolderForFirebase> {
 
+
     /**
      * Initialize a {@link RecyclerView.Adapter} that listens to a Firebase query. See
      * {@link FirebaseRecyclerOptions} for configuration options.
@@ -57,22 +58,39 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
     private LocalDate selectedDate;
     private ObservableSnapshotArray<CalendarEvent> calendarEventArrayList;
-    private final OnEventClickListener onEventClickListener;
+    private OnEventClickListener onEventClickListener;
+    private OnEventChooseListener onEventChooseListener;
     private OnEventExpandListener onEventExpandListener;
     private FirebaseRecyclerOptions<CalendarEvent> options;
     private Context context;
     private String selected_UID;
 
+    private boolean isChooseEventDialog;
+
     private final SQLiteDatabase db;
 
+    private int oldPosition = -1;
+
     public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, LocalDate selectedDate,
-                                    @NonNull Context context, OnEventClickListener onEventClickListener, OnEventExpandListener onEventExpandListener) {
+                                    @NonNull Context context, OnEventClickListener onEventClickListener) {
 
         super(options);
         this.calendarEventArrayList = options.getSnapshots();
         this.selectedDate = selectedDate;
         this.onEventClickListener = onEventClickListener;
-        this.onEventExpandListener = onEventExpandListener;
+        this.context = context;
+        this.db = context.openOrCreateDatabase(Utils.DATABASE_NAME, MODE_PRIVATE, null);
+    }
+
+    public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, LocalDate selectedDate,
+                                    @NonNull Context context, OnEventClickListener onEventClickListener,
+                                    OnEventChooseListener onEventChooseListener) {
+
+        super(options);
+        this.calendarEventArrayList = options.getSnapshots();
+        this.selectedDate = selectedDate;
+        this.onEventClickListener = onEventClickListener;
+        this.onEventChooseListener = onEventChooseListener;
         this.context = context;
         this.db = context.openOrCreateDatabase(Utils.DATABASE_NAME, MODE_PRIVATE, null);
     }
@@ -140,7 +158,17 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             checkbox_all_attendances.setOnCheckedChangeListener(this);
 
 //            itemView.setOnClickListener(this);
-            itemView.setOnClickListener(v -> onEventClickListener.onEventClick(getBindingAdapterPosition(), getItem(getBindingAdapterPosition())));
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onEventClickListener.onEventClick(getBindingAdapterPosition(), getItem(getBindingAdapterPosition()));
+                    if (onEventChooseListener != null && getAbsoluteAdapterPosition() != oldPosition && oldPosition > -1){
+                        onEventChooseListener.onEventChoose(oldPosition, getBindingAdapterPosition(), getItem(getBindingAdapterPosition()).getPrivateId());
+                        oldPosition = getAbsoluteAdapterPosition();
+                        checkbox_all_attendances.setChecked(true);
+                    }
+                }
+            });
         }
 
         @Override
@@ -267,15 +295,16 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         info += " | " + model.getDescription() + "\n";
 
 
-        if (selectedDate != null){
+        /*if (selectedDate != null){
             holder.wrapped_layout.setVisibility(View.VISIBLE);
             holder.expanded_layout.setVisibility(View.GONE);
         }
         else {
             holder.wrapped_layout.setVisibility(View.GONE);
             holder.expanded_layout.setVisibility(View.VISIBLE);
-        }
+        }*/
 
+        holder.expanded_layout.setVisibility(View.GONE);
 
         if (selectedDate != null){
             if(model.getStartDate().equals(model.getEndDate())){
@@ -300,13 +329,34 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
                 holder.tv_hyphen.setText(R.string.all_day);
             }
 
-            if(model.getTimestamp() == 0){
+            /*if(model.getTimestamp() == 0){
                 holder.tv_event_start_time.setText("");
                 holder.tv_hyphen.setText(R.string.all_day);
                 holder.tv_event_end_time.setText("");
-            }
+            }*/
         }
 
+        if(model.getStartDate().equals(model.getEndDate())){
+            holder.tv_event_start_time.setText(model.getStartTime());
+            Log.d("murad","Starting time: " + model.getStartTime());
+
+            holder.tv_event_end_time.setText(model.getEndTime());
+            Log.d("murad","Ending time: " + model.getEndTime());
+
+        }
+        else if(model.getStartDate().equals(UtilsCalendar.DateToTextOnline(selectedDate))){
+            holder.tv_event_start_time.setText(model.getStartTime());
+            Log.d("murad","Starting time: " + model.getStartTime());
+
+        }
+        else if(model.getEndDate().equals(UtilsCalendar.DateToTextOnline(selectedDate))){
+            holder.tv_event_end_time.setText(model.getEndTime());
+            Log.d("murad","Ending time: " + model.getEndTime());
+
+        }
+        else{
+            holder.tv_hyphen.setText(R.string.all_day);
+        }
 
         Log.d("murad", "position = " + position);
 
@@ -331,21 +381,27 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             selected_UID = FirebaseUtils.getCurrentUID();
         }
 
-        DatabaseReference ref = FirebaseUtils.attendanceDatabase.child(event_private_id).child(selected_UID);
+        if (onEventChooseListener != null){
+            holder.checkbox_all_attendances.setVisibility(View.VISIBLE);
+        }
 
-        final boolean[] attend = {false};
-        ref.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if(task.getResult().exists()){
-                    attend[0] = task.getResult().getValue(boolean.class);
+        if (selected_UID != null){
+            DatabaseReference ref = FirebaseUtils.attendanceDatabase.child(event_private_id).child(selected_UID);
+
+            final boolean[] attend = {false};
+            ref.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if(task.getResult().exists()){
+                        attend[0] = task.getResult().getValue(boolean.class);
+                    }
+                    holder.checkbox_all_attendances.setChecked(attend[0]);
+                    holder.checkbox_all_attendances.setVisibility(View.GONE);
+                    if (selected_UID == null){
+                    }
                 }
-                holder.checkbox_all_attendances.setChecked(attend[0]);
-                holder.checkbox_all_attendances.setVisibility(View.GONE);
-                if (selected_UID == null){
-                }
-            }
-        });
+            });
+        }
 
         boolean alarmSet = false;
 
@@ -354,13 +410,16 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
         while (cursor.moveToNext()){
             alarmSet = true;
-            holder.switch_alarm.setMaxEms(10);
         }
 
         cursor.close();
         holder.switch_alarm.setChecked(alarmSet);
 
         holder.itemView.setTag(model.getPrivateId());
+
+        if (onEventChooseListener != null){
+            holder.checkbox_all_attendances.setVisibility(View.VISIBLE);
+        }
     }
 
     @NonNull
@@ -374,6 +433,10 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
     public interface OnEventClickListener {
         void onEventClick(int position, CalendarEvent calendarEvent);
+    }
+
+    public interface OnEventChooseListener {
+        void onEventChoose(int oldPosition, int newPosition, String eventPrivateId);
     }
 
     public interface OnEventExpandListener {

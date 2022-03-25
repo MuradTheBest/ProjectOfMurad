@@ -113,7 +113,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
-        args.putSerializable(CalendarEvent.KEY_EVENT, event);
+        args.putSerializable(UtilsCalendar.KEY_EVENT, event);
         args.putBoolean(ARG_IS_SHOWS_DIALOG, isShowsDialog);
         fragment.setArguments(args);
         return fragment;
@@ -125,7 +125,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
-            event = (CalendarEvent) getArguments().getSerializable(CalendarEvent.KEY_EVENT);
+            event = (CalendarEvent) getArguments().getSerializable(UtilsCalendar.KEY_EVENT);
             if (event == null){
 
             }
@@ -604,14 +604,16 @@ public class Event_Info_DialogFragment extends DialogFragment implements
             event.setChainId(newChainId);
 
             Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
-            intent.putExtra(CalendarEvent.KEY_EVENT, event);
+            intent.putExtra(UtilsCalendar.KEY_EVENT, event);
 
+            dismiss();
             requireActivity().startActivity(intent);
         }
         else if(v == btn_edit_event){
             Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
-            intent.putExtra(CalendarEvent.KEY_EVENT, event);
+            intent.putExtra(UtilsCalendar.KEY_EVENT, event);
 
+            dismiss();
             requireActivity().startActivity(intent);
         }
         else if(v == btn_share_event){
@@ -681,7 +683,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements
                         Log.d("murad", "Event key is " + date.getKey());
                         Log.d("murad", event.getValue(CalendarEvent.class).toString());
 
-                        if (event.child(CalendarEvent.KEY_EVENT_CHAIN_ID).getValue(String.class).equals(key)){
+                        if (event.child(UtilsCalendar.KEY_EVENT_CHAIN_ID).getValue(String.class).equals(key)){
                             Log.d("murad", "Event found");
                             event.getRef().removeValue();
                         }

@@ -36,6 +36,11 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
         Log.d(FCM_TAG, "******************************************************************************************");
 
 
+        if (remoteMessage.getData().containsKey("event")){
+
+        }
+
+
         String title = remoteMessage.getNotification().getTitle();
         String body = remoteMessage.getNotification().getBody();
 

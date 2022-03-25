@@ -133,7 +133,7 @@ public class MyFirebaseMessagingService extends com.google.firebase.messaging.Fi
 
         pushNotification(remoteMessage);
         // Also if you intend on generating your own notifications as a result of a received FCM
-        // message, here is where that should be initiated. See sendNotification method below.
+        // message, here is where that should be initiated. See sendNotificationToOneUser method below.
     }
     // [END receive_message]
 

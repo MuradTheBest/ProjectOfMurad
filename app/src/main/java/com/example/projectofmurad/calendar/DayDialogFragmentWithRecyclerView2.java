@@ -152,7 +152,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
                 .build();
 
 
-        adapterForFirebase = new EventsAdapterForFirebase(options, passingDate, context, this, this);
+        adapterForFirebase = new EventsAdapterForFirebase(options, passingDate, context, this);
         Log.d("murad", "adapterForFirebase.getItemCount() = " + adapterForFirebase.getItemCount());
         Log.d("murad", "options.getItemCount() = " + options.getSnapshots().size());
 
@@ -741,7 +741,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
         FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
 
         Bundle bundle = new Bundle();
-        bundle.putSerializable(CalendarEvent.KEY_EVENT, event);
+        bundle.putSerializable(UtilsCalendar.KEY_EVENT, event);
         bundle.putSerializable(Event_Info_DialogFragment.ARG_IS_SHOWS_DIALOG, true);
 
 /*        BlankFragment blankFragment = new BlankFragment();

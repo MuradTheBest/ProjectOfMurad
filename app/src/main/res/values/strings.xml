@@ -71,5 +71,19 @@
     <string name="does_not_repeat">Does not repeat</string>
     <string name="on">on</string>
     <string name="events_notifications" translatable="false">events notifications</string>
-    <string name="server_key" translatable="false">key=AAAA9qIrU5w:APA91bFHE98eTclTHbx2zorhi97uhpZrwpJ3_dyPj9LB6Qlf3epcnDlKctJkfe2AWgjyc2ULMfa_y4i6S-o0P98TdJRoSu337Hvs23Qf4CkUchFV043IT0E8ekvh80SN1rkNR0Anmi2y</string>
+    <string name="server_key" translatable="false">key=AAAA9qIrU5w:APA91bFxWrluzt2DFIyXvykPNcyOtCA1jPXS1GAlATo_BpV1NiIb8H8GZsdeZkT8vwHbG2Navlxg_te5aKNQbF5z54YPuaP_unmzdaDIWIid4AISDG3NTNwN2rczNME9qPiFX5Agej7R</string>
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
 </resources>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.projectofmurad" >
+    package="com.example.projectofmurad">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -18,9 +18,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
-
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
-    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 
     <application
         android:allowBackup="true"
@@ -31,13 +30,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:screenOrientation="landscape"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ProjectOfMurad" >
+        android:theme="@style/Theme.ProjectOfMurad">
+        <activity
+            android:name=".Graphs_Screen"
+            android:exported="false" />
 
         <receiver
             android:name=".tracking.ActivityBroadcastReceiver"
             android:enabled="true"
-            android:exported="true" >
-        </receiver>
+            android:exported="true"></receiver>
 
         <activity
             android:name=".calendar.Event_Screen"
@@ -74,11 +75,9 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" /> <!-- [START firebase_service] -->
-
-
         <service
             android:name=".notifications.FirebaseNotificationPushService"
-            android:exported="false" >
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -98,7 +97,7 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="false" >
+            android:exported="false">
 
             <!--
             <intent-filter>
@@ -116,7 +115,7 @@
             android:exported="false" />
         <activity
             android:name=".Splash_Screen"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

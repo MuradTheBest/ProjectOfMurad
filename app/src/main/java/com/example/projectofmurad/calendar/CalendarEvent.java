@@ -62,36 +62,7 @@ public class CalendarEvent implements Serializable {
     private String frequency_end;
 
 
-    public static final String KEY_EVENT = "event";
-    public static final String KEY_EVENT_CHAIN_ID = "chainId";
-    public static final String KEY_EVENT_TIMESTAMP = "timestamp";
-    public static final String KEY_EVENT_range = "range";
-    public static final String KEY_EVENT_position = "position";
-    public static final String KEY_EVENT_name = "name";
-    public static final String KEY_EVENT_description = "description";
-    public static final String KEY_EVENT_place = "place";
-    public static final String KEY_EVENT_start = "start";
-    public static final String KEY_EVENT_startDate = "startDate";
-    public static final String KEY_EVENT_startTime = "startTime";
-    public static final String KEY_EVENT_startDateTime = "startDateTime";
-    public static final String KEY_EVENT_end = "end";
-    public static final String KEY_EVENT_endDate = "endDate";
-    public static final String KEY_EVENT_endTime = "endTime";
-    public static final String KEY_EVENT_endDateTime = "endDateTime";
-    public static final String KEY_EVENT_color = "color";
-    public static final String KEY_EVENT_allDay = "allDay";
-    public static final String KEY_EVENT_frequencyType = "frequencyType";
-    public static final String KEY_EVENT_PRIVATE_ID = "privateId";
-    public static final String KEY_EVENT_frequency = "frequency";
-    public static final String KEY_EVENT_amount = "amount";
-    public static final String KEY_EVENT_day = "day";
-    public static final String KEY_EVENT_dayOfWeekPosition = "dayOfWeekPosition";
-    public static final String KEY_EVENT_array_frequencyDayOfWeek = "array_frequencyDayOfWeek";
-    public static final String KEY_EVENT_weekNumber = "weekNumber";
-    public static final String KEY_EVENT_month = "month";
-    public static final String KEY_EVENT_isLast = "isLast";
-    public static final String KEY_EVENT_frequency_start = "frequency_start";
-    public static final String KEY_EVENT_frequency_end = "frequency_end";
+
 
 
     public CalendarEvent(){

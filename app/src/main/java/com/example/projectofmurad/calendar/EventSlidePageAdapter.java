@@ -50,7 +50,7 @@ public class EventSlidePageAdapter extends FragmentStateAdapter {
                 Event_Info_DialogFragment event_info_fragment = new Event_Info_DialogFragment();
 
                 Bundle bundle = new Bundle();
-                bundle.putSerializable(CalendarEvent.KEY_EVENT, next_event);
+                bundle.putSerializable(UtilsCalendar.KEY_EVENT, next_event);
                 bundle.putBoolean(Event_Info_DialogFragment.ARG_IS_SHOWS_DIALOG, false);
 
                 event_info_fragment.setArguments(bundle);
@@ -60,7 +60,7 @@ public class EventSlidePageAdapter extends FragmentStateAdapter {
                 event_info_fragment = new Event_Info_DialogFragment();
 
                 bundle = new Bundle();
-                bundle.putSerializable(CalendarEvent.KEY_EVENT, last_event);
+                bundle.putSerializable(UtilsCalendar.KEY_EVENT, last_event);
                 bundle.putBoolean(Event_Info_DialogFragment.ARG_IS_SHOWS_DIALOG, false);
 
                 event_info_fragment.setArguments(bundle);
