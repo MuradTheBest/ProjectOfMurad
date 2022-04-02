@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.R;
+import com.example.projectofmurad.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.EventsAdapterForFirebase;
 import com.example.projectofmurad.calendar.UtilsCalendar;
@@ -75,6 +76,7 @@ public class ChooseEventClickDialog extends Dialog implements EventsAdapterForFi
         setCancelable(false);
 
         progressDialog = new ProgressDialog(getContext());
+        Utils.createCustomProgressDialog(progressDialog);
 
         TextView tv_day = findViewById(R.id.tv_day);
         tv_day.setVisibility(View.GONE);
@@ -152,19 +154,19 @@ public class ChooseEventClickDialog extends Dialog implements EventsAdapterForFi
                 }
                 else {
                     dismiss();
-                    FirebaseUtils.addTrainingForEvent(selectedEventPrivateId, training).addOnCompleteListener(
+                    FirebaseUtils.addTrainingForEvent(selectedEventPrivateId, trainingData).addOnCompleteListener(
                             new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (!task.isSuccessful()){
-                                        Toast.makeText(context, "Adding the training to this event failed \n" +
-                                                "The training will be added to private trainings", Toast.LENGTH_SHORT).show();
-//                            new MyRepository(getOwnerActivity().getApplication()).insert(training);
-                                        onAddTrainingListener.onAddTraining(training);
+                                        Toast.makeText(context, "Adding the trainingData to this event failed \n" +
+                                                "The trainingData will be added to private trainings", Toast.LENGTH_SHORT).show();
+//                            new MyRepository(getOwnerActivity().getApplication()).insert(trainingData);
+                                        onAddTrainingListener.onAddTraining(trainingData);
 
                                     }
 
-                                    Toast.makeText(context, "The training was added to this event successfully", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, "The trainingData was added to this event successfully", Toast.LENGTH_SHORT).show();
                                 }
                             });
                 }
@@ -179,22 +181,22 @@ public class ChooseEventClickDialog extends Dialog implements EventsAdapterForFi
     public void onEventClick(int position, @NonNull CalendarEvent calendarEvent) {
         selectedEventPrivateId = calendarEvent.getPrivateId();
 
-        progressDialog.setMessage("Adding the training to selected event...");
+        progressDialog.setMessage("Adding the trainingData to selected event...");
         progressDialog.show();
 
         FirebaseUtils.addTrainingForEvent(selectedEventPrivateId, training).addOnCompleteListener(
                 new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
+                        progressDialog.dismiss();
+                        dismiss();
                         if (!task.isSuccessful()){
-                            progressDialog.dismiss();
-                            dismiss();
-                            Toast.makeText(context, "Adding the training to this event failed \n" +
-                                    "The training will be added to private trainings", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "Adding the trainingData to this event failed \n" +
+                                    "The trainingData will be added to private trainings", Toast.LENGTH_SHORT).show();
                             onAddTrainingListener.onAddTraining(training);
                         }
 
-                        Toast.makeText(context, "The training was added to this event successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "The trainingData was added to this event successfully", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -45,11 +44,13 @@ import com.example.projectofmurad.UserAndTraining;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
+import com.example.projectofmurad.notifications.FCMSend;
 import com.example.projectofmurad.tracking.Training;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -60,16 +61,13 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link Event_Info_DialogFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Event_Info_DialogFragment extends DialogFragment implements
-        UsersAdapterForFirebase.OnCallListener,
-        UsersAdapterForFirebase.OnMessageListener, UsersAdapterForFirebase.OnUserExpandListener,
-        UsersAdapterForFirebase.OnEmailListener, UsersAdapterForFirebase.OnUserListener,
+public class Event_Info_DialogFragment extends DialogFragment implements UsersAdapterForFirebase.OnUserExpandListener,
+        UsersAdapterForFirebase.OnUserListener,
         View.OnClickListener, CompoundButton.OnCheckedChangeListener,
         TrainingsAdapter.OnTrainingClickListener {
 
@@ -157,11 +155,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements
     private TextView tv_event_place;
     private TextView tv_event_description;
 
-    private LinearLayout wrapped_layout;
-    private TextView tv_event_start_time;
-    private TextView tv_hyphen;
-    private TextView tv_event_end_time;
-
     private LinearLayout expanded_layout;
     private TextView tv_event_start_date_time;
     private TextView tv_event_end_date_time;
@@ -178,6 +171,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements
     private MaterialButton btn_share_event;
     private MaterialButton btn_delete_event;
 
+    private ProgressDialog deletingProgressDialog;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -207,11 +201,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements
         tv_event_place = view.findViewById(R.id.tv_event_place);
         tv_event_description = view.findViewById(R.id.tv_event_description);
 
-        wrapped_layout = view.findViewById(R.id.wrapped_layout);
-        tv_event_start_time = view.findViewById(R.id.tv_event_start_time);
-        tv_hyphen = view.findViewById(R.id.tv_hyphen);
-        tv_event_end_time = view.findViewById(R.id.tv_event_end_time);
-
         expanded_layout = view.findViewById(R.id.expanded_layout);
         tv_event_start_date_time = view.findViewById(R.id.tv_event_start_date_time);
         tv_event_end_date_time = view.findViewById(R.id.tv_event_end_date_time);
@@ -240,8 +229,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements
 
         btn_delete_event = view.findViewById(R.id.btn_delete_event);
         btn_delete_event.setOnClickListener(this);
-
-
     }
 
     public void setUpEventData(@NonNull CalendarEvent event){
@@ -255,24 +242,31 @@ public class Event_Info_DialogFragment extends DialogFragment implements
         tv_event_description.setText(event.getDescription());
         Log.d("murad", "description " + event.getDescription());
 
+
+        tv_event_start_date_time.setText(String.format(getString(R.string.starting_time_s_s),
+                UtilsCalendar.OnlineTextToLocal(event.getStartDate()), event.getStartTime()));
+
+        tv_event_end_date_time.setText(String.format(getString(R.string.ending_time_s_s),
+                UtilsCalendar.OnlineTextToLocal(event.getEndDate()), event.getEndTime()));
+
 /*
         if (selectedDate != null){
             if(event.getStartDate().equals(event.getEndDate())){
                 tv_event_start_time.setText(event.getStartTime());
-                Log.d("murad","Starting time: " + event.getStartTime());
+                Log.d("murad","Starting timeData: " + event.getStartTime());
 
                 tv_event_end_time.setText(event.getEndTime());
-                Log.d("murad","Ending time: " + event.getEndTime());
+                Log.d("murad","Ending timeData: " + event.getEndTime());
 
             }
             else if(event.getStartDate().equals(UtilsCalendar.DateToTextOnline(selectedDate))){
                 tv_event_start_time.setText(event.getStartTime());
-                Log.d("murad","Starting time: " + event.getStartTime());
+                Log.d("murad","Starting timeData: " + event.getStartTime());
 
             }
             else if(event.getEndDate().equals(UtilsCalendar.DateToTextOnline(selectedDate))){
                 tv_event_end_time.setText(event.getEndTime());
-                Log.d("murad","Ending time: " + event.getEndTime());
+                Log.d("murad","Ending timeData: " + event.getEndTime());
 
             }
             else{
@@ -286,8 +280,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements
             }
         }
 */
-
-        Resources res = getResources();
 
         /*tv_event_start_date_time.setText(String.format(res.getString(R.string.starting_time_s_s),
                 UtilsCalendar.OnlineTextToLocal(event.getStartDate()), event.getStartTime()));
@@ -348,7 +340,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements
         rv_users.setLayoutManager(new LinearLayoutManagerWrapper(requireContext()));
 
         rv_users.addOnItemTouchListener(new RVOnItemTouchListenerForVP2(rv_users,
-                MainViewModel.toSwipeViewModelForTrainings));
+                MainViewModel.getToSwipeViewModelForTrainings()));
 
 //        rv_users.setNestedScrollingEnabled(false);
 
@@ -534,16 +526,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements
     }
 
     @Override
-    public void OnCall(int position, String phone) {
-
-    }
-
-    @Override
-    public void OnMessage(int position, String phone) {
-
-    }
-
-    @Override
     public void onUserExpand(int position, int oldPosition) {
         if (oldPosition > -1){
             Log.d("murad","=================position==================");
@@ -558,11 +540,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements
             ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition))
                     .expanded = false;
         }
-    }
-
-    @Override
-    public void OnEmail(int position, String email) {
-
     }
 
     @Override
@@ -581,6 +558,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements
 
     @Override
     public void onClick(View v) {
+
         if (v == switch_alarm){
            if (switch_alarm.isChecked()){
                Log.d("murad", "Alarm added");
@@ -597,17 +575,15 @@ public class Event_Info_DialogFragment extends DialogFragment implements
            }
         }
         else if(v == btn_copy_event){
-            String newPrivateId = FirebaseUtils.allEventsDatabase.push().getKey();
-            String newChainId = FirebaseUtils.allEventsDatabase.push().getKey();
 
-            event.setPrivateId(newPrivateId);
-            event.setChainId(newChainId);
+            Log.d(Utils.LOG_TAG, "event  is " + event.toString());
 
-            Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
-            intent.putExtra(UtilsCalendar.KEY_EVENT, event);
-
-            dismiss();
-            requireActivity().startActivity(intent);
+            if (event.getPrivateId().equals(event.getChainId())){
+                copySingleEvent(event);
+            }
+            else {
+                createCopyDialog();
+            }
         }
         else if(v == btn_edit_event){
             Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
@@ -629,36 +605,166 @@ public class Event_Info_DialogFragment extends DialogFragment implements
             requireActivity().startActivity(Intent.createChooser(intent, "Choose app"));
         }
         else if(v == btn_delete_event){
-            absoluteDelete(event.getPrivateId(), new OnDeleteFinishedCallback() {
-                @Override
-                public void onDeleteFinished() {
-                    Toast.makeText(requireContext(), "Event was deleted successfully", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(requireContext(), Calendar_Screen.class);
-                    requireActivity().startActivity(intent);
-                }
-            });
+
+            Log.d(Utils.LOG_TAG, "event  is " + event.toString());
+
+            Toast.makeText(requireContext(), "Event was deleted successfully", Toast.LENGTH_SHORT).show();
+
+            if (event.getPrivateId().equals(event.getChainId())){
+                deleteSingleEvent(event.getChainId(), new OnDeleteFinishedCallback() {
+                    @Override
+                    public void onDeleteFinished() {
+                        Event_Info_DialogFragment.this.requireActivity().startActivity(
+                                new Intent(Event_Info_DialogFragment.this.requireContext(),
+                                        Calendar_Screen.class));
+                    }
+                });
+            }
+            else {
+                createDeleteDialog();
+            }
         }
 
     }
 
-    public void absoluteDelete(String key, OnDeleteFinishedCallback onDeleteFinishedCallback){
+    private void getEventData(OnGetEventDataListener onGetEventDataListener){
+        FirebaseUtils.allEventsDatabase.child(event.getChainId()).get().addOnCompleteListener(
+                new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult().exists()){
+                            CalendarEvent superEvent = task.getResult().getValue(CalendarEvent.class);
 
+                            event.setFrequency_start(superEvent.getFrequency_start());
+                            event.setFrequency_end(superEvent.getFrequency_end());
+
+                            onGetEventDataListener.onGetEventData();
+                        }
+                    }
+                });
+
+    }
+
+    public interface OnGetEventDataListener{
+        void onGetEventData();
+    }
+
+    public void createDeleteDialog(){
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
+        Utils.createCustomBottomSheetDialog(bottomSheetDialog);
+
+        bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
+
+        TextView tv_bottom_sheet_dialog_title = bottomSheetDialog.findViewById(R.id.tv_bottom_sheet_dialog_title);
+        tv_bottom_sheet_dialog_title.setText("Delete");
+
+        TextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
+        tv_only_this_event.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomSheetDialog.dismiss();
+
+                deleteSingleEvent(event.getPrivateId(), () -> requireActivity().startActivity(new Intent(requireContext(), Calendar_Screen.class)));
+            }
+        });
+
+        TextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
+        tv_all_events_in_chain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomSheetDialog.dismiss();
+
+                deleteAllEventsInChain(event.getChainId(), () -> requireActivity().startActivity(new Intent(requireContext(), Calendar_Screen.class)));
+            }
+        });
+
+        bottomSheetDialog.show();
+    }
+
+    public void deleteSingleEvent(@NonNull String private_key, OnDeleteFinishedCallback onDeleteFinishedCallback){
         DatabaseReference allEventsDatabase = FirebaseUtils.allEventsDatabase;
 
-        ProgressDialog deletingProgressDialog = new ProgressDialog(requireContext());
+        deletingProgressDialog = new ProgressDialog(requireContext());
 
         deletingProgressDialog.setMessage("Deleting event");
         deletingProgressDialog.setIndeterminate(true);
         deletingProgressDialog.show();
 
-        Query query = allEventsDatabase.orderByKey().equalTo(key);
+
+        if (private_key.equals(event.getChainId())){
+
+            Query query = allEventsDatabase.orderByKey().equalTo(private_key);
+            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot data : snapshot.getChildren()){
+                        data.getRef().removeValue();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+
+
+        DatabaseReference eventsDatabaseReference = FirebaseUtils.eventsDatabase;
+
+        eventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot date : snapshot.getChildren()){
+
+                    Log.d("murad", "========================================================");
+                    Log.d("murad", "Date private_key is " + date.getKey());
+                    Log.d("murad", "events on this date: " + date.getChildrenCount());
+
+                    for (DataSnapshot event : date.getChildren()) {
+
+                        Log.d("murad", "Event private_key is " + date.getKey());
+                        Log.d("murad", event.getValue(CalendarEvent.class).toString());
+
+                        if (event.getKey().equals(private_key)){
+                            Log.d("murad", "Event found");
+                            event.getRef().removeValue();
+                        }
+                    }
+
+
+                    Log.d("murad", "========================================================");
+                }
+                FCMSend.sendNotificationsToAllUsersWithTopic(requireContext(), event, Utils.DELETE_EVENT_NOTIFICATION_CODE);
+                onDeleteFinishedCallback.onDeleteFinished();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void deleteAllEventsInChain(String chain_key, OnDeleteFinishedCallback onDeleteFinishedCallback){
+        DatabaseReference allEventsDatabase = FirebaseUtils.allEventsDatabase;
+
+        deletingProgressDialog = new ProgressDialog(requireContext());
+
+        deletingProgressDialog.setMessage("Deleting event");
+        deletingProgressDialog.setIndeterminate(true);
+        deletingProgressDialog.show();
+
+        Query query = allEventsDatabase.orderByKey().equalTo(chain_key);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot data : snapshot.getChildren()){
-                    data.getRef().removeValue();
+                for (DataSnapshot eventDS : snapshot.getChildren()){
+                    if (eventDS.child(UtilsCalendar.KEY_EVENT_CHAIN_ID).getValue(String.class).equals(chain_key)){
+                        Log.d("murad", "Event found");
+                        eventDS.getRef().removeValue();
+                    }
                 }
-//                onDeleteFinishedCallback.onDeleteFinished();
             }
 
             @Override
@@ -675,20 +781,19 @@ public class Event_Info_DialogFragment extends DialogFragment implements
                 for (DataSnapshot date : snapshot.getChildren()){
 
                     Log.d("murad", "========================================================");
-                    Log.d("murad", "Date key is " + date.getKey());
+                    Log.d("murad", "Date chain_key is " + date.getKey());
                     Log.d("murad", "events on this date: " + date.getChildrenCount());
 
-                    for (DataSnapshot event : date.getChildren()){
+                    for (DataSnapshot eventDS : date.getChildren()){
 
-                        Log.d("murad", "Event key is " + date.getKey());
-                        Log.d("murad", event.getValue(CalendarEvent.class).toString());
+                        Log.d("murad", "Event chain_key is " + date.getKey());
+                        Log.d("murad", eventDS.getValue(CalendarEvent.class).toString());
 
-                        if (event.child(UtilsCalendar.KEY_EVENT_CHAIN_ID).getValue(String.class).equals(key)){
+                        if (eventDS.child(UtilsCalendar.KEY_EVENT_CHAIN_ID).getValue(String.class).equals(chain_key)){
                             Log.d("murad", "Event found");
-                            event.getRef().removeValue();
+                            eventDS.getRef().removeValue();
                         }
                     }
-
 
                     Log.d("murad", "========================================================");
                 }
@@ -699,6 +804,67 @@ public class Event_Info_DialogFragment extends DialogFragment implements
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
+        });
+    }
+
+    public void createCopyDialog(){
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
+        Utils.createCustomBottomSheetDialog(bottomSheetDialog);
+
+        bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
+
+        TextView tv_bottom_sheet_dialog_title = bottomSheetDialog.findViewById(R.id.tv_bottom_sheet_dialog_title);
+        tv_bottom_sheet_dialog_title.setText("Copy");
+
+        TextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
+        tv_only_this_event.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+
+            copySingleEvent(event);
+        });
+
+        TextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
+        tv_all_events_in_chain.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+
+            copyAllEventsInChain(event);
+        });
+
+        bottomSheetDialog.show();
+    }
+
+    public void copySingleEvent(@NonNull CalendarEvent event){
+        String private_key = FirebaseUtils.allEventsDatabase.push().getKey();
+        String chain_key = private_key;
+
+        event.setPrivateId(private_key);
+        event.setChainId(chain_key);
+
+        event.clearFrequencyData();
+
+        event.setFrequency_start(event.getStartDate());
+        event.setFrequency_end(event.getEndDate());
+
+        Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
+        intent.putExtra(UtilsCalendar.KEY_EVENT, event);
+
+        dismiss();
+        requireActivity().startActivity(intent);
+    }
+
+    public void copyAllEventsInChain(@NonNull CalendarEvent event){
+        String private_key = FirebaseUtils.allEventsDatabase.push().getKey();
+        String chain_key = FirebaseUtils.allEventsDatabase.push().getKey();
+
+        getEventData(() -> {
+            event.setPrivateId(private_key);
+            event.setChainId(chain_key);
+
+            Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
+            intent.putExtra(UtilsCalendar.KEY_EVENT, event);
+
+            dismiss();
+            startActivity(intent);
         });
     }
 

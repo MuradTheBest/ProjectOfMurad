@@ -61,7 +61,7 @@ public class Training implements Serializable {
 
     private String avgPace;
 /*    @Ignore
-    private HashMap<String, Double> paces;*/
+    private HashMap<String, Double> pacesData;*/
     private String maxPace;
 
     private double totalDistance;
@@ -77,57 +77,57 @@ public class Training implements Serializable {
     public final static String KEY_TRAINING = "key_training";
 
     @Ignore
-    public final static String KEY_TRAINING_uid = "training_uid";
+    public final static String KEY_TRAINING_UID = "training_uid";
     @Ignore
-    public final static String KEY_TRAINING_privateId = "training_privateId";
+    public final static String KEY_TRAINING_PRIVATE_ID = "training_privateId";
     @Ignore
-    public final static String KEY_TRAINING_eventPrivateId = "training_eventPrivateId";
+    public final static String KEY_TRAINING_EVENT_PRIVATE_ID = "training_eventPrivateId";
     @Ignore
-    public final static String KEY_TRAINING_userID = "training_userID";
+    public final static String KEY_TRAINING_USER_ID = "training_userID";
     @Ignore
-    public final static String KEY_TRAINING_day = "training_day";
+    public final static String KEY_TRAINING_DAY = "training_day";
     @Ignore
-    public final static String KEY_TRAINING_month = "training_month";
+    public final static String KEY_TRAINING_MONTH = "training_month";
     @Ignore
-    public final static String KEY_TRAINING_year = "training_year";
+    public final static String KEY_TRAINING_YEAR = "training_year";
     @Ignore
-    public final static String KEY_TRAINING_range = "training_range";
+    public final static String KEY_TRAINING_RANGE = "training_range";
     @Ignore
-    public final static String KEY_TRAINING_name = "training_name";
+    public final static String KEY_TRAINING_NAME = "training_name";
     @Ignore
     public final static String KEY_TRAINING_description = "training_description";
     @Ignore
-    public final static String KEY_TRAINING_place = "training_place";
+    public final static String KEY_TRAINING_PLACE = "training_place";
     @Ignore
-    public final static String KEY_TRAINING_start = "training_start";
+    public final static String KEY_TRAINING_START = "training_start";
     @Ignore
-    public final static String KEY_TRAINING_startDate = "training_startDate";
+    public final static String KEY_TRAINING_START_DATE = "training_startDate";
     @Ignore
-    public final static String KEY_TRAINING_startTime = "training_startTime";
+    public final static String KEY_TRAINING_START_TIME = "training_startTime";
     @Ignore
-    public final static String KEY_TRAINING_startDateTime = "training_startDateTime";
+    public final static String KEY_TRAINING_START_DATE_TIME = "training_startDateTime";
     @Ignore
-    public final static String KEY_TRAINING_time = "training_time";
+    public final static String KEY_TRAINING_TIME = "training_time";
     @Ignore
-    public final static String KEY_TRAINING_totalTime = "training_totalTime";
+    public final static String KEY_TRAINING_TOTAL_TIME = "training_totalTime";
     @Ignore
-    public final static String KEY_TRAINING_avgSpeed = "training_avgSpeed";
+    public final static String KEY_TRAINING_AVG_SPEED = "training_avgSpeed";
     @Ignore
-    public final static String KEY_TRAINING_speeds = "training_speeds";
+    public final static String KEY_TRAINING_SPEEDS = "training_speeds";
     @Ignore
-    public final static String KEY_TRAINING_maxSpeed = "training_maxSpeed";
+    public final static String KEY_TRAINING_MAX_SPEED = "training_maxSpeed";
     @Ignore
-    public final static String KEY_TRAINING_totalDistance = "training_totalDistance";
+    public final static String KEY_TRAINING_TOTAL_DISTANCE = "training_totalDistance";
     @Ignore
-    public final static String KEY_TRAINING_end = "training_end";
+    public final static String KEY_TRAINING_END = "training_end";
     @Ignore
-    public final static String KEY_TRAINING_endDate = "training_endDate";
+    public final static String KEY_TRAINING_END_DATE = "training_endDate";
     @Ignore
-    public final static String KEY_TRAINING_endTime = "training_endTime";
+    public final static String KEY_TRAINING_END_TIME = "training_endTime";
     @Ignore
-    public final static String KEY_TRAINING_endDateTime = "training_endDateTime";
+    public final static String KEY_TRAINING_END_DATE_TIME = "training_endDateTime";
     @Ignore
-    public final static String KEY_TRAINING_color = "training_color";
+    public final static String KEY_TRAINING_COLOR = "training_color";
 
 
     public Training(){}
@@ -214,7 +214,7 @@ public class Training implements Serializable {
         int minutes = (int) ((seconds % 3600) / 60);
         int secs = (int) (seconds % 60);
 
-        // Format the time into hours, minute and time.
+        // Format the timeData into hours, minute and timeData.
         return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, secs);
     }
 
@@ -377,12 +377,12 @@ public class Training implements Serializable {
                 ", startDate='" + startDate + '\'' +
                 ", startTime='" + startTime + '\'' +
                 ", startDateTime='" + startDateTime + '\'' +
-                ", time=" + time +
-                ", totalTime=" + totalTime +
-                ", avgSpeed=" + avgSpeed +
-                ", speeds=" + (speeds == null ? "" : speeds.toString()) +
-                ", maxSpeed=" + maxSpeed +
-                ", totalDistance=" + totalDistance +
+                ", timeData=" + time +
+                ", totalTimeData=" + totalTime +
+                ", avgSpeedData=" + avgSpeed +
+                ", speedsData=" + (speeds == null ? "" : speeds.toString()) +
+                ", maxSpeedData=" + maxSpeed +
+                ", totalDistanceData=" + totalDistance +
                 ", end=" + end +
                 ", endDate='" + endDate + '\'' +
                 ", endTime='" + endTime + '\'' +

@@ -27,6 +27,34 @@ public class UserData {
     private double longitude;
     private boolean locationAvailable;
 
+    private boolean subscribedToAddEvent;
+    private boolean subscribedToEditEvent;
+    private boolean subscribedToDeleteEvent;
+
+    private boolean subscribedToAutoAlarmSet;
+    private boolean subscribedToAutoAlarmMove;
+
+    public final static String KEY_UID = "key_user_UID";
+    public final static String KEY_email = "key_user_email";
+    public final static String KEY_username = "key_user_username";
+    public final static String KEY_phone = "key_user_phone";
+    public final static String KEY_token = "key_user_token";
+    public final static String KEY_tokens = "key_user_tokens";
+    public final static String KEY_madrich = "key_user_madrich";
+    public final static String KEY_profile_picture = "key_user_profile_picture";
+    public final static String KEY_emailVerified = "key_user_emailVerified";
+    public final static String KEY_online = "key_user_online";
+    public final static String KEY_latitude = "key_user_latitude";
+    public final static String KEY_longitude = "key_user_longitude";
+    public final static String KEY_locationAvailable = "key_user_locationAvailable";
+
+    public final static String KEY_SUBSCRIBED_TO_ADD_EVENT = "key_user_subscribedToAddEvent";
+    public final static String KEY_SUBSCRIBED_TO_EDIT_EVENT = "key_user_subscribedToEditEvent";
+    public final static String KEY_SUBSCRIBED_TO_DELETE_EVENT = "key_user_subscribedToDeleteEvent";
+
+    public final static String KEY_SUBSCRIBED_TO_AUTO_ALARM_SET = "key_user_subscribedToAutoAlarmSet";
+    public final static String KEY_SUBSCRIBED_TO_AUTO_ALARM_MOVE = "key_user_subscribedToAutoAlarmMove";
+
     public UserData(){}
 
     public UserData(String UID, String email, String username, String phone) {
@@ -104,18 +132,25 @@ public class UserData {
     public String toString() {
         return "UserData{" +
                 "\n userID = '" + UID + '\'' +
-                ", \n email = '" + email + '\'' +
-                ", \n username = '" + username + '\'' +
-                ", \n phone = '" + phone + '\'' +
-                ", \n token = '" + token + '\'' +
-                ", \n madrich = " + madrich +
-                ", \n notMadrich = " + notMadrich +
-                ", \n profile_picture = '" + profile_picture + '\'' +
-                ", \n online = " + online +
-                ", \n offline = " + offline +
-                ", \n latitude = " + latitude +
-                ", \n longitude = " + longitude +
-                ", \n locationAvailable = " + locationAvailable +
+                ",\nemail = '" + email + '\'' +
+                ",\nusername = '" + username + '\'' +
+                ",\nphone = '" + phone + '\'' +
+                ",\ntoken = '" + token + '\'' +
+                ",\ntokens = " + tokens +
+                ",\nmadrich = " + madrich +
+                ",\nnotMadrich = " + notMadrich +
+                ",\nprofile_picture = '" + profile_picture + '\'' +
+                ",\nemailVerified = " + emailVerified +
+                ",\nonline = " + online +
+                ",\noffline = " + offline +
+                ",\nlatitude = " + latitude +
+                ",\nlongitude = " + longitude +
+                ",\nlocationAvailable = " + locationAvailable +
+                ",\nsubscribedToAddEvent = " + subscribedToAddEvent +
+                ",\nsubscribedToEditEvent = " + subscribedToEditEvent +
+                ",\nsubscribedToDeleteEvent = " + subscribedToDeleteEvent +
+                ",\nsubscribedToAutoAlarmSet = " + subscribedToAutoAlarmSet +
+                ",\nsubscribedToAutoAlarmMove = " + subscribedToAutoAlarmMove +
                 "\n}";
     }
 
@@ -208,5 +243,29 @@ public class UserData {
 
     public void setTokens(ArrayList<String> tokens) {
         this.tokens = tokens;
+    }
+
+    public boolean isSubscribedToAddEvent() {
+        return subscribedToAddEvent;
+    }
+
+    public void setSubscribedToAddEvent(boolean subscribedToAddEvent) {
+        this.subscribedToAddEvent = subscribedToAddEvent;
+    }
+
+    public boolean isSubscribedToEditEvent() {
+        return subscribedToEditEvent;
+    }
+
+    public void setSubscribedToEditEvent(boolean subscribedToEditEvent) {
+        this.subscribedToEditEvent = subscribedToEditEvent;
+    }
+
+    public boolean isSubscribedToDeleteEvent() {
+        return subscribedToDeleteEvent;
+    }
+
+    public void setSubscribedToDeleteEvent(boolean subscribedToDeleteEvent) {
+        this.subscribedToDeleteEvent = subscribedToDeleteEvent;
     }
 }

@@ -22,11 +22,16 @@ import android.util.Log;
 import androidx.annotation.AnyRes;
 import androidx.annotation.NonNull;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+
 import org.jetbrains.annotations.Contract;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 
 public class Utils {
@@ -34,8 +39,10 @@ public class Utils {
     public final static String LOG_TAG = "murad";
 
     public static final int ALARM_FOR_EVENT_NOTIFICATION_CODE = 100;
+
     public static final int ADD_EVENT_NOTIFICATION_CODE = 200;
     public static final int EDIT_EVENT_NOTIFICATION_CODE = 300;
+    public static final int DELETE_EVENT_NOTIFICATION_CODE = 400;
 
     public final static String APPLICATION_ID = BuildConfig.APPLICATION_ID;
 
@@ -46,12 +53,13 @@ public class Utils {
         return MyApplication.getContext();
     }
 
-    public final static String DATABASE_NAME = "db2";
+    public final static String DATABASE_NAME = "db3";
 
     public final static String TABLE_AlARM_NAME = "tbl_alarm";
 
+    public final static String TABLE_AlARM_COL_ALARM_ID = "alarm_id";
     public final static String TABLE_AlARM_COL_EVENT_PRIVATE_ID = "event_private_id";
-    public final static String TABLE_AlARM_COL_EVENT_DATE = "event_date";
+    public final static String TABLE_AlARM_COL_EVENT_DATE_TIME = "event_date_time";
     public final static String TABLE_AlARM_COL_ALARM_ALREADY_SET = "alarmAlreadySet";
 
     public final static String TABLE_NOTIFICATION_NAME = "tbl_notification";
@@ -62,12 +70,16 @@ public class Utils {
     public final static String TABLE_TODAY_COL_TODAY = "today";
 
 
+    public static SQLiteDatabase openOrCreateDatabase(@NonNull Context context){
+        return context.openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
+    }
+
     public static void createAllTables(@NonNull SQLiteDatabase db){
         /*db.execSQL("create table if not exists " +
                 " tbl_alarm(event_private_id text, event_date text, alarmAlreadySet numeric)");*/
 
         db.execSQL("create table if not exists " +
-                " tbl_alarm(event_private_id text, event_date text)");
+                " tbl_alarm(alarm_id integer primary key autoincrement, event_private_id text, event_date_time text)");
 
         db.execSQL("create table if not exists " +
                 " tbl_today(today text)");
@@ -106,56 +118,60 @@ public class Utils {
         db.execSQL("drop table if exists tbl_today");
     }
 
-    public static void addAlarm(@NonNull String event_private_id, String event_date, @NonNull SQLiteDatabase db){
+    public static int addAlarm(@NonNull String event_private_id, String event_dateTime, @NonNull SQLiteDatabase db){
         System.out.println(event_private_id);
 
         //Todo create screen will all set alarms
 
         ContentValues cv = new ContentValues();
-        cv.put(Utils.TABLE_AlARM_COL_EVENT_PRIVATE_ID, event_private_id);
-        cv.put(Utils.TABLE_AlARM_COL_EVENT_DATE, event_date);
-//        cv.put(Utils.TABLE_AlARM_COL_ALARM_ALREADY_SET, true);
+        cv.put(TABLE_AlARM_COL_EVENT_PRIVATE_ID, event_private_id);
+        cv.put(TABLE_AlARM_COL_EVENT_DATE_TIME, event_dateTime);
 
-//        db.insert("tbl_alarm", null, cv);
+        db.insert(TABLE_AlARM_NAME, TABLE_AlARM_COL_ALARM_ID, cv);
 
-        db.replace("tbl_alarm", null, cv);
-
-
-//        Toast.makeText(getContext(), "Alarm was successfully added", Toast.LENGTH_SHORT).show();
-
-//        Toast.makeText(getContext(), "Alarm successfully set", Toast.LENGTH_SHORT).show();
-//            db.execSQL("insert into "+Utils.TABLE_AlARM_NAME+" values('"+event_private_id+"', "+true+")");
-
-//        CalendarEvent event = AlarmManagerForToday.findCalendarEventById(event_private_id);
-
-        /*if (event_date.equals(AlarmManagerForToday.getTodayText())){
-            Log.d("murad", "Alarm will work today");
-            AlarmManagerForToday.addAlarm(context, event, 0);
-        }*/
+        return alarmIdByEvent(event_private_id, db);
     }
 
-    public static void deleteAlarm(@NonNull String event_private_id, String event_date, @NonNull SQLiteDatabase db){
+    public static int deleteAlarm(@NonNull String event_private_id, @NonNull SQLiteDatabase db){
         System.out.println(event_private_id);
 
-        ContentValues cv = new ContentValues();
-        cv.put(Utils.TABLE_AlARM_COL_EVENT_PRIVATE_ID, event_private_id);
-        cv.put(Utils.TABLE_AlARM_COL_EVENT_DATE, event_date);
 //        cv.put(Utils.TABLE_AlARM_COL_ALARM_ALREADY_SET, false);
 
 //        db.insert("tbl_student", null, cv);
 //            db.execSQL("insert into "+Utils.TABLE_AlARM_NAME+" values('"+event_private_id+"', "+true+")");
 
+        int alarm_id = alarmIdByEvent(event_private_id, db);
+
         db.execSQL("delete from " + TABLE_AlARM_NAME + " where " + TABLE_AlARM_COL_EVENT_PRIVATE_ID
                 + " = '" + event_private_id + "'");
 
-//        CalendarEvent event = AlarmManagerForToday.findCalendarEventById(event_private_id);
+        return alarm_id;
+    }
 
-        /*if (event_date.equals(AlarmManagerForToday.getTodayText())){
-            Log.d("murad", "Alarm would have worked today");
-            AlarmManagerForToday.cancelAlarm(context, event);
-        }*/
+    public static int alarmIdByEvent(String event_private_id, @NonNull SQLiteDatabase db){
+        Cursor cursor = db.rawQuery("select * from " + TABLE_AlARM_NAME
+                + " where " + TABLE_AlARM_COL_EVENT_PRIVATE_ID + " = '" + event_private_id + "'", null);
 
-//        Toast.makeText(getContext(), "Alarm successfully deleted", Toast.LENGTH_SHORT).show();
+        int alarm_id = -1;
+
+        while (cursor.moveToNext()){
+            alarm_id = cursor.getInt(0);
+        }
+        cursor.close();
+
+        return alarm_id;
+    }
+
+    public static void deleteAllAlarms(@NonNull SQLiteDatabase db){
+        Cursor cursor = db.rawQuery("select * from " + TABLE_AlARM_NAME, null);
+        while (cursor.moveToNext()){
+            int alarm_id = cursor.getInt(0);
+
+        }
+
+        cursor.close();
+
+        db.execSQL("drop table if exists " + TABLE_AlARM_NAME);
     }
 
     public static void getToday(@NonNull SQLiteDatabase db){
@@ -295,6 +311,13 @@ public class Utils {
         return dialog;
     }
 
+    @NonNull
+    @Contract("_ -> param1")
+    public static BottomSheetDialog createCustomBottomSheetDialog(@NonNull BottomSheetDialog bottomSheetDialog){
+        bottomSheetDialog.setDismissWithAnimation(true);
+        return bottomSheetDialog;
+    }
+
     public static void log(String msg){
 //        Log.d("murad", "I'm in line #" + new Exception().getStackTrace()[0].getLineNumber());
 
@@ -358,10 +381,17 @@ public class Utils {
         }
         pace[1] = String.valueOf(seconds).substring(0, length);
 
-        return pace[0] + "'" + pace[1] +'"' + "/km";
+        int[] result = new int[2];
+        result[0] = Integer.parseInt(pace[0]);
+        result[1] = Integer.parseInt(pace[1]);
+
+        return String.format(Locale.getDefault(), "%02d'%02d" + '"' + "/km", result[0], result[1]);
     }
 
     public static double convertSpeedToMinPerKm(double speed){
+        if (speed == 0)
+            return 0;
+
         speed /= 60;
 
         speed = 1/speed;
@@ -369,5 +399,54 @@ public class Utils {
         speed = Utils.round(speed, 2);
 
         return speed;
+    }
+
+    @NonNull
+    public static String longToTimeText(long before){
+        Calendar time = Calendar.getInstance();
+        time.setTimeInMillis(before);
+        time.roll(Calendar.HOUR_OF_DAY, -2);
+
+        Log.d(LOG_TAG, new Date(before).toString());
+
+        Log.d(Utils.LOG_TAG, String.valueOf(before));
+
+        before = before/60/1000;
+
+        Log.d(Utils.LOG_TAG, String.valueOf(before));
+
+        int beforeHour = (int) (before/60);
+        int beforeMinute = (int) (before%60);
+
+        Log.d(LOG_TAG, "beforeHour = " + beforeHour);
+        Log.d(LOG_TAG, "beforeMinute = " + beforeMinute);
+
+        String beforeText = "";
+
+/*            int beforeHour = timeBefore.getHour();
+            int beforeMinute = timeBefore.getMinute();*/
+
+        if (beforeHour == 1){
+            beforeText = beforeText + beforeHour + " hour and " ;
+        }
+        else if(beforeHour > 1){
+            beforeText = beforeText + beforeHour + " hours and ";
+        }
+
+        Log.d(Utils.LOG_TAG, beforeText);
+
+        if (beforeMinute == 1){
+            beforeText = beforeText + beforeMinute + " minute";
+        }
+        else if(beforeMinute > 1){
+            beforeText = beforeText + beforeMinute + " minutes";
+        }
+        else{
+            beforeText = beforeText.replace(" and ", "");
+        }
+
+        Log.d(Utils.LOG_TAG, beforeText);
+
+        return beforeText;
     }
 }

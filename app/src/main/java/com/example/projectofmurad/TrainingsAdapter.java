@@ -76,7 +76,8 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
         TrainingAdapter trainingAdapter = new TrainingAdapter(context, trainings);
         holder.rv_training.setAdapter(trainingAdapter);
         holder.rv_training.setLayoutManager(new LinearLayoutManagerWrapper(context));
-        holder.rv_training.addOnItemTouchListener(new RVOnItemTouchListenerForVP2(holder.rv_training, MainViewModel.toSwipeViewModelForTrainings));
+        holder.rv_training.addOnItemTouchListener(new RVOnItemTouchListenerForVP2(holder.rv_training,
+                MainViewModel.getToSwipeViewModelForTrainings()));
 
 
 

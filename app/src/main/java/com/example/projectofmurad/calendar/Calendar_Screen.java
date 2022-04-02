@@ -3,10 +3,12 @@ package com.example.projectofmurad.calendar;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -41,6 +43,7 @@ import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
+import com.example.projectofmurad.notifications.AlarmReceiver;
 import com.example.projectofmurad.notifications.FCMSend;
 
 import java.time.LocalDate;
@@ -51,6 +54,7 @@ import java.util.Calendar;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@SuppressLint("MissingPermission")
 public class Calendar_Screen extends AppCompatActivity implements CalendarAdapter.CalendarOnItemListener,
         AdapterView.OnItemSelectedListener {
 
@@ -96,8 +100,6 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
 
     private Intent gotten_intent;
 
-    @SuppressLint("MissingPermission")
-    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -218,6 +220,9 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
 
                         }
                         break;
+
+                    case DayDialogFragmentWithRecyclerView2.ACTION_TO_SHOW_EVENT:
+                        break;
                 }
             }
         };
@@ -227,6 +232,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         intentFilter.addAction(action_to_find_today);
         intentFilter.addAction(action_to_change_previous);
         intentFilter.addAction(action_to_change_next);
+        intentFilter.addAction(DayDialogFragmentWithRecyclerView2.ACTION_TO_SHOW_EVENT);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
 
@@ -236,11 +242,19 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         setMonthView();
 
         if (gotten_intent.getAction() != null && gotten_intent.getAction().equals(DayDialogFragmentWithRecyclerView2.ACTION_TO_SHOW_EVENT)){
+            showEvent();
+        }
 
-            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            vibrator.cancel();
-            action = gotten_intent.getBooleanExtra("action", false);
-            String event_private_id = gotten_intent.getStringExtra("event_private_id");
+    }
+
+
+    public void showEvent(){
+
+/*            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            vibrator.cancel();*/
+//            action = gotten_intent.getBooleanExtra("action", false);
+        String event_private_id = gotten_intent.getStringExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID);
+/*
             if (action){
                 Toast.makeText(this, "Opening from notification", Toast.LENGTH_SHORT).show();
 //            onItemClick(positionOfToday, "" + today.getDayOfMonth(), today);
@@ -259,11 +273,55 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
                 new Handler().postDelayed(() -> createDayDialog(goTo, event_private_id), 500);
 
             }
+*/
+
+        Toast.makeText(this, "Opening from notification", Toast.LENGTH_SHORT).show();
+//            onItemClick(positionOfToday, "" + today.getDayOfMonth(), today);
+        Log.d("murad", "===============================================");
+        Log.d("murad", "event_private_id = " + event_private_id);
+        Log.d("murad", "===============================================");
+
+        Log.d(AlarmManagerForToday.TAG, "===============================================");
+        Log.d(AlarmManagerForToday.TAG, "event_private_id = " + event_private_id);
+        Log.d(AlarmManagerForToday.TAG, "===============================================");
+
+        long start = gotten_intent.getLongExtra(UtilsCalendar.KEY_EVENT_START_DATE_TIME, Calendar.getInstance().getTimeInMillis());
+        LocalDate goTo = CalendarEvent.getDate(start);
+        Log.d("murad", "start is " + UtilsCalendar.DateToTextLocal(CalendarEvent.getDate(start)));
+        selectedDate = goTo;
+        prev = 0;
+        next = 1;
+        direction = 0;
+        setMonthView();
+        new Handler().postDelayed(() -> createDayDialog(goTo, event_private_id), 500);
+
+
+        String isAlarm = gotten_intent.getStringExtra("isAlarm");
+        Log.d(AlarmManagerForToday.TAG, "isAlarm = " + isAlarm);
+
+        if(isAlarm.equals("true")){
+            Log.d(AlarmManagerForToday.TAG, "sending intent to alarm receiver to stop vibration");
+                /*Intent intent_stop_alarm = new Intent(this, AlarmReceiver.class);
+                intent_stop_alarm.setAction(AlarmReceiver.ACTION_STOP_VIBRATION);
+                intent_stop_alarm.putExtra("event_private_id", event_private_id);
+
+                LocalBroadcastManager.getInstance(this).sendBroadcast(intent_stop_alarm);*/
+
+            Toast.makeText(this, "Stopping vibration", Toast.LENGTH_SHORT).show();
+            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            vibrator.cancel();
+
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(AlarmReceiver.ALARM_NOTIFICATION_ID);
+
+            SQLiteDatabase db = Utils.openOrCreateDatabase(this);
+
+            Utils.deleteAlarm(event_private_id, db);
         }
+
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     public void onNewIntent(Intent intent) {
 
@@ -271,24 +329,49 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         Bundle extras = intent.getExtras();
 
         if (extras != null){
-            action = extras.getBoolean("action", false);
-            String event_private_id = extras.getString("event_private_id");
-            if (action){
-                Toast.makeText(this, "Opening from notification", Toast.LENGTH_SHORT).show();
-//            onItemClick(positionOfToday, "" + today.getDayOfMonth(), today);
-                Log.d("murad", "===============================================");
-                Log.d("murad", "event_private_id = " + event_private_id);
-                Log.d("murad", "===============================================");
-                new Handler().postDelayed(() -> createDayDialog(today, event_private_id), 500);
 
+            String event_private_id = intent.getStringExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID);
+
+            Log.d("murad", "===============================================");
+            Log.d("murad", "event_private_id = " + event_private_id);
+            Log.d("murad", "===============================================");
+
+            Log.d(AlarmManagerForToday.TAG, "===============================================");
+            Log.d(AlarmManagerForToday.TAG, "event_private_id = " + event_private_id);
+            Log.d(AlarmManagerForToday.TAG, "===============================================");
+
+            long start = intent.getLongExtra(UtilsCalendar.KEY_EVENT_START_DATE_TIME, Calendar.getInstance().getTimeInMillis());
+            LocalDate goTo = CalendarEvent.getDate(start);
+            Log.d("murad", "start is " + UtilsCalendar.DateToTextLocal(CalendarEvent.getDate(start)));
+
+            selectedDate = goTo;
+            prev = 0;
+            next = 1;
+            direction = 0;
+            setMonthView();
+            new Handler().postDelayed(() -> createDayDialog(goTo, event_private_id), 500);
+
+
+            boolean isAlarm = intent.getBooleanExtra("isAlarm", false);
+            Log.d(AlarmManagerForToday.TAG, "isAlarm = " + isAlarm);
+
+            if(isAlarm){
+                Log.d(AlarmManagerForToday.TAG, "sending intent to alarm receiver to stop vibration");
+                Intent intent_stop_alarm = new Intent(this, AlarmReceiver.class);
+                intent_stop_alarm.setAction(AlarmReceiver.ACTION_STOP_VIBRATION);
+                intent_stop_alarm.putExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID, event_private_id);
+
+                sendBroadcast(intent_stop_alarm);
             }
+
+
         }
     }
 
     public boolean action;
 
     public void sendAlarm(View view) {
-        /*FirebaseUtils.allEventsDatabase.orderByChild("time").limitToLast(1).addListenerForSingleValueEvent(
+        /*FirebaseUtils.allEventsDatabase.orderByChild("timeData").limitToLast(1).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -331,7 +414,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
 
         FirebaseUtils.allEventsDatabase.child(calendarEvent.getPrivateId()).setValue(calendarEvent);
 
-        FCMSend.sendNotificationsToAllUsers(this, calendarEvent, Utils.ADD_EVENT_NOTIFICATION_CODE);
+        FCMSend.sendNotificationsToAllUsersWithTopic(this, calendarEvent, Utils.ADD_EVENT_NOTIFICATION_CODE);
 
         AtomicInteger atomicInteger = new AtomicInteger();
         atomicInteger.set(atomicInteger.get()+1);
@@ -560,7 +643,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         setMonthView();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
+    
     @Override
     public void onItemClick(int position, @NonNull String dayText, LocalDate passingDate) {
         if(!dayText.equals("")) {
@@ -643,7 +726,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
     private DayDialogFragmentWithRecyclerView2 dayDialogFragment;
 
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
+    
     public void createDayDialog(LocalDate passingDate, String event_private_id){
 //        DayDialogFragmentWithRecyclerView2 dayDialogFragment = new DayDialogFragmentWithRecyclerView2(Calendar_Screen.this, passingDate, R.style.RoundedCornersDialog);
         if (dayDialogFragment != null && dayDialogFragment.isShowing()){
@@ -720,7 +803,6 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         startActivity(new Intent(Calendar_Screen.this, MainActivity.class));
     }
 }

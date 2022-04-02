@@ -15,9 +15,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.projectofmurad.FirebaseUtils;
-import com.example.projectofmurad.R;
 import com.example.projectofmurad.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
+import com.example.projectofmurad.calendar.UtilsCalendar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -36,13 +36,20 @@ import java.util.Map;
 public class FCMSend {
 
     private static final String BASE_URL = "https://fcm.googleapis.com/fcm/send";
-    private static String SERVER_KEY;
+    private static final String SERVER_KEY = "key=AAAA9qIrU5w:APA91bFxWrluzt2DFIyXvykPNcyOtCA1jPXS1GAlATo_BpV1NiIb8H8GZsdeZkT8vwHbG2Navlxg_te5aKNQbF5z54YPuaP_unmzdaDIWIid4AISDG3NTNwN2rczNME9qPiFX5Agej7R";
 
     public static final String FCM_TAG = "fcm";
 
-    public final static String ADD_EVENT_TOPIC = "add_event_topic";
+    public final static String EVENT_TOPIC = "event_topic";
 
-    public static void sendNotificationToOneUser(@NonNull Context context, @NonNull CalendarEvent event, int type, String token) {
+    public final static String ADD_EVENT_TOPIC = "add_event_topic";
+    public final static String EDIT_EVENT_TOPIC = "edit_event_topic";
+    public final static String DELETE_EVENT_TOPIC = "delete_event_topic";
+
+
+    public final static String KEY_SENDER_UID = "senderUID";
+
+    private static void sendNotificationToOneUser(@NonNull Context context, @NonNull CalendarEvent event, int type, String token) {
 
         Log.d(FCM_TAG, "******************************************************************************************");
         Log.d(FCM_TAG, "sending notification to server");
@@ -52,7 +59,7 @@ public class FCMSend {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        SERVER_KEY = context.getString(R.string.server_key);
+//        SERVER_KEY = context.getString(R.string.server_key);
 
         String title = "";
         String body = "";
@@ -86,8 +93,8 @@ public class FCMSend {
             }
 
             body = "Event " + msg + event.getName() + type_text
-                    + "t will start at " + event.getStart_dateTime() + " and "
-                    + " end at " + event.getEnd_dateTime();
+                    + "t will start at " + event.getStartDateTime() + " and "
+                    + " end at " + event.getEndDateTime();
 
             notification.put("tag", event.getPrivateId());
 
@@ -98,10 +105,8 @@ public class FCMSend {
 
             JSONObject data = new JSONObject();
             data.put("type", Utils.ADD_EVENT_NOTIFICATION_CODE);
-            data.put("color", event.getColor());
-            data.put("event", new Gson().toJson(event));
-
-
+            data.put(UtilsCalendar.KEY_EVENT, new Gson().toJson(event));
+            data.put(KEY_SENDER_UID, FirebaseUtils.getCurrentUID());
 
             json.put("data", data);
 
@@ -142,7 +147,7 @@ public class FCMSend {
         }
     }
 
-    public static void sendNotificationMulticast(@NonNull Context context, @NonNull CalendarEvent event, int type, String[] tokens) {
+    private static void sendNotificationMulticast(@NonNull Context context, @NonNull CalendarEvent event, int type, String[] tokens) {
 
         Log.d(FCM_TAG, "******************************************************************************************");
         Log.d(FCM_TAG, "sending notification to server");
@@ -152,7 +157,7 @@ public class FCMSend {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        SERVER_KEY = context.getString(R.string.server_key);
+//        SERVER_KEY = context.getString(R.string.server_key);
 
         String title = "";
         String body = "";
@@ -192,8 +197,8 @@ public class FCMSend {
             }
 
             body = "Event " + msg + event.getName() + type_text
-                    + "t will start at " + event.getStart_dateTime() + " and "
-                    + " end at " + event.getEnd_dateTime();
+                    + "t will start at " + event.getStartDateTime() + " and "
+                    + " end at " + event.getEndDateTime();
 
             notification.put("tag", event.getPrivateId());
 
@@ -253,7 +258,7 @@ public class FCMSend {
         }
     }
 
-    public static void sendNotificationToTopic(@NonNull Context context, @NonNull CalendarEvent event, int type){
+    private static void sendNotificationToTopic(@NonNull Context context, @NonNull CalendarEvent event, int type){
         Log.d(FCM_TAG, "******************************************************************************************");
         Log.d(FCM_TAG, "sending notification to server");
         Log.d(FCM_TAG, "******************************************************************************************");
@@ -262,20 +267,32 @@ public class FCMSend {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        SERVER_KEY = context.getString(R.string.server_key);
+//        SERVER_KEY = context.getString(R.string.server_key);
 
-        String title = "";
+        String title = "Event ";
         String body = "";
         String msg = "";
 
+        String topic = "";
+
+        if (type == Utils.ADD_EVENT_NOTIFICATION_CODE){
+            topic = ADD_EVENT_TOPIC;
+            title += "added";
+        }
+        else if (type == Utils.EDIT_EVENT_NOTIFICATION_CODE){
+            topic = EDIT_EVENT_TOPIC;
+            title += "edited";
+        }
+        else if (type == Utils.DELETE_EVENT_NOTIFICATION_CODE){
+            topic = DELETE_EVENT_TOPIC;
+            title += "deleted";
+        }
 
         RequestQueue queue = Volley.newRequestQueue(context);
         try {
             JSONObject json = new JSONObject();
-            json.put("to", "/topics/" + ADD_EVENT_TOPIC);
+            json.put("to", "/topics/" + topic);
             JSONObject notification = new JSONObject();
-
-            title = "New event added";
 
             if(event.getFrequencyType().endsWith("amount")){
                 msg = "chain ";
@@ -288,16 +305,19 @@ public class FCMSend {
 
             switch (type) {
                 case Utils.ADD_EVENT_NOTIFICATION_CODE:
-                    type_text = " has been added" + "\n I";
+                    type_text = " has been added" + "\n It will start at " + event.getStartDateTime() + " and "
+                            + " end at " + event.getEndDateTime();
                     break;
                 case Utils.EDIT_EVENT_NOTIFICATION_CODE:
-                    type_text = " has been edited" + "\n Now i";
+                    type_text = " has been edited" + "\n Now It will start at " + event.getStartDateTime() + " and "
+                            + " end at " + event.getEndDateTime();
+                    break;
+                case Utils.DELETE_EVENT_NOTIFICATION_CODE:
+                    type_text = " has been deleted" ;
                     break;
             }
 
-            body = "Event " + msg + event.getName() + type_text
-                    + "t will start at " + event.getStart_dateTime() + " and "
-                    + " end at " + event.getEnd_dateTime();
+            body = "Event " + msg + event.getName() + type_text;
 
             notification.put("tag", event.getPrivateId());
 
@@ -307,16 +327,14 @@ public class FCMSend {
             json.put("notification", notification);
 
             JSONObject data = new JSONObject();
-            data.put("type", Utils.ADD_EVENT_NOTIFICATION_CODE);
-            data.put("color", event.getColor());
-            data.put("event", new Gson().toJson(event));
-
-
+            data.put("type", type);
+            data.put(UtilsCalendar.KEY_EVENT, event.toJson());
+            data.put(KEY_SENDER_UID, FirebaseUtils.getCurrentUID());
 
             json.put("data", data);
 
             Log.d(FCM_TAG, json.toString());
-            Log.d(FCM_TAG, new Gson().toJson(event));
+            Log.d(FCM_TAG, event.toJson());
             Log.d(FCM_TAG, event.toString());
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, BASE_URL, json,
@@ -352,6 +370,10 @@ public class FCMSend {
         }
     }
 
+    public static void sendNotificationsToAllUsersWithTopic(Context context, CalendarEvent event, int notificationType){
+        sendNotificationToTopic(context, event, notificationType);
+    }
+
     public static void sendNotificationsToAllUsers(Context context, CalendarEvent event, int notificationType){
 
         Log.d(FCM_TAG, "******************************************************************************************");
@@ -378,10 +400,9 @@ public class FCMSend {
 
                     for (String token : tokens){
                         Log.d(FCM_TAG, "token is " + token);
-//                        sendNotificationToOneUser(context, event, notificationType, token);
+                        sendNotificationToOneUser(context, event, notificationType, token);
                     }
-/*
-                    String token = data.child("token").getValue(String.class);
+/*                    String token = data.child("token").getValue(String.class);
                     sendNotificationToOneUser(context, event, notificationType, token);*/
                 }
 
@@ -389,8 +410,6 @@ public class FCMSend {
 
                 Log.d(FCM_TAG, Arrays.toString(tokens));
 
-//                sendNotificationMulticast(context, event, notificationType, tokens);
-                sendNotificationToTopic(context, event, notificationType);
             }
 
             @Override

@@ -326,7 +326,7 @@ public class Add_Event_Screen extends MySuperTouchActivity {
         btn_choose_start_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Initialize time picker dialog
+                //Initialize timeData picker dialog
                 startTimePickerDialog = new TimePickerDialog(Add_Event_Screen.this,
                         AlertDialog.THEME_HOLO_LIGHT,
                         new TimePickerDialog.OnTimeSetListener() {

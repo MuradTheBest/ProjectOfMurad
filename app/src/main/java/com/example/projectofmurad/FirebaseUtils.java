@@ -94,6 +94,7 @@ public class FirebaseUtils {
     public static final DatabaseReference trackingDatabase = getDatabase().getReference("Tracking").getRef();
     public static final DatabaseReference usersDatabase = getDatabase().getReference("Users").getRef();
     public static final DatabaseReference trainingsDatabase = getDatabase().getReference("Trainings").getRef();
+    public static final DatabaseReference tablesDatabase = getDatabase().getReference("Tables").getRef();
 
     @NonNull
     public static DatabaseReference getCurrentUserTrainingsRefForEvent(String eventPrivateId){
@@ -195,19 +196,15 @@ public class FirebaseUtils {
         return usersDatabase.child(getCurrentUID()).getRef();
     }
 
-    private static UserData currentUserData;
-
     public static void getCurrentUserData(OnUserDataCallBack onUserDataCallBack){
-        currentUserData = new UserData();
 
         usersDatabase.child(getCurrentUID()).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
-                            currentUserData = snapshot.getValue(UserData.class);
+                            UserData currentUserData = snapshot.getValue(UserData.class);
                             onUserDataCallBack.onUserDataCallBack(currentUserData);
-                            assert currentUserData != null;
                             Log.d(LOG_TAG, currentUserData.toString());
                         }
                         else {
@@ -263,7 +260,6 @@ public class FirebaseUtils {
         return userData;
     }
 
-    @NonNull
     public static String getCurrentUID(){
 //        Log.d(LOG_TAG, "CurrentUID is " + getCurrentFirebaseUser().getUid());
         return getCurrentFirebaseUser().getUid();

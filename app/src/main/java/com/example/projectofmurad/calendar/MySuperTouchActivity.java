@@ -26,10 +26,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 
-import com.example.projectofmurad.notifications.AlarmManagerForToday;
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.notifications.AlarmManagerForToday;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.chip.Chip;
@@ -185,7 +185,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
     }
 
     // method to inflate the options menu when
-    // the user opens the menu for the first time
+    // the user opens the menu for the first timeData
     @Override
     public boolean onCreateOptionsMenu( Menu menu ) {
         getMenuInflater().inflate(R.menu.event_menu, menu);
@@ -281,21 +281,21 @@ public class MySuperTouchActivity extends AppCompatActivity implements
             if(row_event) {
                 event.updateFrequency_start(startDate);
                 event.updateFrequency_end(endDate);
-
+                Log.d(Utils.LOG_TAG, event.toString());
                 addEventToFirebaseForTextWithPUSH(event, null);
-                FCMSend.sendNotificationsToAllUsers(this, event, editMode ? Utils.EDIT_EVENT_NOTIFICATION_CODE : Utils.ADD_EVENT_NOTIFICATION_CODE);
             }
             else if(event.getFrequencyType().endsWith("amount")){
                 success = addEventForTimesAdvanced(event);
-                FCMSend.sendNotificationsToAllUsers(this, event, editMode ? Utils.EDIT_EVENT_NOTIFICATION_CODE : Utils.ADD_EVENT_NOTIFICATION_CODE);
+                Log.d(Utils.LOG_TAG, event.toString());
             }
             else if(event.getFrequencyType().endsWith("end")){
                 success = addEventForUntilAdvanced(event);
-                FCMSend.sendNotificationsToAllUsers(this, event, editMode ? Utils.EDIT_EVENT_NOTIFICATION_CODE : Utils.ADD_EVENT_NOTIFICATION_CODE);
+                Log.d(Utils.LOG_TAG, event.toString());
             }
 
 //            startAlarm();
             if(success){
+                FCMSend.sendNotificationsToAllUsersWithTopic(this, event, editMode ? Utils.EDIT_EVENT_NOTIFICATION_CODE : Utils.ADD_EVENT_NOTIFICATION_CODE);
                 if (switch_alarm.isChecked()){
                     AlarmManagerForToday.addAlarm(this, event, 0);
                 }
@@ -1410,6 +1410,8 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
         event.updateFrequency_end(endDate);
 
+        FirebaseUtils.allEventsDatabase.child(event.getChainId()).setValue(event);
+
         Log.d("murad", "Frequency End of event: " + event.getFrequency_end());
 
         Log.d("murad", "ADDING BY AMOUNT FINISHED");
@@ -1748,6 +1750,8 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
         Log.d("murad", "Frequency End of event: " + event.getFrequency_end());
 
+        FirebaseUtils.allEventsDatabase.child(event.getChainId()).setValue(event);
+
         Log.d("murad", "ADDING BY AMOUNT FINISHED");
         Log.d("murad", " ");
         Log.d("murad", "------------------------------------------------------------------------------------------");
@@ -1765,7 +1769,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         et_name.setText(msg);
     }
 
-    //sets time
+    //sets timeData
     protected class SetTime implements TimePickerDialog.OnTimeSetListener {
         private String time_start_or_end;
 
@@ -1784,13 +1788,13 @@ public class MySuperTouchActivity extends AppCompatActivity implements
             String time_text = UtilsCalendar.TimeToText(time);
 
             /*if(hour < 10){
-                time += "0";
+                timeData += "0";
             }
-            time += hour + ":";
+            timeData += hour + ":";
             if(min < 10){
-                time += "0";
+                timeData += "0";
             }
-            time += min;*/
+            timeData += min;*/
 
             switch(time_start_or_end) {
                 case "start":
@@ -2239,6 +2243,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         inputMethodManager.hideSoftInputFromWindow( context.getCurrentFocus().getWindowToken(), 0);
     }
 
+    
     @Override
     public void onBackPressed() {
         super.onBackPressed();

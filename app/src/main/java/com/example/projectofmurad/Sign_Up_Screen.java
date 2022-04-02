@@ -175,7 +175,7 @@ public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
                                                                             FirebaseUtils.getCurrentUserDataRef().child("profile_picture").setValue(profile_picture);
 
                                                                             getToken();
-                                                                            subscribeToTopic();
+                                                                            subscribeToTopics();
                                                                         }
                                                                     }
                                                                 });

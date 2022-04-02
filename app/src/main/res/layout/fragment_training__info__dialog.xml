@@ -14,7 +14,7 @@
         tools:ignore="MissingClass">
 
         <TextView
-            android:id="@+id/tv_training_name"
+            android:id="@+id/tv_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -26,23 +26,23 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tv_training_start_date"
+            android:id="@+id/tv_start_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Wed, 16 Mar"
             android:layout_marginStart="10sp"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_training_name" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_name" />
 
         <TextView
-            android:id="@+id/tv_training_time"
+            android:id="@+id/tv_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="12:44 - 15:39"
             android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="@+id/tv_training_start_date"
-            app:layout_constraintTop_toBottomOf="@+id/tv_training_start_date" />
+            app:layout_constraintStart_toStartOf="@+id/tv_start_date"
+            app:layout_constraintTop_toBottomOf="@+id/tv_start_date" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
@@ -55,7 +55,7 @@
             android:layout_marginTop="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_training_time">
+            app:layout_constraintTop_toBottomOf="@+id/tv_time">
 
 
             <LinearLayout
@@ -66,7 +66,7 @@
                 android:padding="20sp">
 
                 <TextView
-                    android:id="@+id/tv_training_duration"
+                    android:id="@+id/tv_duration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="00:10:53"
@@ -79,7 +79,7 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:id="@+id/tv_training_distance"
+                        android:id="@+id/tv_distance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0.9 m"
@@ -94,7 +94,7 @@
                         android:textStyle="bold"/>
 
                     <TextView
-                        android:id="@+id/tv_training_pace"
+                        android:id="@+id/tv_pace"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="11'59' /km"
@@ -170,7 +170,7 @@
                         android:textSize="14sp" />
 
                     <TextView
-                        android:id="@+id/tv_duration"
+                        android:id="@+id/tv_training_duration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="00:10:53"
@@ -196,7 +196,7 @@
                         android:textSize="14sp" />
 
                     <TextView
-                        android:id="@+id/tv_total_duration"
+                        android:id="@+id/tv_training_total_duration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="02:54:53"
@@ -222,7 +222,7 @@
                         android:textSize="14sp" />
 
                     <TextView
-                        android:id="@+id/tv_distance"
+                        android:id="@+id/tv_training_distance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="100 km"
@@ -257,7 +257,7 @@
                         android:textSize="14sp" />
 
                     <TextView
-                        android:id="@+id/tv_average_speed"
+                        android:id="@+id/tv_training_average_speed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="100 km/h"
@@ -283,7 +283,7 @@
                         android:textSize="14sp" />
 
                     <TextView
-                        android:id="@+id/tv_max_speed"
+                        android:id="@+id/tv_training_max_speed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="1000 km/h"
@@ -309,7 +309,7 @@
                         android:textSize="14sp" />
 
                     <TextView
-                        android:id="@+id/tv_average_pace"
+                        android:id="@+id/tv_training_average_pace"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="11'59' /km"
@@ -335,7 +335,7 @@
                         android:textSize="14sp" />
 
                     <TextView
-                        android:id="@+id/tv_max_pace"
+                        android:id="@+id/tv_training_max_pace"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="06'23' /km"
@@ -345,7 +345,6 @@
                 </LinearLayout>
 
             </GridLayout>
-
 
         </androidx.cardview.widget.CardView>
 

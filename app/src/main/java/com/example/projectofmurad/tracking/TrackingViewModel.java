@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.projectofmurad.Utils;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -18,20 +19,20 @@ public class TrackingViewModel extends AndroidViewModel {
 
     public static MutableLiveData<Boolean> isNewTraining = new MutableLiveData<>(true);
 
-    public static MutableLiveData<List<LatLng>> locations = new MutableLiveData<>(new ArrayList<>());
+    public static MutableLiveData<List<LatLng>> locationsData = new MutableLiveData<>(new ArrayList<>());
 
     public static MutableLiveData<List<LatLng>> stops = new MutableLiveData<>(new ArrayList<>());
 
-    public static MutableLiveData<Long> time = new MutableLiveData<>(0L);
-    public static MutableLiveData<Long> totalTime = new MutableLiveData<>(0L);
+    public static MutableLiveData<Long> timeData = new MutableLiveData<>(0L);
+    public static MutableLiveData<Long> totalTimeData = new MutableLiveData<>(0L);
 
-    public static MutableLiveData<Double> avgSpeed = new MutableLiveData<>(0D);
-    public static MutableLiveData<HashMap<String, Double>> speeds = new MutableLiveData<>(new HashMap<>());
-    public static MutableLiveData<Double> maxSpeed = new MutableLiveData<>(0D);
+    public static MutableLiveData<Double> avgSpeedData = new MutableLiveData<>(0D);
+    public static MutableLiveData<HashMap<String, Double>> speedsData = new MutableLiveData<>(new HashMap<>());
+    public static MutableLiveData<Double> maxSpeedData = new MutableLiveData<>(0D);
 
-    public static MutableLiveData<String> avgPace = new MutableLiveData<>("--'--" + '"' + "/km");
-    public static MutableLiveData<HashMap<String, Float>> paces = new MutableLiveData<>(new HashMap<>());
-    public static MutableLiveData<String> maxPace = new MutableLiveData<>("--'--" + '"' + "/km");
+    public static MutableLiveData<String> avgPaceData = new MutableLiveData<>("--'--" + '"' + "/km");
+    public static MutableLiveData<HashMap<String, Float>> pacesData = new MutableLiveData<>(new HashMap<>());
+    public static MutableLiveData<String> maxPaceData = new MutableLiveData<>("--'--" + '"' + "/km");
 
     public static MutableLiveData<Double> totalDistance = new MutableLiveData<>(0D);
 
@@ -41,22 +42,28 @@ public class TrackingViewModel extends AndroidViewModel {
     public static MutableLiveData<Integer> activity_transition_enter = new MutableLiveData<>(0);
     public static MutableLiveData<Integer> activity_transition_exit = new MutableLiveData<>(0);
 
+    public static MutableLiveData<String> trainingType = new MutableLiveData<>(null);
+    public static MutableLiveData<String> eventPrivateId = new MutableLiveData<>(null);
+
+    public static final String PRIVATE_TRAINING = Utils.APPLICATION_ID + "private_training";
+    public static final String GROUP_TRAINING = Utils.APPLICATION_ID + "group_training";
+
     public static void clearData(){
         isRunning.setValue(false);
         isNewTraining.setValue(true);
-        locations = new MutableLiveData<>();
+        locationsData = new MutableLiveData<>();
         stops = new MutableLiveData<>();
 
-        time.setValue(0L);
-        totalTime.setValue(0L);
+        timeData.setValue(0L);
+        totalTimeData.setValue(0L);
 
-        avgSpeed.setValue(0D);
-        speeds.setValue(new HashMap<>());
-        maxSpeed.setValue(0D);
+        avgSpeedData.setValue(0D);
+        speedsData.setValue(new HashMap<>());
+        maxSpeedData.setValue(0D);
 
-        avgPace.setValue("");
-        paces.setValue(new HashMap<>());
-        maxPace.setValue("");
+        avgPaceData.setValue("");
+        pacesData.setValue(new HashMap<>());
+        maxPaceData.setValue("");
 
         totalDistance.setValue(0D);
     }

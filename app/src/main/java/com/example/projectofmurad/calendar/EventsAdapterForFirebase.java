@@ -35,10 +35,10 @@ import com.example.projectofmurad.notifications.AlarmManagerForToday;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.ObservableSnapshotArray;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
 
@@ -309,20 +309,20 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         if (selectedDate != null){
             if(model.getStartDate().equals(model.getEndDate())){
                 holder.tv_event_start_time.setText(model.getStartTime());
-                Log.d("murad","Starting time: " + model.getStartTime());
+                Log.d("murad","Starting timeData: " + model.getStartTime());
 
                 holder.tv_event_end_time.setText(model.getEndTime());
-                Log.d("murad","Ending time: " + model.getEndTime());
+                Log.d("murad","Ending timeData: " + model.getEndTime());
 
             }
             else if(model.getStartDate().equals(UtilsCalendar.DateToTextOnline(selectedDate))){
                 holder.tv_event_start_time.setText(model.getStartTime());
-                Log.d("murad","Starting time: " + model.getStartTime());
+                Log.d("murad","Starting timeData: " + model.getStartTime());
 
             }
             else if(model.getEndDate().equals(UtilsCalendar.DateToTextOnline(selectedDate))){
                 holder.tv_event_end_time.setText(model.getEndTime());
-                Log.d("murad","Ending time: " + model.getEndTime());
+                Log.d("murad","Ending timeData: " + model.getEndTime());
 
             }
             else{
@@ -338,20 +338,20 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
         if(model.getStartDate().equals(model.getEndDate())){
             holder.tv_event_start_time.setText(model.getStartTime());
-            Log.d("murad","Starting time: " + model.getStartTime());
+            Log.d("murad","Starting timeData: " + model.getStartTime());
 
             holder.tv_event_end_time.setText(model.getEndTime());
-            Log.d("murad","Ending time: " + model.getEndTime());
+            Log.d("murad","Ending timeData: " + model.getEndTime());
 
         }
         else if(model.getStartDate().equals(UtilsCalendar.DateToTextOnline(selectedDate))){
             holder.tv_event_start_time.setText(model.getStartTime());
-            Log.d("murad","Starting time: " + model.getStartTime());
+            Log.d("murad","Starting timeData: " + model.getStartTime());
 
         }
         else if(model.getEndDate().equals(UtilsCalendar.DateToTextOnline(selectedDate))){
             holder.tv_event_end_time.setText(model.getEndTime());
-            Log.d("murad","Ending time: " + model.getEndTime());
+            Log.d("murad","Ending timeData: " + model.getEndTime());
 
         }
         else{
@@ -389,7 +389,25 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             DatabaseReference ref = FirebaseUtils.attendanceDatabase.child(event_private_id).child(selected_UID);
 
             final boolean[] attend = {false};
-            ref.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+
+            ref.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()){
+                        attend[0] = snapshot.getValue(boolean.class);
+                    }
+                    holder.checkbox_all_attendances.setChecked(attend[0]);
+                    holder.checkbox_all_attendances.setVisibility(View.GONE);
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+
+            /*ref.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
                     if(task.getResult().exists()){
@@ -400,7 +418,7 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
                     if (selected_UID == null){
                     }
                 }
-            });
+            });*/
         }
 
         boolean alarmSet = false;

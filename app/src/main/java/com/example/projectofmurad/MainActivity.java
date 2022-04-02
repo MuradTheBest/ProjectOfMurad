@@ -40,7 +40,8 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivity extends AppCompatActivity implements NavigationBarView.OnItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements
+        NavigationBarView.OnItemSelectedListener, NavController.OnDestinationChangedListener {
 
     FirebaseAuth firebaseAuth;
     FirebaseUser firebaseUser;
@@ -66,61 +67,16 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
-        Handler handler = new Handler();
 
         NavController navController = Navigation.findNavController(this, R.id.fragment);
-        navController.addOnDestinationChangedListener(
-                new NavController.OnDestinationChangedListener() {
-                    @Override
-                    public void onDestinationChanged(@NonNull NavController navController,
-                                                     @NonNull NavDestination navDestination,
-                                                     @Nullable Bundle bundle) {
-
-                        getSupportActionBar().show();
-
-                        if(navDestination.getId() == R.id.tracking_Fragment){
-                            getSupportActionBar().hide();
-                            bottomNavigationView.setVisibility(View.GONE);
-
-                            animate(bottomNavigationView, Gravity.BOTTOM, 300);
-                            handler.postDelayed(() -> animate((ViewGroup) containerView, Gravity.BOTTOM, 300), 400);
-
-                        }
-                        else if (bottomNavigationView.getVisibility() == View.GONE){
-                            bottomNavigationView.setVisibility(View.VISIBLE);
-
-                            animate(bottomNavigationView, Gravity.TOP, 300);
-                            handler.postDelayed(() -> animate((ViewGroup) containerView, Gravity.BOTTOM, 300), 400);
-                        }
-                    }
-                });
+        navController.addOnDestinationChangedListener(this);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+//        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
 
         UtilsCalendar.setLocale();
-
-        Log.d(LOG_TAG, "Subscribing to weather topic");
-
-        MyFirebaseMessagingService.getToken();
-        // [START subscribe_topics]
-/*        FirebaseMessaging.getInstance().subscribeToTopic("Adding Event")
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        String msg = "Notification was successfully sent";
-                        if (!task.isSuccessful()) {
-                            msg = "Notification sending failed";
-                        }
-                        Log.d(LOG_TAG, msg);
-                        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
-                    }
-                });*/
-        // [END subscribe_topics]
-
-//        AlarmManagerForToday.check(MainActivity.this);
 
         SQLiteDatabase db = openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
         Utils.createAllTables(db);
@@ -132,9 +88,13 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
 
             Log.d("murad", "Going to Tracking_Fragment");
 
-            bottomNavigationView.setSelectedItemId(R.id.tracking_Fragment);
+            moveToTrackingFragment();
         }
 
+    }
+
+    public void moveToTrackingFragment(){
+        bottomNavigationView.setSelectedItemId(R.id.tracking_Fragment);
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -152,18 +112,26 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
             case R.id.tables_Fragment:
                 TAG = "tables_Fragment";
                 newFragment = new Tables_Fragment();
+                getSupportActionBar().setTitle("Tables");
                 break;
-            case R.id.graph_Fragment:
+/*            case R.id.graph_Fragment:
                 TAG = "graph_Fragment";
                 newFragment = new Graph_Fragment();
+                break;*/
+            case R.id.preferences_Fragment:
+                TAG = "preferences_Fragment";
+                newFragment = new PreferencesFragment();
+                getSupportActionBar().setTitle("Preferences");
                 break;
             case R.id.chat_Fragment:
                 TAG = "chat_Fragment";
                 newFragment = new Chat_Fragment();
+                getSupportActionBar().setTitle("Chat");
                 break;
             case R.id.tracking_Fragment:
                 TAG = "tracking_Fragment";
                 newFragment = new Tracking_Fragment();
+                getSupportActionBar().setTitle("Tracking");
 //                getSupportFragmentManager().beginTransaction().hide(currentFragment);
                 break;
         }
@@ -277,6 +245,55 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
             else {
                 //Permission not granted
             }
+        }
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public void onDestinationChanged(@NonNull NavController navController,
+                                     @NonNull NavDestination navDestination,
+                                     @Nullable Bundle bundle) {
+
+
+        switch (navDestination.getId()){
+            case R.id.blankFragment:
+                getSupportActionBar().setTitle("ProjectOfMurad");
+                break;
+            case R.id.tables_Fragment:
+                getSupportActionBar().setTitle("Tables");
+                break;
+/*            case R.id.graph_Fragment:
+                TAG = "graph_Fragment";
+                newFragment = new Graph_Fragment();
+                break;*/
+            case R.id.preferences_Fragment:
+                getSupportActionBar().setTitle("Preferences");
+                break;
+            case R.id.chat_Fragment:
+                getSupportActionBar().setTitle("Chat");
+                break;
+            case R.id.tracking_Fragment:
+                getSupportActionBar().setTitle("Tracking");
+                break;
+        }
+
+        Handler handler = new Handler();
+
+        getSupportActionBar().show();
+
+        if(navDestination.getId() == R.id.tracking_Fragment){
+            getSupportActionBar().hide();
+            bottomNavigationView.setVisibility(View.GONE);
+
+            animate(bottomNavigationView, Gravity.BOTTOM, 300);
+            handler.postDelayed(() -> animate((ViewGroup) containerView, Gravity.BOTTOM, 300), 400);
+
+        }
+        else if (bottomNavigationView.getVisibility() == View.GONE){
+            bottomNavigationView.setVisibility(View.VISIBLE);
+
+            animate(bottomNavigationView, Gravity.TOP, 300);
+            handler.post(() -> animate((ViewGroup) containerView, Gravity.BOTTOM, 300));
         }
     }
 }

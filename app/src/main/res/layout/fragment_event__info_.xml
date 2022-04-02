@@ -186,7 +186,7 @@
                                     android:layout_height="wrap_content"
                                     android:gravity="center"
                                     android:textSize="14sp"
-                                    android:text="Starting time: 10.05.2021, 10:45"/>
+                                    android:text="Starting timeData: 10.05.2021, 10:45"/>
 
                                 <TextView
                                     android:id="@+id/tv_event_end_date_time"
@@ -194,7 +194,7 @@
                                     android:layout_height="wrap_content"
                                     android:gravity="center"
                                     android:textSize="14sp"
-                                    android:text="Ending time: 15.05.2021, 12:00"/>
+                                    android:text="Ending timeData: 15.05.2021, 12:00"/>
 
                             </LinearLayout>
 
@@ -371,6 +371,7 @@
                         android:layout_marginStart="10dp"
                         android:layout_weight="1"
                         android:text="Name: "
+                        android:textColor="@color/black"
                         android:textAlignment="textStart"
                         android:textSize="18sp"
                         app:layout_constraintEnd_toStartOf="@+id/switch_alarm"
@@ -384,6 +385,7 @@
                         android:layout_weight="1"
                         android:gravity="start"
                         android:text="Description: "
+                        android:textColor="@color/black"
                         android:textSize="16sp"
 
                         app:layout_constraintEnd_toEndOf="@+id/tv_event_name"
@@ -398,66 +400,29 @@
                         android:layout_weight="1"
                         android:gravity="start"
                         android:orientation="vertical"
+                        android:divider="@color/gray"
                         app:layout_constraintEnd_toEndOf="@+id/tv_event_description"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="@+id/tv_event_description"
                         app:layout_constraintTop_toBottomOf="@+id/tv_event_description">
 
-                        <LinearLayout
-                            android:id="@+id/wrapped_layout"
+                        <TextView
+                            android:id="@+id/tv_event_start_date_time"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:gravity="center">
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:text="Starting time: 10.05.2021, 10:45"
+                            android:textColor="@color/black" />
 
-                            <TextView
-                                android:id="@+id/tv_event_start_time"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:textSize="14sp" />
-
-                            <TextView
-                                android:id="@+id/tv_hyphen"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:text=" - "
-                                android:textSize="16sp" />
-
-                            <TextView
-                                android:id="@+id/tv_event_end_time"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:textSize="14sp" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/expanded_layout"
+                        <TextView
+                            android:id="@+id/tv_event_end_date_time"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:gravity="start"
-                            android:divider="@color/gray">
-
-                            <TextView
-                                android:id="@+id/tv_event_start_date_time"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:textSize="14sp"
-                                android:text="Starting time: 10.05.2021, 10:45"/>
-
-                            <TextView
-                                android:id="@+id/tv_event_end_date_time"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:textSize="14sp"
-                                android:text="Ending time: 15.05.2021, 12:00"/>
-
-                        </LinearLayout>
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:text="Ending time: 15.05.2021, 12:00"
+                            android:textColor="@color/black" />
 
                     </LinearLayout>
 

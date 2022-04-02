@@ -7,26 +7,37 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.R;
+import com.example.projectofmurad.UserData;
+import com.example.projectofmurad.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.Calendar_Screen;
 import com.example.projectofmurad.calendar.DayDialogFragmentWithRecyclerView2;
+import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
 public class FirebaseNotificationPushService extends FirebaseMessagingService {
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
+    SharedPreferences sp;
+
+    
     @SuppressLint("NewApi")
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
@@ -35,28 +46,76 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
         Log.d(FCM_TAG, "remote message from server received");
         Log.d(FCM_TAG, "******************************************************************************************");
 
+        if (remoteMessage.getData().containsKey(FCMSend.KEY_SENDER_UID) && FirebaseUtils.getCurrentUID() != null
+                && remoteMessage.getData().get(FCMSend.KEY_SENDER_UID).equals(FirebaseUtils.getCurrentUID())){
+            Log.d(Utils.LOG_TAG, "this is the user who send the notification");
+//            return;
+        }
 
-        if (remoteMessage.getData().containsKey("event")){
+        if (!remoteMessage.getData().containsKey(UtilsCalendar.KEY_EVENT)){
+            return;
+        }
 
+        FirebaseUtils.getCurrentUserData(userData -> checkSubscriptions(userData, remoteMessage));
+
+
+
+        super.onMessageReceived(remoteMessage);
+    }
+
+    
+    private void checkSubscriptions(@NonNull UserData userData, @NonNull RemoteMessage remoteMessage) {
+
+        //ToDo convert from json object to object and vise versa
+        String eventJSON = remoteMessage.getData().get("event");
+
+        Gson gson = new Gson();
+        CalendarEvent event = gson.fromJson(eventJSON, CalendarEvent.class);
+
+        int color = event.getColor();
+        int type = Integer.parseInt(remoteMessage.getData().get("type"));
+
+        sp = getSharedPreferences("savedData", MODE_PRIVATE);
+
+        boolean subscribedToAutoAlarmSet = sp.getBoolean(UserData.KEY_SUBSCRIBED_TO_AUTO_ALARM_SET, false);
+        boolean subscribedToAutoAlarmMove = sp.getBoolean(UserData.KEY_SUBSCRIBED_TO_AUTO_ALARM_MOVE, false);
+        long before = sp.getLong("before", 0);
+
+        switch (type) {
+            case Utils.ADD_EVENT_NOTIFICATION_CODE:
+                if (subscribedToAutoAlarmSet) {
+                    AlarmManagerForToday.addAlarm(this, event, before);
+                }
+                break;
+            case Utils.EDIT_EVENT_NOTIFICATION_CODE:
+                if (subscribedToAutoAlarmMove) {
+                    moveAlarm(event, before);
+                }
+                else {
+                    checkIfAlarmWasSet(event);
+                }
+                break;
+            case Utils.DELETE_EVENT_NOTIFICATION_CODE:
+                checkIfAlarmWasSet(event);
+                break;
+        }
+
+
+        if ((!userData.isSubscribedToAddEvent() && type == Utils.ADD_EVENT_NOTIFICATION_CODE)
+                || (!userData.isSubscribedToEditEvent() && type == Utils.EDIT_EVENT_NOTIFICATION_CODE)
+                || (!userData.isSubscribedToDeleteEvent() && type == Utils.DELETE_EVENT_NOTIFICATION_CODE)){
+            return;
         }
 
 
         String title = remoteMessage.getNotification().getTitle();
         String body = remoteMessage.getNotification().getBody();
 
-        int color = Integer.parseInt(remoteMessage.getData().get("color"));
-        int type = Integer.parseInt(remoteMessage.getData().get("type"));
 
         String tag = remoteMessage.getNotification().getTag();
 
-        //ToDo convert from json object to object and vise versa
-        String eventJSON = remoteMessage.getData().get("event");
 
-
-        Gson gson = new Gson();
-        CalendarEvent event = gson.fromJson(eventJSON, CalendarEvent.class);
-
-        Log.d("murad", "event json" + event.toString());
+        Log.d("murad", event.toString());
 
         String CHANNEL_ID = "MESSAGE";
 
@@ -67,9 +126,8 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
 
         Intent intentToShowEvent = new Intent(this, Calendar_Screen.class);
         intentToShowEvent.setAction(DayDialogFragmentWithRecyclerView2.ACTION_TO_SHOW_EVENT);
-        intentToShowEvent.putExtra("event_private_id", event.getPrivateId());
-        intentToShowEvent.putExtra("action", true);
-        intentToShowEvent.putExtra("start_time", event.getStart());
+        intentToShowEvent.putExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID, event.getPrivateId());
+        intentToShowEvent.putExtra(UtilsCalendar.KEY_EVENT_START_DATE_TIME, event.getStart());
         intentToShowEvent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         PendingIntent pintentToShowEvent = PendingIntent.getActivity(this, 0, intentToShowEvent, PendingIntent.FLAG_IMMUTABLE);
@@ -88,26 +146,70 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
                 .setContentText(body)
                 .setSmallIcon(R.drawable.ic_baseline_directions_bike_24)
 //                .addAction(actionToSetAlarm)
-                .addAction(actionToShowEvent)
                 .setColorized(true)
                 .setColor(color)
                 .setAutoCancel(true)
                 .setContentIntent(pintentToShowEvent);
 
+        if(type == Utils.ADD_EVENT_NOTIFICATION_CODE || type == Utils.EDIT_EVENT_NOTIFICATION_CODE){
+            notification.addAction(actionToShowEvent);
+        }
+
         NotificationManagerCompat.from(this).notify(tag, type, notification.build());
 
-        super.onMessageReceived(remoteMessage);
+
     }
 
     @Override
     public void onNewToken(@NonNull String s) {
         super.onNewToken(s);
         if (FirebaseUtils.isUserLoggedIn()){
-            FirebaseUtils.getCurrentUserDataRef().child("token").setValue(s);
+            FirebaseUtils.getCurrentUserDataRef().child("tokens").push().setValue(s);
+            FirebaseUtils.getCurrentUserDataRef().child("tokens").addChildEventListener(
+                    new ChildEventListener() {
+                        @Override
+                        public void onChildAdded(@NonNull DataSnapshot snapshot,
+                                                 @Nullable String previousChildName) {
+                        }
+
+                        @Override
+                        public void onChildChanged(@NonNull DataSnapshot snapshot,
+                                                   @Nullable String previousChildName) {
+
+                        }
+
+                        @Override
+                        public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+                        }
+
+                        @Override
+                        public void onChildMoved(@NonNull DataSnapshot snapshot,
+                                                 @Nullable String previousChildName) {
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
         }
     }
 
-    public void createSetAlarmDialog(){
+    private void moveAlarm(@NonNull CalendarEvent event, long before) {
+        SQLiteDatabase db = Utils.openOrCreateDatabase(this);
 
+        int alarm_id = Utils.alarmIdByEvent(event.getPrivateId(), db);
+
+        if (alarm_id > 0){
+            AlarmManagerForToday.cancelAlarm(this, event);
+            AlarmManagerForToday.addAlarm(this, event, before);
+        }
     }
+
+    public void checkIfAlarmWasSet(@NonNull CalendarEvent event){
+        AlarmManagerForToday.cancelAlarm(this, event);
+    }
+
 }

@@ -32,6 +32,7 @@ import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.notifications.FCMSend;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -149,11 +150,15 @@ public class Profile_Screen extends AppCompatActivity {
         btn_sign_out.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseUtils.getFirebaseAuth().signOut();
 
-                GoogleSignIn.getClient(Profile_Screen.this,
-                        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build())
-                        .signOut();
+                unsubscribeFromTopic(new OnUnsubscribeFinished() {
+                    @Override
+                    public void onUnsubscribe() {
+                        FirebaseUtils.getFirebaseAuth().signOut();
+
+                        GoogleSignIn.getClient(Profile_Screen.this,
+                                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build())
+                                .signOut();
 
                 /*AuthUI.getInstance()
                         .signOut(Profile_Screen.this)
@@ -167,7 +172,10 @@ public class Profile_Screen extends AppCompatActivity {
                             }
                         });*/
 
-                startActivity(new Intent(Profile_Screen.this, Log_In_Screen.class));
+                        startActivity(new Intent(Profile_Screen.this, Log_In_Screen.class));
+                    }
+                });
+
             }
         });
 
@@ -209,24 +217,32 @@ public class Profile_Screen extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(Profile_Screen.this);
                 builder.setMessage("Confirm deleting of account");
                 builder.setCancelable(false);
+
                 builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        FirebaseUtils.usersDatabase.child(FirebaseUtils.getCurrentUID()).removeValue();
-
-                        FirebaseUtils.getCurrentUserProfilePictureRef().delete();
-
-                        FirebaseUser firebaseUser = FirebaseUtils.getCurrentFirebaseUser();
-
-                        firebaseUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        unsubscribeFromTopic(new OnUnsubscribeFinished() {
                             @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    startActivity(new Intent(Profile_Screen.this, Splash_Screen.class));
-                                    Toast.makeText(getApplicationContext(), "Account was successfully deleted", Toast.LENGTH_SHORT).show();
-                                }
+                            public void onUnsubscribe() {
+
+                                FirebaseUtils.usersDatabase.child(FirebaseUtils.getCurrentUID()).removeValue();
+
+                                FirebaseUtils.getCurrentUserProfilePictureRef().delete();
+
+                                FirebaseUser firebaseUser = FirebaseUtils.getCurrentFirebaseUser();
+
+                                firebaseUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            startActivity(new Intent(Profile_Screen.this, Splash_Screen.class));
+                                            Toast.makeText(getApplicationContext(), "Account was successfully deleted", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
                             }
+
                         });
                     }
                 });
@@ -624,6 +640,39 @@ public class Profile_Screen extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    public void unsubscribeFromTopic(OnUnsubscribeFinished onUnsubscribeFinished){
+        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.ADD_EVENT_TOPIC).addOnCompleteListener(
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.EDIT_EVENT_TOPIC).addOnCompleteListener(
+                                    new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                                FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.DELETE_EVENT_TOPIC).addOnCompleteListener(
+                                                        new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(
+                                                                    @NonNull Task<Void> task) {
+                                                                if (task.isSuccessful()){
+                                                                    onUnsubscribeFinished.onUnsubscribe();
+                                                                }
+                                                            }
+                                                        });
+                                            }
+                                        }
+                                    });
+                        }
+                    }
+                });
+    }
+
+    public interface OnUnsubscribeFinished{
+        void onUnsubscribe();
     }
 
     public void onSaveProfileClick() {

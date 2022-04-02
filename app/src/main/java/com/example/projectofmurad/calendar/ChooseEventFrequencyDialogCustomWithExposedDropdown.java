@@ -1385,7 +1385,7 @@ public class ChooseEventFrequencyDialogCustomWithExposedDropdown extends Dialog 
 
     }
 
-    public static void hideKeyboard(Dialog d) {
+    public static void hideKeyboard(@NonNull Dialog d) {
         InputMethodManager inputMethodManager = (InputMethodManager) d.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow( d.getCurrentFocus().getWindowToken(), 0);
     }

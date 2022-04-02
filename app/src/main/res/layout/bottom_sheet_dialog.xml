@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingVertical="10sp">
+
+    <TextView
+        android:id="@+id/tv_bottom_sheet_dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Title"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingHorizontal="15sp"
+        android:paddingVertical="5sp"
+        />
+
+    <TextView
+        android:id="@+id/tv_only_this_event"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Only this event"
+        android:textSize="16sp"
+        android:padding="15sp"
+        />
+
+    <TextView
+        android:id="@+id/tv_all_events_in_chain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="All events in chain"
+        android:textSize="16sp"
+        android:padding="15sp"
+        />
+
+</LinearLayout>

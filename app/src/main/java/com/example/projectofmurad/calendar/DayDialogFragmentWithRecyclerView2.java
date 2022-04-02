@@ -52,7 +52,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-@RequiresApi(api = Build.VERSION_CODES.Q)
 public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
         EventsAdapterForFirebase.OnEventClickListener, Calendar_Screen.OnEventShowListener,
         EventsAdapterForFirebase.OnEventExpandListener{
@@ -86,7 +85,9 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
         this.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
 
         vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-        vibrationEffect = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            vibrationEffect = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK);
+        }
     }
 
     public DayDialogFragmentWithRecyclerView2(@NonNull Context context, LocalDate passingDate, int themeResId) {
@@ -456,7 +457,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
         String alarm = "";
 
         @SuppressLint("MissingPermission")
-        @RequiresApi(api = Build.VERSION_CODES.Q)
+        
         @Override
         public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
 
@@ -617,7 +618,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
                     dX += -50;
                 }
             /*if (-dX < 100){
-                text = "At time of the event";
+                text = "At timeData of the event";
             }
             else if (-dX > 100 && -dX < 200){
                 text = "5 minutes before";
@@ -638,7 +639,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
                     resetAllBooleans();
                 }
                 if (-dX < 100){
-                    text = "At the time of event";
+                    text = "At the timeData of event";
                     at_the_time = true;
                     Log.d("murad", "swipe text label is " + text);
                 }

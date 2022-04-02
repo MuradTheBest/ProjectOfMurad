@@ -31,7 +31,7 @@ import java.util.TimeZone;
 
 public class AlarmManagerForToday {
 
-    private static final String TAG = "AlarmManagerForToday";
+    public static final String TAG = "AlarmManagerForToday";
 
     public static LocalDate getToday(){
         return LocalDate.now();
@@ -85,18 +85,18 @@ public class AlarmManagerForToday {
 
                     Log.d(LOG_TAG, "Is alarm already set? " + event.isAlarmAlreadySet());
 
-                    LocalTime time = UtilsCalendar.TextToTime(data.child("start_time").getValue(String.class));
+                    LocalTime timeData = UtilsCalendar.TextToTime(data.child("start_time").getValue(String.class));
                     LocalDate date = UtilsCalendar.TextToDateForFirebase(data.child("start_date").getValue(String.class));
 
                     String text_date = UtilsCalendar.DateToTextOnline(date);
                     Log.d(LOG_TAG, "Date is " + text_date);
 
-                    String text_time = UtilsCalendar.TimeToText(time);
+                    String text_time = UtilsCalendar.TimeToText(timeData);
                     Log.d(LOG_TAG, "Time is " + text_time);
 
-//                    createAlarm(context, time, event);
-                    startAlarm(context, time, event);
-//                    startAlarm(context, time);
+//                    createAlarm(context, timeData, event);
+                    startAlarm(context, timeData, event);
+//                    startAlarm(context, timeData);
 
                     data.child("alarmAlreadySet").getRef().setValue(true);
                     Log.d(LOG_TAG, "-------------------------------------------------------------------------------------------");
@@ -167,7 +167,7 @@ public class AlarmManagerForToday {
         calendar.set(year, month, day, hour, minute);
 
         time = calendar.getTimeInMillis() + System.currentTimeMillis();
-        Log.d(TAG, "Current time in millis" + System.currentTimeMillis());
+        Log.d(TAG, "Current timeData in millis" + System.currentTimeMillis());
         Log.d(TAG, "Time in millis = " + time);
 
         Toast.makeText(context, "ALARM ON", Toast.LENGTH_SHORT).show();
@@ -184,18 +184,18 @@ public class AlarmManagerForToday {
 
 /*
 
-        if(System.currentTimeMillis() > time) {
+        if(System.currentTimeMillis() > timeData) {
             if (Calendar.AM_PM == 0)
-                time = time + (1000*60*60*12);
+                timeData = timeData + (1000*60*60*12);
             else
-                time = time + (1000*60*60*24);
+                timeData = timeData + (1000*60*60*24);
         }
 */
 
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pendingIntent);
 //        alarmManager.cancel(pendingIntent);
 
-        //   alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (time * 1000), pendingIntent);
+        //   alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (timeData * 1000), pendingIntent);
     }
 
     @SuppressLint("MissingPermission")
@@ -209,35 +209,7 @@ public class AlarmManagerForToday {
         if (before != 0){
 //            LocalTime timeBefore = CalendarEvent.getTime(before);
 
-            Calendar time = Calendar.getInstance();
-            time.setTimeInMillis(before);
-            time.roll(Calendar.HOUR_OF_DAY, -2);
-
-            Log.d(TAG, time.toString());
-
-            int beforeHour = time.get(Calendar.HOUR_OF_DAY);
-            int beforeMinute = time.get(Calendar.MINUTE);
-
-
-/*            int beforeHour = timeBefore.getHour();
-            int beforeMinute = timeBefore.getMinute();*/
-
-            if (beforeHour == 1){
-                beforeText = beforeText + beforeHour + " hour and " ;
-            }
-            else if(beforeHour > 1){
-                beforeText = beforeText + beforeHour + " hours and ";
-            }
-
-            if (beforeMinute == 1){
-                beforeText = beforeText + beforeMinute + " minute";
-            }
-            else if(beforeMinute > 1){
-                beforeText = beforeText + beforeMinute + " minutes";
-            }
-            else{
-                beforeText = beforeText.replace(" and ", "");
-            }
+            beforeText = Utils.longToTimeText(before);
         }
 
         if (beforeText.isEmpty()){
@@ -249,20 +221,23 @@ public class AlarmManagerForToday {
                     + beforeText + ". \n" + "It will finish at " + event.getEndTime());
         }
 
-        intent.putExtra("notification_color", event.getColor());
-        intent.putExtra("event", event);
+        intent.putExtra(UtilsCalendar.KEY_EVENT, event);
 
         Log.d(TAG, "===============================================================================================");
         Log.d(TAG, "Setting alarm");
         Log.d(TAG, " ");
         Log.d(TAG, "The event " + event.getName() + " started. \n" +
-                "It will finish on " + event.getEnd_dateTime());
+                "It will finish on " + event.getEndDateTime());
         Log.d(TAG, "" + event.getColor());
 
         SQLiteDatabase db = context.openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
-        Utils.addAlarm(event.getPrivateId(), event.getStartDate(), db);
+        int requestCode = Utils.addAlarm(event.getPrivateId(), event.getStartDateTime(), db);
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        intent.putExtra("requestCode", requestCode);
+
+        Log.d(TAG, "requestCode = " + requestCode);
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         int year = event.receiveStartDateTime().getYear();
         int month = event.receiveStartDateTime().getMonthValue();
@@ -284,7 +259,7 @@ public class AlarmManagerForToday {
 
         Log.d(TAG, "Current alarm in millis = " + System.currentTimeMillis());
         Log.d(TAG, "Time in millis = " + alarm);
-        Log.d(TAG, "Time = " + event.getStart_dateTime());
+        Log.d(TAG, "Time = " + event.getStartDateTime());
         Log.d(TAG, "Time = " + date);
 
         Log.d(TAG, "===============================================================================================");
@@ -317,24 +292,27 @@ public class AlarmManagerForToday {
 //        CalendarEvent event = findCalendarEventById(event_private_id);
 
         intent.putExtra("notification_body", "The event " + event.getName() + " started. \n" +
-                "It will finish on " + event.getEnd_dateTime());
+                "It will finish on " + event.getEndDateTime());
         intent.putExtra("notification_color", event.getColor());
         intent.putExtra("event", event);
 
-        SQLiteDatabase db = context.openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
-        Utils.deleteAlarm(event.getPrivateId(), event.getStartDate(), db);
+        SQLiteDatabase db = Utils.openOrCreateDatabase(context);
 
-        Log.d(TAG, "===============================================================================================");
-        Log.d(TAG, "Cancelling alarm");
-        Log.d(TAG, " ");
-        Log.d(TAG, "The event " + event.getName() + " started. \n" +
-                "It will finish at " + event.getEndTime());
-        Log.d(TAG, "" + event.getColor());
-        Log.d(TAG, "===============================================================================================");
+        int requestCode = Utils.deleteAlarm(event.getPrivateId(), db);
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, intent, PendingIntent.FLAG_IMMUTABLE);
+        if (requestCode > 0){
+            Log.d(TAG, "===============================================================================================");
+            Log.d(TAG, "Cancelling alarm");
+            Log.d(TAG, " ");
+            Log.d(TAG, "The event " + event.getName() + " started. \n" +
+                    "It will finish at " + event.getEndTime());
+            Log.d(TAG, "" + event.getColor());
+            Log.d(TAG, "===============================================================================================");
 
-        alarmManager.cancel(pendingIntent);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_IMMUTABLE);
+
+            alarmManager.cancel(pendingIntent);
+        }
     }
 
     @NonNull
@@ -380,7 +358,7 @@ public class AlarmManagerForToday {
                     }
                 });*/
 
-        Cursor cursor = db.rawQuery("select * from tbl_alarm where " + Utils.TABLE_AlARM_COL_EVENT_DATE + " = '" + getTodayText() + "'", null);
+        Cursor cursor = db.rawQuery("select * from tbl_alarm where " + Utils.TABLE_AlARM_COL_EVENT_DATE_TIME + " = '" + getTodayText() + "'", null);
         while (cursor.moveToNext()){
             String event_private_id = cursor.getString(0);
             CalendarEvent event = findCalendarEventById(event_private_id);

@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.LifecycleService;
+import androidx.lifecycle.MutableLiveData;
 
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.MainActivity;
@@ -41,7 +42,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 public class TrackingService extends LifecycleService {
 
@@ -77,35 +77,82 @@ public class TrackingService extends LifecycleService {
     private long end;
     private LocalDateTime endDateTime;
 
+    public static MutableLiveData<Boolean> isRunning = new MutableLiveData<>(false);
+
+    public static MutableLiveData<Boolean> isNewTraining = new MutableLiveData<>(true);
+
+    public static MutableLiveData<List<LatLng>> locationsData = new MutableLiveData<>(new ArrayList<>());
+
+    public static MutableLiveData<List<LatLng>> stops = new MutableLiveData<>(new ArrayList<>());
+
+    public static MutableLiveData<Long> timeData = new MutableLiveData<>(0L);
+    public static MutableLiveData<Long> totalTimeData = new MutableLiveData<>(0L);
+
+    public static MutableLiveData<Double> avgSpeedData = new MutableLiveData<>(0D);
+    public static MutableLiveData<HashMap<String, Double>> speedsData = new MutableLiveData<>(new HashMap<>());
+    public static MutableLiveData<Double> maxSpeedData = new MutableLiveData<>(0D);
+
+    public static MutableLiveData<String> avgPaceData = new MutableLiveData<>("--'--" + '"' + "/km");
+    public static MutableLiveData<HashMap<String, Float>> pacesData = new MutableLiveData<>(new HashMap<>());
+    public static MutableLiveData<String> maxPaceData = new MutableLiveData<>("--'--" + '"' + "/km");
+
+    public static MutableLiveData<Double> totalDistanceData = new MutableLiveData<>(0D);
+
+    public static MutableLiveData<Training> trainingData = new MutableLiveData<>();
+
+
+    public static MutableLiveData<Integer> activity_transition_enter = new MutableLiveData<>(0);
+    public static MutableLiveData<Integer> activity_transition_exit = new MutableLiveData<>(0);
+
+    public static MutableLiveData<String> trainingType = new MutableLiveData<>(null);
+    public static MutableLiveData<String> eventPrivateId = new MutableLiveData<>(null);
+
+    public static final String PRIVATE_TRAINING = Utils.APPLICATION_ID + "private_training";
+    public static final String GROUP_TRAINING = Utils.APPLICATION_ID + "group_training";
+
+    public static void clearData(){
+        isRunning.setValue(false);
+        isNewTraining.setValue(true);
+        locationsData = new MutableLiveData<>();
+        stops = new MutableLiveData<>();
+
+        timeData.setValue(0L);
+        totalTimeData.setValue(0L);
+
+        avgSpeedData.setValue(0D);
+        speedsData.setValue(new HashMap<>());
+        maxSpeedData.setValue(0D);
+
+        avgPaceData.setValue("");
+        pacesData.setValue(new HashMap<>());
+        maxPaceData.setValue("");
+
+        totalDistanceData.setValue(0D);
+    }
+
     private final Runnable runnable = new Runnable() {
         @Override
 
         public void run() {
 
             // If running is true, increment the
-            // time variable.
-            if (TrackingViewModel.isRunning.getValue()) {
-                Log.d("tracking", "time = " + time);
-                TrackingViewModel.time.setValue(time);
+            // timeData variable.
+            if (isRunning.getValue()) {
+                Log.d("tracking", "timeData = " + time);
+                timeData.setValue(time);
                 time++;
 
-                int hours = (int) (time / 3600);
-                int minutes = (int) ((time % 3600) / 60);
-                int secs = (int) (time % 60);
-
-                // Format the time into hours, minutes,
-                // and time.
-                String time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
-
-/*                notificationBuilder.setContentText(time);
+                // Format the timeData into hours, minutes,
+                // and timeData.
+/*                notificationBuilder.setContentText(timeData);
 
                 Notification notification = notificationBuilder.getNotification();
                 notification.flags = Notification.FLAG_ONGOING_EVENT;
                 notificationManager.notify(TRACKING_NOTIFICATION_ID, notification);*/
             }
 
-            Log.d("tracking", "totalTime " + totalTime);
-            TrackingViewModel.totalTime.setValue(totalTime);
+            Log.d("tracking", "totalTimeData " + totalTime);
+            totalTimeData.setValue(totalTime);
             totalTime++;
 
             // Post the code again
@@ -139,12 +186,12 @@ public class TrackingService extends LifecycleService {
 
             locations.add(new LatLng(latitude, longitude));
 
-            TrackingViewModel.locations.setValue(locations);
+            locationsData.setValue(locations);
 
             int current_position = locations.size()-1;
             int previous_position = current_position-1;
 
-            double absoluteDistance = SphericalUtil.computeLength(TrackingViewModel.locations.getValue());
+            double absoluteDistance = SphericalUtil.computeLength(locationsData.getValue());
 
             Log.d(TAG, "absoluteDistance = " + absoluteDistance);
 
@@ -205,8 +252,8 @@ public class TrackingService extends LifecycleService {
                 Toast.makeText(this, "Tracking Started", Toast.LENGTH_SHORT).show();
                 Log.d("murad", "Tracking Started");
 
-                if (TrackingViewModel.isNewTraining.getValue() != null) {
-                    if (TrackingViewModel.isNewTraining.getValue()) {
+                if (isNewTraining.getValue() != null) {
+                    if (isNewTraining.getValue()) {
                         startLocationUpdates();
                     }
                     else {
@@ -290,9 +337,9 @@ public class TrackingService extends LifecycleService {
     @SuppressLint("MissingPermission")
     private void startLocationUpdates() {
 
-        TrackingViewModel.clearData();
+        clearData();
 
-        TrackingViewModel.isNewTraining.setValue(false);
+        isNewTraining.setValue(false);
 
         Toast.makeText(this, "Tracking started", Toast.LENGTH_SHORT).show();
         Log.d("tracking", "STARTED");
@@ -337,31 +384,31 @@ public class TrackingService extends LifecycleService {
 
         handler.post(runnable);
 
-        /*TrackingViewModel.time.observe(this, new Observer<Long>() {
+        /*timeData.observe(this, new Observer<Long>() {
             @Override
             public void onChanged(Long seconds) {
                 int hours = (int) (seconds / 3600);
                 int minutes = (int) ((seconds % 3600) / 60);
                 int secs = (int) (seconds % 60);
 
-                // Format the time into hours, minutes,
-                // and time.
-                String time = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, secs);
+                // Format the timeData into hours, minutes,
+                // and timeData.
+                String timeData = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, secs);
 
-                notificationBuilder.setContentText(time);
+                notificationBuilder.setContentText(timeData);
                 notificationManager.notify(TRACKING_NOTIFICATION_ID, notificationBuilder.build());
             }
         });*/
 
         startForeground(TRACKING_NOTIFICATION_ID, notificationBuilder.build());
 
-        TrackingViewModel.isRunning.setValue(true);
+        isRunning.setValue(true);
     }
 
     private void resumeLocationUpdates(){
         Log.d("tracking", "RESUMED");
 
-        TrackingViewModel.isRunning.setValue(true);
+        isRunning.setValue(true);
 
         notificationBuilder.setContentText("Tracking started");
         notificationManager.notify(TRACKING_NOTIFICATION_ID, notificationBuilder.build());
@@ -370,7 +417,7 @@ public class TrackingService extends LifecycleService {
     private void pauseLocationUpdates() {
 //        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
 
-        TrackingViewModel.isRunning.setValue(false);
+        isRunning.setValue(false);
 
         notificationBuilder.setContentText("Tracking stopped");
         notificationManager.notify(TRACKING_NOTIFICATION_ID, notificationBuilder.build());
@@ -384,10 +431,10 @@ public class TrackingService extends LifecycleService {
         notificationBuilder.setContentText("Tracking finished");
         notificationManager.notify(TRACKING_NOTIFICATION_ID, notificationBuilder.build());
 
-        TrackingViewModel.isRunning.setValue(false);
-        TrackingViewModel.isNewTraining.setValue(true);
+        isRunning.setValue(false);
+        isNewTraining.setValue(true);
 
-//        addTraining(locations);
+//        addTraining(locationsData);
 
         stopForeground(true);
         stopSelf();
@@ -409,7 +456,7 @@ public class TrackingService extends LifecycleService {
 
                 handler.removeCallbacks(runnable);
 
-                TrackingViewModel.clearData();
+                clearData();
             }
         });
 
@@ -420,23 +467,23 @@ public class TrackingService extends LifecycleService {
 
         String trainingId = FirebaseUtils.getCurrentUserTrainingsRef().push().getKey();
 
-        long time = TrackingViewModel.time.getValue();
-        long totalTime = TrackingViewModel.totalTime.getValue();
+        long time = timeData.getValue();
+        long totalTime = totalTimeData.getValue();
 
-        double speed = TrackingViewModel.avgSpeed.getValue();
-        HashMap<String, Double> speeds = TrackingViewModel.speeds.getValue();
-        double maxSpeed = TrackingViewModel.maxSpeed.getValue();
+        double speed = avgSpeedData.getValue();
+        HashMap<String, Double> speeds = speedsData.getValue();
+        double maxSpeed = maxSpeedData.getValue();
 
-        double totalDistance = TrackingViewModel.totalDistance.getValue();
+        double totalDistance = totalDistanceData.getValue();
 
         Log.d("murad", speeds.toString());
 
 
-//        Training training = new Training(trainingId, start, end, time, totalTime, speed, maxSpeed, speeds, totalDistance);
+//        Training trainingData = new Training(trainingId, start, end, timeData, totalTimeData, speed, maxSpeedData, speedsData, totalDistanceData);
         Training training = new Training(trainingId, startDateTime, endDateTime, time, totalTime, speed, maxSpeed, speeds, totalDistance);
         Log.d("tracking", training.toString());
 
-        TrackingViewModel.training.setValue(training);
+        trainingData.setValue(training);
 
         return FirebaseUtils.getCurrentUserTrainingsRef().child(trainingId).setValue(training);
     }
@@ -461,31 +508,31 @@ public class TrackingService extends LifecycleService {
         double distance = SphericalUtil.computeDistanceBetween(previous, current);
         distance /= 1000;
 
-        double absoluteDistance = SphericalUtil.computeLength(TrackingViewModel.locations.getValue());
+        double absoluteDistance = SphericalUtil.computeLength(locationsData.getValue());
         absoluteDistance /= 1000;
 
         double hours = (double) time / 3600;
 
-        TrackingViewModel.totalDistance.setValue(Utils.round(TrackingViewModel.totalDistance.getValue() + distance, 3));
+        totalDistanceData.setValue(Utils.round(totalDistanceData.getValue() + distance, 3));
 
-        TrackingViewModel.avgSpeed.setValue(Utils.round(TrackingViewModel.totalDistance.getValue()/hours, 3));
-        HashMap<String, Double> addedSpeeds = TrackingViewModel.speeds.getValue();
-        addedSpeeds.put(""+TrackingViewModel.time.getValue(), TrackingViewModel.avgSpeed.getValue());
-        TrackingViewModel.speeds.setValue(addedSpeeds);
+        avgSpeedData.setValue(Utils.round(totalDistanceData.getValue()/hours, 3));
+        HashMap<String, Double> addedSpeeds = speedsData.getValue();
+        addedSpeeds.put(timeData.getValue() + " sec", avgSpeedData.getValue());
+        speedsData.setValue(addedSpeeds);
 
-        TrackingViewModel.maxSpeed.setValue(Math.max(TrackingViewModel.avgSpeed.getValue(), TrackingViewModel.maxSpeed.getValue()));
+        maxSpeedData.setValue(Math.max(avgSpeedData.getValue(), maxSpeedData.getValue()));
 
-        TrackingViewModel.avgPace.setValue(Utils.convertSpeedToPace(TrackingViewModel.avgSpeed.getValue()));
-        TrackingViewModel.maxPace.setValue(Utils.convertSpeedToPace(TrackingViewModel.maxSpeed.getValue()));
+        avgPaceData.setValue(Utils.convertSpeedToPace(avgSpeedData.getValue()));
+        maxPaceData.setValue(Utils.convertSpeedToPace(maxSpeedData.getValue()));
 
         Log.d(TAG, "-----------------------------------tracking-----------------------------");
         Log.d(TAG, "");
         Log.d(TAG, "distance = " + distance);
         Log.d(TAG, "absoluteDistance = " + absoluteDistance);
-        Log.d(TAG, "totalDistance = " + TrackingViewModel.totalDistance.getValue());
-        Log.d(TAG, "avgSpeed = " + TrackingViewModel.avgSpeed.getValue());
-        Log.d(TAG, "maxSpeed = " + TrackingViewModel.maxSpeed.getValue());
-        Log.d(TAG, "speeds = " + TrackingViewModel.speeds.getValue().toString());
+        Log.d(TAG, "totalDistanceData = " + totalDistanceData.getValue());
+        Log.d(TAG, "avgSpeedData = " + avgSpeedData.getValue());
+        Log.d(TAG, "maxSpeedData = " + maxSpeedData.getValue());
+        Log.d(TAG, "speedsData = " + speedsData.getValue().toString());
         Log.d(TAG, "");
         Log.d(TAG, "-------------------------------tracking---------------------------------");
 

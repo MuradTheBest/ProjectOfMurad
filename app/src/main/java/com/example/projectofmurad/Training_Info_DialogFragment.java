@@ -31,6 +31,8 @@ import java.util.HashMap;
  */
 public class Training_Info_DialogFragment extends DialogFragment {
 
+    public final static String TAG = "Training_Info_DialogFragment";
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -98,21 +100,21 @@ public class Training_Info_DialogFragment extends DialogFragment {
     private HashMap<String, Double> speeds;
 
 
-    private TextView tv_training_name;
-    private TextView tv_training_start_date;
-    private TextView tv_training_time;
-    private TextView tv_training_duration;
-    private TextView tv_training_distance;
-    private TextView tv_training_pace;
-
-
+    private TextView tv_name;
+    private TextView tv_start_date;
+    private TextView tv_time;
     private TextView tv_duration;
-    private TextView tv_total_duration;
     private TextView tv_distance;
-    private TextView tv_average_speed;
-    private TextView tv_max_speed;
-    private TextView tv_average_pace;
-    private TextView tv_max_pace;
+    private TextView tv_pace;
+
+
+    private TextView tv_training_duration;
+    private TextView tv_training_total_duration;
+    private TextView tv_training_distance;
+    private TextView tv_training_average_speed;
+    private TextView tv_training_max_speed;
+    private TextView tv_training_average_pace;
+    private TextView tv_training_max_pace;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -123,40 +125,40 @@ public class Training_Info_DialogFragment extends DialogFragment {
 
 
 
-        tv_training_name = view.findViewById(R.id.tv_training_name);
-        tv_training_start_date = view.findViewById(R.id.tv_training_start_date);
-        tv_training_time = view.findViewById(R.id.tv_training_time);
-        tv_training_duration = view.findViewById(R.id.tv_training_duration);
-        tv_training_distance = view.findViewById(R.id.tv_training_distance);
-        tv_training_pace = view.findViewById(R.id.tv_training_pace);
-
-
-        tv_training_name.setText("" + training.getName());
-        tv_training_start_date.setText("" + training.getStartDate());
-        tv_training_time.setText("" + training.getStartTime() + " - " + training.getEndTime());
-        tv_training_duration.setText("" + training.getDuration());
-        tv_training_distance.setText("" + training.getTotalDistance());
-        tv_training_pace.setText("" + training.getAvgPace());
-
-
+        tv_name = view.findViewById(R.id.tv_name);
+        tv_start_date = view.findViewById(R.id.tv_start_date);
+        tv_time = view.findViewById(R.id.tv_time);
         tv_duration = view.findViewById(R.id.tv_duration);
-        tv_total_duration = view.findViewById(R.id.tv_total_duration);
         tv_distance = view.findViewById(R.id.tv_distance);
-        tv_average_speed = view.findViewById(R.id.tv_average_speed);
-        tv_max_speed = view.findViewById(R.id.tv_max_speed);
-        tv_average_pace = view.findViewById(R.id.tv_average_pace);
-        tv_max_pace = view.findViewById(R.id.tv_max_pace);
+        tv_pace = view.findViewById(R.id.tv_pace);
 
 
+        tv_name.setText("" + training.getName());
+        tv_start_date.setText("" + training.getStartDate());
+        tv_time.setText("" + training.getStartTime() + " - " + training.getEndTime());
         tv_duration.setText("" + training.getDuration());
-        tv_total_duration.setText("" + training.getTotalDuration());
-        tv_distance.setText("" + training.getTotalDistance() + " km");
-        tv_average_speed.setText("" + training.getAvgSpeed() + " km/h");
-        tv_max_speed.setText("" + training.getMaxSpeed() + " km/h");
-        tv_average_pace.setText("" + training.getAvgPace());
-        tv_max_pace.setText("" + training.getMaxPace());
+        tv_distance.setText("" + training.getTotalDistance());
+        tv_pace.setText("" + training.getAvgPace());
 
-//        Log.d("murad", speeds.toString());
+
+        tv_training_duration = view.findViewById(R.id.tv_training_duration);
+        tv_training_total_duration = view.findViewById(R.id.tv_training_total_duration);
+        tv_training_distance = view.findViewById(R.id.tv_training_distance);
+        tv_training_average_speed = view.findViewById(R.id.tv_training_average_speed);
+        tv_training_max_speed = view.findViewById(R.id.tv_training_max_speed);
+        tv_training_average_pace = view.findViewById(R.id.tv_training_average_pace);
+        tv_training_max_pace = view.findViewById(R.id.tv_training_max_pace);
+
+
+        tv_training_duration.setText("" + training.getDuration());
+        tv_training_total_duration.setText("" + training.getTotalDuration());
+        tv_training_distance.setText("" + training.getTotalDistance() + " km");
+        tv_training_average_speed.setText("" + training.getAvgSpeed() + " km/h");
+        tv_training_max_speed.setText("" + training.getMaxSpeed() + " km/h");
+        tv_training_average_pace.setText("" + training.getAvgPace());
+        tv_training_max_pace.setText("" + training.getMaxPace());
+
+//        Log.d("murad", speedsData.toString());
 
         setUpGraph(speeds);
     }
@@ -176,7 +178,7 @@ public class Training_Info_DialogFragment extends DialogFragment {
             for (String key : speeds.keySet()){
                 double speed = speeds.get(key);
                 double pace = Utils.convertSpeedToMinPerKm(speed);
-                float time = Float.parseFloat(key);
+                float time = Float.parseFloat(key.replace(" sec", ""));
 
                 maxX = Math.max(maxX, time);
                 maxY = (float) Math.max(maxY, speed);

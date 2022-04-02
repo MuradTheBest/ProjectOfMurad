@@ -61,10 +61,6 @@ public class CalendarEvent implements Serializable {
     private String frequency_start;
     private String frequency_end;
 
-
-
-
-
     public CalendarEvent(){
 
         this.frequencyType = MySuperTouchActivity.DAY_BY_END;
@@ -124,7 +120,7 @@ public class CalendarEvent implements Serializable {
         start.set(startDate.getYear(), startDate.getMonthValue(), startDate.getDayOfMonth(),
                 startTime.getHour(), startTime.getMinute());
 
-        this.time = start.getTimeInMillis();
+        this.timeData = start.getTimeInMillis();
 
         Calendar end = Calendar.getInstance();
         end.set(endDate.getYear(), endDate.getMonthValue(), endDate.getDayOfMonth(),
@@ -203,40 +199,16 @@ public class CalendarEvent implements Serializable {
         return start;
     }
 
-    public String getStartDateTime() {
-        return UtilsCalendar.DateTimeToTextLocal((getDateTime(start)));
-    }
-
-    public LocalDateTime receiveStart() {
-        return getDateTime(start);
-    }
-
     public void setStart(long start) {
         this.start = start;
-    }
-
-    public void updateStart(LocalDateTime localDateTime) {
-        this.start = getMillis(localDateTime);
     }
 
     public long getEnd() {
         return end;
     }
 
-    public String getEndDateTime() {
-        return UtilsCalendar.DateTimeToTextLocal((getDateTime(end)));
-    }
-
-    public LocalDateTime receiveEnd() {
-        return getDateTime(end);
-    }
-
     public void setEnd(long end) {
         this.end = end;
-    }
-
-    public void updateEnd(LocalDateTime localDateTime) {
-        this.end = getMillis(localDateTime);
     }
 
     public String getChainId() {
@@ -273,67 +245,116 @@ public class CalendarEvent implements Serializable {
 
     public String getStartDate() {
         return startDate;
-        //return LocalDate.of(start_year, start_month, start_day);
+    }
+
+    public void setStartDate(String startDate){
+        updateStart_date(UtilsCalendar.TextToDateForFirebase(startDate));
     }
 
     public LocalDate receiveStart_date(){
-        return UtilsCalendar.TextToDateForFirebase(startDate);
+        return getDate(start);
     }
 
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
-    }
+    public void updateStart_date(@NonNull LocalDate start_date) {
+        LocalDateTime localDateTime = receiveStartDateTime().withDayOfMonth(start_date.getDayOfMonth());
+        localDateTime = localDateTime.withMonth(start_date.getMonthValue());
+        localDateTime = localDateTime.withYear(start_date.getYear());
 
-    public void updateStart_date(LocalDate start_date) {
-        this.startDate = UtilsCalendar.DateToTextOnline(start_date);
+        updateStartDateTime(localDateTime);
     }
 
     public String getStartTime() {
         return startTime;
     }
 
+    public void setStartTime(String startTime) {
+        updateStart_time(UtilsCalendar.TextToTime(startTime));
+    }
+
     public LocalTime receiveStart_time(){
         return UtilsCalendar.TextToTime(startTime);
     }
 
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
+    public void updateStart_time(@NonNull LocalTime start_time) {
+        LocalDateTime localDateTime = receiveStartDateTime().withMinute(start_time.getMinute());
+        localDateTime = localDateTime.withHour(start_time.getHour());
+
+        updateStartDateTime(localDateTime);
     }
 
-    public void updateStart_time(LocalTime start_time) {
-        this.startTime = UtilsCalendar.TimeToText(start_time);
+    public String getStartDateTime() {
+        return startDateTime;
+    }
+
+    public void setStartDateTime(String startDateTime){
+//        updateStart_date(UtilsCalendar.TextToDateForFirebase(startDateTime));
+    }
+
+    public LocalDateTime receiveStartDateTime() {
+        return getDateTime(start);
+    }
+
+    public void updateStartDateTime(LocalDateTime localDateTime) {
+        this.start = getMillis(localDateTime);
+
+        this.startDate = UtilsCalendar.DateToTextOnline(localDateTime.toLocalDate());
+        this.startTime = UtilsCalendar.TimeToText(localDateTime.toLocalTime());
+        this.startDateTime = UtilsCalendar.DateTimeToTextOnline(localDateTime);
     }
 
     public String getEndDate() {
         return endDate;
     }
 
+    public void setEndDate(String endDate){
+        updateEnd_date(UtilsCalendar.TextToDateForFirebase(endDate));
+    }
+
     public LocalDate receiveEnd_date(){
-        return UtilsCalendar.TextToDateForFirebase(endDate);
+        return getDate(end);
     }
 
-    public void setEndDate(String endDate) {
-        this.endDate = endDate;
-    }
+    public void updateEnd_date(@NonNull LocalDate end_date) {
+        LocalDateTime localDateTime = receiveEndDateTime().withDayOfMonth(end_date.getDayOfMonth());
+        localDateTime = localDateTime.withMonth(end_date.getMonthValue());
+        localDateTime = localDateTime.withYear(end_date.getYear());
 
-    public void updateEnd_date(LocalDate end_date) {
-        this.endDate = UtilsCalendar.DateToTextOnline(end_date);
+        updateEndDateTime(localDateTime);
     }
 
     public String getEndTime() {
         return endTime;
     }
 
+    public void setEndTime(String endTime) {
+        updateEnd_time(UtilsCalendar.TextToTime(endTime));
+    }
+
     public LocalTime receiveEnd_time(){
         return UtilsCalendar.TextToTime(endTime);
     }
 
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
+    public void updateEnd_time(@NonNull LocalTime end_time) {
+        LocalDateTime localDateTime = receiveEndDateTime().withMinute(end_time.getMinute());
+        localDateTime = localDateTime.withHour(end_time.getHour());
+
+        updateEndDateTime(localDateTime);
     }
 
-    public void updateEnd_time(LocalTime end_time) {
-        this.endTime = UtilsCalendar.TimeToText(end_time);
+    public String getEndDateTime() {
+        return endDateTime;
+    }
+
+    public void updateEndDateTime(LocalDateTime localDateTime) {
+        this.end = getMillis(localDateTime);
+
+        this.endDate = UtilsCalendar.DateToTextOnline(localDateTime.toLocalDate());
+        this.endTime = UtilsCalendar.TimeToText(localDateTime.toLocalTime());
+        this.endDateTime = UtilsCalendar.DateTimeToTextOnline(localDateTime);
+    }
+
+    public LocalDateTime receiveEndDateTime() {
+        return getDateTime(end);
     }
 
     public int getTimestamp() {
@@ -342,10 +363,6 @@ public class CalendarEvent implements Serializable {
 
     public void setTimestamp(int timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public void deleteTimeStamp(){
-        this.timestamp = 0;
     }
 
     public int getColor() {
@@ -456,22 +473,6 @@ public class CalendarEvent implements Serializable {
         Log.d("murad", "Absolute end date updated " + UtilsCalendar.DateToTextOnline(frequency_end));
     }
 
-    public LocalDateTime receiveStartDateTime(){
-        return LocalDateTime.of(receiveStart_date(), receiveStart_time());
-    }
-
-    public LocalDateTime receiveEndDateTime(){
-        return LocalDateTime.of(receiveEnd_date(), receiveEnd_time());
-    }
-
-    public String getStart_dateTime(){
-        return UtilsCalendar.DateTimeToTextOnline(LocalDateTime.of(receiveStart_date(), receiveStart_time()));
-    }
-
-    public String getEnd_dateTime(){
-        return UtilsCalendar.DateTimeToTextOnline(LocalDateTime.of(receiveEnd_date(), receiveEnd_time()));
-    }
-
     public String getPrivateId() {
         return privateId;
     }
@@ -489,6 +490,9 @@ public class CalendarEvent implements Serializable {
     }
 
     public void clearFrequencyData(){
+        this.frequencyType = MySuperTouchActivity.DAY_BY_END;
+        this.frequency = 1;
+
         this.day = 0;
         this.dayOfWeekPosition = 0;
         this.array_frequencyDayOfWeek = null;
@@ -512,34 +516,36 @@ public class CalendarEvent implements Serializable {
     @Override
     public String toString() {
         return "CalendarEvent{" +
-                "\n chainId='" + chainId + '\'' +
-                ", \n timestamp=" + timestamp +
-                ", \n range=" + range +
-                ", \n position=" + position +
-                ", \n name='" + name + '\'' +
-                ", \n description='" + description + '\'' +
-                ", \n place='" + place + '\'' +
-                ", \n start=" + new Date(start) +
-                ", \n startDate='" + startDate + '\'' +
-                ", \n startTime='" + startTime + '\'' +
-                ", \n startDateTime='" + startDateTime + '\'' +
-                ", \n end=" + new Date(end) +
-                ", \n endDate='" + endDate + '\'' +
-                ", \n endTime='" + endTime + '\'' +
-                ", \n endDateTime='" + endDateTime + '\'' +
-                ", \n color=" + color +
-                ", \n frequencyType='" + frequencyType + '\'' +
-                ", \n privateId='" + privateId + '\'' +
-                ", \n frequency=" + frequency +
-                ", \n amount=" + amount +
-                ", \n day=" + day +
-                ", \n dayOfWeekPosition=" + dayOfWeekPosition +
-                ", \n array_frequencyDayOfWeek=" + array_frequencyDayOfWeek +
-                ", \n weekNumber=" + weekNumber +
-                ", \n month=" + month +
-                ", \n isLast=" + isLast +
-                ", \n frequency_start='" + frequency_start + '\'' +
-                ", \n frequency_end='" + frequency_end + '\'' +
+                "\n chainId = '" + chainId + '\'' +
+                ", \n timestamp = " + timestamp +
+                ", \n range = " + range +
+                ", \n position = " + position +
+                ", \n name = '" + name + '\'' +
+                ", \n description = '" + description + '\'' +
+                ", \n place = '" + place + '\'' +
+                ", \n start = " + start +
+                ", \n start = " + new Date(start) +
+                ", \n startDate = '" + startDate + '\'' +
+                ", \n startTime = '" + startTime + '\'' +
+                ", \n startDateTime = '" + startDateTime + '\'' +
+                ", \n end = " + end +
+                ", \n end = " + new Date(end) +
+                ", \n endDate = '" + endDate + '\'' +
+                ", \n endTime = '" + endTime + '\'' +
+                ", \n endDateTime = '" + endDateTime + '\'' +
+                ", \n color = " + color +
+                ", \n frequencyType = '" + frequencyType + '\'' +
+                ", \n privateId = '" + privateId + '\'' +
+                ", \n frequency = " + frequency +
+                ", \n amount = " + amount +
+                ", \n day = " + day +
+                ", \n dayOfWeekPosition = " + dayOfWeekPosition +
+                ", \n array_frequencyDayOfWeek = " + array_frequencyDayOfWeek +
+                ", \n weekNumber = " + weekNumber +
+                ", \n month = " + month +
+                ", \n isLast = " + isLast +
+                ", \n frequency_start = '" + frequency_start + '\'' +
+                ", \n frequency_end = '" + frequency_end + '\'' +
                 '}';
     }
 

@@ -1,363 +1,370 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10sp"
     tools:context=".Profile_Screen">
 
-    <!--<ImageView
-        android:id="@+id/iv_profile_picture"
-        android:layout_width="133dp"
-        android:layout_height="133dp"
-        android:src="@drawable/sample_profile"
-        android:background="@drawable/profile_pic_background"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.08" />-->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10sp" >
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/iv_profile_picture"
-        android:layout_width="133dp"
-        android:layout_height="133dp"
-        android:layout_centerInParent="true"
-        android:src="@drawable/images"
-        app:civ_border_color="@color/colorAccent"
-        app:civ_border_width="2dp"
-        android:scaleType="centerCrop"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.08"/>
-
-    <com.facebook.shimmer.ShimmerFrameLayout
-        android:id="@+id/shimmer_profile_picture"
-        android:layout_width="133dp"
-        android:layout_height="133dp"
-        android:layout_centerInParent="true"
-        android:animateLayoutChanges="true"
-        android:animationCache="true"
-        app:shimmer_repeat_mode="restart"
-        app:shimmer_shape="linear"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_profile_picture"
-        app:layout_constraintEnd_toEndOf="@+id/iv_profile_picture"
-        app:layout_constraintStart_toStartOf="@+id/iv_profile_picture"
-        app:layout_constraintTop_toTopOf="@+id/iv_profile_picture">
+        <!--<ImageView
+            android:id="@+id/iv_profile_picture"
+            android:layout_width="133dp"
+            android:layout_height="133dp"
+            android:src="@drawable/sample_profile"
+            android:background="@drawable/profile_pic_background"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.08" />-->
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:id="@+id/iv_profile_picture"
+            android:layout_width="133dp"
+            android:layout_height="133dp"
             android:layout_centerInParent="true"
-            android:src="@drawable/sample_profile"
+            android:src="@drawable/images"
+            app:civ_border_color="@color/colorAccent"
+            app:civ_border_width="2dp"
             android:scaleType="centerCrop"
-            app:civ_circle_background_color="@color/gray"/>
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.08"/>
 
-    </com.facebook.shimmer.ShimmerFrameLayout>
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer_profile_picture"
+            android:layout_width="133dp"
+            android:layout_height="133dp"
+            android:layout_centerInParent="true"
+            android:animateLayoutChanges="true"
+            android:animationCache="true"
+            app:shimmer_repeat_mode="restart"
+            app:shimmer_shape="linear"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_profile_picture"
+            app:layout_constraintEnd_toEndOf="@+id/iv_profile_picture"
+            app:layout_constraintStart_toStartOf="@+id/iv_profile_picture"
+            app:layout_constraintTop_toTopOf="@+id/iv_profile_picture">
 
-    <!--<EditText
-        android:id="@+id/et_username"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Username:"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.273" />-->
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:src="@drawable/sample_profile"
+                android:scaleType="centerCrop"
+                app:civ_circle_background_color="@color/gray"/>
 
-    <!--<EditText
-        android:id="@+id/et_email"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Email:"
-        android:textSize="18sp"
-        android:inputType="textEmailAddress"
-        android:autofillHints="emailAddress"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_username"
-        app:layout_constraintVertical_bias="0.02" />-->
+        </com.facebook.shimmer.ShimmerFrameLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/et_username"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:autofillHints="name"
-        android:hint="Username:"
-        android:inputType="text"
-        android:textColor="@color/colorAccent"
-        android:textSize="20sp"
-        app:boxBackgroundMode="outline"
-        app:endIconMode="clear_text"
-        app:endIconTint="@color/colorAccent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.491"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iv_profile_picture"
-        app:layout_constraintVertical_bias="0.04">
-
-        <com.google.android.material.textfield.TextInputEditText
+        <!--<EditText
+            android:id="@+id/et_username"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:autofillHints="name"
-            android:inputType="text" />
+            android:layout_height="wrap_content"
+            android:text="Username:"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.273" />-->
 
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/et_email"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        app:boxBackgroundMode="outline"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:hint="E-mail address"
-        android:autofillHints="emailAddress"
-        android:inputType="textEmailAddress"
-        android:textColor="@color/colorAccent"
-        app:helperTextTextColor="@color/red"
-        android:textSize="20sp"
-        app:endIconMode="clear_text"
-        app:endIconTint="@color/colorAccent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_username"
-        app:layout_constraintVertical_bias="0.02">
-
-        <com.google.android.material.textfield.TextInputEditText
+        <!--<EditText
+            android:id="@+id/et_email"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Email:"
+            android:textSize="18sp"
             android:inputType="textEmailAddress"
             android:autofillHints="emailAddress"
-            />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/et_username"
+            app:layout_constraintVertical_bias="0.02" />-->
 
-
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <TextView
-        android:id="@+id/tv_verify_email"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        app:layout_constraintBottom_toBottomOf="@+id/et_email"
-        app:layout_constraintVertical_bias="1.0"
-        app:layout_constraintHorizontal_bias="1.0"
-        android:layout_marginEnd="1sp"
-        app:layout_constraintTop_toTopOf="@+id/et_email"
-        app:layout_constraintStart_toStartOf="@+id/et_email"
-        app:layout_constraintEnd_toEndOf="@+id/et_email"
-        android:text="Verify Email"
-        android:textColor="@color/colorAccent"
-        android:textStyle="bold"/>
-
-    <!--<EditText
-        android:id="@+id/et_phone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Phone:"
-        android:textSize="18sp"
-        android:inputType="phone"
-        android:autofillHints="phone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_email"
-        app:layout_constraintVertical_bias="0.02" />-->
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/et_phone"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        app:boxBackgroundMode="outline"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:textColor="@color/colorAccent"
-        android:textSize="20sp"
-        app:endIconMode="clear_text"
-        app:endIconTint="@color/colorAccent"
-        android:hint="Phone:"
-        app:prefixText="+972"
-        android:inputType="phone"
-        android:autofillHints="phone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_email"
-        app:layout_constraintVertical_bias="0.02">
-
-        <com.google.android.material.textfield.TextInputEditText
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/et_username"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:autofillHints="name"
+            android:hint="Username:"
+            android:inputType="text"
+            android:textColor="@color/colorAccent"
+            android:textSize="20sp"
+            app:boxBackgroundMode="outline"
+            app:endIconMode="clear_text"
+            app:endIconTint="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.491"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_profile_picture"
+            app:layout_constraintVertical_bias="0.04">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:autofillHints="name"
+                android:inputType="text" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/et_email"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundMode="outline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:hint="E-mail address"
+            android:autofillHints="emailAddress"
+            android:inputType="textEmailAddress"
+            android:textColor="@color/colorAccent"
+            app:helperTextTextColor="@color/red"
+            android:textSize="20sp"
+            app:endIconMode="clear_text"
+            app:endIconTint="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/et_username"
+            app:layout_constraintVertical_bias="0.02">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textEmailAddress"
+                android:autofillHints="emailAddress"
+                />
+
+
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tv_verify_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintBottom_toBottomOf="@+id/et_email"
+            app:layout_constraintVertical_bias="1.0"
+            app:layout_constraintHorizontal_bias="1.0"
+            android:layout_marginEnd="1sp"
+            app:layout_constraintTop_toTopOf="@+id/et_email"
+            app:layout_constraintStart_toStartOf="@+id/et_email"
+            app:layout_constraintEnd_toEndOf="@+id/et_email"
+            android:text="Verify Email"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"/>
+
+        <!--<EditText
+            android:id="@+id/et_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Phone:"
+            android:textSize="18sp"
             android:inputType="phone"
             android:autofillHints="phone"
-            />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/et_email"
+            app:layout_constraintVertical_bias="0.02" />-->
 
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <CheckBox
-        android:id="@+id/et_madrich"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Madrich"
-        android:textSize="18sp"
-        android:checked="false"
-        android:textColor="@color/black"
-        android:layout_marginHorizontal="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_phone"
-        app:layout_constraintVertical_bias="0.02" />
-
-    <!--<Button
-        android:id="@+id/btn_save_profile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="Save"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_madrich"
-        app:layout_constraintVertical_bias="0.112" />-->
-
-    <Button
-        android:id="@+id/btn_delete_account"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Delete account"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_verify_email"
-        app:layout_constraintVertical_bias="0.112" />
-
-
-    <Button
-        android:id="@+id/btn_sign_out"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sign Out"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_delete_account"
-        app:layout_constraintVertical_bias="0.184" />
-
-    <RelativeLayout
-        android:id="@+id/linearLayout4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/et_madrich"
-        app:layout_constraintStart_toStartOf="@+id/et_madrich"
-        app:layout_constraintTop_toBottomOf="@+id/et_madrich"
-        app:layout_constraintVertical_bias="0.11">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/sign_up_with_google"
-            android:layout_width="wrap_content"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/et_phone"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundMode="outline"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginHorizontal="20sp"
-            android:checkable="true"
-            android:padding="10dp"
-            android:text="Link with Google"
+            android:layout_marginHorizontal="20dp"
+            android:textColor="@color/colorAccent"
+            android:textSize="20sp"
+            app:endIconMode="clear_text"
+            app:endIconTint="@color/colorAccent"
+            android:hint="Phone:"
+            app:prefixText="+972"
+            android:inputType="phone"
+            android:autofillHints="phone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/et_email"
+            app:layout_constraintVertical_bias="0.02">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="phone"
+                android:autofillHints="phone"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <CheckBox
+            android:id="@+id/et_madrich"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Madrich"
+            android:textSize="18sp"
+            android:checked="false"
             android:textColor="@color/black"
-            android:textSize="14sp"
-            app:backgroundTint="@color/white"
-            app:cornerRadius="10dp"
-            app:elevation="5dp"
-            app:icon="@drawable/ic_google"
-            app:iconGravity="textStart"
-            app:iconSize="30dp"
-            app:iconTintMode="multiply" />
-
-
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/google_checked"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/sign_up_with_google"
-            android:layout_alignEnd="@id/sign_up_with_google"
-            android:layout_alignBottom="@id/sign_up_with_google"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:backgroundTint="@android:color/transparent"
-            android:visibility="gone"
-            app:icon="@drawable/ic_baseline_done_24"
-            app:iconGravity="textStart"
-            app:iconSize="26dp"
-            app:iconTint="@color/black"
-            app:iconTintMode="multiply" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/sign_up_with_facebook"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/sign_up_with_google"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
             android:layout_marginHorizontal="20sp"
-            android:checkable="true"
-            android:padding="10dp"
-            android:text="Link with Facebook"
-            android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textSize="14sp"
-            app:backgroundTint="@color/white"
-            app:cornerRadius="10dp"
-            app:elevation="5dp"
-            app:icon="@drawable/facebook_icon_transparent"
-            app:iconGravity="textStart"
-            app:iconSize="36dp"
-            app:iconTintMode="multiply" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/et_phone"
+            app:layout_constraintVertical_bias="0.02" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/facebook_checked"
+        <!--<Button
+            android:id="@+id/btn_save_profile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@id/sign_up_with_facebook"
-            android:layout_alignEnd="@id/sign_up_with_facebook"
-            android:layout_alignBottom="@id/sign_up_with_facebook"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:backgroundTint="@android:color/transparent"
-            android:visibility="gone"
-            app:icon="@drawable/ic_baseline_done_24"
-            app:iconGravity="textStart"
-            app:iconSize="26dp"
-            app:iconTint="@color/black"
-            app:iconTintMode="multiply" />
+            android:layout_marginTop="40dp"
+            android:text="Save"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/et_madrich"
+            app:layout_constraintVertical_bias="0.112" />-->
 
-    </RelativeLayout>
-
-    <Button
-        android:id="@+id/btn_verify_email"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Verify email"
-        app:layout_constraintEnd_toEndOf="@+id/linearLayout4"
-        app:layout_constraintStart_toStartOf="@+id/linearLayout4"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
+        <Button
+            android:id="@+id/btn_delete_account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete account"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btn_verify_email"
+            app:layout_constraintVertical_bias="0.112" />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <Button
+            android:id="@+id/btn_sign_out"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sign Out"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btn_delete_account"
+            app:layout_constraintVertical_bias="0.184" />
+
+        <RelativeLayout
+            android:id="@+id/linearLayout4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/et_madrich"
+            app:layout_constraintStart_toStartOf="@+id/et_madrich"
+            app:layout_constraintTop_toBottomOf="@+id/et_madrich"
+            app:layout_constraintVertical_bias="0.11">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/sign_up_with_google"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginHorizontal="20sp"
+                android:checkable="true"
+                android:padding="10dp"
+                android:text="Link with Google"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                app:backgroundTint="@color/white"
+                app:cornerRadius="10dp"
+                app:elevation="5dp"
+                app:icon="@drawable/ic_google"
+                app:iconGravity="textStart"
+                app:iconSize="30dp"
+                app:iconTintMode="multiply" />
+
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/google_checked"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/sign_up_with_google"
+                android:layout_alignEnd="@id/sign_up_with_google"
+                android:layout_alignBottom="@id/sign_up_with_google"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:backgroundTint="@android:color/transparent"
+                android:visibility="gone"
+                app:icon="@drawable/ic_baseline_done_24"
+                app:iconGravity="textStart"
+                app:iconSize="26dp"
+                app:iconTint="@color/black"
+                app:iconTintMode="multiply" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/sign_up_with_facebook"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/sign_up_with_google"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginHorizontal="20sp"
+                android:checkable="true"
+                android:padding="10dp"
+                android:text="Link with Facebook"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                app:backgroundTint="@color/white"
+                app:cornerRadius="10dp"
+                app:elevation="5dp"
+                app:icon="@drawable/facebook_icon_transparent"
+                app:iconGravity="textStart"
+                app:iconSize="36dp"
+                app:iconTintMode="multiply" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/facebook_checked"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/sign_up_with_facebook"
+                android:layout_alignEnd="@id/sign_up_with_facebook"
+                android:layout_alignBottom="@id/sign_up_with_facebook"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:backgroundTint="@android:color/transparent"
+                android:visibility="gone"
+                app:icon="@drawable/ic_baseline_done_24"
+                app:iconGravity="textStart"
+                app:iconSize="26dp"
+                app:iconTint="@color/black"
+                app:iconTintMode="multiply" />
+
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/btn_verify_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Verify email"
+            app:layout_constraintEnd_toEndOf="@+id/linearLayout4"
+            app:layout_constraintStart_toStartOf="@+id/linearLayout4"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>

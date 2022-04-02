@@ -17,11 +17,17 @@
         android:label="fragment_map_"
         tools:layout="@layout/fragment_map_" />
 
-    <fragment
+<!--    <fragment
         android:id="@+id/graph_Fragment"
         android:name="com.example.projectofmurad.Graph_Fragment"
         android:label="fragment_graph_"
-        tools:layout="@layout/fragment_graph_" />
+        tools:layout="@layout/fragment_graph_" />  -->
+
+    <fragment
+        android:id="@+id/preferences_Fragment"
+        android:name="com.example.projectofmurad.PreferencesFragment"
+        android:label="fragment_preferences"
+        tools:layout="@layout/fragment_preferences" />
 
     <fragment
         android:id="@+id/tables_Fragment"

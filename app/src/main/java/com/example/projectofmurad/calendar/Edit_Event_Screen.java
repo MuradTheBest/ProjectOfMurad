@@ -25,6 +25,7 @@ import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -33,7 +34,11 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.R;
+import com.example.projectofmurad.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -269,8 +274,6 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         end_hour = endDateTime.getHour();
         end_min = endDateTime.getMinute();
 
-
-
 /*        btn_choose_start_date = findViewById(R.id.btn_choose_start_date);
         btn_choose_start_date.setText(UtilsCalendar.DateToTextLocal(startDate));
         btn_choose_start_date.setOnClickListener(new View.OnClickListener() {
@@ -443,7 +446,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         btn_choose_start_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Initialize time picker dialog
+                //Initialize timeData picker dialog
                 startTimePickerDialog = new TimePickerDialog(Edit_Event_Screen.this,
                         AlertDialog.THEME_HOLO_LIGHT,
                         new TimePickerDialog.OnTimeSetListener() {
@@ -461,7 +464,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
                                 Log.d("murad", "hour: " + hourOfDay);
                                 Log.d("murad", "minute: " + minute);
-                                Log.d("murad", "time: " + time_text);
+                                Log.d("murad", "timeData: " + time_text);
 
                                 btn_choose_start_time.setText(time_text);
 
@@ -469,6 +472,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 //                                    endTime = startTime.plusHours(1);
 
                                     endDateTime = endDateTime.toLocalDate().atTime(LocalTime.from(startDateTime.plusHours(1)));
+                                    btn_choose_end_date.setText(UtilsCalendar.DateToTextLocal(endDateTime.toLocalDate()));
 
                                     btn_choose_end_time.setText(UtilsCalendar.TimeToText(endDateTime.toLocalTime()));
                                 }
@@ -487,7 +491,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         btn_choose_end_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Initialize time picker dialog
+                //Initialize timeData picker dialog
                 endTimePickerDialog = new TimePickerDialog(Edit_Event_Screen.this,
                         android.R.style.ThemeOverlay_Material_Dialog,
                         new TimePickerDialog.OnTimeSetListener() {
@@ -528,7 +532,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             public void onClick(View view) {
                 try {
 
-                    absoluteDelete(chain_key, new OnDeleteFinishedCallback() {
+                    absoluteDeleteSingleEvent(chain_key, new OnDeleteFinishedCallback() {
                         @Override
                         public void onDeleteFinished() {
                             deletingProgressDialog.dismiss();
@@ -619,8 +623,6 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 newFragment.show(ft, ChooseEventFrequency_Screen.LOG_TAG);*/
             }
         });
-
-
     }
 
     private void circularRevealActivity() {
@@ -641,8 +643,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         sv_add_event_screen.setVisibility(View.VISIBLE);
         circularReveal.addListener(new Animator.AnimatorListener() {
             @Override
-            public void onAnimationStart(Animator animation) {
-            }
+            public void onAnimationStart(Animator animation) {}
 
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -650,17 +651,74 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             }
 
             @Override
-            public void onAnimationCancel(Animator animation) {
-            }
+            public void onAnimationCancel(Animator animation) {}
 
             @Override
-            public void onAnimationRepeat(Animator animation) {
-            }
+            public void onAnimationRepeat(Animator animation) {}
         });
 
         circularReveal.start();
 
     }
+
+    public void createSaveDialog(MenuItem item){
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        Utils.createCustomBottomSheetDialog(bottomSheetDialog);
+
+        bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
+
+        TextView tv_bottom_sheet_dialog_title = bottomSheetDialog.findViewById(R.id.tv_bottom_sheet_dialog_title);
+        tv_bottom_sheet_dialog_title.setText("Save");
+
+        TextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
+        tv_only_this_event.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomSheetDialog.dismiss();
+
+                absoluteDeleteSingleEvent(private_key, () -> Edit_Event_Screen.this.onAddEventClick(item));
+            }
+        });
+
+        TextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
+        tv_all_events_in_chain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomSheetDialog.dismiss();
+
+                getEventData(() -> {
+                    event.updateStart_date(event.receiveFrequency_start());
+                    absoluteDeleteAllEventsInChain(chain_key, () -> Edit_Event_Screen.this.onAddEventClick(item));
+                });
+
+            }
+        });
+
+        bottomSheetDialog.show();
+    }
+
+    private void getEventData(OnGetEventDataListener onGetEventDataListener){
+        FirebaseUtils.allEventsDatabase.child(event.getChainId()).get().addOnCompleteListener(
+                new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult().exists()){
+                            CalendarEvent superEvent = task.getResult().getValue(CalendarEvent.class);
+
+                            event.setFrequency_start(superEvent.getFrequency_start());
+                            event.setFrequency_end(superEvent.getFrequency_end());
+
+                            onGetEventDataListener.onGetEventData();
+                        }
+                    }
+                });
+
+    }
+
+    public interface OnGetEventDataListener{
+        void onGetEventData();
+    }
+
 
     private int getDips(int dps) {
         Resources resources = getResources();
@@ -687,6 +745,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 getSupportActionBar().hide();
             }
 
+            
             @Override
             public void onAnimationEnd(Animator animator) {
                 sv_add_event_screen.setVisibility(View.INVISIBLE);
@@ -741,14 +800,23 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
     @Override
     public void onAddEventClick(MenuItem item) {
         if (editMode){
-            absoluteDelete(chain_key, () -> Edit_Event_Screen.super.onAddEventClick(item));
+
+            Log.d(Utils.LOG_TAG, "event  is " + event.toString());
+
+            if (event.getPrivateId().equals(event.getChainId())){
+                absoluteDeleteSingleEvent(chain_key, () -> Edit_Event_Screen.super.onAddEventClick(item));
+            }
+            else {
+                createSaveDialog(item);
+            }
+
         }
         else {
             super.onAddEventClick(item);
         }
     }
 
-    public void absoluteDelete(String key,  OnDeleteFinishedCallback onDeleteFinishedCallback){
+    public void absoluteDeleteSingleEvent(String private_key, OnDeleteFinishedCallback onDeleteFinishedCallback){
         DatabaseReference allEventsDatabase = FirebaseUtils.allEventsDatabase;
 
         CircularProgressIndicator circularProgressIndicator = new CircularProgressIndicator(this);
@@ -761,7 +829,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         deletingProgressDialog.setIndeterminate(true);
         deletingProgressDialog.show();
 
-        Query query = allEventsDatabase.orderByKey().equalTo(key);
+        Query query = allEventsDatabase.orderByKey().equalTo(private_key);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -785,20 +853,84 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 for (DataSnapshot date : snapshot.getChildren()){
 
                     Log.d("murad", "========================================================");
-                    Log.d("murad", "Date key is " + date.getKey());
+                    Log.d("murad", "Date private_key is " + date.getKey());
                     Log.d("murad", "events on this date: " + date.getChildrenCount());
 
                     for (DataSnapshot event : date.getChildren()){
 
-                        Log.d("murad", "Event key is " + date.getKey());
+                        Log.d("murad", "Event private_key is " + date.getKey());
                         Log.d("murad", event.getValue(CalendarEvent.class).toString());
 
-                        if (event.child(UtilsCalendar.KEY_EVENT_CHAIN_ID).getValue(String.class).equals(key)){
+                        if (event.getKey().equals(private_key)){
                             Log.d("murad", "Event found");
                             event.getRef().removeValue();
                         }
                     }
 
+
+                    Log.d("murad", "========================================================");
+                }
+                onDeleteFinishedCallback.onDeleteFinished();
+                circularProgressIndicator.hide();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void absoluteDeleteAllEventsInChain(String chain_key, OnDeleteFinishedCallback onDeleteFinishedCallback){
+        DatabaseReference allEventsDatabase = FirebaseUtils.allEventsDatabase;
+
+        CircularProgressIndicator circularProgressIndicator = new CircularProgressIndicator(this);
+        circularProgressIndicator.setIndicatorDirection(CircularProgressIndicator.INDICATOR_DIRECTION_CLOCKWISE);
+        circularProgressIndicator.show();
+
+        deletingProgressDialog = new ProgressDialog(this);
+
+        deletingProgressDialog.setMessage("Editing event");
+        deletingProgressDialog.setIndeterminate(true);
+        deletingProgressDialog.show();
+
+        Query query = allEventsDatabase.orderByKey().equalTo(chain_key);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot data : snapshot.getChildren()){
+                    data.getRef().removeValue();
+                }
+//                onDeleteFinishedCallback.onDeleteFinished();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        DatabaseReference eventsDatabaseReference = FirebaseUtils.eventsDatabase;
+
+        eventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot date : snapshot.getChildren()){
+
+                    Log.d("murad", "========================================================");
+                    Log.d("murad", "Date chain_key is " + date.getKey());
+                    Log.d("murad", "events on this date: " + date.getChildrenCount());
+
+                    for (DataSnapshot event : date.getChildren()){
+
+                        Log.d("murad", "Event chain_key is " + date.getKey());
+                        Log.d("murad", event.getValue(CalendarEvent.class).toString());
+
+                        if (event.child(UtilsCalendar.KEY_EVENT_CHAIN_ID).getValue(String.class).equals(chain_key)){
+                            Log.d("murad", "Event found");
+                            event.getRef().removeValue();
+                        }
+                    }
 
                     Log.d("murad", "========================================================");
                 }

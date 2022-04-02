@@ -54,9 +54,9 @@ public class SaveTrainingDialog extends Dialog implements CompoundButton.OnCheck
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setTitle("Choose training type");
+        setTitle("Choose trainingData type");
         setCancelable(false);
-        setContentView(R.layout.choose_training_dialog);
+        setContentView(R.layout.choose_event_dialog);
 
         RadioGroup rg_choose_training = findViewById(R.id.rg_choose_training);
 
@@ -75,7 +75,7 @@ public class SaveTrainingDialog extends Dialog implements CompoundButton.OnCheck
         Utils.createCustomDialog(this);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
+    
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked){
@@ -84,7 +84,7 @@ public class SaveTrainingDialog extends Dialog implements CompoundButton.OnCheck
                 ll_private_training.setBackgroundResource(R.drawable.calendar_cell_selected_background);
                 ll_group_training.setBackgroundResource(R.drawable.calendar_cell_unclicked_background);
 
-//                new MyRepository(getOwnerActivity().getApplication()).insert(training);
+//                new MyRepository(getOwnerActivity().getApplication()).insert(trainingData);
                 onAddTrainingListener.onAddTraining(training);
             }
             if (buttonView == rb_group_training) {

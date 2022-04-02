@@ -26,11 +26,16 @@ import com.example.projectofmurad.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.Calendar_Screen;
 import com.example.projectofmurad.calendar.DayDialogFragmentWithRecyclerView2;
+import com.example.projectofmurad.calendar.UtilsCalendar;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
+    public final static String TAG = AlarmManagerForToday.TAG;
+
     public final static String ACTION_SHOW_NOTIFICATION = Utils.APPLICATION_ID + "show_notification";
     public final static String ACTION_STOP_VIBRATION = Utils.APPLICATION_ID + "stop_vibration";
+
+    public final static int ALARM_NOTIFICATION_ID = 500;
 
     @RequiresApi(api = Build.VERSION_CODES.R)
     @SuppressLint("MissingPermission")
@@ -48,19 +53,21 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @SuppressLint("MissingPermission")
     public void stopVibration(@NonNull Context context, @NonNull Intent intent){
-        Toast.makeText(context, "Stopping vibration", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "Vibration stopped", Toast.LENGTH_SHORT).show();
         Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.cancel();
 
-        int notification_id = intent.getIntExtra("notification_id", 0);
-        String notification_tag = intent.getStringExtra("notification_tag");
+        String event_private_id = intent.getStringExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID);
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(notification_tag, notification_id);
+        notificationManager.cancel(ALARM_NOTIFICATION_ID);
 
+        SQLiteDatabase db = Utils.openOrCreateDatabase(context);
+
+        Utils.deleteAlarm(event_private_id, db);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
+    
     @SuppressLint("MissingPermission")
     public void showNotification(@NonNull Context context, @NonNull Intent intent){
         //we will use vibrator first
@@ -72,7 +79,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 //        vibrator.vibrate(vibrationEffect);
         vibrator.vibrate(timings, 1);
 
-        Toast.makeText(context, "Alarm! Wake up! Wake up!", Toast.LENGTH_LONG).show();
         Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
 
         if (alarmUri == null) {
@@ -83,9 +89,10 @@ public class AlarmReceiver extends BroadcastReceiver {
         ringtone.play();*/
 
         String body = intent.getStringExtra("notification_body");
-        int color = intent.getIntExtra("notification_color", R.color.colorAccent);
 
-        CalendarEvent event = (CalendarEvent) intent.getSerializableExtra("event");
+        CalendarEvent event = (CalendarEvent) intent.getSerializableExtra(UtilsCalendar.KEY_EVENT);
+        int color = event.getColor();
+
         if (event == null){
             Log.d("murad", "event is null");
             return;
@@ -95,15 +102,19 @@ public class AlarmReceiver extends BroadcastReceiver {
         }
 
 
-
         Intent i = new Intent(context, Calendar_Screen.class);
         i.setAction(DayDialogFragmentWithRecyclerView2.ACTION_TO_SHOW_EVENT);
-        i.putExtra("action", true);
-        i.putExtra("event_private_id", event.getPrivateId());
+        i.putExtra("isAlarm", true);
+        i.putExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID, event.getPrivateId());
+        Log.d(AlarmManagerForToday.TAG, "private id for event for alarm notification to show it is " + event.getPrivateId());
+        i.putExtra(UtilsCalendar.KEY_EVENT_START_DATE_TIME, event.getStart());
 //        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         Log.d("murad", event.toString());
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0 /* Request code */, i,
+
+        int requestCode = intent.getIntExtra("requestCode", 2);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, requestCode /* Request code */, i,
                 PendingIntent.FLAG_IMMUTABLE);
 
         /*NotificationHelper notificationHelper = new NotificationHelper(context);
@@ -111,8 +122,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setSmallIcon(R.drawable.ic_baseline_directions_bike_24)
                 .setContentTitle("Firebase notification")
                 .setContentText(body)
-                .setContentText("The event " + event.getName() + " will start on " + event.getStart_dateTime()
-                        + " and end on " + event.getEnd_dateTime())
+                .setContentText("The event " + event.getName() + " will start on " + event.getStartDateTime()
+                        + " and end on " + event.getEndDateTime())
                 .setColor(color)
                 .setColorized(true)
                 .setAutoCancel(true)
@@ -125,17 +136,15 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         SQLiteDatabase db = context.openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
 //        int notification_id = Utils.getNotificationId(db);
-        int notification_id = 100;
         String notification_tag = event.getPrivateId();
 
-        Log.d("murad", "notification_id = " + notification_id);
+        Log.d("murad", "notification_id = " + ALARM_NOTIFICATION_ID);
         Log.d("murad", "notification_tag = " + notification_tag);
 
 
         Intent intent_stop_alarm = new Intent(context, AlarmReceiver.class);
         intent_stop_alarm.setAction(ACTION_STOP_VIBRATION);
-        intent_stop_alarm.putExtra("notification_id", notification_id);
-        intent_stop_alarm.putExtra("notification_tag", notification_tag);
+        intent_stop_alarm.putExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID, notification_tag);
 
         PendingIntent pintent_stop_alarm = PendingIntent.getBroadcast(context, 1, intent_stop_alarm,
                 PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
@@ -146,8 +155,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         builder.setSmallIcon(R.drawable.ic_baseline_directions_bike_24)
                 .setContentTitle("Firebase notification")
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(body).setSummaryText("Event alarm"))
-                .setContentText("The event " + event.getName() + " will start on " + event.getStart_dateTime()
-                        + " and end on " + event.getEnd_dateTime())
+                .setContentText("The event " + event.getName() + " will start on " + event.getStartDateTime()
+                        + " and end on " + event.getEndDateTime())
                 .setColor(color)
                 .setColorized(true)
                 .setAutoCancel(true)
@@ -177,7 +186,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 // notificationId is a unique int for each notification that you must define
 
 //        notificationManager.notify(notification_id, builder.build());
-        notificationManager.notify(notification_tag, notification_id, builder.build());
+        notificationManager.notify(notification_tag, ALARM_NOTIFICATION_ID, builder.build());
     }
 }
 

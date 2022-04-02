@@ -103,4 +103,26 @@
 		<item name="android:windowNoTitle">true</item>
 	</style>
 
+	<style name="MyProgressDialogTheme" parent="">
+		<item name="indicatorColor">@color/colorAccent</item>
+	</style>
+
+	<style name="MyBottomSheetDialogTheme" parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">
+		<item name="bottomSheetStyle">@style/MyBottomSheet</item>
+		<item name="animationMode">slide</item>
+	</style>
+
+	<style name="MyBottomSheet" parent="Widget.MaterialComponents.BottomSheet">
+		<item name="shapeAppearanceOverlay">@style/MyShapeAppearanceBottomSheetDialog</item>
+	</style>
+
+	<style name="MyShapeAppearanceBottomSheetDialog" parent="">
+		<item name="cornerFamily">rounded</item>
+		<item name="titleEnabled">true</item>
+		<item name="cornerSizeTopRight">20sp</item>
+		<item name="cornerSizeTopLeft">20sp</item>
+<!--		<item name="cornerSizeBottomRight">20sp</item>-->
+<!--		<item name="cornerSizeBottomLeft">20sp</item>-->
+	</style>
+
 </resources>

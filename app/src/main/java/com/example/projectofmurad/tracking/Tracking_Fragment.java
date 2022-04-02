@@ -34,6 +34,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
+import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -41,7 +43,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -81,14 +82,13 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -149,14 +149,6 @@ SaveTrainingDialog.OnAddTrainingListener{
         }
     };
 
-    public static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
-
-        BigDecimal bd = BigDecimal.valueOf(value);
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
-        return bd.doubleValue();
-    }
-
     private void updateTrack(@NonNull Location location) {
         LatLng lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
@@ -194,15 +186,15 @@ SaveTrainingDialog.OnAddTrainingListener{
         float distance = startPoint.distanceTo(endPoint);
         totalDistance += distance;
         Log.d("naumov", "distance = " + distance);
-        Log.d("naumov", "totalDistance = " + totalDistance);
+        Log.d("naumov", "totalDistanceData = " + totalDistance);
         Log.d("naumov", "----------------------------------");
 
-/*        double speed = (double) totalDistance/seconds;
+/*        double speed = (double) totalDistanceData/seconds;
 
 
-//        double distanceToShow = Double.parseDouble(new DecimalFormat("####.##").format(totalDistance));
+//        double distanceToShow = Double.parseDouble(new DecimalFormat("####.##").format(totalDistanceData));
 
-        distanceView.setText(new DecimalFormat("####.##").format(totalDistance));
+        distanceView.setText(new DecimalFormat("####.##").format(totalDistanceData));
         speedView.setText(new DecimalFormat("####.##").format(speed));*/
     }
 
@@ -229,7 +221,7 @@ SaveTrainingDialog.OnAddTrainingListener{
     private MaterialButton btn_stop_tracking;
     private MaterialButton btn_finish_tracking;
 
-    private LinearLayout ll_stop_or_finish_training;
+    private LinearLayout ll_pause_or_finish_training;
 
 
     //ToDo start activity on button press and collect data connected to event
@@ -334,26 +326,30 @@ SaveTrainingDialog.OnAddTrainingListener{
         return inflater.inflate(R.layout.fragment_tracking_, container, false);
     }
 
+    private FrameLayout fl_bottom_sheet;
+
+    private BottomSheetBehavior bottom_sheet;
+
+    private GridLayout bottom_sheet_training_expanded;
+
+    private TextView tv_training_duration;
+    private TextView tv_training_total_duration;
+    private TextView tv_training_distance;
+    private TextView tv_training_average_speed;
+    private TextView tv_training_max_speed;
+    private TextView tv_training_average_pace;
+    private TextView tv_training_max_pace;
+
     @SuppressLint("MissingPermission")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 //        requireActivity().getActionBar().hide();
 
+        initializeBottomSheet(view);
+
         markers = new HashMap<>();
         last_markers = new HashMap<>();
-
-        /*switch_last_location = view.findViewById(R.id.switch_last_location);
-        switch_last_location.setOnCheckedChangeListener(
-                new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        for (Marker marker : last_markers.values()){
-                            marker.setAlpha(0.5f);
-                            marker.setVisible(isChecked);
-                        }
-                    }
-                });*/
 
         switch_map_type = view.findViewById(R.id.switch_map_type);
         switch_map_type.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -390,14 +386,14 @@ SaveTrainingDialog.OnAddTrainingListener{
             }
         });
 
-        ll_stop_or_finish_training = view.findViewById(R.id.ll_stop_or_finish_training);
+        ll_pause_or_finish_training = view.findViewById(R.id.ll_pause_or_finish_training);
 
         btn_stop_tracking = view.findViewById(R.id.btn_stop_tracking);
         btn_stop_tracking.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (btn_stop_tracking.getText().toString().equals("Stop")){
-                    stopTracking();
+                if (btn_stop_tracking.getText().toString().equals("Pause")){
+                    pauseTracking();
                 }
                 else {
                     resumeTracking();
@@ -415,11 +411,11 @@ SaveTrainingDialog.OnAddTrainingListener{
             }
         });
 
-        if (TrackingViewModel.isRunning.getValue() && !isTrackingServiceRunning()){
+        /*if (TrackingViewModel.isRunning.getValue() && !isTrackingServiceRunning()){
 
             resumeTracking();
 
-            /*requireActivity().startService(new Intent(getContext(), TrackingService.class));
+            *//*requireActivity().startService(new Intent(getContext(), TrackingService.class));
             // Build intent that displays the App settings screen.
             Intent intent = new Intent();
             intent.setAction(
@@ -428,62 +424,123 @@ SaveTrainingDialog.OnAddTrainingListener{
                     BuildConfig.APPLICATION_ID, null);
             intent.setData(uri);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);*/
+            startActivity(intent);*//*
 
+        }*/
+
+        if (TrackingViewModel.isRunning.getValue()){
+            startTracking();
         }
+    }
 
+    private void initializeBottomSheet(@NonNull View view){
+        fl_bottom_sheet = view.findViewById(R.id.bottom_sheet_training);
+
+        bottom_sheet_training_expanded = view.findViewById(R.id.bottom_sheet_training_expanded);
+
+        bottom_sheet = BottomSheetBehavior.from(fl_bottom_sheet);
+
+        bottom_sheet.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+
+            float slideOffSet;
+            float oldSlideOffSet;
+
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                switch (newState) {
+                    case BottomSheetBehavior.STATE_SETTLING:
+                        if (slideOffSet > oldSlideOffSet) {
+                            bottom_sheet_training_expanded.setVisibility(View.VISIBLE);
+                            rl_training.setVisibility(View.GONE);
+                        }
+                        else if (slideOffSet < oldSlideOffSet) {
+                            rl_training.setVisibility(View.VISIBLE);
+                            bottom_sheet_training_expanded.setVisibility(View.GONE);
+                        }
+                        break;
+                    case BottomSheetBehavior.STATE_DRAGGING:
+                        Log.d(LOG_TAG, "dragging");
+
+                        break;
+                    case BottomSheetBehavior.STATE_HALF_EXPANDED:
+
+
+                        break;
+                    case BottomSheetBehavior.STATE_HIDDEN:
+                        break;
+
+                    case BottomSheetBehavior.STATE_COLLAPSED:
+                        rl_training.setVisibility(View.VISIBLE);
+                        bottom_sheet_training_expanded.setVisibility(View.GONE);
+                        break;
+                    case BottomSheetBehavior.STATE_EXPANDED:
+/*                        bottom_sheet_training_expanded.setVisibility(View.VISIBLE);
+                        rl_training.setVisibility(View.GONE);*/
+                        break;
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+                oldSlideOffSet = slideOffSet;
+                slideOffSet = slideOffset;
+                Log.d(LOG_TAG, "oldSlideOffSet = " + oldSlideOffSet);
+                Log.d(LOG_TAG, "slideOffSet = " + slideOffset);
+                /*if (slideOffset > 0 && slideOffset < 1){
+                    rl_training.setVisibility(View.GONE);
+                }
+                else if(slideOffset == 0){
+                    rl_training.setVisibility(View.VISIBLE);
+                }*/
+
+                if (slideOffSet > 0.49f && slideOffSet < 0.51f){
+
+                    if (slideOffSet > oldSlideOffSet){
+                        rl_training.setVisibility(View.GONE);
+                        bottom_sheet_training_expanded.setVisibility(View.VISIBLE);
+                    }
+                    else if(slideOffSet < oldSlideOffSet){
+                        bottom_sheet_training_expanded.setVisibility(View.GONE);
+                        rl_training.setVisibility(View.VISIBLE);
+                    }
+                    Log.d(LOG_TAG, "rl_training.getVisibility() is " + rl_training.getVisibility());
+                    Log.d(LOG_TAG, "bottom_sheet_training_expanded.getVisibility() is " + bottom_sheet_training_expanded.getVisibility());
+
+                    /*if (rl_training.getVisibility() == View.VISIBLE){
+                        rl_training.setVisibility(View.GONE);
+                        bottom_sheet_training_expanded.setVisibility(View.VISIBLE);
+                    }
+                    else if(bottom_sheet_training_expanded.getVisibility() == View.VISIBLE){
+                        bottom_sheet_training_expanded.setVisibility(View.GONE);
+                        rl_training.setVisibility(View.VISIBLE);
+                    }*/
+
+                }
+            }
+        });
+
+        initializeCollapsedBottomSheet(view);
+        initializeExpandedBottomSheet(view);
+    }
+
+    private void initializeCollapsedBottomSheet(@NonNull View view){
         rl_training = view.findViewById(R.id.rl_training);
-
         tv_time = view.findViewById(R.id.tv_time);
         tv_distance = view.findViewById(R.id.tv_distance);
         tv_speed = view.findViewById(R.id.tv_speed);
         tv_max_speed = view.findViewById(R.id.tv_max_speed);
     }
 
-    public void stopTracking() {
-        btn_stop_tracking.setText("Resume");
-        Intent intent = new Intent(getContext(), TrackingService.class);
-        intent.setAction(TrackingService.ACTION_PAUSE_TRACKING_SERVICE);
-        requireActivity().startService(intent);
-    }
+    private void initializeExpandedBottomSheet(@NonNull View view){
 
-    public void finishTracking(){
-
-        btn_start_tracking.setVisibility(View.VISIBLE);
-        ll_stop_or_finish_training.setVisibility(View.GONE);
-
-        Intent intent = new Intent(getContext(), TrackingService.class);
-//        intent.setAction(TrackingService.ACTION_FINISH_TRACKING_SERVICE);
-
-//        stopLocationUpdates();
-
-        TrackingViewModel.locations.removeObservers(getViewLifecycleOwner());
-
-        TrackingViewModel.time.removeObservers(getViewLifecycleOwner());
-        tv_time.setText("00:00:00");
-
-        TrackingViewModel.totalDistance.removeObservers(getViewLifecycleOwner());
-        TrackingViewModel.avgSpeed.removeObservers(getViewLifecycleOwner());
-        TrackingViewModel.maxSpeed.removeObservers(getViewLifecycleOwner());
-
-        TrackingViewModel.training.observe(getViewLifecycleOwner(), new Observer<Training>() {
-            @Override
-            public void onChanged(Training training) {
-                SaveTrainingDialog saveTrainingDialog = new SaveTrainingDialog(requireActivity(), training, Tracking_Fragment.this);
-
-                saveTrainingDialog.show();
-
-                TrackingViewModel.training.removeObservers(getViewLifecycleOwner());
-            }
-        });
-
-        requireActivity().unregisterReceiver(broadcastReceiver);
-
-        requireActivity().stopService(intent);
-
-        createSaveTrainingDialog();
-
-        createTurnOnPowerSavingDialog();
+        tv_training_duration = view.findViewById(R.id.tv_training_duration);
+        tv_training_total_duration = view.findViewById(R.id.tv_training_total_duration);
+        tv_training_distance = view.findViewById(R.id.tv_training_distance);
+        tv_training_average_speed = view.findViewById(R.id.tv_training_average_speed);
+        tv_training_max_speed = view.findViewById(R.id.tv_training_max_speed);
+        tv_training_average_pace = view.findViewById(R.id.tv_training_average_pace);
+        tv_training_max_pace = view.findViewById(R.id.tv_training_max_pace);
     }
 
     @Override
@@ -492,8 +549,6 @@ SaveTrainingDialog.OnAddTrainingListener{
     }
 
     public void startTracking(){
-
-        TrackingViewModel trackingViewModel = new TrackingViewModel(requireActivity().getApplication());
 
         PowerManager powerManager = (PowerManager) requireContext().getSystemService(Context.POWER_SERVICE);
         if (powerManager.isPowerSaveMode()) {
@@ -509,7 +564,7 @@ SaveTrainingDialog.OnAddTrainingListener{
         }
 
         btn_start_tracking.setVisibility(View.GONE);
-        ll_stop_or_finish_training.setVisibility(View.VISIBLE);
+        ll_pause_or_finish_training.setVisibility(View.VISIBLE);
         btn_stop_tracking.setText("Pause");
 
         // Define the IntentFilter.
@@ -524,12 +579,22 @@ SaveTrainingDialog.OnAddTrainingListener{
 
 //        startLocationUpdates();
 
-        Intent intent = new Intent(getContext(), TrackingService.class);
-        intent.setAction(TrackingService.ACTION_START_TRACKING_SERVICE);
+        if (!TrackingViewModel.isRunning.getValue()){
+            Intent intent = new Intent(getContext(), TrackingService.class);
+            intent.setAction(TrackingService.ACTION_START_TRACKING_SERVICE);
 
-        requireActivity().startService(intent);
+            requireActivity().startService(intent);
 
-        TrackingViewModel.locations.observe(getViewLifecycleOwner(), new Observer<List<LatLng>>() {
+            startObserving();
+
+        }
+
+        bottom_sheet.setDraggable(true);
+    }
+
+    private void startObserving(){
+
+        TrackingViewModel.locationsData.observe(getViewLifecycleOwner(), new Observer<List<LatLng>>() {
             @Override
             public void onChanged(List<LatLng> latLngs) {
                 if (mapReady){
@@ -546,7 +611,7 @@ SaveTrainingDialog.OnAddTrainingListener{
             }
         });
 
-        TrackingViewModel.time.observe(getViewLifecycleOwner(), new Observer<Long>() {
+        TrackingViewModel.timeData.observe(getViewLifecycleOwner(), new Observer<Long>() {
             @Override
             public void onChanged(Long seconds) {
 
@@ -554,11 +619,28 @@ SaveTrainingDialog.OnAddTrainingListener{
                 int minutes = (int) ((seconds % 3600) / 60);
                 int secs = (int) (seconds % 60);
 
-                // Format the time into hours, minutes,
-                // and time.
-                String time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
+                // Format the timeData into hours, minutes,
+                // and timeData.
+                String duration = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
 
-                tv_time.setText(time);
+                tv_time.setText(duration);
+                tv_training_duration.setText(duration);
+            }
+        });
+
+        TrackingViewModel.totalTimeData.observe(getViewLifecycleOwner(), new Observer<Long>() {
+            @Override
+            public void onChanged(Long seconds) {
+
+                int hours = (int) (seconds / 3600);
+                int minutes = (int) ((seconds % 3600) / 60);
+                int secs = (int) (seconds % 60);
+
+                // Format the timeData into hours, minutes,
+                // and timeData.
+                String totalDuration = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, secs);
+
+                tv_training_total_duration.setText(totalDuration);
             }
         });
 
@@ -566,23 +648,46 @@ SaveTrainingDialog.OnAddTrainingListener{
             @Override
             public void onChanged(Double totalDistance) {
                 tv_distance.setText(new DecimalFormat("####.##").format(totalDistance) + " km");
+                tv_training_distance.setText(new DecimalFormat("####.##").format(totalDistance) + " km");
             }
         });
 
-        TrackingViewModel.avgSpeed.observe(getViewLifecycleOwner(), new Observer<Double>() {
+        TrackingViewModel.avgSpeedData.observe(getViewLifecycleOwner(), new Observer<Double>() {
             @Override
             public void onChanged(Double speed) {
                 tv_speed.setText(new DecimalFormat("##.##").format(speed) + " km/h");
+                tv_training_average_speed.setText(new DecimalFormat("##.##").format(speed) + " km/h");
             }
         });
 
-        TrackingViewModel.maxSpeed.observe(getViewLifecycleOwner(), new Observer<Double>() {
+        TrackingViewModel.maxSpeedData.observe(getViewLifecycleOwner(), new Observer<Double>() {
             @Override
             public void onChanged(Double maxSpeed) {
                 tv_max_speed.setText(new DecimalFormat("##.##").format(maxSpeed) + " km/h");
+                tv_training_max_speed.setText(new DecimalFormat("##.##").format(maxSpeed) + " km/h");
             }
         });
 
+        TrackingViewModel.avgPaceData.observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String avgPace) {
+                tv_training_average_pace.setText(avgPace);
+            }
+        });
+
+        TrackingViewModel.maxPaceData.observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String maxPace) {
+                tv_training_max_pace.setText(maxPace);
+            }
+        });
+    }
+
+    public void pauseTracking() {
+        btn_stop_tracking.setText("Resume");
+        Intent intent = new Intent(getContext(), TrackingService.class);
+        intent.setAction(TrackingService.ACTION_PAUSE_TRACKING_SERVICE);
+        requireActivity().startService(intent);
     }
 
     public void resumeTracking(){
@@ -600,14 +705,55 @@ SaveTrainingDialog.OnAddTrainingListener{
             }
         }
 
-        ll_stop_or_finish_training.setVisibility(View.VISIBLE);
+        ll_pause_or_finish_training.setVisibility(View.VISIBLE);
         btn_start_tracking.setVisibility(View.GONE);
-        btn_stop_tracking.setText("Stop");
+        btn_stop_tracking.setText("Pause");
 
         Intent intent = new Intent(getContext(), TrackingService.class);
         intent.setAction(TrackingService.ACTION_START_TRACKING_SERVICE);
 
         requireActivity().startService(intent);
+    }
+
+    public void finishTracking(){
+
+        btn_start_tracking.setVisibility(View.VISIBLE);
+        ll_pause_or_finish_training.setVisibility(View.GONE);
+
+        TrackingViewModel.locationsData.removeObservers(getViewLifecycleOwner());
+
+        TrackingViewModel.timeData.removeObservers(getViewLifecycleOwner());
+        tv_time.setText("00:00:00");
+
+        removeObservers();
+
+        requireActivity().unregisterReceiver(broadcastReceiver);
+
+        Intent intent = new Intent(getContext(), TrackingService.class);
+        requireActivity().stopService(intent);
+
+        createSaveTrainingDialog();
+
+        createTurnOnPowerSavingDialog();
+    }
+
+    private void removeObservers(){
+
+        TrackingViewModel.locationsData.removeObservers(getViewLifecycleOwner());
+
+        TrackingViewModel.timeData.removeObservers(getViewLifecycleOwner());
+
+        TrackingViewModel.totalTimeData.removeObservers(getViewLifecycleOwner());
+
+        TrackingViewModel.totalDistance.removeObservers(getViewLifecycleOwner());
+
+        TrackingViewModel.avgSpeedData.removeObservers(getViewLifecycleOwner());
+
+        TrackingViewModel.maxSpeedData.removeObservers(getViewLifecycleOwner());
+
+        TrackingViewModel.avgPaceData.removeObservers(getViewLifecycleOwner());
+
+        TrackingViewModel.maxPaceData.removeObservers(getViewLifecycleOwner());
     }
 
     @Override
@@ -698,7 +844,7 @@ SaveTrainingDialog.OnAddTrainingListener{
         builder.setTitle("Stop tracking");
         builder.setMessage("You can now turn on back power saving mode");
 
-        builder.setItems(new String[]{"Save as private training", "Save as group training"},
+        builder.setItems(new String[]{"Save as private trainingData", "Save as group trainingData"},
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -735,7 +881,7 @@ SaveTrainingDialog.OnAddTrainingListener{
 
     public void createSaveTrainingDialog(){
         /*Dialog dialog = new Dialog(requireContext());
-        dialog.setTitle("Choose training type");
+        dialog.setTitle("Choose trainingData type");
         dialog.setCancelable(false);
         dialog.setContentView(R.layout.choose_training_dialog);
 
@@ -869,7 +1015,7 @@ SaveTrainingDialog.OnAddTrainingListener{
             map.setOnMyLocationClickListener(this);
             getMyLocation();
 
-            //ToDo track only users that attend to this training
+            //ToDo track only users that attend to this trainingData
             usersLocations.addValueEventListener(valueEventListener);
             gpsTrack.setJointType(JointType.ROUND);
 
@@ -882,7 +1028,7 @@ SaveTrainingDialog.OnAddTrainingListener{
     ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
-            //ToDo to not trigger users' locations' markers' reload when current user's location changed
+            //ToDo to not trigger users' locationsData' markers' reload when current user's location changed
             for (DataSnapshot data : snapshot.getChildren()){
                 if (data.exists() && !FirebaseUtils.isCurrentUID(data.getKey())){
                     Log.d("map", "*************************************************************");
@@ -1107,7 +1253,7 @@ SaveTrainingDialog.OnAddTrainingListener{
         checkPermissions();
     }
 
-    private String[] permissions = new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
+    private final String[] permissions = new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -1156,7 +1302,6 @@ SaveTrainingDialog.OnAddTrainingListener{
         return hasPermissions;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
     public boolean checkBackgroundLocationPermission(){
         boolean hasPermissions = true;
 

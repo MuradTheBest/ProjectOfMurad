@@ -176,7 +176,7 @@ public class MyFirebaseMessagingService extends com.google.firebase.messaging.Fi
     }*/
 
     /**
-     * Handle time allotted to BroadcastReceivers.
+     * Handle timeData allotted to BroadcastReceivers.
      */
     private void handleNow() {
         Log.d(TAG, "Short lived task is done.");

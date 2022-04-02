@@ -47,7 +47,7 @@ public class EmptyBlankActivity extends AppCompatActivity {
 
         dialogBuilder.setView(R.layout.activity_empty_blank);
         dialogBuilder.setSingleChoiceItems(new CharSequence[]{
-                "At the time of event",
+                "At the timeData of event",
                 "5 minutes",
                 "15 minutes",
                 "30 minutes",

@@ -21,6 +21,9 @@
         <!-- ToDo custom switchStyle -->
 <!--        <item name="switchStyle">@style/Widget.App.Switch</item>-->
 
+        <item name="bottomSheetDialogTheme">@style/MyBottomSheetDialogTheme</item>
+        <item name="dialogTheme"></item>
+
     </style>
 
 

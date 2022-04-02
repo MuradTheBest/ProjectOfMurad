@@ -52,20 +52,6 @@ public class UtilsCalendar {
 
     public final static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
 
-    public final static String SHARED_PREFERENCES_KEY_USERNAME = "shared_preferences_key_username";
-    public final static String SHARED_PREFERENCES_KEY_EMAIL_ADDRESS = "shared_preferences_key_email_address";
-    public final static String SHARED_PREFERENCES_KEY_PASSWORD = "shared_preferences_key_password";
-
-    public final static String INTENT_KEY_EVENT_KEY = "intent_key_event_key";
-    public final static String INTENT_KEY_EVENT_NAME = "intent_key_event_name";
-    public final static String INTENT_KEY_EVENT_DESCRIPTION = "intent_key_event_description";
-    public final static String INTENT_KEY_EVENT_PLACE = "intent_key_event_place";
-    public final static String INTENT_KEY_EVENT_COLOR = "intent_key_event_color";
-    public final static String INTENT_KEY_EVENT_START_DATE = "intent_key_event_start_date";
-    public final static String INTENT_KEY_EVENT_START_TIME = "intent_key_event_start_time";
-    public final static String INTENT_KEY_EVENT_END_DATE = "intent_key_event_end_date";
-    public final static String INTENT_KEY_EVENT_END_TIME = "intent_key_event_end_time";
-
 
     public final static String INTENT_KEY_SELECTED_YEAR = "intent_key_selected_year";
     public final static String INTENT_KEY_SELECTED_MONTH = "intent_key_selected_month";
@@ -78,37 +64,37 @@ public class UtilsCalendar {
     public static final String KEY_EVENT = "event";
     public static final String KEY_EVENT_CHAIN_ID = "chainId";
     public static final String KEY_EVENT_TIMESTAMP = "timestamp";
-    public static final String KEY_EVENT_range = "range";
-    public static final String KEY_EVENT_position = "position";
-    public static final String KEY_EVENT_name = "name";
-    public static final String KEY_EVENT_description = "description";
-    public static final String KEY_EVENT_place = "place";
-    public static final String KEY_EVENT_start = "start";
-    public static final String KEY_EVENT_startDate = "startDate";
-    public static final String KEY_EVENT_startTime = "startTime";
-    public static final String KEY_EVENT_startDateTime = "startDateTime";
-    public static final String KEY_EVENT_end = "end";
-    public static final String KEY_EVENT_endDate = "endDate";
-    public static final String KEY_EVENT_endTime = "endTime";
-    public static final String KEY_EVENT_endDateTime = "endDateTime";
-    public static final String KEY_EVENT_color = "color";
-    public static final String KEY_EVENT_allDay = "allDay";
-    public static final String KEY_EVENT_frequencyType = "frequencyType";
+    public static final String KEY_EVENT_RANGE = "range";
+    public static final String KEY_EVENT_POSITION = "position";
+    public static final String KEY_EVENT_NAME = "name";
+    public static final String KEY_EVENT_DESCRIPTION = "description";
+    public static final String KEY_EVENT_PLACE = "place";
+    public static final String KEY_EVENT_START = "start";
+    public static final String KEY_EVENT_START_DATE = "startDate";
+    public static final String KEY_EVENT_START_TIME = "startTime";
+    public static final String KEY_EVENT_START_DATE_TIME = "startDateTime";
+    public static final String KEY_EVENT_END = "end";
+    public static final String KEY_EVENT_END_DATE = "endDate";
+    public static final String KEY_EVENT_END_TIME = "endTime";
+    public static final String KEY_EVENT_END_DATE_TIME = "endDateTime";
+    public static final String KEY_EVENT_COLOR = "color";
+    public static final String KEY_EVENT_ALL_DAY = "allDay";
+    public static final String KEY_EVENT_FREQUENCY_TYPE = "frequencyType";
     public static final String KEY_EVENT_PRIVATE_ID = "privateId";
-    public static final String KEY_EVENT_frequency = "frequency";
-    public static final String KEY_EVENT_amount = "amount";
-    public static final String KEY_EVENT_day = "day";
-    public static final String KEY_EVENT_dayOfWeekPosition = "dayOfWeekPosition";
-    public static final String KEY_EVENT_array_frequencyDayOfWeek = "array_frequencyDayOfWeek";
-    public static final String KEY_EVENT_weekNumber = "weekNumber";
-    public static final String KEY_EVENT_month = "month";
-    public static final String KEY_EVENT_isLast = "isLast";
-    public static final String KEY_EVENT_frequency_start = "frequency_start";
-    public static final String KEY_EVENT_frequency_end = "frequency_end";
+    public static final String KEY_EVENT_FREQUENCY = "frequency";
+    public static final String KEY_EVENT_AMOUNT = "amount";
+    public static final String KEY_EVENT_DAY = "day";
+    public static final String KEY_EVENT_DAY_OF_WEEK_POSITION = "dayOfWeekPosition";
+    public static final String KEY_EVENT_ARRAY_FREQUENCY_DAY_OF_WEEK = "array_frequencyDayOfWeek";
+    public static final String KEY_EVENT_WEEK_NUMBER = "weekNumber";
+    public static final String KEY_EVENT_MONTH = "month";
+    public static final String KEY_EVENT_IS_LAST = "isLast";
+    public static final String KEY_EVENT_FREQUENCY_START= "frequency_start";
+    public static final String KEY_EVENT_FREQUENCY_END = "frequency_end";
 
     @NonNull
     public static DatabaseReference getEventByPrivate_Id(String private_id){
-        return FirebaseUtils.eventsDatabase.child(private_id).getRef();
+        return FirebaseUtils.allEventsDatabase.child(private_id).getRef();
     }
 
     public static HashMap<LocalDate, ArrayList<CalendarEvent>> map = new HashMap<>();

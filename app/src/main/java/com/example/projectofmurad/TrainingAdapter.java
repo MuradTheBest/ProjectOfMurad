@@ -59,9 +59,9 @@ public class TrainingAdapter extends RecyclerView.Adapter<TrainingAdapter.Traini
         holder.tv_speed.setText(""+training.getAvgSpeed());
         holder.tv_date.setText(training.getStartDate());
 
-        Log.d("murad", "training.getTotalDistance() = " + training.getTotalDistance());
-        Log.d("murad", "training.getTime() = " + training.getTime());
-        Log.d("murad", "training.getAvgSpeed() = " + training.getAvgSpeed());
+        Log.d("murad", "trainingData.getTotalDistance() = " + training.getTotalDistance());
+        Log.d("murad", "trainingData.getTime() = " + training.getTime());
+        Log.d("murad", "trainingData.getAvgSpeed() = " + training.getAvgSpeed());
         Log.d("murad", training.getStartDate());
 
 
@@ -102,7 +102,7 @@ public class TrainingAdapter extends RecyclerView.Adapter<TrainingAdapter.Traini
 
                 FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
 
-                training_info_dialogFragment.show(fm, "training_info_dialogFragment");
+                training_info_dialogFragment.show(fm, Training_Info_DialogFragment.TAG);
             }
         }
     }

@@ -72,7 +72,7 @@ public class UserSigningActivity extends AppCompatActivity {
         Utils.createCustomProgressDialog(progressDialog);
     }
 
-    public void createPhoneAuthenticationDialog(){
+    protected void createPhoneAuthenticationDialog(){
 
         LayoutInflater inflater = LayoutInflater.from(this);
         View view = inflater.inflate(R.layout.phone_verification_dialog, null);
@@ -140,7 +140,7 @@ public class UserSigningActivity extends AppCompatActivity {
 
     }
 
-    public void phoneAuth(String phone){
+    protected void phoneAuth(String phone){
 
         PhoneAuthOptions options =
                 PhoneAuthOptions.newBuilder(FirebaseUtils.getFirebaseAuth())
@@ -192,7 +192,7 @@ public class UserSigningActivity extends AppCompatActivity {
         PhoneAuthProvider.verifyPhoneNumber(options);
     }
 
-    public void createSMSVerificationDialog(String verificationId, String phone){
+    protected void createSMSVerificationDialog(String verificationId, String phone){
 
         LayoutInflater inflater = LayoutInflater.from(this);
         View view = inflater.inflate(R.layout.sms_verification_dialog, null);
@@ -298,7 +298,7 @@ public class UserSigningActivity extends AppCompatActivity {
                                                                                     public void onComplete(@NonNull Task<Void> task) {
                                                                                         if (task.isSuccessful()){
                                                                                             getToken();
-                                                                                            subscribeToTopic();
+                                                                                            subscribeToTopics();
                                                                                         }
                                                                                     }
                                                                                 });
@@ -329,7 +329,7 @@ public class UserSigningActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
                                     getToken();
-                                    subscribeToTopic();
+                                    subscribeToTopics();
                                 }
                             }
                         });
@@ -338,11 +338,11 @@ public class UserSigningActivity extends AppCompatActivity {
         }
     };
 
-    public void showGoogleSignIn(){
+    protected void showGoogleSignIn(){
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken("1059282703260-j1otqlruj256io9ouf22dtcqd2neg65n.apps.googleusercontent.com")
+                .requestIdToken(String.valueOf(R.string.google_sign_in_api_key))
                 .requestEmail()
                 .build();
 
@@ -354,7 +354,7 @@ public class UserSigningActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
@@ -448,13 +448,36 @@ public class UserSigningActivity extends AppCompatActivity {
                 });
     }
 
-    protected void subscribeToTopic(){
+    protected void subscribeToTopics(){
         FirebaseMessaging.getInstance().subscribeToTopic(FCMSend.ADD_EVENT_TOPIC).addOnCompleteListener(
                 new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
-                            Log.d(FCMSend.FCM_TAG, "subscription to topic " + FCMSend.FCM_TAG + " is successful");
+                            FirebaseUtils.getCurrentUserDataRef().child(UserData.KEY_SUBSCRIBED_TO_ADD_EVENT).setValue(true);
+                            Log.d(FCMSend.FCM_TAG, "subscription to topic " + FCMSend.ADD_EVENT_TOPIC + " is successful");
+                        }
+                    }
+                });
+
+        FirebaseMessaging.getInstance().subscribeToTopic(FCMSend.EDIT_EVENT_TOPIC).addOnCompleteListener(
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            FirebaseUtils.getCurrentUserDataRef().child(UserData.KEY_SUBSCRIBED_TO_EDIT_EVENT).setValue(true);
+                            Log.d(FCMSend.FCM_TAG, "subscription to topic " + FCMSend.EDIT_EVENT_TOPIC + " is successful");
+                        }
+                    }
+                });
+
+        FirebaseMessaging.getInstance().subscribeToTopic(FCMSend.DELETE_EVENT_TOPIC).addOnCompleteListener(
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            FirebaseUtils.getCurrentUserDataRef().child(UserData.KEY_SUBSCRIBED_TO_DELETE_EVENT).setValue(true);
+                            Log.d(FCMSend.FCM_TAG, "subscription to topic " + FCMSend.DELETE_EVENT_TOPIC + " is successful");
                         }
                     }
                 });

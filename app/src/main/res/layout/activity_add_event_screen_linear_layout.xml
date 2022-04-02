@@ -243,7 +243,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="5dp"
-                            android:text="Choose start time"
+                            android:text="Choose start timeData"
                             android:textSize="12sp" />
 
                         <Button
@@ -251,7 +251,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="5dp"
-                            android:text="Choose end time"
+                            android:text="Choose end timeData"
                             android:textSize="12sp" />
 
                     </LinearLayout>
