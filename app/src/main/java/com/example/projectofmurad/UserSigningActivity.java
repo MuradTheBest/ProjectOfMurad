@@ -362,6 +362,10 @@ public class UserSigningActivity extends AppCompatActivity {
             // The Task returned from this call is always completed, no need to attach
             // a listener.
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+
+            Log.d(LOG_TAG, task.getException().getLocalizedMessage());
+            Log.d(LOG_TAG, task.getException().getMessage());
+
             try {
                 Log.d("murad", "getting account ");
                 GoogleSignInAccount account = task.getResult(ApiException.class);

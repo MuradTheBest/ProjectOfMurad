@@ -25,12 +25,12 @@ public class ActivityBroadcastReceiver extends BroadcastReceiver {
 
                     if (event.getTransitionType() == ActivityTransition.ACTIVITY_TRANSITION_ENTER){
 
-                        TrackingViewModel.activity_transition_enter.setValue(TrackingViewModel.activity_transition_enter.getValue()+1);
-                        TrackingViewModel.activity_transition_exit.setValue(0);
+                        TrackingService.activity_transition_enter.setValue(TrackingService.activity_transition_enter.getValue()+1);
+                        TrackingService.activity_transition_exit.setValue(0);
 
-                        if (TrackingViewModel.activity_transition_enter.getValue() == 3){
+                        if (TrackingService.activity_transition_enter.getValue() == 3){
 
-                            TrackingViewModel.activity_transition_enter.setValue(0);
+                            TrackingService.activity_transition_enter.setValue(0);
 
                             i.setAction(TrackingService.ACTION_AUTO_PAUSE_TRACKING_SERVICE);
                         }
@@ -38,12 +38,12 @@ public class ActivityBroadcastReceiver extends BroadcastReceiver {
                     }
                     else if (event.getTransitionType() == ActivityTransition.ACTIVITY_TRANSITION_EXIT){
 
-                        TrackingViewModel.activity_transition_exit.setValue(TrackingViewModel.activity_transition_exit.getValue()+1);
-                        TrackingViewModel.activity_transition_enter.setValue(0);
+                        TrackingService.activity_transition_exit.setValue(TrackingService.activity_transition_exit.getValue()+1);
+                        TrackingService.activity_transition_enter.setValue(0);
 
-                        if (TrackingViewModel.activity_transition_exit.getValue() == 3){
+                        if (TrackingService.activity_transition_exit.getValue() == 3){
 
-                            TrackingViewModel.activity_transition_exit.setValue(0);
+                            TrackingService.activity_transition_exit.setValue(0);
 
                             i.setAction(TrackingService.ACTION_AUTO_PAUSE_TRACKING_SERVICE);
                         }

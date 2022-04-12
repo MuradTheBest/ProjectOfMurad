@@ -38,7 +38,7 @@ public class TrainingAdapter extends RecyclerView.Adapter<TrainingAdapter.Traini
     public TrainingViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                                                   int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.raw_training, parent, false);
+                .inflate(R.layout.row_training, parent, false);
 
         return new TrainingViewHolder(view);
     }
@@ -55,14 +55,14 @@ public class TrainingAdapter extends RecyclerView.Adapter<TrainingAdapter.Traini
         Log.d("murad", trainingArrayList.toString());
 
         holder.tv_distance.setText(""+training.getTotalDistance());
-        holder.tv_time.setText(""+training.getTime());
+        holder.tv_time.setText(training.getDuration());
         holder.tv_speed.setText(""+training.getAvgSpeed());
-        holder.tv_date.setText(training.getStartDate());
+        holder.tv_date.setText(training.getDate());
 
         Log.d("murad", "trainingData.getTotalDistance() = " + training.getTotalDistance());
         Log.d("murad", "trainingData.getTime() = " + training.getTime());
         Log.d("murad", "trainingData.getAvgSpeed() = " + training.getAvgSpeed());
-        Log.d("murad", training.getStartDate());
+//        Log.d("murad", training.getStartDate());
 
 
 

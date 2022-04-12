@@ -15,7 +15,6 @@ import android.transition.Slide;
 import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -26,25 +25,28 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.projectofmurad.calendar.CalendarEvent;
+import com.example.projectofmurad.calendar.CalendarFragment;
+import com.example.projectofmurad.calendar.DayDialog;
 import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.notifications.AlarmManagerForToday;
+import com.example.projectofmurad.notifications.AlarmReceiver;
 import com.example.projectofmurad.tracking.TrackingService;
 import com.example.projectofmurad.tracking.Tracking_Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivity extends AppCompatActivity implements
-        NavigationBarView.OnItemSelectedListener, NavController.OnDestinationChangedListener {
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
 
-    FirebaseAuth firebaseAuth;
-    FirebaseUser firebaseUser;
+public class MainActivity extends AppCompatActivity implements NavController.OnDestinationChangedListener {
 
     View containerView;
 
@@ -52,23 +54,26 @@ public class MainActivity extends AppCompatActivity implements
 
     int LOCATION_REQUEST_CODE = 10001;
 
+    private NavController navController;
+
+    private MainViewModel mainViewModel;
+
     @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportActionBar().setShowHideAnimationEnabled(true);
+//        getSupportActionBar().setShowHideAnimationEnabled(true);
 
 
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
+        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         containerView = findViewById(R.id.fragment);
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
 
-        NavController navController = Navigation.findNavController(this, R.id.fragment);
+        navController = Navigation.findNavController(this, R.id.fragment);
         navController.addOnDestinationChangedListener(this);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
@@ -83,72 +88,111 @@ public class MainActivity extends AppCompatActivity implements
 
         Intent gotten_intent = getIntent();
 
-        if (gotten_intent.getAction() != null
-                && gotten_intent.getAction().equals(TrackingService.ACTION_MOVE_TO_TRACKING_FRAGMENT)){
+        if (gotten_intent.getAction() != null){
 
-            Log.d("murad", "Going to Tracking_Fragment");
+            switch (gotten_intent.getAction()) {
+                case TrackingService.ACTION_MOVE_TO_TRACKING_FRAGMENT:
+                    Log.d("murad", "Going to Tracking_Fragment");
 
-            moveToTrackingFragment();
+                    moveToTrackingFragment();
+                    break;
+                case CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT:
+
+                    Log.d("murad", "Going to CalendarFragment");
+
+                    int day = gotten_intent.getIntExtra("day", LocalDate.now().getDayOfMonth());
+                    int month = gotten_intent.getIntExtra("month", LocalDate.now().getMonthValue());
+                    int year = gotten_intent.getIntExtra("year", LocalDate.now().getYear());
+
+//                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment, CalendarFragment.newInstance(goTo)).commit();
+
+
+                    Bundle args = new Bundle();
+                    args.putInt(CalendarFragment.SELECTED_DATE_DAY, day);
+                    args.putInt(CalendarFragment.SELECTED_DATE_MONTH, month);
+                    args.putInt(CalendarFragment.SELECTED_DATE_YEAR, year);
+
+//                    Navigation.findNavController(this, R.id.fragment).navigate(R.id.calendar_Fragment, args);
+
+                    mainViewModel.setEventDate(LocalDate.now());
+
+                    bottomNavigationView.setSelectedItemId(R.id.calendar_Fragment);
+
+                    break;
+                case DayDialog.ACTION_TO_SHOW_EVENT:
+                    showEvent(gotten_intent);
+                    break;
+            }
         }
 
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+
+        super.onNewIntent(intent);
+
+        Log.d(LOG_TAG, "MainActivity got NewIntent");
+
+        showEvent(intent);
+
+    }
+
+    private void showEvent(@NonNull Intent intent){
+
+        if (intent.getExtras() == null || intent.getAction() == null || !intent.getAction().equals(
+                DayDialog.ACTION_TO_SHOW_EVENT)){
+            return;
+        }
+
+        String event_private_id = intent.getStringExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID);
+
+        Log.d("murad", "===============================================");
+        Log.d("murad", "event_private_id = " + event_private_id);
+        Log.d("murad", "===============================================");
+
+        Log.d(AlarmManagerForToday.TAG, "===============================================");
+        Log.d(AlarmManagerForToday.TAG, "event_private_id = " + event_private_id);
+        Log.d(AlarmManagerForToday.TAG, "===============================================");
+
+        long start = intent.getLongExtra(UtilsCalendar.KEY_EVENT_START_DATE_TIME, Calendar.getInstance().getTimeInMillis());
+        LocalDate goTo = CalendarEvent.getDate(start);
+        Log.d("murad", "start is " + new Date(start));
+
+
+        Log.d(Utils.LOG_TAG, "goTo is " + UtilsCalendar.DateToTextOnline(goTo));
+
+        boolean isAlarm = intent.getBooleanExtra("isAlarm", false);
+        Log.d(AlarmManagerForToday.TAG, "isAlarm = " + isAlarm);
+
+        if(isAlarm){
+            Log.d(AlarmManagerForToday.TAG, "sending intent to alarm receiver to stop vibration");
+            Intent intent_stop_alarm = new Intent(this, AlarmReceiver.class);
+            intent_stop_alarm.setAction(AlarmReceiver.ACTION_STOP_VIBRATION);
+            intent_stop_alarm.putExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID, event_private_id);
+
+            sendBroadcast(intent_stop_alarm);
+        }
+
+//            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, CalendarFragment.newInstance(goTo, event_private_id)).commit();
+
+        Bundle args = new Bundle();
+        args.putInt(CalendarFragment.SELECTED_DATE_DAY, goTo.getDayOfMonth());
+        args.putInt(CalendarFragment.SELECTED_DATE_MONTH, goTo.getMonthValue());
+        args.putInt(CalendarFragment.SELECTED_DATE_YEAR, goTo.getYear());
+
+        args.putString(CalendarFragment.EVENT_TO_SHOW_PRIVATE_ID, event_private_id);
+
+//            Navigation.findNavController(this, R.id.fragment).navigate(R.id.calendar_Fragment, args);
+
+        mainViewModel.setEventPrivateId(event_private_id);
+        mainViewModel.setEventDate(goTo);
+
+        bottomNavigationView.setSelectedItemId(R.id.calendar_Fragment);
     }
 
     public void moveToTrackingFragment(){
         bottomNavigationView.setSelectedItemId(R.id.tracking_Fragment);
-    }
-
-    @SuppressLint("NonConstantResourceId")
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        Fragment currentFragment = new BlankFragment();
-        Fragment newFragment = new BlankFragment();
-        String TAG = "blankFragment";
-
-        switch (item.getItemId()) {
-            case R.id.blankFragment:
-                TAG = "blankFragment";
-                newFragment = new BlankFragment();
-                break;
-            case R.id.tables_Fragment:
-                TAG = "tables_Fragment";
-                newFragment = new Tables_Fragment();
-                getSupportActionBar().setTitle("Tables");
-                break;
-/*            case R.id.graph_Fragment:
-                TAG = "graph_Fragment";
-                newFragment = new Graph_Fragment();
-                break;*/
-            case R.id.preferences_Fragment:
-                TAG = "preferences_Fragment";
-                newFragment = new PreferencesFragment();
-                getSupportActionBar().setTitle("Preferences");
-                break;
-            case R.id.chat_Fragment:
-                TAG = "chat_Fragment";
-                newFragment = new Chat_Fragment();
-                getSupportActionBar().setTitle("Chat");
-                break;
-            case R.id.tracking_Fragment:
-                TAG = "tracking_Fragment";
-                newFragment = new Tracking_Fragment();
-                getSupportActionBar().setTitle("Tracking");
-//                getSupportFragmentManager().beginTransaction().hide(currentFragment);
-                break;
-        }
-
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag(TAG);
-
-        if (fragment == null) {
-            fragment = newFragment;
-        }
-
-        /*if (FirebaseUtils.getCurrentUID().equals("AiqKQM3H8jhavJCFU3B4NmLa8ea2") && LOG_TAG.equals("blankFragment")){
-            getSupportFragmentManager().beginTransaction().replace(
-                    R.id.bottomNavigationView, fragment, LOG_TAG);
-        }*/
-        getSupportFragmentManager().beginTransaction().replace(R.id.bottomNavigationView, fragment, TAG);
-
-        return true;
     }
 
     public void animate(ViewGroup viewGroup, int gravity, int duration){
@@ -255,27 +299,43 @@ public class MainActivity extends AppCompatActivity implements
                                      @Nullable Bundle bundle) {
 
 
+        Fragment newFragment = new BlankFragment();
+        String TAG = "blankFragment";
+
         switch (navDestination.getId()){
             case R.id.blankFragment:
-                getSupportActionBar().setTitle("ProjectOfMurad");
+                TAG = "blankFragment";
+                newFragment = new BlankFragment();
+//                getSupportActionBar().setTitle("ProjectOfMurad");
                 break;
             case R.id.tables_Fragment:
-                getSupportActionBar().setTitle("Tables");
+//                getSupportActionBar().setTitle("Tables");
                 break;
 /*            case R.id.graph_Fragment:
                 TAG = "graph_Fragment";
                 newFragment = new Graph_Fragment();
                 break;*/
             case R.id.preferences_Fragment:
-                getSupportActionBar().setTitle("Preferences");
+//                getSupportActionBar().setTitle("Preferences");
                 break;
-            case R.id.chat_Fragment:
-                getSupportActionBar().setTitle("Chat");
+            case R.id.calendar_Fragment:
+//                getSupportActionBar().setTitle("Chat");
                 break;
             case R.id.tracking_Fragment:
-                getSupportActionBar().setTitle("Tracking");
+//                getSupportActionBar().setTitle("Tracking");
                 break;
         }
+
+        if (TAG.equals("blankFragment")){
+
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag(TAG);
+            if (fragment == null){
+                fragment = newFragment;
+            }
+
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment);
+        }
+
 
         Handler handler = new Handler();
 

@@ -36,10 +36,26 @@
         tools:layout="@layout/fragment_tables_" />
 
     <fragment
-        android:id="@+id/chat_Fragment"
-        android:name="com.example.projectofmurad.Chat_Fragment"
-        android:label="fragment_chat_"
-        tools:layout="@layout/fragment_chat_" />
+        android:id="@+id/calendar_Fragment"
+        android:name="com.example.projectofmurad.calendar.CalendarFragment"
+        android:label="fragment_calendar_"
+        tools:layout="@layout/fragment_calendar" >
+
+        <argument
+            android:name="eventDate"
+            app:argType="integer" />
+        <argument
+            android:name="month"
+            app:argType="integer" />
+        <argument
+            android:name="year"
+            app:argType="integer" />
+        <argument
+            android:name="eventPrivateId"
+            app:argType="string"
+            android:defaultValue="null" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/tracking_Fragment"

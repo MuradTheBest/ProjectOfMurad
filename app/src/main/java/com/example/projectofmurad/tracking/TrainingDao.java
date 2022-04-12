@@ -14,7 +14,7 @@ public interface TrainingDao {
     @Query("SELECT * FROM trainings")
     List<Training> getAll();
 
-    @Query("SELECT * FROM trainings WHERE uid IN (:trainingIds)")
+    @Query("SELECT * FROM trainings WHERE id IN (:trainingIds)")
     List<Training> loadAllByIds(int[] trainingIds);
 
     @Query("SELECT * FROM trainings WHERE privateId = :privateId")

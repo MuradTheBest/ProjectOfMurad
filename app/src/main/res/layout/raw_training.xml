@@ -118,7 +118,7 @@
                             app:layout_constraintStart_toEndOf="@+id/tv_distance2"
                             app:layout_constraintTop_toTopOf="parent" />
 
-                        <TextView
+                        <!--<TextView
                             android:id="@+id/tv_time2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -127,7 +127,7 @@
                             android:textSize="10sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toEndOf="@+id/tv_time"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintTop_toTopOf="parent" />-->
 
 
                     </LinearLayout>
@@ -186,7 +186,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10sp"
-                            android:gravity="center"
+                            android:gravity="start"
                             android:text="10/02/2022"
                             android:textSize="10sp"
                             app:layout_constraintBottom_toBottomOf="parent"

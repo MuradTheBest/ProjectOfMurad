@@ -131,7 +131,7 @@ public class UserData {
     @Override
     public String toString() {
         return "UserData{" +
-                "\n userID = '" + UID + '\'' +
+                "\n UID = '" + UID + '\'' +
                 ",\nemail = '" + email + '\'' +
                 ",\nusername = '" + username + '\'' +
                 ",\nphone = '" + phone + '\'' +

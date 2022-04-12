@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,7 +22,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -47,6 +45,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.PhoneAuthCredential;
@@ -77,12 +76,12 @@ public class Profile_Screen extends AppCompatActivity {
 
     private CheckBox et_madrich;
 
-    private TextView tv_verify_email;
-
     private Button btn_save_profile;
-    private Button btn_verify_email;
     private Button btn_delete_account;
     private Button btn_sign_out;
+
+    private Button btn_verify_identity;
+    private Button btn_change_password;
 
     private UserData currentUserData;
 
@@ -132,7 +131,7 @@ public class Profile_Screen extends AppCompatActivity {
 
 //        currentUserData = FirebaseUtils.getCurrentUserData();
 
-        /*String userID = currentUserData.getUserID();
+        /*String UID = currentUserData.getUID();
         String username = currentUserData.getUsername();
         String email = currentUserData.getEmail();
         String phone = currentUserData.getPhone();
@@ -203,6 +202,18 @@ public class Profile_Screen extends AppCompatActivity {
             }
         });
 
+        btn_verify_identity = findViewById(R.id.btn_verify_identity);
+        btn_verify_identity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String newEmail = et_email.getText().toString();
+                createUpdateEmailDialog(newEmail);
+            }
+        });
+
+        btn_change_password = findViewById(R.id.btn_change_password);
+        btn_change_password.setOnClickListener(v -> createUpdateEmailDialog(null));
+
         iv_profile_picture = findViewById(R.id.iv_profile_picture);
         iv_profile_picture.setOnClickListener(v -> chooseProfilePicture());
 //        iv_profile_picture.setOnClickListener(v -> showImagePicDialog());
@@ -222,6 +233,7 @@ public class Profile_Screen extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
+/*
                         unsubscribeFromTopic(new OnUnsubscribeFinished() {
                             @Override
                             public void onUnsubscribe() {
@@ -243,6 +255,23 @@ public class Profile_Screen extends AppCompatActivity {
                                 });
                             }
 
+                        });
+*/
+
+                        FirebaseUtils.usersDatabase.child(FirebaseUtils.getCurrentUID()).removeValue();
+
+                        FirebaseUtils.getCurrentUserProfilePictureRef().delete();
+
+                        FirebaseUser firebaseUser = FirebaseUtils.getCurrentFirebaseUser();
+
+                        firebaseUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    startActivity(new Intent(Profile_Screen.this, Splash_Screen.class));
+                                    Toast.makeText(getApplicationContext(), "Account was successfully deleted", Toast.LENGTH_SHORT).show();
+                                }
+                            }
                         });
                     }
                 });
@@ -266,70 +295,6 @@ public class Profile_Screen extends AppCompatActivity {
                 else{
                     createStopBeingMadrichDialog();
                 }
-            }
-        });
-
-        btn_verify_email = findViewById(R.id.btn_verify_email);
-        btn_verify_email.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                progressDialog.setMessage("Sending verification mail...");
-                progressDialog.show();
-
-                FirebaseUtils.getCurrentFirebaseUser().sendEmailVerification()
-                        .addOnCompleteListener(
-                                new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()){
-                                            Toast.makeText(Profile_Screen.this, "Verification mail was sent successfully",
-                                                    Toast.LENGTH_SHORT).show();
-                                        }
-                                        else {
-                                            Toast.makeText(Profile_Screen.this, "Email verification failed",
-                                                    Toast.LENGTH_SHORT).show();
-                                        }
-                                        progressDialog.dismiss();
-                                    }
-                                })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-
-                            }
-                        });
-            }
-        });
-
-        tv_verify_email = findViewById(R.id.tv_verify_email);
-        tv_verify_email.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                progressDialog.setMessage("Sending verification mail...");
-                progressDialog.show();
-
-                FirebaseUtils.getCurrentFirebaseUser().sendEmailVerification()
-                        .addOnCompleteListener(
-                        new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()){
-                                    Toast.makeText(Profile_Screen.this, "Verification mail was sent successfully",
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                                else {
-                                    Toast.makeText(Profile_Screen.this, "Email verification failed",
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                                progressDialog.dismiss();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-
-                            }
-                        });
             }
         });
 
@@ -357,6 +322,7 @@ public class Profile_Screen extends AppCompatActivity {
             iv_profile_picture.setLongClickable(false);
 
             btn_delete_account.setVisibility(View.GONE);
+            btn_change_password.setVisibility(View.GONE);
             btn_sign_out.setVisibility(View.GONE);
         }
 
@@ -374,6 +340,7 @@ public class Profile_Screen extends AppCompatActivity {
                 }
             }
         });
+
         btn_log_in_with_facebook = findViewById(R.id.sign_up_with_facebook);
 
         google_checked = findViewById(R.id.google_checked);
@@ -740,29 +707,6 @@ public class Profile_Screen extends AppCompatActivity {
             builder.setDisplayName(username);
             FirebaseUtils.getCurrentUserDataRef().child("username").setValue(username);
         }
-        if (!email.equals(user.getEmail())) {
-            emailVerified = false;
-            progressDialog.setMessage("Verifying email...");
-            progressDialog.show();
-
-            FirebaseUtils.usersDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    for (DataSnapshot data : snapshot.getChildren()){
-                        if (data.hasChild("email") && data.child("email").getValue(String.class).equals(email)){
-                            progressDialog.dismiss();
-                            Toast.makeText(Profile_Screen.this, "User with this email already exists", Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }
         if (!("+972" + phone).equals(user.getPhoneNumber()) && !phone.isEmpty()) {
             Log.d("murad", "phone: " + phone);
             Log.d("murad", "user.getPhoneNumber() : " + user.getPhoneNumber());
@@ -1017,11 +961,11 @@ public class Profile_Screen extends AppCompatActivity {
             return;
         }
 
-        FirebaseUtils.getCurrentUserDataRef().addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseUtils.getCurrentUserDataRef().addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                /*String userID = snapshot.child("uid").getValue(String.class);
+                /*String UID = snapshot.child("id").getValue(String.class);
                 String username = snapshot.child("username").getValue(String.class);
                 String email = snapshot.child("email").getValue(String.class);
                 String phone = snapshot.child("phone").getValue(String.class);
@@ -1038,85 +982,6 @@ public class Profile_Screen extends AppCompatActivity {
                 Log.d("murad", "emailVerified is " + emailVerified);
                 Log.d("murad", "email.isEmpty() is " + email.isEmpty());
 
-                if (!editMode && !emailVerified && !email.isEmpty()){
-                    et_email.setError("Fix");
-                    ((TextInputLayout) et_email.getParent().getParent()).setHelperText("This email hasn't been verified yet");
-
-                    et_email.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                        @Override
-                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-
-                            return false;
-                        }
-                    });
-
-                    ((TextInputLayout) et_email.getParent().getParent()).setErrorIconOnClickListener(
-                            new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-
-                                    progressDialog.setMessage("Sending verification mail...");
-                                    progressDialog.show();
-
-                                    user.sendEmailVerification().addOnCompleteListener(
-                                            new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()){
-                                                        Toast.makeText(Profile_Screen.this, "Verification mail was sent successfully",
-                                                                Toast.LENGTH_SHORT).show();
-                                                    }
-                                                    else {
-                                                        Toast.makeText(Profile_Screen.this, "Email verification failed",
-                                                                Toast.LENGTH_SHORT).show();
-                                                    }
-                                                    progressDialog.dismiss();
-                                                }
-                                            })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-
-                                        }
-                                    });
-                                }
-                            });
-
-                    ((TextInputLayout) et_email.getParent().getParent()).setErrorIconOnLongClickListener(
-                            new View.OnLongClickListener() {
-                                @Override
-                                public boolean onLongClick(View v) {
-
-                                    progressDialog.setMessage("Sending verification mail...");
-                                    progressDialog.show();
-
-                                    user.sendEmailVerification().addOnCompleteListener(
-                                            new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()){
-                                                        Toast.makeText(Profile_Screen.this, "Verification mail was sent successfully",
-                                                                Toast.LENGTH_SHORT).show();
-                                                    }
-                                                    else {
-                                                        Toast.makeText(Profile_Screen.this, "Email verification failed",
-                                                                Toast.LENGTH_SHORT).show();
-                                                    }
-                                                    progressDialog.dismiss();
-                                                }
-                                            })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-
-                                                }
-                                            });
-
-                                    return true;
-                                }
-                            });
-                }
-
                 String phone = "";
                 if (user.getPhoneNumber() != null && !user.getPhoneNumber().isEmpty()){
                     phone = user.getPhoneNumber().replace("+972", "");
@@ -1124,12 +989,47 @@ public class Profile_Screen extends AppCompatActivity {
                     phone = addChar(phone, '-', 6);
                 }
 
-                boolean madrich = snapshot.child("madrich").getValue(boolean.class);
+                boolean madrich = false;
+
+                if(snapshot.child("madrich").exists()){
+                    madrich = snapshot.child("madrich").getValue(boolean.class);
+                }
 
                 et_username.setText(username);
                 et_email.setText(email);
                 et_phone.setText(phone);
                 et_madrich.setChecked(madrich);
+
+                et_email.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        if (s.toString().equals(email)){
+                            ((TextInputLayout) et_email.getParent().getParent()).setError("");
+
+                            btn_verify_identity.setVisibility(View.GONE);
+                        }
+                        else if(s.toString().isEmpty()){
+                            et_email.setText(email);
+
+                            ((TextInputLayout) et_email.getParent().getParent()).setError("");
+
+                            btn_verify_identity.setVisibility(View.GONE);
+                        }
+                        else {
+                            ((TextInputLayout) et_email.getParent().getParent()).setErrorEnabled(true);
+                            ((TextInputLayout) et_email.getParent().getParent()).setError("In order to update email you have to verify your identity");
+
+                            btn_verify_identity.setVisibility(View.VISIBLE);
+                        }
+
+                    }
+                });
 
                 List<? extends UserInfo> providers = user.getProviderData();
                 for (UserInfo userInfo : providers){
@@ -1146,13 +1046,12 @@ public class Profile_Screen extends AppCompatActivity {
                     }
                 }
 
-//                FirebaseUtils.getProfilePictureFromFB(userID, Profile_Screen.this, iv_profile_picture, shimmer_profile_picture);
+//                FirebaseUtils.getProfilePictureFromFB(UID, Profile_Screen.this, iv_profile_picture, shimmer_profile_picture);
 
                 Uri pp = user.getPhotoUrl();
                 selectedImageUri = pp;
                 Glide.with(Profile_Screen.this).load(pp).centerCrop().into(iv_profile_picture);
                 iv_profile_picture.setVisibility(View.VISIBLE);
-
 
 
                 shimmer_profile_picture.stopShimmer();
@@ -1166,6 +1065,221 @@ public class Profile_Screen extends AppCompatActivity {
             }
 
         });
+    }
+
+    public void createUpdateEmailDialog(String newEmail){
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View view = inflater.inflate(R.layout.password_verification_dialog, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setView(view);
+        builder.setCancelable(false);
+        builder.setTitle("Update email");
+        builder.setMessage("You have to enter password in order to continue");
+
+        EditText et_verify_password = ((TextInputLayout) view.findViewById(R.id.et_verify_password)).getEditText();
+
+        FirebaseUser user = FirebaseUtils.getCurrentFirebaseUser();
+
+        builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String password = et_verify_password.getText().toString();
+                String email = user.getEmail();
+
+                if (password.isEmpty()){
+                    Toast.makeText(Profile_Screen.this, "PLease enter password", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    AuthCredential authCredential = EmailAuthProvider.getCredential(email, password);
+
+                    user.reauthenticate(authCredential).addOnCompleteListener(
+                            new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()){
+                                        Toast.makeText(Profile_Screen.this, "Identity approved",
+                                                Toast.LENGTH_SHORT).show();
+
+                                        if (newEmail == null){
+                                            sendUpdatePasswordVerification();
+                                        }
+                                        else {
+                                            sendUpdateEmailVerification(newEmail);
+                                        }
+
+                                    }
+                                    else {
+                                        et_verify_password.setError("Invalid password");
+
+                                        Toast.makeText(Profile_Screen.this, "Invalid password",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                }
+            }
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog alertDialog = builder.create();
+        Utils.createCustomAlertDialog(alertDialog);
+
+        alertDialog.show();
+
+    }
+
+    public void sendUpdateEmailVerification(String newEmail){
+
+        FirebaseUser user = FirebaseUtils.getCurrentFirebaseUser();
+
+        user.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(
+                            @NonNull Task<Void> task) {
+
+                        if(!task.isSuccessful()){
+                            Toast.makeText(Profile_Screen.this, "Sending email verification failed", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            progressDialog.setMessage("Waiting for new email verification");
+                            Utils.createCustomDialog(progressDialog);
+
+                            progressDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Got",
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            if(user.isEmailVerified()){
+                                                updateEmail(newEmail);
+                                            }
+                                            else {
+                                                Toast.makeText(Profile_Screen.this, "New email was not verified " +
+                                                                "\nPlease try again",
+                                                        Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+
+                            progressDialog.show();
+                        }
+
+                    }
+                });
+    }
+
+    public void updateEmail(String newEmail){
+        FirebaseUtils.getCurrentFirebaseUser().updateEmail(newEmail).addOnCompleteListener(
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()) {
+                            FirebaseUtils.getCurrentUserDataRef().child("email").setValue(newEmail);
+                            Toast.makeText(Profile_Screen.this, "New email was successfully updated", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            Toast.makeText(Profile_Screen.this, "Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    public void createResetPasswordDialog(){
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View view = inflater.inflate(R.layout.password_verification_dialog, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setView(view);
+        builder.setCancelable(false);
+        builder.setTitle("You have to enter password in order to continue");
+
+        EditText et_reset_password = ((TextInputLayout) view.findViewById(R.id.et_reset_password)).getEditText();
+
+        FirebaseUser user = FirebaseUtils.getCurrentFirebaseUser();
+
+        builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String password = et_reset_password.getText().toString();
+                String email = user.getEmail();
+
+                if (password.isEmpty()){
+                    Toast.makeText(Profile_Screen.this, "PLease enter password", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    AuthCredential authCredential = EmailAuthProvider.getCredential(email, password);
+
+                    user.reauthenticate(authCredential).addOnCompleteListener(
+                            new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()){
+                                        Toast.makeText(Profile_Screen.this, "Identity approved",
+                                                Toast.LENGTH_SHORT).show();
+
+                                        sendUpdatePasswordVerification();
+                                    }
+                                    else {
+                                        et_reset_password.setError("Invalid password");
+
+                                        Toast.makeText(Profile_Screen.this, "Invalid password",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                }
+            }
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog alertDialog = builder.create();
+        Utils.createCustomAlertDialog(alertDialog);
+
+        alertDialog.show();
+
+    }
+
+    private ProgressDialog loadingBar;
+
+    private void sendUpdatePasswordVerification() {
+        loadingBar = new ProgressDialog(this);
+        Utils.createCustomDialog(loadingBar);
+        loadingBar.setMessage("Sending password reset mail...");
+        loadingBar.setCanceledOnTouchOutside(false);
+
+        loadingBar.setButton(DialogInterface.BUTTON_POSITIVE,"Ok",
+                (dialog, which) -> loadingBar.dismiss());
+
+        loadingBar.show();
+
+        // calling sendPasswordResetEmail open your email and write the new password and then you can login
+        FirebaseUtils.getFirebaseAuth().sendPasswordResetEmail(FirebaseUtils.getCurrentFirebaseUser().getEmail()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+                if(task.isSuccessful()) {
+                    // if isSuccessful then done message will be shown
+                    // and you can change the password
+                    loadingBar.setMessage("Password reset mail was sent");
+                }
+                else {
+                    loadingBar.dismiss();
+                    Toast.makeText(Profile_Screen.this,"Error occurred",Toast.LENGTH_LONG).show();
+                }
+            }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                loadingBar.dismiss();
+                Toast.makeText(Profile_Screen.this,"Failed",Toast.LENGTH_LONG).show();
+            }
+        });
+
     }
 
     public String addChar(@NonNull String str, char ch, int position) {

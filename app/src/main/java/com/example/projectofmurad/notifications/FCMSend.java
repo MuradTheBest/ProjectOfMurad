@@ -85,16 +85,16 @@ public class FCMSend {
 
             switch (type) {
                 case Utils.ADD_EVENT_NOTIFICATION_CODE:
-                    type_text = " has been added" + "\n I";
+                    type_text = " has been added." + "\nI";
                     break;
                 case Utils.EDIT_EVENT_NOTIFICATION_CODE:
-                    type_text = " has been edited" + "\n Now i";
+                    type_text = " has been edited." + "\nNow i";
                     break;
             }
 
             body = "Event " + msg + event.getName() + type_text
-                    + "t will start at " + event.getStartDateTime() + " and "
-                    + " end at " + event.getEndDateTime();
+                    + "t will start at " + event.getStartDateTime() + " and"
+                    + "\nend at " + event.getEndDateTime();
 
             notification.put("tag", event.getPrivateId());
 
@@ -305,15 +305,15 @@ public class FCMSend {
 
             switch (type) {
                 case Utils.ADD_EVENT_NOTIFICATION_CODE:
-                    type_text = " has been added" + "\n It will start at " + event.getStartDateTime() + " and "
-                            + " end at " + event.getEndDateTime();
+                    type_text = " has been added." + "\nIt will start at " + event.getStartDateTime() + " and"
+                            + "\nend at " + event.getEndDateTime();
                     break;
                 case Utils.EDIT_EVENT_NOTIFICATION_CODE:
-                    type_text = " has been edited" + "\n Now It will start at " + event.getStartDateTime() + " and "
-                            + " end at " + event.getEndDateTime();
+                    type_text = " has been edited." + "\nNow It will start at " + event.getStartDateTime() + " and"
+                            + "\nend at " + event.getEndDateTime();
                     break;
                 case Utils.DELETE_EVENT_NOTIFICATION_CODE:
-                    type_text = " has been deleted" ;
+                    type_text = " has been deleted." ;
                     break;
             }
 

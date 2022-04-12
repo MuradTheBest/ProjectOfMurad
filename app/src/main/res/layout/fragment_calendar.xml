@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="15dp"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/linearLayout2"
@@ -19,6 +19,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <Button
+            android:id="@+id/btn_previous_month"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -35,11 +36,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:text="Feb 2021"
+            android:gravity="center"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="20sp" />
 
         <Button
+            android:id="@+id/btn_next_month"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -144,7 +147,7 @@
         app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/btn_auto_event"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Button"
@@ -152,8 +155,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

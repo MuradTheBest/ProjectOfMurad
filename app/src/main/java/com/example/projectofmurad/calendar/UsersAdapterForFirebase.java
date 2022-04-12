@@ -117,7 +117,7 @@ public class UsersAdapterForFirebase extends
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (buttonView == checkbox_attendance){
                 FirebaseUtils.attendanceDatabase.child(event_private_id)
-                        .child(FirebaseUtils.getCurrentUID()).setValue(isChecked);
+                        .child(FirebaseUtils.getCurrentUID()).child("attend").setValue(isChecked);
             }
         }
 
@@ -125,17 +125,13 @@ public class UsersAdapterForFirebase extends
         public void onClick(View v) {
             if (v == itemView){
                 expanded = !expanded;
+
                 if(expanded){
                     ll_contact.setVisibility(View.VISIBLE);
                     if (getAbsoluteAdapterPosition() != oldPosition){
                         onUserExpandListener.onUserExpand(getAbsoluteAdapterPosition(), oldPosition);
                     }
                     oldPosition = getAbsoluteAdapterPosition();
-
-                    /*ConstraintSet constraintSet = new ConstraintSet();
-                    constraintSet.clone(constraintLayout);
-                    constraintSet.connect(R.id.tv_event_place, ConstraintSet.TOP, R.id.linearLayout, ConstraintSet.BOTTOM);
-                    //constraintSet.applyTo(constraintLayout);*/
 
                     animateLayout(constraintLayout, 300, Gravity.BOTTOM);
                 }
@@ -254,8 +250,8 @@ public class UsersAdapterForFirebase extends
 
         if (model.isMadrich()){
             Log.d("murad", model.getUID() + " is madrich" + true);
-            holder.iv_profile_picture.getLayoutParams().height = 140;
-            holder.iv_profile_picture.getLayoutParams().width = 140;
+            holder.iv_profile_picture.getLayoutParams().height = 110;
+            holder.iv_profile_picture.getLayoutParams().width = 110;
 
             holder.iv_profile_picture.setBorderColor(context.getResources().getColor(R.color.colorAccent));
             holder.iv_profile_picture.setBorderWidth(4);
@@ -268,7 +264,7 @@ public class UsersAdapterForFirebase extends
 
             Log.d("murad", "position = " + position);
 
-            DatabaseReference ref = FirebaseUtils.attendanceDatabase.child(event_private_id).child(UID);
+            DatabaseReference ref = FirebaseUtils.attendanceDatabase.child(event_private_id).child(UID).child("attend");
 
             final boolean[] attend = {false};
             ref.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {

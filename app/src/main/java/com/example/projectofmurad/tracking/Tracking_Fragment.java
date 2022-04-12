@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -43,6 +44,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -78,6 +80,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -90,6 +93,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -249,19 +253,19 @@ SaveTrainingDialog.OnAddTrainingListener{
 
 //        initializeBroadcastReceiver();
 
-        if (TrackingViewModel.isRunning.getValue() == null){
-            TrackingViewModel.isRunning.setValue(false);
+        if (TrackingService.isRunning.getValue() == null){
+            TrackingService.isRunning.setValue(false);
         }
 
-        if (TrackingViewModel.isNewTraining.getValue() == null){
-            TrackingViewModel.isNewTraining.setValue(true);
+        if (TrackingService.isNewTraining.getValue() == null){
+            TrackingService.isNewTraining.setValue(true);
         }
 
 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, @NonNull Intent intent) {
-                if (TrackingViewModel.isRunning.getValue() && intent.getAction().equals(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)){
+                if (TrackingService.isRunning.getValue() && intent.getAction().equals(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)){
                     PowerManager powerManager = (PowerManager) requireActivity().getSystemService(Context.POWER_SERVICE);
 
                     Toast.makeText(requireContext(), "Power mode changed", Toast.LENGTH_SHORT).show();
@@ -411,7 +415,7 @@ SaveTrainingDialog.OnAddTrainingListener{
             }
         });
 
-        /*if (TrackingViewModel.isRunning.getValue() && !isTrackingServiceRunning()){
+        /*if (TrackingService.isRunning.getValue() && !isTrackingServiceRunning()){
 
             resumeTracking();
 
@@ -428,7 +432,7 @@ SaveTrainingDialog.OnAddTrainingListener{
 
         }*/
 
-        if (TrackingViewModel.isRunning.getValue()){
+        if (TrackingService.isRunning.getValue()){
             startTracking();
         }
     }
@@ -557,10 +561,17 @@ SaveTrainingDialog.OnAddTrainingListener{
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Log.d(LOG_TAG, "Permission " + Manifest.permission.ACCESS_BACKGROUND_LOCATION + " is granted");
+            Log.d(LOG_TAG, "checkBackgroundLocationPermission from startTracking");
             if (!checkBackgroundLocationPermission()){
                 return;
             }
+        }
+
+
+        if (TrackingService.trainingType.getValue() != null && TrackingService.trainingType.getValue().equals(TrackingService.GROUP_TRAINING)){
+            String event_private_id = TrackingService.eventPrivateId.getValue();
+            usersLocations = FirebaseUtils.attendanceDatabase.child(event_private_id);
+            usersLocations.addValueEventListener(valueEventListener);
         }
 
         btn_start_tracking.setVisibility(View.GONE);
@@ -579,7 +590,7 @@ SaveTrainingDialog.OnAddTrainingListener{
 
 //        startLocationUpdates();
 
-        if (!TrackingViewModel.isRunning.getValue()){
+        if (!TrackingService.isRunning.getValue()){
             Intent intent = new Intent(getContext(), TrackingService.class);
             intent.setAction(TrackingService.ACTION_START_TRACKING_SERVICE);
 
@@ -594,7 +605,7 @@ SaveTrainingDialog.OnAddTrainingListener{
 
     private void startObserving(){
 
-        TrackingViewModel.locationsData.observe(getViewLifecycleOwner(), new Observer<List<LatLng>>() {
+        TrackingService.locationsData.observe(getViewLifecycleOwner(), new Observer<List<LatLng>>() {
             @Override
             public void onChanged(List<LatLng> latLngs) {
                 if (mapReady){
@@ -611,7 +622,7 @@ SaveTrainingDialog.OnAddTrainingListener{
             }
         });
 
-        TrackingViewModel.timeData.observe(getViewLifecycleOwner(), new Observer<Long>() {
+        TrackingService.timeData.observe(getViewLifecycleOwner(), new Observer<Long>() {
             @Override
             public void onChanged(Long seconds) {
 
@@ -628,7 +639,7 @@ SaveTrainingDialog.OnAddTrainingListener{
             }
         });
 
-        TrackingViewModel.totalTimeData.observe(getViewLifecycleOwner(), new Observer<Long>() {
+        TrackingService.totalTimeData.observe(getViewLifecycleOwner(), new Observer<Long>() {
             @Override
             public void onChanged(Long seconds) {
 
@@ -644,7 +655,7 @@ SaveTrainingDialog.OnAddTrainingListener{
             }
         });
 
-        TrackingViewModel.totalDistance.observe(getViewLifecycleOwner(), new Observer<Double>() {
+        TrackingService.totalDistanceData.observe(getViewLifecycleOwner(), new Observer<Double>() {
             @Override
             public void onChanged(Double totalDistance) {
                 tv_distance.setText(new DecimalFormat("####.##").format(totalDistance) + " km");
@@ -652,7 +663,7 @@ SaveTrainingDialog.OnAddTrainingListener{
             }
         });
 
-        TrackingViewModel.avgSpeedData.observe(getViewLifecycleOwner(), new Observer<Double>() {
+        TrackingService.avgSpeedData.observe(getViewLifecycleOwner(), new Observer<Double>() {
             @Override
             public void onChanged(Double speed) {
                 tv_speed.setText(new DecimalFormat("##.##").format(speed) + " km/h");
@@ -660,7 +671,7 @@ SaveTrainingDialog.OnAddTrainingListener{
             }
         });
 
-        TrackingViewModel.maxSpeedData.observe(getViewLifecycleOwner(), new Observer<Double>() {
+        TrackingService.maxSpeedData.observe(getViewLifecycleOwner(), new Observer<Double>() {
             @Override
             public void onChanged(Double maxSpeed) {
                 tv_max_speed.setText(new DecimalFormat("##.##").format(maxSpeed) + " km/h");
@@ -668,14 +679,14 @@ SaveTrainingDialog.OnAddTrainingListener{
             }
         });
 
-        TrackingViewModel.avgPaceData.observe(getViewLifecycleOwner(), new Observer<String>() {
+        TrackingService.avgPaceData.observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String avgPace) {
                 tv_training_average_pace.setText(avgPace);
             }
         });
 
-        TrackingViewModel.maxPaceData.observe(getViewLifecycleOwner(), new Observer<String>() {
+        TrackingService.maxPaceData.observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String maxPace) {
                 tv_training_max_pace.setText(maxPace);
@@ -699,7 +710,8 @@ SaveTrainingDialog.OnAddTrainingListener{
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Log.d(LOG_TAG, "Permission " + Manifest.permission.ACCESS_BACKGROUND_LOCATION + " is granted");
+            Log.d(LOG_TAG, "checkBackgroundLocationPermission from startTracking");
+
             if (!checkBackgroundLocationPermission()){
                 return;
             }
@@ -720,60 +732,91 @@ SaveTrainingDialog.OnAddTrainingListener{
         btn_start_tracking.setVisibility(View.VISIBLE);
         ll_pause_or_finish_training.setVisibility(View.GONE);
 
-        TrackingViewModel.locationsData.removeObservers(getViewLifecycleOwner());
+        TrackingService.locationsData.removeObservers(getViewLifecycleOwner());
 
-        TrackingViewModel.timeData.removeObservers(getViewLifecycleOwner());
+        TrackingService.timeData.removeObservers(getViewLifecycleOwner());
         tv_time.setText("00:00:00");
 
         removeObservers();
 
         requireActivity().unregisterReceiver(broadcastReceiver);
 
+        TrackingService.trainingData.observe(getViewLifecycleOwner(), new Observer<Training>() {
+            @Override
+            public void onChanged(Training t) {
+
+                if (TrackingService.trainingType.getValue() == null){
+                    SaveTrainingDialog saveTrainingDialog = new SaveTrainingDialog(requireContext(), t, Tracking_Fragment.this);
+                    saveTrainingDialog.show();
+                }
+                else if (TrackingService.trainingType.getValue().equals(TrackingService.GROUP_TRAINING)){
+                    if (TrackingService.eventPrivateId.getValue() != null){
+                        ProgressDialog progressDialog = new ProgressDialog(requireContext());
+                        Utils.createCustomDialog(progressDialog);
+                        progressDialog.setMessage("Adding the trainingData to selected event...");
+
+                        FirebaseUtils.addTrainingForEvent(TrackingService.eventPrivateId.getValue(), t).addOnCompleteListener(
+                                new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        progressDialog.dismiss();
+
+                                        if (!task.isSuccessful()){
+                                            Toast.makeText(requireContext(), "Adding the training to this event failed \n" +
+                                                    "The training will be added to private trainings", Toast.LENGTH_SHORT).show();
+                                            onAddTraining(t);
+                                        }
+
+                                        Toast.makeText(requireContext(), "The training was added to this event successfully", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    }
+                    else {
+                        ChooseEventClickDialog chooseEventClickDialog = new ChooseEventClickDialog(requireContext(),
+                                LocalDate.now(), t, Tracking_Fragment.this);
+
+                        chooseEventClickDialog.show();
+                    }
+                }
+                else if (TrackingService.trainingType.getValue().equals(TrackingService.PRIVATE_TRAINING)){
+                    onAddTraining(t);
+                }
+            }
+        });
+
         Intent intent = new Intent(getContext(), TrackingService.class);
         requireActivity().stopService(intent);
 
         createSaveTrainingDialog();
+
 
         createTurnOnPowerSavingDialog();
     }
 
     private void removeObservers(){
 
-        TrackingViewModel.locationsData.removeObservers(getViewLifecycleOwner());
+        TrackingService.locationsData.removeObservers(getViewLifecycleOwner());
 
-        TrackingViewModel.timeData.removeObservers(getViewLifecycleOwner());
+        TrackingService.timeData.removeObservers(getViewLifecycleOwner());
 
-        TrackingViewModel.totalTimeData.removeObservers(getViewLifecycleOwner());
+        TrackingService.totalTimeData.removeObservers(getViewLifecycleOwner());
 
-        TrackingViewModel.totalDistance.removeObservers(getViewLifecycleOwner());
+        TrackingService.totalDistanceData.removeObservers(getViewLifecycleOwner());
 
-        TrackingViewModel.avgSpeedData.removeObservers(getViewLifecycleOwner());
+        TrackingService.avgSpeedData.removeObservers(getViewLifecycleOwner());
 
-        TrackingViewModel.maxSpeedData.removeObservers(getViewLifecycleOwner());
+        TrackingService.maxSpeedData.removeObservers(getViewLifecycleOwner());
 
-        TrackingViewModel.avgPaceData.removeObservers(getViewLifecycleOwner());
+        TrackingService.avgPaceData.removeObservers(getViewLifecycleOwner());
 
-        TrackingViewModel.maxPaceData.removeObservers(getViewLifecycleOwner());
+        TrackingService.maxPaceData.removeObservers(getViewLifecycleOwner());
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        PowerManager powerManager = (PowerManager) requireContext().getSystemService(Context.POWER_SERVICE);
-        if (powerManager.isPowerSaveMode()) {
-            createTurnOffPowerSavingDialog();
-            return;
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Log.d(LOG_TAG, "Permission " + Manifest.permission.ACCESS_BACKGROUND_LOCATION + " is granted");
-            if (!checkBackgroundLocationPermission()){
-                return;
-            }
-        }
-
-        if (TrackingViewModel.isRunning.getValue() != null && TrackingViewModel.isRunning.getValue()){
+        if (TrackingService.isRunning.getValue() != null && TrackingService.isRunning.getValue()){
             startTracking();
         }
 
@@ -1004,10 +1047,11 @@ SaveTrainingDialog.OnAddTrainingListener{
 
         map.setMapType(map_type);
 
-        usersLocations = FirebaseUtils.usersDatabase;
+
 
         map.setOnMarkerClickListener(this);
 
+        Log.d(LOG_TAG, "checking permissions from onMapReady");
         if (checkPermissions()){
             map.setMyLocationEnabled(true);
 
@@ -1016,7 +1060,7 @@ SaveTrainingDialog.OnAddTrainingListener{
             getMyLocation();
 
             //ToDo track only users that attend to this trainingData
-            usersLocations.addValueEventListener(valueEventListener);
+//            usersLocations.addValueEventListener(valueEventListener);
             gpsTrack.setJointType(JointType.ROUND);
 
 
@@ -1029,19 +1073,19 @@ SaveTrainingDialog.OnAddTrainingListener{
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
             //ToDo to not trigger users' locationsData' markers' reload when current user's location changed
-            for (DataSnapshot data : snapshot.getChildren()){
-                if (data.exists() && !FirebaseUtils.isCurrentUID(data.getKey())){
+            for (DataSnapshot user : snapshot.getChildren()){
+                if (user.exists() && !FirebaseUtils.isCurrentUID(user.getKey())){
                     Log.d("map", "*************************************************************");
-                    String UID = data.child("uid").getValue().toString();
-                    Log.d("map", "tracking uid is " + UID);
+                    String UID = user.getKey();
+                    Log.d("map", "tracking id is " + UID);
 
-                    if (data.hasChild("latitude") && data.hasChild("longitude") && data.hasChild("profile_picture") && data.hasChild("username")){
-                        String username = data.child("username").getValue().toString();
+                    if (user.hasChild("latitude") && user.hasChild("longitude") && user.hasChild("profile_picture") && user.hasChild("username")){
+                        String username = user.child("username").getValue().toString();
 
-                        String profile_picture = data.child("profile_picture").getValue(String.class);
+                        String profile_picture = user.child("profile_picture").getValue(String.class);
 
-                        double latitude = data.child("latitude").getValue(double.class);
-                        double longitude = data.child("longitude").getValue(double.class);
+                        double latitude = user.child("latitude").getValue(double.class);
+                        double longitude = user.child("longitude").getValue(double.class);
 
 
                         Log.d("map", "username is " + username);
@@ -1057,7 +1101,7 @@ SaveTrainingDialog.OnAddTrainingListener{
                                 .zIndex(0)
                                 /*.snippet(username)*/;
 
-                        if (data.hasChild("locationAvailable") && !data.child("locationAvailable").getValue(boolean.class)){
+                        if (user.hasChild("locationAvailable") && !user.child("locationAvailable").getValue(boolean.class)){
                             markerOptions.alpha(0.5f);
                         }
 
@@ -1110,7 +1154,7 @@ SaveTrainingDialog.OnAddTrainingListener{
 
                             if (old_marker != null){
 //                            Log.d(LOG_TAG, "Old marker's tag is " + old_marker.getTag().toString());
-//                            last_markers.put(userID, old_marker);
+//                            last_markers.put(UID, old_marker);
                                 old_marker.remove();
                                 Log.d(LOG_TAG, "Old marker is successfully removed");
                             }
@@ -1250,13 +1294,12 @@ SaveTrainingDialog.OnAddTrainingListener{
     @Override
     public void onStart() {
         super.onStart();
+        Log.d(LOG_TAG, "checking permissions from onStart");
         checkPermissions();
     }
 
     private final String[] permissions = new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            Manifest.permission.ACCESS_COARSE_LOCATION};
 
     public boolean checkPermissions(){
         boolean hasPermissions = true;
@@ -1264,7 +1307,8 @@ SaveTrainingDialog.OnAddTrainingListener{
         for (String permission : permissions){
             if (ContextCompat.checkSelfPermission(requireActivity(), permission) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(LOG_TAG, "Permission " + permission + " is granted");
-            } else {
+            }
+            else {
                 Log.d(LOG_TAG, "Permission " + permission + " is not granted");
                 hasPermissions = false;
                 askLocationPermission(permission);
@@ -1302,6 +1346,7 @@ SaveTrainingDialog.OnAddTrainingListener{
         return hasPermissions;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     public boolean checkBackgroundLocationPermission(){
         boolean hasPermissions = true;
 
@@ -1338,16 +1383,20 @@ SaveTrainingDialog.OnAddTrainingListener{
                 Log.d(LOG_TAG, "askLocationPermission: you should show an alert dialog...");
             }
 
+            Log.d(LOG_TAG, "requesting " + permission);
+
             if (permission.equals(Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
+                Log.d(LOG_TAG, "requesting " + permission + " with code " + 20000);
                 requestPermissions(new String[]{permission}, 20000);
             }
             else if(permission.equals(Manifest.permission.ACTIVITY_RECOGNITION)){
+                Log.d(LOG_TAG, "requesting " + permission + " with code " + 30000);
                 requestPermissions(new String[]{permission}, 30000);
             }
             else{
+                Log.d(LOG_TAG, "requesting " + permission + " with code " + 10000);
                 requestPermissions(new String[]{permission}, 10000);
             }
-
 
         }
     }
@@ -1358,62 +1407,47 @@ SaveTrainingDialog.OnAddTrainingListener{
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == 10000) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (grantResults.length > 0){
+            if (requestCode == 10000) {
+
+                for (int i = 0; i < grantResults.length; i++) {
+
+                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED){
+                        Log.d(LOG_TAG, "Permission " + permissions[i] + " is yet not granted");
+                        return;
+                    }
+                    else {
+                        Log.d(LOG_TAG, "Permission " + permissions[i] + " is granted");
+                    }
+                }
+                Log.d(LOG_TAG, "checking permissions from onRequestPermissionsResult");
+                checkPermissions();
+//            triggerRebirth(requireContext());
+            }
+            else if (requestCode == 30000) {
 
                 for (int i = 0; i < grantResults.length; i++) {
                     if (grantResults[i] != PackageManager.PERMISSION_GRANTED){
                         Log.d(LOG_TAG, "Permission " + permissions[i] + " is yet not granted");
+                        return;
                     }
                 }
-
-                // Permission granted
-                Log.d(LOG_TAG, "Permission granted");
-                map.setMyLocationEnabled(true);
-
-                map.setOnMyLocationButtonClickListener(this);
-                map.setOnMyLocationClickListener(this);
-                getMyLocation();
-                onMapReady(map);
-            }
-            else {
-                //Permission not granted
-            }
 //            triggerRebirth(requireContext());
+            }
         }
-        else if (requestCode == 20000) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                for (int i = 0; i < grantResults.length; i++) {
-                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED){
-                        Log.d(LOG_TAG, "Permission " + permissions[i] + " is yet not granted");
-                    }
+        if (requestCode == 20000) {
+            for (int i = 0; i < grantResults.length; i++) {
+                if (grantResults[i] != PackageManager.PERMISSION_GRANTED){
+                    Log.d(LOG_TAG, "Permission " + permissions[i] + " is yet not granted");
+                    return;
                 }
-
-                startTracking();
-
             }
-            else {
-                //Permission not granted
-            }
+
+            startTracking();
 //            triggerRebirth(requireContext());
         }
-        else if (requestCode == 30000) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                for (int i = 0; i < grantResults.length; i++) {
-                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED){
-                        Log.d(LOG_TAG, "Permission " + permissions[i] + " is yet not granted");
-                    }
-                }
-
-
-            }
-            else {
-                //Permission not granted
-            }
-//            triggerRebirth(requireContext());
-        }
     }
 
     @Override
@@ -1421,7 +1455,7 @@ SaveTrainingDialog.OnAddTrainingListener{
         map.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
         map.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
 
-//        Toast.makeText(requireContext(), "userID: " + marker.getTag().toString(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(requireContext(), "UID: " + marker.getTag().toString(), Toast.LENGTH_SHORT).show();
         return false;
     }
 }

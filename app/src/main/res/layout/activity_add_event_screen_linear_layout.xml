@@ -6,7 +6,7 @@
     android:id="@+id/sv_add_event_screen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".calendar.Add_Event_Screen" >
+    tools:context=".calendar.Edit_Event_Screen" >
 
 
     <LinearLayout

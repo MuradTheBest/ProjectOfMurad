@@ -2,9 +2,12 @@
 <resources>
 	<!-- projectforsubmit colors -->
 
-	<color name="colorPrimary">#008577</color>
+<!--	<color name="colorPrimary">#008577</color>-->
+<!--	<color name="colorPrimaryDark">#00574B</color>-->
+
+	<color name="colorPrimary">#A04CEE</color>
 	<color name="colorPrimaryDark">#00574B</color>
-	<!--<color name="colorAccent">#6A1B9A</color>-->
+	<color name="colorSecondary">#FF0045</color>
 	<color name="colorAccent">#0070FF</color>
 
 	<color name="alarm_off">#3B125EBF</color>

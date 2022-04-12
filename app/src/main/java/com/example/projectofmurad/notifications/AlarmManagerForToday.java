@@ -29,6 +29,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+@SuppressLint("MissingPermission")
 public class AlarmManagerForToday {
 
     public static final String TAG = "AlarmManagerForToday";
@@ -198,7 +199,6 @@ public class AlarmManagerForToday {
         //   alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (timeData * 1000), pendingIntent);
     }
 
-    @SuppressLint("MissingPermission")
     public static void addAlarm(@NonNull Context context, @NonNull CalendarEvent event, long before){
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -276,8 +276,9 @@ public class AlarmManagerForToday {
           recreate them
          */
 
+//        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
+        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
         if (alarm > System.currentTimeMillis()){
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
         }
 //        alarmManager.set(AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
 

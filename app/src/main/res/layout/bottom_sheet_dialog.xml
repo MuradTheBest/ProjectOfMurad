@@ -27,6 +27,15 @@
         />
 
     <TextView
+        android:id="@+id/tv_this_and_future_event"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="This and future event"
+        android:textSize="16sp"
+        android:padding="15sp"
+        />
+
+    <TextView
         android:id="@+id/tv_all_events_in_chain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

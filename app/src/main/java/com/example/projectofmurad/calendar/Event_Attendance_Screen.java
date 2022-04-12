@@ -156,13 +156,13 @@ public class Event_Attendance_Screen extends AppCompatActivity implements
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         for(DataSnapshot data : snapshot.getChildren()){
                             Log.d(LOG_TAG, "---------------------------------------------------------------" );
-                            String userID = data.getKey();
-                            Log.d(LOG_TAG, "userID = " + userID);
+                            String UID = data.getKey();
+                            Log.d(LOG_TAG, "UID = " + UID);
 
                             boolean attend = data.getValue(boolean.class);
                             Log.d(LOG_TAG, "attend = " + attend);
 
-                            int position = userDataArrayList.indexOf(userID);
+                            int position = userDataArrayList.indexOf(UID);
                             Log.d(LOG_TAG, "position = " + position);
                             Log.d(LOG_TAG, "---------------------------------------------------------------" );
 

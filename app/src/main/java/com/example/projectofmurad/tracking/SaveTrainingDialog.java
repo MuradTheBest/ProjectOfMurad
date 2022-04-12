@@ -2,7 +2,6 @@ package com.example.projectofmurad.tracking;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -12,7 +11,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.Utils;
@@ -24,6 +22,7 @@ public class SaveTrainingDialog extends Dialog implements CompoundButton.OnCheck
 
     RadioButton rb_private_training;
     RadioButton rb_group_training;
+
     LinearLayout ll_private_training;
     LinearLayout ll_group_training;
 

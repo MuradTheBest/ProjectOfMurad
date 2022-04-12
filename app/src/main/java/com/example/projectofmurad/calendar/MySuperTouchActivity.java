@@ -2,8 +2,6 @@ package com.example.projectofmurad.calendar;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -14,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -27,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 
 import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
@@ -40,7 +38,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.Month;
 import java.time.Period;
 import java.time.format.TextStyle;
@@ -96,26 +93,26 @@ public class MySuperTouchActivity extends AppCompatActivity implements
     protected int selected_year = 0;
     protected LocalDate selectedDate;
 
-    protected LocalTime startTime;
+//    protected LocalTime startTime;
 
     protected int start_hour;
     protected int start_min;
 
     protected int timestamp;
 
-    protected LocalTime endTime;
+//    protected LocalTime endTime;
 
     protected int end_hour;
     protected int end_min;
 
-    protected LocalDate startDate;
+//    protected LocalDate startDate;
     protected LocalDateTime startDateTime;
 
     protected int start_day;
     protected int start_month;
     protected int start_year;
 
-    protected LocalDate endDate;
+//    protected LocalDate endDate;
     protected LocalDateTime endDateTime;
 
     protected int end_day;
@@ -270,40 +267,13 @@ public class MySuperTouchActivity extends AppCompatActivity implements
             event.addDefaultParams(selectedColor, name, description, place, timestamp, startDateTime, endDateTime);
 
             eventsDatabase = FirebaseUtils.eventsDatabase;
-            eventsDatabase = eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(startDate));
-            eventsDatabase = eventsDatabase.push();
+            eventsDatabase = eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(startDateTime.toLocalDate()));
 
-            String chain_key = eventsDatabase.getKey();
+            String chain_key = "Event" + eventsDatabase.push().getKey();
             event.setChainId(chain_key);
 
-            boolean success = true;
+            uploadEvent(event);
 
-            if(row_event) {
-                event.updateFrequency_start(startDate);
-                event.updateFrequency_end(endDate);
-                Log.d(Utils.LOG_TAG, event.toString());
-                addEventToFirebaseForTextWithPUSH(event, null);
-            }
-            else if(event.getFrequencyType().endsWith("amount")){
-                success = addEventForTimesAdvanced(event);
-                Log.d(Utils.LOG_TAG, event.toString());
-            }
-            else if(event.getFrequencyType().endsWith("end")){
-                success = addEventForUntilAdvanced(event);
-                Log.d(Utils.LOG_TAG, event.toString());
-            }
-
-//            startAlarm();
-            if(success){
-                FCMSend.sendNotificationsToAllUsersWithTopic(this, event, editMode ? Utils.EDIT_EVENT_NOTIFICATION_CODE : Utils.ADD_EVENT_NOTIFICATION_CODE);
-                if (switch_alarm.isChecked()){
-                    AlarmManagerForToday.addAlarm(this, event, 0);
-                }
-                if (Utils.madrich){
-                    FirebaseUtils.attendanceDatabase.child(event.getPrivateId())
-                            .child(FirebaseUtils.getCurrentUID()).setValue(true);
-                }
-            }
 
             //ToDo adjust chain_id for row events in database
  /*           if(event.getStartDate().equals(event.getFrequency_start()) &&
@@ -323,27 +293,63 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
 //            startActivity(new Intent(getApplicationContext(), Calendar_Screen.class));
 
-            Intent toCalendar_Screen = new Intent(getApplicationContext(), Calendar_Screen.class);
 
-            int day = event.receiveFrequency_start().getDayOfMonth();
-            int month = event.receiveFrequency_start().getMonth().getValue();
-            int year = event.receiveFrequency_start().getYear();
-
-            toCalendar_Screen.putExtra("day", day);
-            toCalendar_Screen.putExtra("month", month);
-            toCalendar_Screen.putExtra("year", year);
-
-            if (success) {
-                startActivity(toCalendar_Screen);
-
-//                sendNotificationToOneUser();
-            }
-            else {
-                createBottomSheetDialog();
-            }
 
         }
 
+    }
+
+    public void uploadEvent(@NonNull CalendarEvent event){
+        boolean success = true;
+
+        Log.d(Utils.EVENT_TAG, "uploading event " + event);
+
+        if(row_event) {
+            event.updateFrequency_start(startDateTime.toLocalDate());
+            event.updateFrequency_end(endDateTime.toLocalDate());
+            Log.d(Utils.EVENT_TAG, event.toString());
+            addEventToFirebaseForTextWithPUSH(event, null);
+        }
+        else if(event.getFrequencyType().endsWith("amount")){
+            success = addEventForTimesAdvanced(event);
+            Log.d(Utils.EVENT_TAG, event.toString());
+        }
+        else if(event.getFrequencyType().endsWith("end")){
+            success = addEventForUntilAdvanced(event);
+            Log.d(Utils.EVENT_TAG, event.toString());
+        }
+
+//            startAlarm();
+        if(success){
+            FCMSend.sendNotificationsToAllUsersWithTopic(this, event, editMode ? Utils.EDIT_EVENT_NOTIFICATION_CODE : Utils.ADD_EVENT_NOTIFICATION_CODE);
+            if (switch_alarm.isChecked()){
+                AlarmManagerForToday.addAlarm(this, event, 0);
+            }
+            if (Utils.madrich){
+                FirebaseUtils.attendanceDatabase.child(event.getPrivateId())
+                        .child(FirebaseUtils.getCurrentUID()).child("attend").setValue(true);
+            }
+        }
+
+        Intent toCalendar_Screen = new Intent(getApplicationContext(), MainActivity.class);
+        toCalendar_Screen.setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT);
+
+        int day = event.receiveFrequency_start().getDayOfMonth();
+        int month = event.receiveFrequency_start().getMonth().getValue();
+        int year = event.receiveFrequency_start().getYear();
+
+        toCalendar_Screen.putExtra("day", day);
+        toCalendar_Screen.putExtra("month", month);
+        toCalendar_Screen.putExtra("year", year);
+
+        if (success) {
+            startActivity(toCalendar_Screen);
+
+//                sendNotificationToOneUser();
+        }
+        else {
+            createBottomSheetDialog();
+        }
     }
 
     public void createBottomSheetDialog(){
@@ -425,12 +431,11 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
         LocalDate tmp = start_date;
 
-        String private_key = eventsDatabase.push().getKey();
+        String private_key = "Event" + eventsDatabase.push().getKey();
 //        event.setPrivateId(private_key);
 
         event.setPrivateId(private_key);
         event.setChainId(chain_key == null ? private_key : chain_key);
-
 
 
         Log.d("murad", "PRIVATE ID IS " + event.getPrivateId());
@@ -895,13 +900,13 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
     public boolean addEventForTimesAdvanced(@NonNull CalendarEvent event){
 
-        Log.d("murad", "------------------------------------------------------------------------------------------");
-        Log.d("murad", "//////////////////////////////////////////////////////////////////////////////////////////");
-        Log.d("murad", "******************************************************************************************");
-        Log.d("murad", "//////////////////////////////////////////////////////////////////////////////////////////");
-        Log.d("murad", "------------------------------------------------------------------------------------------");
-        Log.d("murad", " ");
-        Log.d("murad", "ADDING BY AMOUNT STARTED");
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "******************************************************************************************");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
+        Log.d(Utils.EVENT_TAG, " ");
+        Log.d(Utils.EVENT_TAG, "ADDING BY AMOUNT STARTED");
 
         eventsDatabase = FirebaseUtils.eventsDatabase;
 
@@ -948,15 +953,15 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     event.updateStart_date(startDate);
                     event.updateEnd_date(endDate);
 
-                    Log.d("murad", "___________________________________________________________");
-                    Log.d("murad", "CIRCLE NUMBER " + (i+1));
-                    Log.d("murad", "Frequency Start of event: " + event.getFrequency_start());
+                    Log.d(Utils.EVENT_TAG, "___________________________________________________________");
+                    Log.d(Utils.EVENT_TAG, "CIRCLE NUMBER " + (i+1));
+                    Log.d(Utils.EVENT_TAG, "Frequency Start of event: " + event.getFrequency_start());
 
                     addEventToFirebaseForTextWithPUSH(event, chain_key);
 
                     tmp = tmp.plusDays(frequency);
 
-                    Log.d("murad", "___________________________________________________________");
+                    Log.d(Utils.EVENT_TAG, "___________________________________________________________");
 
                 }
 
@@ -981,14 +986,14 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
                         WeekFields.of(startDate).weekOfMonth();*//*
 
-                    Log.d("murad", "Going over days to find first occurrence of selected Day Of Week " + UtilsCalendar.DateToTextForFirebase(tmp));
+                    Log.d(Utils.EVENT_TAG, "Going over days to find first occurrence of selected Day Of Week " + UtilsCalendar.DateToTextForFirebase(tmp));
                     tmp = tmp.plusDays(1);
 
                 }
 
-                Log.d("murad", "");
-                Log.d("murad", "FOUND!!!");
-                Log.d("murad", "");
+                Log.d(Utils.EVENT_TAG, "");
+                Log.d(Utils.EVENT_TAG, "FOUND!!!");
+                Log.d(Utils.EVENT_TAG, "");
 
                 startDate = tmp;
                 endDate = tmp.plus(range);
@@ -1005,15 +1010,15 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                 event.setPrivate_id(private_key);
 
                 addEventToFirebaseForTextWithPUSH(event);
-                Log.d("murad", "___________________________________________________________");*/
+                Log.d(Utils.EVENT_TAG, "___________________________________________________________");*/
 
                 boolean first = true;
 
                 for(int i = 0; i < amount; i++) {
 
-                    Log.d("murad", "___________________________________________________________");
-                    Log.d("murad", "CIRCLE NUMBER " + (i+1));
-                    Log.d("murad", "Frequency Start of event: " + event.getFrequency_start());
+                    Log.d(Utils.EVENT_TAG, "___________________________________________________________");
+                    Log.d(Utils.EVENT_TAG, "CIRCLE NUMBER " + (i+1));
+                    Log.d(Utils.EVENT_TAG, "Frequency Start of event: " + event.getFrequency_start());
 
                     /*for(int j = 0; j < event_array_frequencyDayOfWeek.size(); j++) {
                         if(event_array_frequencyDayOfWeek.get(j) && tmp.getDayOfWeek().getValue() == j+1) {
@@ -1040,7 +1045,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
                     do{
 
-                        Log.d("murad", "___________________________________________________________");
+                        Log.d(Utils.EVENT_TAG, "___________________________________________________________");
 
                         if(event_array_frequencyDayOfWeek.get(tmp.getDayOfWeek().getValue()-1)) {
                             // get TemporalAdjuster with
@@ -1051,9 +1056,9 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
                                 WeekFields.of(startDate).weekOfMonth();*/
 
-                            Log.d("murad", "");
-                            Log.d("murad", "FOUND!!! " + UtilsCalendar.DateToTextLocal(tmp));
-                            Log.d("murad", "");
+                            Log.d(Utils.EVENT_TAG, "");
+                            Log.d(Utils.EVENT_TAG, "FOUND!!! " + UtilsCalendar.DateToTextLocal(tmp));
+                            Log.d(Utils.EVENT_TAG, "");
 
                             if(first){
                                 event.updateFrequency_start(tmp);
@@ -1070,11 +1075,11 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                         eventsDatabase = eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(tmp));*/
 
                             addEventToFirebaseForTextWithPUSH(event, chain_key);
-                            Log.d("murad", "___________________________________________________________");
+                            Log.d(Utils.EVENT_TAG, "___________________________________________________________");
 
                         }
 
-                            Log.d("murad", "Going over days to find first occurrence of selected Day Of Week " + UtilsCalendar.DateToTextForFirebase(tmp));
+                            Log.d(Utils.EVENT_TAG, "Going over days to find first occurrence of selected Day Of Week " + UtilsCalendar.DateToTextForFirebase(tmp));
                             tmp = tmp.plusDays(1);
 
 
@@ -1113,7 +1118,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                         event.setPrivate_id(private_key);
 
                         addEventToFirebaseForTextWithPUSH(event);
-                        Log.d("murad", "___________________________________________________________");
+                        Log.d(Utils.EVENT_TAG, "___________________________________________________________");
                     }
 */
                     tmp = tmp.plusWeeks(frequency);
@@ -1139,7 +1144,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                         if(isLast){
 
                             tmp = tmp.with(TemporalAdjusters.lastDayOfMonth());
-                            Log.d("murad", "Last date of current month is " + UtilsCalendar.DateToTextForFirebase(tmp));
+                            Log.d(Utils.EVENT_TAG, "Last date of current month is " + UtilsCalendar.DateToTextForFirebase(tmp));
 
 
 
@@ -1150,7 +1155,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                         else {
 
                             tmp = tmp.withDayOfMonth(day);
-                            Log.d("murad", "The " + day + " day of current month is " + UtilsCalendar.DateToTextForFirebase(tmp));
+                            Log.d(Utils.EVENT_TAG, "The " + day + " day of current month is " + UtilsCalendar.DateToTextForFirebase(tmp));
 
                             /*eventsDatabase = FirebaseUtils.eventsDatabase;
                         eventsDatabase = eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(tmp));*/
@@ -1169,10 +1174,10 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     absolute_end_date = tmp;
 
 //                    tmp = tmp.with(TemporalAdjusters.firstDayOfNextMonth());
-//                    Log.d("murad", "The first day of next month is " + UtilsCalendar.DateToTextForFirebase(tmp));
+//                    Log.d(Utils.EVENT_TAG, "The first day of next month is " + UtilsCalendar.DateToTextForFirebase(tmp));
 
                     tmp = tmp.plusMonths(frequency);
-                    Log.d("murad", "The next month is " + UtilsCalendar.DateToTextForFirebase(tmp));
+                    Log.d(Utils.EVENT_TAG, "The next month is " + UtilsCalendar.DateToTextForFirebase(tmp));
                 }
 
                 break;
@@ -1185,19 +1190,19 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                 }
 
                 weekNumber = event.getWeekNumber();
-                Log.d("murad", "weekNumber = " + weekNumber);
+                Log.d(Utils.EVENT_TAG, "weekNumber = " + weekNumber);
 
                 dayOfWeekPosition = event.getDayOfWeekPosition();
-                Log.d("murad", "dayOfWeekPosition = " + dayOfWeekPosition);
+                Log.d(Utils.EVENT_TAG, "dayOfWeekPosition = " + dayOfWeekPosition);
 
                 dayOfWeek = DayOfWeek.of(dayOfWeekPosition+1);
-                Log.d("murad", "DayOfWeek is " + dayOfWeek);
+                Log.d(Utils.EVENT_TAG, "DayOfWeek is " + dayOfWeek);
 
                 tmp = tmp.withDayOfMonth(1);
 
                 for(int i = 0; i < amount; i++) {
-                    Log.d("murad", "--------------------------------------------------------------");
-                    Log.d("murad", UtilsCalendar.DateToTextOnline(tmp));
+                    Log.d(Utils.EVENT_TAG, "--------------------------------------------------------------");
+                    Log.d(Utils.EVENT_TAG, UtilsCalendar.DateToTextOnline(tmp));
 
                     if(isLast){
                         tmp = tmp.with(TemporalAdjusters.lastInMonth(dayOfWeek));
@@ -1221,7 +1226,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
                     tmp = tmp.plusMonths(frequency);
 
-                    Log.d("murad", "the next month is " + UtilsCalendar.DateToTextOnline(tmp));
+                    Log.d(Utils.EVENT_TAG, "the next month is " + UtilsCalendar.DateToTextOnline(tmp));
 /*                    if(weekNumber > 4) {
 
                         tmp = UtilsCalendar.getNextOccurrenceForLast(tmp, event.getDayOfWeekPosition());
@@ -1345,13 +1350,13 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                 }
 
                 weekNumber = event.getWeekNumber();
-                Log.d("murad", "weekNumber = " + weekNumber);
+                Log.d(Utils.EVENT_TAG, "weekNumber = " + weekNumber);
 
                 dayOfWeekPosition = event.getDayOfWeekPosition();
-                Log.d("murad", "dayOfWeekPosition = " + dayOfWeekPosition);
+                Log.d(Utils.EVENT_TAG, "dayOfWeekPosition = " + dayOfWeekPosition);
 
                 dayOfWeek = DayOfWeek.of(dayOfWeekPosition+1);
-                Log.d("murad", "DayOfWeek is " + dayOfWeek);
+                Log.d(Utils.EVENT_TAG, "DayOfWeek is " + dayOfWeek);
 
                 tmp = tmp.withDayOfMonth(1);
 
@@ -1412,41 +1417,41 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
         FirebaseUtils.allEventsDatabase.child(event.getChainId()).setValue(event);
 
-        Log.d("murad", "Frequency End of event: " + event.getFrequency_end());
+        Log.d(Utils.EVENT_TAG, "Frequency End of event: " + event.getFrequency_end());
 
-        Log.d("murad", "ADDING BY AMOUNT FINISHED");
-        Log.d("murad", " ");
-        Log.d("murad", "------------------------------------------------------------------------------------------");
-        Log.d("murad", "//////////////////////////////////////////////////////////////////////////////////////////");
-        Log.d("murad", "******************************************************************************************");
-        Log.d("murad", "//////////////////////////////////////////////////////////////////////////////////////////");
-        Log.d("murad", "------------------------------------------------------------------------------------------");
+        Log.d(Utils.EVENT_TAG, "ADDING BY AMOUNT FINISHED");
+        Log.d(Utils.EVENT_TAG, " ");
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "******************************************************************************************");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
 
         return true;
     }
 
     public boolean addEventForUntilAdvanced(@NonNull CalendarEvent event){
 
-        Log.d("murad", "------------------------------------------------------------------------------------------");
-        Log.d("murad", "//////////////////////////////////////////////////////////////////////////////////////////");
-        Log.d("murad", "******************************************************************************************");
-        Log.d("murad", "//////////////////////////////////////////////////////////////////////////////////////////");
-        Log.d("murad", "------------------------------------------------------------------------------------------");
-        Log.d("murad", " ");
-        Log.d("murad", "ADDING BY END STARTED");
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "******************************************************************************************");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
+        Log.d(Utils.EVENT_TAG, " ");
+        Log.d(Utils.EVENT_TAG, "ADDING BY END STARTED");
 
         eventsDatabase = FirebaseUtils.eventsDatabase;
 
         String chain_key = event.getChainId();
 
         int frequency = event.getFrequency();
-        Log.d("murad", "FREQUENCY IS " + (frequency));
+        Log.d(Utils.EVENT_TAG, "FREQUENCY IS " + (frequency));
 
         LocalDate end = event.receiveFrequency_end();
-        Log.d("murad", "END IS " + event.getFrequency_end());
+        Log.d(Utils.EVENT_TAG, "END IS " + event.getFrequency_end());
 
         boolean isLast = event.isLast();
-        Log.d("murad", "IS LAST = " + isLast);
+        Log.d(Utils.EVENT_TAG, "IS LAST = " + isLast);
 
         LocalDate tmp = event.receiveStart_date();
 
@@ -1463,7 +1468,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         DayOfWeek dayOfWeek;
 
         LocalDate absolute_end_date = end;
-        Log.d("murad", "Chosen end is " + UtilsCalendar.DateToTextOnline(absolute_end_date));
+        Log.d(Utils.EVENT_TAG, "Chosen end is " + UtilsCalendar.DateToTextOnline(absolute_end_date));
 
 
         switch(event.getFrequencyType()) {
@@ -1484,9 +1489,9 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     event.updateStart_date(startDate);
                     event.updateEnd_date(endDate);
 
-                    Log.d("murad", "___________________________________________________________");
-                    Log.d("murad", "CIRCLE NUMBER " + (i));
-                    Log.d("murad", "Frequency Start of event: " + event.getFrequency_start());
+                    Log.d(Utils.EVENT_TAG, "___________________________________________________________");
+                    Log.d(Utils.EVENT_TAG, "CIRCLE NUMBER " + (i));
+                    Log.d(Utils.EVENT_TAG, "Frequency Start of event: " + event.getFrequency_start());
 
                     addEventToFirebaseForTextWithPUSH(event, chain_key);
 
@@ -1494,7 +1499,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
                     tmp = tmp.plusDays(frequency);
 
-                    Log.d("murad", "___________________________________________________________");
+                    Log.d(Utils.EVENT_TAG, "___________________________________________________________");
                     i++;
                 }
                 while(!tmp.isAfter(end));
@@ -1516,19 +1521,19 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
                 do {
 
-                    Log.d("murad", "___________________________________________________________");
-                    Log.d("murad", "CIRCLE NUMBER " + i);
-                    Log.d("murad", "Frequency Start of event: " + event.getFrequency_start());
+                    Log.d(Utils.EVENT_TAG, "___________________________________________________________");
+                    Log.d(Utils.EVENT_TAG, "CIRCLE NUMBER " + i);
+                    Log.d(Utils.EVENT_TAG, "Frequency Start of event: " + event.getFrequency_start());
 
                     do{
 
-                        Log.d("murad", "___________________________________________________________");
+                        Log.d(Utils.EVENT_TAG, "___________________________________________________________");
 
                         if(event_array_frequencyDayOfWeek.get(tmp.getDayOfWeek().getValue()-1)) {
 
-                            Log.d("murad", "");
-                            Log.d("murad", "FOUND!!! " + UtilsCalendar.DateToTextLocal(tmp));
-                            Log.d("murad", "");
+                            Log.d(Utils.EVENT_TAG, "");
+                            Log.d(Utils.EVENT_TAG, "FOUND!!! " + UtilsCalendar.DateToTextLocal(tmp));
+                            Log.d(Utils.EVENT_TAG, "");
 
                             if(first){
                                 event.updateFrequency_start(tmp);
@@ -1542,11 +1547,11 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                             event.updateEnd_date(endDate);
 
                             addEventToFirebaseForTextWithPUSH(event, chain_key);
-                            Log.d("murad", "___________________________________________________________");
+                            Log.d(Utils.EVENT_TAG, "___________________________________________________________");
 
                         }
 
-                        Log.d("murad", "Going over days to find first occurrence of selected Day Of Week " + UtilsCalendar.DateToTextForFirebase(tmp));
+                        Log.d(Utils.EVENT_TAG, "Going over days to find first occurrence of selected Day Of Week " + UtilsCalendar.DateToTextForFirebase(tmp));
                         tmp = tmp.plusDays(1);
 
                     }
@@ -1578,13 +1583,13 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                         if(isLast){
 
                             tmp = tmp.with(TemporalAdjusters.lastDayOfMonth());
-                            Log.d("murad", "Last date of current month is " + UtilsCalendar.DateToTextForFirebase(tmp));
+                            Log.d(Utils.EVENT_TAG, "Last date of current month is " + UtilsCalendar.DateToTextForFirebase(tmp));
 
                         }
                         else {
 
                             tmp = tmp.withDayOfMonth(day);
-                            Log.d("murad", "The " + day + " day of current month is " + UtilsCalendar.DateToTextForFirebase(tmp));
+                            Log.d(Utils.EVENT_TAG, "The " + day + " day of current month is " + UtilsCalendar.DateToTextForFirebase(tmp));
 
                         }
 
@@ -1600,7 +1605,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     absolute_end_date = tmp;
 
                     tmp = tmp.plusMonths(frequency);
-                    Log.d("murad", "The next month is " + UtilsCalendar.DateToTextForFirebase(tmp));
+                    Log.d(Utils.EVENT_TAG, "The next month is " + UtilsCalendar.DateToTextForFirebase(tmp));
 
                 }
                 while(!tmp.isAfter(end));
@@ -1615,19 +1620,19 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                 }
 
                 weekNumber = event.getWeekNumber();
-                Log.d("murad", "weekNumber = " + weekNumber);
+                Log.d(Utils.EVENT_TAG, "weekNumber = " + weekNumber);
 
                 dayOfWeekPosition = event.getDayOfWeekPosition();
-                Log.d("murad", "dayOfWeekPosition = " + dayOfWeekPosition);
+                Log.d(Utils.EVENT_TAG, "dayOfWeekPosition = " + dayOfWeekPosition);
 
                 dayOfWeek = DayOfWeek.of(dayOfWeekPosition+1);
-                Log.d("murad", "DayOfWeek is " + dayOfWeek);
+                Log.d(Utils.EVENT_TAG, "DayOfWeek is " + dayOfWeek);
 
                 tmp = tmp.withDayOfMonth(1);
 
                 do {
-                    Log.d("murad", "--------------------------------------------------------------");
-                    Log.d("murad", UtilsCalendar.DateToTextOnline(tmp));
+                    Log.d(Utils.EVENT_TAG, "--------------------------------------------------------------");
+                    Log.d(Utils.EVENT_TAG, UtilsCalendar.DateToTextOnline(tmp));
 
                     if(isLast){
                         tmp = tmp.with(TemporalAdjusters.lastInMonth(dayOfWeek));
@@ -1648,7 +1653,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
                     tmp = tmp.plusMonths(frequency);
 
-                    Log.d("murad", "the next month is " + UtilsCalendar.DateToTextOnline(tmp));
+                    Log.d(Utils.EVENT_TAG, "the next month is " + UtilsCalendar.DateToTextOnline(tmp));
 
                 }
                 while(!tmp.isAfter(end));
@@ -1703,13 +1708,13 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                 }
 
                 weekNumber = event.getWeekNumber();
-                Log.d("murad", "weekNumber = " + weekNumber);
+                Log.d(Utils.EVENT_TAG, "weekNumber = " + weekNumber);
 
                 dayOfWeekPosition = event.getDayOfWeekPosition();
-                Log.d("murad", "dayOfWeekPosition = " + dayOfWeekPosition);
+                Log.d(Utils.EVENT_TAG, "dayOfWeekPosition = " + dayOfWeekPosition);
 
                 dayOfWeek = DayOfWeek.of(dayOfWeekPosition+1);
-                Log.d("murad", "DayOfWeek is " + dayOfWeek);
+                Log.d(Utils.EVENT_TAG, "DayOfWeek is " + dayOfWeek);
 
                 tmp = tmp.withDayOfMonth(1);
 
@@ -1744,21 +1749,21 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
         }
 
-        Log.d("murad", "Absolute end date after switch is " + UtilsCalendar.DateToTextOnline(endDate));
+        Log.d(Utils.EVENT_TAG, "Absolute end date after switch is " + UtilsCalendar.DateToTextOnline(endDate));
 
         event.updateFrequency_end(endDate);
 
-        Log.d("murad", "Frequency End of event: " + event.getFrequency_end());
+        Log.d(Utils.EVENT_TAG, "Frequency End of event: " + event.getFrequency_end());
 
         FirebaseUtils.allEventsDatabase.child(event.getChainId()).setValue(event);
 
-        Log.d("murad", "ADDING BY AMOUNT FINISHED");
-        Log.d("murad", " ");
-        Log.d("murad", "------------------------------------------------------------------------------------------");
-        Log.d("murad", "//////////////////////////////////////////////////////////////////////////////////////////");
-        Log.d("murad", "******************************************************************************************");
-        Log.d("murad", "//////////////////////////////////////////////////////////////////////////////////////////");
-        Log.d("murad", "------------------------------------------------------------------------------------------");
+        Log.d(Utils.EVENT_TAG, "ADDING BY AMOUNT FINISHED");
+        Log.d(Utils.EVENT_TAG, " ");
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "******************************************************************************************");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
 
         return true;
     }
@@ -1769,7 +1774,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
         et_name.setText(msg);
     }
 
-    //sets timeData
+/*    //sets timeData
     protected class SetTime implements TimePickerDialog.OnTimeSetListener {
         private String time_start_or_end;
 
@@ -1787,14 +1792,14 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
             String time_text = UtilsCalendar.TimeToText(time);
 
-            /*if(hour < 10){
+            *//*if(hour < 10){
                 timeData += "0";
             }
             timeData += hour + ":";
             if(min < 10){
                 timeData += "0";
             }
-            timeData += min;*/
+            timeData += min;*//*
 
             switch(time_start_or_end) {
                 case "start":
@@ -1831,7 +1836,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
 
             switch(date_start_or_end) {
                 case "start":
-                    startDate = LocalDate.of(year, month, day);
+                    LocalDate startDate = LocalDate.of(year, month, day);
                     date_text = UtilsCalendar.DateToTextLocal(startDate);
 
                     start_day = day;
@@ -1852,7 +1857,7 @@ public class MySuperTouchActivity extends AppCompatActivity implements
                     break;
             }
         }
-    }
+    }*/
 
     @Override
     public void onFocusChange(View view, boolean b) {
@@ -2248,7 +2253,9 @@ public class MySuperTouchActivity extends AppCompatActivity implements
     public void onBackPressed() {
         super.onBackPressed();
 
-        startActivity(new Intent(getApplicationContext(), Calendar_Screen.class));
+
+//        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+
     }
 
 

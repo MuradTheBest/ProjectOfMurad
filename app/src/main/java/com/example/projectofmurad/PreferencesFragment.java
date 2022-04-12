@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -208,10 +207,10 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
                                     FirebaseUtils.getCurrentUserDataRef().child("subscribedToAddEvent").setValue(true);
-                                    Toast.makeText(requireContext(), "You will be notified when there will be new event added", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "You will be notified when there will be new event added", Toast.LENGTH_SHORT).show();
                                 }
                                 else {
-                                    Toast.makeText(requireContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
                                     switch_add_event.toggle();
                                 }
                             }
@@ -224,10 +223,10 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
                                     FirebaseUtils.getCurrentUserDataRef().child("subscribedToAddEvent").setValue(false);
-                                    Toast.makeText(requireContext(), "You will stop being notified when there will be new event added", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "You will stop being notified when there will be new event added", Toast.LENGTH_SHORT).show();
                                 }
                                 else {
-                                    Toast.makeText(requireContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
                                     switch_add_event.toggle();
                                 }
                             }
@@ -242,10 +241,10 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
                                     FirebaseUtils.getCurrentUserDataRef().child("subscribedToEditEvent").setValue(true);
-                                    Toast.makeText(requireContext(), "You will be notified when any event will be edited", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "You will be notified when any event will be edited", Toast.LENGTH_SHORT).show();
                                 }
                                 else {
-                                    Toast.makeText(requireContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
                                     switch_edit_event.toggle();
                                 }
                             }
@@ -258,10 +257,10 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
                                     FirebaseUtils.getCurrentUserDataRef().child("subscribedToEditEvent").setValue(false);
-                                    Toast.makeText(requireContext(), "You will stop being notified when any event will be edited", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "You will stop being notified when any event will be edited", Toast.LENGTH_SHORT).show();
                                 }
                                 else {
-                                    Toast.makeText(requireContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
                                     switch_edit_event.toggle();
                                 }
                             }
@@ -277,10 +276,10 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
                                     FirebaseUtils.getCurrentUserDataRef().child("subscribedToDeleteEvent").setValue(true);
-                                    Toast.makeText(requireContext(), "You will be notified when any event will be deleted", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "You will be notified when any event will be deleted", Toast.LENGTH_SHORT).show();
                                 }
                                 else {
-                                    Toast.makeText(requireContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
                                     switch_delete_event.toggle();
                                 }
                             }
@@ -293,10 +292,10 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
                                     FirebaseUtils.getCurrentUserDataRef().child("subscribedToDeleteEvent").setValue(false);
-                                    Toast.makeText(requireContext(), "You will stop being notified when any event will be deleted", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "You will stop being notified when any event will be deleted", Toast.LENGTH_SHORT).show();
                                 }
                                 else {
-                                    Toast.makeText(requireContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
                                     switch_delete_event.toggle();
                                 }
                             }
@@ -369,11 +368,13 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()){
                                         FirebaseUtils.getCurrentUserDataRef().child(subscription).setValue(true);
-                                        Toast.makeText(requireContext(), subscribedMsg, Toast.LENGTH_SHORT).show();
+//                                        Toast.makeText(getContext(), subscribedMsg, Toast.LENGTH_SHORT).show();
+                                        Utils.showToast(getContext(), subscribedMsg);
                                     }
                                     else {
-                                        Toast.makeText(requireContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
-                                        switch_add_event.toggle();
+//                                        Toast.makeText(getContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
+                                        Utils.showToast(getContext(), "Ups... Something went wrong");
+                                        switchCompat.toggle();
                                     }
                                 }
                             });
@@ -385,11 +386,13 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()){
                                         FirebaseUtils.getCurrentUserDataRef().child(subscription).setValue(false);
-                                        Toast.makeText(requireContext(), unsubscribedMsg, Toast.LENGTH_SHORT).show();
+//                                        Toast.makeText(getContext(), unsubscribedMsg, Toast.LENGTH_SHORT).show();
+                                        Utils.showToast(getContext(), unsubscribedMsg);
                                     }
                                     else {
-                                        Toast.makeText(requireContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
-                                        switch_add_event.toggle();
+//                                        Toast.makeText(getContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
+                                        Utils.showToast(getContext(), "Ups... Something went wrong");
+                                        switchCompat.toggle();
                                     }
                                 }
                             });
@@ -402,15 +405,18 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                                 if (task.isSuccessful()){
 
                                     if(switchCompat.isChecked()){
-                                        Toast.makeText(requireContext(), subscribedMsg, Toast.LENGTH_SHORT).show();
+//                                        Toast.makeText(getContext(), subscribedMsg, Toast.LENGTH_SHORT).show();
+                                        Utils.showToast(getContext(), subscribedMsg);
                                     }
                                     else {
-                                        Toast.makeText(requireContext(), unsubscribedMsg, Toast.LENGTH_SHORT).show();
+//                                        Toast.makeText(getContext(), unsubscribedMsg, Toast.LENGTH_SHORT).show();
+                                        Utils.showToast(getContext(), unsubscribedMsg);
                                     }
 
                                 }
                                 else {
-                                    Toast.makeText(requireContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
+                                    Utils.showToast(getContext(), "Ups... Something went wrong");
+//                                    Toast.makeText(getContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
                                     switchCompat.toggle();
                                 }
                             }

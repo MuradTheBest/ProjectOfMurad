@@ -24,12 +24,12 @@ import java.util.Locale;
 public class Training implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
-    public int uid;
+    public int id;
 
     private String privateId;
 
     private String eventPrivateId;
-    private String userID;
+    private String UID;
 
     private int day;
     private int month;
@@ -73,17 +73,20 @@ public class Training implements Serializable {
 
     private int color;
 
+    private String date;
+    private String dateTime;
+
     @Ignore
     public final static String KEY_TRAINING = "key_training";
 
     @Ignore
-    public final static String KEY_TRAINING_UID = "training_uid";
+    public final static String KEY_TRAINING_ID = "training_uid";
     @Ignore
     public final static String KEY_TRAINING_PRIVATE_ID = "training_privateId";
     @Ignore
     public final static String KEY_TRAINING_EVENT_PRIVATE_ID = "training_eventPrivateId";
     @Ignore
-    public final static String KEY_TRAINING_USER_ID = "training_userID";
+    public final static String KEY_TRAINING_UID = "training_userID";
     @Ignore
     public final static String KEY_TRAINING_DAY = "training_day";
     @Ignore
@@ -361,6 +364,10 @@ public class Training implements Serializable {
         return time;
     }
 
+    public String getTimeText() {
+        return getDurationFromTime(time);
+    }
+
     public void setTime(long time) {
         this.time = time;
     }
@@ -464,12 +471,12 @@ public class Training implements Serializable {
         this.eventPrivateId = eventPrivateId;
     }
 
-    public String getUserID() {
-        return userID;
+    public String getUID() {
+        return UID;
     }
 
-    public void setUserID(String userID) {
-        this.userID = userID;
+    public void setUID(String UID) {
+        this.UID = UID;
     }
 
     public String getDuration() {
@@ -502,5 +509,23 @@ public class Training implements Serializable {
 
     public void setMaxPace(String maxPace) {
         this.maxPace = maxPace;
+    }
+
+    public String getDate() {
+        return startDate.equals(endDate) ? startDate : startDate + " -\n" + endDate;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getDateTime() {
+        return startDate.equals(endDate) ?
+                (startDate + "\n" + startTime + " - " + endTime) :
+                (startDate + " -\n" + endDate + "\n" + startTime + " - " + endTime);
+    }
+
+    public void setDateTime(String dateTime) {
+        this.dateTime = dateTime;
     }
 }

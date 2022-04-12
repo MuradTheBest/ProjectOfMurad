@@ -18,6 +18,7 @@ import android.graphics.Color;
 import android.graphics.Path;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.AnyRes;
 import androidx.annotation.NonNull;
@@ -37,6 +38,7 @@ import java.util.Random;
 public class Utils {
 
     public final static String LOG_TAG = "murad";
+    public final static String EVENT_TAG = "CalendarEvent";
 
     public static final int ALARM_FOR_EVENT_NOTIFICATION_CODE = 100;
 
@@ -313,6 +315,14 @@ public class Utils {
 
     @NonNull
     @Contract("_ -> param1")
+    public static Dialog createCustomPickerDialog(@NonNull Dialog dialog){
+        dialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.round_picker_dialog_background);
+        return dialog;
+    }
+
+    @NonNull
+    @Contract("_ -> param1")
     public static BottomSheetDialog createCustomBottomSheetDialog(@NonNull BottomSheetDialog bottomSheetDialog){
         bottomSheetDialog.setDismissWithAnimation(true);
         return bottomSheetDialog;
@@ -448,5 +458,11 @@ public class Utils {
         Log.d(Utils.LOG_TAG, beforeText);
 
         return beforeText;
+    }
+
+    public static void showToast(Context context, String msg){
+        if (context != null){
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+        }
     }
 }

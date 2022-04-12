@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.SET_ALARM" />
@@ -28,10 +29,22 @@
         android:label="ProjectOfMurad"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:screenOrientation="landscape"
+        android:screenOrientation="locked"
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjectOfMurad"
         tools:replace="android:label">
+
+        <receiver
+            android:name=".notifications.ReceiverForStartingActivity"
+            android:enabled="true"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="com.example.projectofmurad.action_to_start_activity_from_notification"/>
+            </intent-filter>
+
+        </receiver>
+
         <activity
             android:name=".Graphs_Screen"
             android:exported="false" />
@@ -39,7 +52,8 @@
         <receiver
             android:name=".tracking.ActivityBroadcastReceiver"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"
+            android:permission="TODO" />
 
         <activity
             android:name=".calendar.Event_Screen"
@@ -83,12 +97,14 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <meta-data android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_baseline_directions_bike_24"
+            />
+
         <service
             android:name=".tracking.TrackingService"
             android:enabled="true"
-            android:exported="false" />
-        <service
-            android:name=".mService"
             android:exported="false" />
 
         <receiver android:name=".notifications.AlarmReceiver" />
@@ -98,7 +114,8 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="false">
+            android:exported="false"
+            android:theme="@style/Theme.ProjectOfMurad.NoActionBar">
 
             <!--
             <intent-filter>
@@ -124,13 +141,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".calendar.Add_Event_Screen"
-            android:exported="false" />
-        <activity
             android:name=".calendar.Edit_Event_Screen"
-            android:exported="false" />
-        <activity
-            android:name=".calendar.Calendar_Screen"
             android:exported="false" />
     </application>
 

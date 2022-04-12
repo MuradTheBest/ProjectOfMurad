@@ -11,40 +11,41 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.example.projectofmurad.BuildConfig;
 import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.LinearLayoutManagerWrapper;
+import com.example.projectofmurad.MainViewModel;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.RecyclerViewSwipeDecorator;
+import com.example.projectofmurad.Utils;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
@@ -52,12 +53,12 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
-        EventsAdapterForFirebase.OnEventClickListener, Calendar_Screen.OnEventShowListener,
+public class DayDialog extends Dialog implements
+        EventsAdapterForFirebase.OnEventClickListener,
         EventsAdapterForFirebase.OnEventExpandListener{
 
-    private LocalDate passingDate;
-    private Context context;
+    public final LocalDate passingDate;
+    private final Context context;
 
     private ArrayList<CalendarEvent> calendarEventArrayList;
 
@@ -67,22 +68,31 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
     private RecyclerView rv_events;
     private EventsAdapterForFirebase adapterForFirebase;
 
-    private FirebaseDatabase firebase;
+
     private DatabaseReference eventsDatabase;
 
     private FirebaseRecyclerOptions<CalendarEvent> options;
 
-    private Animation scale;
-
     public static final String ACTION_TO_SHOW_EVENT = BuildConfig.APPLICATION_ID + "to show event";
 
-    public DayDialogFragmentWithRecyclerView2(@NonNull Context context, LocalDate passingDate) {
+    FragmentManager fm;
+
+    private String event_private_id;
+
+    public DayDialog(@NonNull Context context, LocalDate passingDate, String event_private_id) {
         super(context);
         this.passingDate = passingDate;
+
+        Log.d(Utils.LOG_TAG, "passingDate is " + UtilsCalendar.DateToTextOnline(passingDate));
+
         this.context = context;
 
         this.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
         this.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
+
+        this.fm = ((FragmentActivity) context).getSupportFragmentManager();
+
+        this.event_private_id = event_private_id;
 
         vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -90,18 +100,11 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
         }
     }
 
-    public DayDialogFragmentWithRecyclerView2(@NonNull Context context, LocalDate passingDate, int themeResId) {
-        super(context, themeResId);
-        this.passingDate = passingDate;
-        this.context = context;
-
-//        this.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
-        this.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
+    public LocalDate getPassingDate() {
+        return passingDate;
     }
 
-    /*public DayDialogFragment(@NonNull Context context, LocalDate passingDate, int themeResId) {
-        super(context, themeResId);
-    }*/
+    MainViewModel mainViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +126,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
         TextView tv_no_events = this.findViewById(R.id.tv_no_events);
         tv_no_events.setVisibility(View.GONE);
 
-        firebase = FirebaseDatabase.getInstance();
+
         eventsDatabase = FirebaseUtils.eventsDatabase;
 
         calendarEventArrayList = new ArrayList<>();
@@ -158,8 +161,15 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
         Log.d("murad", "options.getItemCount() = " + options.getSnapshots().size());
 
         rv_events.setAdapter(adapterForFirebase);
+
+        mainViewModel = new ViewModelProvider((ViewModelStoreOwner) context).get(MainViewModel.class);
+
         Log.d("murad", "rv_events.getChildCount() = " + rv_events.getChildCount());
-        rv_events.setLayoutManager(new LinearLayoutManager(context));
+
+        LinearLayoutManagerWrapper layoutManager = new LinearLayoutManagerWrapper(getContext());
+        layoutManager.setCallback(() -> showEvent(event_private_id));
+
+        rv_events.setLayoutManager(layoutManager);
         rv_events.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
@@ -189,6 +199,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
                 }
             }
         });
+
 
         eventsDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -254,60 +265,44 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
 //        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(rv_events);
 
-        scale = AnimationUtils.loadAnimation(getContext(), R.anim.scale);
-
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, @NonNull Intent intent) {
                 String action = intent.getAction();
-                int position = 0;
-/*
-                if (ACTION_TO_SHOW_EVENT.equals(action)) {
-                    Log.d("murad", "broadcastReceiver for today triggered");
-                    String event_private_id = intent.getStringExtra("event_private_id");
-//                        View view = rv_events.findViewWithTag(event_private_id);
-//                        view.getBackground().setTint(Color.BLACK);
-//
-//                        int position = rv_events.getChildViewHolder(view).getAbsoluteAdapterPosition();
 
-                    Log.d("murad", "event_private_id is " + event_private_id);
+                if (action.equals(ACTION_TO_SHOW_EVENT)){
 
+                    String event_private_id = intent.getStringExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID);
 
-                    */
-/*for (int i = 0; i < options.getSnapshots().size(); i++) {
-                        if (options.getSnapshots().get(i).getPrivateId().equals(
-                                event_private_id)) {
-                            Log.d("murad", options.getSnapshots().get(i).toString());
+                    Log.d(Utils.LOG_TAG, "mainViewModel event_private_id is " + event_private_id);
+
+                    int position = -1;
+
+                    int i = 0;
+                    for (CalendarEvent calendarEvent : options.getSnapshots()){
+                        if (calendarEvent.getPrivateId().equals(event_private_id)){
                             position = i;
-                            break;
                         }
-                    }*//*
+                        i++;
+                    }
 
-//        rv_events.getChildViewHolder(view);
-//        rv_events.getChildViewHolder(view).itemView.getBackground().setTint(Color.WHITE);
-                    */
-/*rv_events.smoothScrollToPosition(position);
-                    *//*
-*/
-/*rv_events.findViewHolderForAdapterPosition(
-                            position).itemView.getBackground().setTint(Color.WHITE);*//*
-*/
-/*
+                    if (rv_events.findViewHolderForAdapterPosition(position) != null && position > -1){
+                        View event = rv_events.findViewHolderForAdapterPosition(position).itemView;
 
-                    rv_events.findViewHolderForAdapterPosition(
-                            position).itemView.startAnimation(scale);
-                    rv_events.startLayoutAnimation();*//*
+                        Runnable unPressRunnable = () -> event.setPressed(false);
 
+                        Runnable pressRunnable = new Runnable() {
+                            @Override
+                            public void run() {
+                                event.setPressed(true);
+                                event.postOnAnimationDelayed(unPressRunnable, 1000);
+                            }
+                        };
 
-                    int pos = rv_events.getChildViewHolder(rv_events.findViewWithTag(event_private_id)).getAbsoluteAdapterPosition();
-                    rv_events.smoothScrollToPosition(pos);
-                    Log.d("murad", "notification event_private_id is " + event_private_id);
-                    Log.d("murad", "notification position is " + pos);
-                    new Handler().postDelayed(() ->
-                            rv_events.findViewWithTag(event_private_id).getBackground().setTint(Color.TRANSPARENT), 300);
+                        new Handler().postDelayed(pressRunnable, 500);
+                    }
 
                 }
-*/
             }
         };
 
@@ -363,7 +358,6 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
             return false;
         }
     };
-
 
 /*
     private void revealShow(View dialogView, boolean b, final Dialog dialog) {
@@ -421,6 +415,43 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
     protected void onStop() {
         super.onStop();
         adapterForFirebase.stopListening();
+    }
+
+    public void showEvent(String event_private_id){
+
+        Log.d(Utils.LOG_TAG, "mainViewModel event_private_id in DayDialog is " + event_private_id);
+        if (event_private_id == null){
+            return;
+        }
+
+        int position = -1;
+
+        int i = 0;
+        for (CalendarEvent calendarEvent : options.getSnapshots()){
+            if (calendarEvent.getPrivateId().equals(event_private_id)){
+                position = i;
+                Log.d(Utils.LOG_TAG, "mainViewModel position = " + position);
+            }
+            i++;
+        }
+
+        if (rv_events.findViewHolderForAdapterPosition(position) != null && position > -1){
+            View event = rv_events.findViewHolderForAdapterPosition(position).itemView;
+
+            Log.d(Utils.LOG_TAG, "mainViewModel pressing event");
+
+            Runnable unPressRunnable = () -> event.setPressed(false);
+
+            Runnable pressRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    event.setPressed(true);
+                    event.postOnAnimationDelayed(unPressRunnable, 1000);
+                }
+            };
+
+            new Handler().postDelayed(pressRunnable, 1000);
+        }
     }
 
     @Override
@@ -561,7 +592,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
                         ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).switch_alarm.toggle();
                     }*/
 
-                    ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).switch_alarm.toggle();
+                    ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).switch_alarm.performClick();
 
                     Log.d("murad", "swipe ******************************************************");
                     Log.d("murad", "swipe  switch_alarm is " + ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).switch_alarm.isChecked());
@@ -570,7 +601,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
                             .setAction("Undo", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).switch_alarm.toggle();
+                                    ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).switch_alarm.performClick();
                                 }
                             }).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show();
                     break;
@@ -586,7 +617,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
                                 public void onClick(View view) {
                                     ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).checkbox_all_attendances.toggle();
                                 }
-                            }).setGestureInsetBottomIgnored(true).setAnimationMode(Snackbar.ANIMATION_MODE_FADE).show();
+                            })/*.setGestureInsetBottomIgnored(true)*/.setAnimationMode(Snackbar.ANIMATION_MODE_FADE).show();
 
                     break;
 
@@ -615,7 +646,7 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
 
             if (dX < 0 && !alarmSet){
                 if (-dX != 0){
-                    dX += -50;
+//                    dX += -50;
                 }
             /*if (-dX < 100){
                 text = "At timeData of the event";
@@ -732,52 +763,10 @@ public class DayDialogFragmentWithRecyclerView2 extends Dialog implements
 
     @Override
     public void onEventClick(int position, @NonNull CalendarEvent event) {
-//        this.dismiss();
-
-        /*Intent intent = new Intent(context, Edit_Event_Screen.class);
-        intent.putExtra("event", event);
-
-        getContext().startActivity(intent);*/
-
-        FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
-
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(UtilsCalendar.KEY_EVENT, event);
-        bundle.putSerializable(Event_Info_DialogFragment.ARG_IS_SHOWS_DIALOG, true);
-
-/*        BlankFragment blankFragment = new BlankFragment();
-        blankFragment.show(fm, "event_details_fragment");*/
-
-        Event_Info_DialogFragment event_info_dialogFragment = new Event_Info_DialogFragment();
-        event_info_dialogFragment.show(fm, "event_details_fragment");
-        event_info_dialogFragment.setArguments(bundle);
-
-    }
-
-    @Override
-    public void onEventShow(String event_private_id) {
-        View view = rv_events.findViewWithTag(event_private_id);
-        view.getBackground().setTint(Color.BLACK);
-
-        int position = rv_events.getChildViewHolder(view).getAbsoluteAdapterPosition();
-
-        Log.d("murad", "event_private_id is " + event_private_id);
-
-
-        for (int i = 0; i < options.getSnapshots().size(); i++) {
-            if(options.getSnapshots().get(i).getPrivateId().equals(event_private_id)){
-                Log.d("murad", options.getSnapshots().get(i).toString());
-                position = i;
-                break;
-            }
+        if (fm.findFragmentByTag(Event_Info_DialogFragment.TAG) == null){
+            Event_Info_DialogFragment event_info_dialogFragment = Event_Info_DialogFragment.newInstance(event, true);
+            event_info_dialogFragment.show(fm, Event_Info_DialogFragment.TAG);
         }
-
-
-//        rv_events.getChildViewHolder(view);
-//        rv_events.getChildViewHolder(view).itemView.getBackground().setTint(Color.WHITE);
-        rv_events.scrollToPosition(position);
-        rv_events.findViewHolderForAdapterPosition(position).itemView.getBackground().setTint(Color.WHITE);
-
     }
 
     @Override

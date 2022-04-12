@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -21,11 +22,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
+import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
-import com.example.projectofmurad.calendar.Calendar_Screen;
-import com.example.projectofmurad.calendar.DayDialogFragmentWithRecyclerView2;
+import com.example.projectofmurad.calendar.DayDialog;
 import com.example.projectofmurad.calendar.UtilsCalendar;
 
 public class AlarmReceiver extends BroadcastReceiver {
@@ -60,24 +61,34 @@ public class AlarmReceiver extends BroadcastReceiver {
         String event_private_id = intent.getStringExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID);
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(ALARM_NOTIFICATION_ID);
+
+        StatusBarNotification[] alarmList = notificationManager.getActiveNotifications();
+
+        for (StatusBarNotification statusBarNotification : alarmList) {
+            if (statusBarNotification.getId() == ALARM_NOTIFICATION_ID) {
+                String tag = statusBarNotification.getTag();
+                notificationManager.cancel(tag, ALARM_NOTIFICATION_ID);
+            }
+        }
 
         SQLiteDatabase db = Utils.openOrCreateDatabase(context);
 
         Utils.deleteAlarm(event_private_id, db);
     }
-
     
-    @SuppressLint("MissingPermission")
+    @SuppressLint({"MissingPermission", "NotificationTrampoline"})
     public void showNotification(@NonNull Context context, @NonNull Intent intent){
         //we will use vibrator first
         Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 
         VibrationEffect vibrationEffect = VibrationEffect.createOneShot(6000, VibrationEffect.DEFAULT_AMPLITUDE);
-        long[] timings = new long[]{0, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000};
+        long[] timings = new long[]{0, 1000, 1000, 1000, 1000, 1000, 1000,
+                1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000,
+                1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000/*,
+                1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000*/};
         VibrationEffect alarmVibrationEffect = VibrationEffect.createWaveform(timings, VibrationEffect.DEFAULT_AMPLITUDE);
 //        vibrator.vibrate(vibrationEffect);
-        vibrator.vibrate(timings, 1);
+//        vibrator.vibrate(timings, 0);
 
         Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
 
@@ -101,21 +112,20 @@ public class AlarmReceiver extends BroadcastReceiver {
             Log.d("murad", "event is not null");
         }
 
-
-        Intent i = new Intent(context, Calendar_Screen.class);
-        i.setAction(DayDialogFragmentWithRecyclerView2.ACTION_TO_SHOW_EVENT);
+        Intent i = new Intent(context, MainActivity.class);
+        i.setAction(DayDialog.ACTION_TO_SHOW_EVENT);
         i.putExtra("isAlarm", true);
         i.putExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID, event.getPrivateId());
         Log.d(AlarmManagerForToday.TAG, "private id for event for alarm notification to show it is " + event.getPrivateId());
         i.putExtra(UtilsCalendar.KEY_EVENT_START_DATE_TIME, event.getStart());
 //        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         Log.d("murad", event.toString());
 
         int requestCode = intent.getIntExtra("requestCode", 2);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, requestCode /* Request code */, i,
-                PendingIntent.FLAG_IMMUTABLE);
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         /*NotificationHelper notificationHelper = new NotificationHelper(context);
         NotificationCompat.Builder nb = notificationHelper.getChannelNotification()
@@ -134,7 +144,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         notificationHelper.getManager().notify(1, nb.build());*/
 
-        SQLiteDatabase db = context.openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
+        SQLiteDatabase db = Utils.openOrCreateDatabase(context);
 //        int notification_id = Utils.getNotificationId(db);
         String notification_tag = event.getPrivateId();
 
@@ -162,26 +172,32 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setAutoCancel(true)
                 .addAction(action)
                 .setVibrate(timings)
+                .setLights(color, 3000, 3000)
                 .setSound(alarmUri)
                 .setContentIntent(pendingIntent)
+                .setFullScreenIntent(pendingIntent, false)
                 .setPriority(NotificationManager.IMPORTANCE_HIGH)
                 .setCategory(Notification.CATEGORY_ALARM);
 
 
-        NotificationManager notificationManager =
-                (NotificationManager) context.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) context.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
 
-        String channelId = "CHANNEL_ID";
+        String channelId = "alarm_channel_id_2";
         NotificationChannel channel = new NotificationChannel(
                 channelId,
-                "Channel human readable title",
+                "Channel for alarms",
                 NotificationManager.IMPORTANCE_HIGH);
-        notificationManager.createNotificationChannel(channel);
+
+        channel.enableVibration(true);
+        channel.setVibrationPattern(timings);
+        channel.enableLights(true);
+        channel.setLightColor(color);
 
         builder.setChannelId(channelId);
 
-        channel.setVibrationPattern(timings);
+        notificationManager.createNotificationChannel(channel);
+
 
 // notificationId is a unique int for each notification that you must define
 

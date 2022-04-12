@@ -1,19 +1,17 @@
+/*
 package com.example.projectofmurad.calendar;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Vibrator;
 import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
 import android.transition.Slide;
@@ -30,7 +28,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -51,6 +48,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -135,10 +133,12 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         });
 
 
+*/
 /*        LocalDate now = LocalDate.now();
         DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("dd LLLL", UtilsCalendar.locale);
 
-        monthYearText.setText(now.format(simpleDateFormat));*/
+        monthYearText.setText(now.format(simpleDateFormat));*//*
+
 
         ll_calendar_view = findViewById(R.id.ll_calendar_view);
 
@@ -193,11 +193,13 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
                             int finalColor = Color.GRAY | ((TextView) calendarRecyclerView.findViewHolderForAdapterPosition(i).
                                     itemView.findViewById(R.id.cellDayText)).getCurrentTextColor();
 
+*/
 /*                            if(((TextView) calendarRecyclerView.findViewHolderForAdapterPosition(i).
                                     itemView.findViewById(R.id.cellDayText)).getCurrentTextColor() == Color.RED){
 
                                 finalColor = finalColor | Color.RED;
-                            }*/
+                            }*//*
+
 
                             ((TextView) calendarRecyclerView.findViewHolderForAdapterPosition(i).
                                     itemView.findViewById(R.id.cellDayText)).setTextColor(finalColor);
@@ -208,11 +210,13 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
                             int finalColor = Color.GRAY | ((TextView) calendarRecyclerView.findViewHolderForAdapterPosition(i).
                                     itemView.findViewById(R.id.cellDayText)).getCurrentTextColor();
 
+*/
 /*                            if(((TextView) calendarRecyclerView.findViewHolderForAdapterPosition(i).
                                     itemView.findViewById(R.id.cellDayText)).getCurrentTextColor() == Color.RED){
 
                                 finalColor = finalColor | Color.RED;
-                            }*/
+                            }*//*
+
 
                             ((TextView) calendarRecyclerView.findViewHolderForAdapterPosition(i).
                                     itemView.findViewById(R.id.cellDayText)).setTextColor(finalColor);
@@ -221,7 +225,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
                         }
                         break;
 
-                    case DayDialogFragmentWithRecyclerView2.ACTION_TO_SHOW_EVENT:
+                    case DayDialog.ACTION_TO_SHOW_EVENT:
                         break;
                 }
             }
@@ -232,7 +236,7 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         intentFilter.addAction(action_to_find_today);
         intentFilter.addAction(action_to_change_previous);
         intentFilter.addAction(action_to_change_next);
-        intentFilter.addAction(DayDialogFragmentWithRecyclerView2.ACTION_TO_SHOW_EVENT);
+        intentFilter.addAction(DayDialog.ACTION_TO_SHOW_EVENT);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
 
@@ -240,85 +244,6 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         Toast.makeText(getApplicationContext(), day, Toast.LENGTH_SHORT).show();
         initAllDaysOfWeek();
         setMonthView();
-
-        if (gotten_intent.getAction() != null && gotten_intent.getAction().equals(DayDialogFragmentWithRecyclerView2.ACTION_TO_SHOW_EVENT)){
-            showEvent();
-        }
-
-    }
-
-
-    public void showEvent(){
-
-/*            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            vibrator.cancel();*/
-//            action = gotten_intent.getBooleanExtra("action", false);
-        String event_private_id = gotten_intent.getStringExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID);
-/*
-            if (action){
-                Toast.makeText(this, "Opening from notification", Toast.LENGTH_SHORT).show();
-//            onItemClick(positionOfToday, "" + today.getDayOfMonth(), today);
-                Log.d("murad", "===============================================");
-                Log.d("murad", "event_private_id = " + event_private_id);
-                Log.d("murad", "===============================================");
-
-                long start = gotten_intent.getLongExtra("start_time", Calendar.getInstance().getTimeInMillis());
-                LocalDate goTo = CalendarEvent.getDate(start);
-                Log.d("murad", "start is " + UtilsCalendar.DateToTextLocal(CalendarEvent.getDate(start)));
-                selectedDate = goTo;
-                prev = 0;
-                next = 1;
-                direction = 0;
-                setMonthView();
-                new Handler().postDelayed(() -> createDayDialog(goTo, event_private_id), 500);
-
-            }
-*/
-
-        Toast.makeText(this, "Opening from notification", Toast.LENGTH_SHORT).show();
-//            onItemClick(positionOfToday, "" + today.getDayOfMonth(), today);
-        Log.d("murad", "===============================================");
-        Log.d("murad", "event_private_id = " + event_private_id);
-        Log.d("murad", "===============================================");
-
-        Log.d(AlarmManagerForToday.TAG, "===============================================");
-        Log.d(AlarmManagerForToday.TAG, "event_private_id = " + event_private_id);
-        Log.d(AlarmManagerForToday.TAG, "===============================================");
-
-        long start = gotten_intent.getLongExtra(UtilsCalendar.KEY_EVENT_START_DATE_TIME, Calendar.getInstance().getTimeInMillis());
-        LocalDate goTo = CalendarEvent.getDate(start);
-        Log.d("murad", "start is " + UtilsCalendar.DateToTextLocal(CalendarEvent.getDate(start)));
-        selectedDate = goTo;
-        prev = 0;
-        next = 1;
-        direction = 0;
-        setMonthView();
-        new Handler().postDelayed(() -> createDayDialog(goTo, event_private_id), 500);
-
-
-        String isAlarm = gotten_intent.getStringExtra("isAlarm");
-        Log.d(AlarmManagerForToday.TAG, "isAlarm = " + isAlarm);
-
-        if(isAlarm.equals("true")){
-            Log.d(AlarmManagerForToday.TAG, "sending intent to alarm receiver to stop vibration");
-                /*Intent intent_stop_alarm = new Intent(this, AlarmReceiver.class);
-                intent_stop_alarm.setAction(AlarmReceiver.ACTION_STOP_VIBRATION);
-                intent_stop_alarm.putExtra("event_private_id", event_private_id);
-
-                LocalBroadcastManager.getInstance(this).sendBroadcast(intent_stop_alarm);*/
-
-            Toast.makeText(this, "Stopping vibration", Toast.LENGTH_SHORT).show();
-            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            vibrator.cancel();
-
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancel(AlarmReceiver.ALARM_NOTIFICATION_ID);
-
-            SQLiteDatabase db = Utils.openOrCreateDatabase(this);
-
-            Utils.deleteAlarm(event_private_id, db);
-        }
-
 
     }
 
@@ -342,13 +267,16 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
 
             long start = intent.getLongExtra(UtilsCalendar.KEY_EVENT_START_DATE_TIME, Calendar.getInstance().getTimeInMillis());
             LocalDate goTo = CalendarEvent.getDate(start);
-            Log.d("murad", "start is " + UtilsCalendar.DateToTextLocal(CalendarEvent.getDate(start)));
+            Log.d("murad", "start is " + new Date(start));
 
             selectedDate = goTo;
             prev = 0;
             next = 1;
             direction = 0;
             setMonthView();
+
+            Log.d(Utils.LOG_TAG, "goTo is " + UtilsCalendar.DateToTextOnline(goTo));
+
             new Handler().postDelayed(() -> createDayDialog(goTo, event_private_id), 500);
 
 
@@ -364,14 +292,14 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
                 sendBroadcast(intent_stop_alarm);
             }
 
-
         }
     }
 
     public boolean action;
 
     public void sendAlarm(View view) {
-        /*FirebaseUtils.allEventsDatabase.orderByChild("timeData").limitToLast(1).addListenerForSingleValueEvent(
+        */
+/*FirebaseUtils.allEventsDatabase.orderByChild("timeData").limitToLast(1).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -393,7 +321,8 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
                     public void onCancelled(@NonNull DatabaseError error) {
 
                     }
-                });*/
+                });*//*
+
 
         CalendarEvent calendarEvent = new CalendarEvent();
         calendarEvent.setName("Sample Event");
@@ -589,7 +518,8 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
         return daysInMonthArray;
     }
 
-    /**
+    */
+/**
      * Method cleans up days from previous or next month in current month view
      * if amount any of them is bigger than 7.
      * <p>
@@ -598,7 +528,8 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
      * @param daysInMonthArray <b>days in current month</b>
      * <p>
      * @return ArrayList<LocalDate> for current month view
-     */
+     *//*
+
     private void cleanupCalendar(int prevDays, int nextDays, @NonNull ArrayList<LocalDate> daysInMonthArray) {
         length = daysInMonthArray.size();
         Log.d("murad", "old length " + length);
@@ -652,7 +583,8 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
             Log.d("murad","dayOfWeek " + dayOfWeek);
             Log.d("murad","lengthOfMonth " + passingDate.lengthOfMonth());
 
-            /*if(position < dayOfWeek) {
+            */
+/*if(position < dayOfWeek) {
                 LocalDate previousMonth = selectedDate.minusMonths(1);
                 selectedDate = previousMonth;
                 int firstDayOfWeekOfPreviousMonth = previousMonth.withDayOfMonth(1).getDayOfWeek().getValue();
@@ -675,7 +607,8 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
                 prev = 0;
                 next = 1;
                 setMonthView();
-            }*/
+            }*//*
+
 
             int duration = 0;
 
@@ -694,14 +627,16 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
 
                 old_position = position;
 
-            /*if(passingDate == today){
+            */
+/*if(passingDate == today){
                 calendarRecyclerView.findViewHolderForAdapterPosition(position).itemView.setBackgroundResource(R.drawable.calendar_cell_today_and_selected_background);
             }
             else {
                 if(selectedDate.getMonth().equals(today.getMonth()) && selectedDate.getYear() == today.getYear()){
                     calendarRecyclerView.findViewHolderForAdapterPosition(positionOfToday).itemView.setBackgroundResource(R.drawable.calendar_cell_text_today_background);
                 }
-            }*/
+            }*//*
+
 
                 calendarRecyclerView.findViewHolderForAdapterPosition(position).itemView.
                         setBackgroundResource(R.drawable.calendar_cell_selected_background);
@@ -723,25 +658,25 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
 
     public OnEventShowListener onEventShowListener;
 
-    private DayDialogFragmentWithRecyclerView2 dayDialogFragment;
-
+    private DayDialog dayDialogFragment;
 
     
     public void createDayDialog(LocalDate passingDate, String event_private_id){
-//        DayDialogFragmentWithRecyclerView2 dayDialogFragment = new DayDialogFragmentWithRecyclerView2(Calendar_Screen.this, passingDate, R.style.RoundedCornersDialog);
-        if (dayDialogFragment != null && dayDialogFragment.isShowing()){
-            dayDialogFragment.dismiss();
-        }
 
-        dayDialogFragment = new DayDialogFragmentWithRecyclerView2(Calendar_Screen.this, passingDate);
-        dayDialogFragment.show();
+        if (dayDialogFragment == null || !dayDialogFragment.isShowing()){
+
+            dayDialogFragment = new DayDialog(Calendar_Screen.this, passingDate);
+            dayDialogFragment.show();
+        }
 
         if (event_private_id != null){
             Log.d("murad", "event_private_id is not null");
-            /*onEventShowListener = (OnEventShowListener) dayDialogFragment.getOwnerActivity();
-            onEventShowListener.onEventShow(event_private_id);*/
-            Intent i = new Intent(DayDialogFragmentWithRecyclerView2.ACTION_TO_SHOW_EVENT);
-            i.putExtra("event_private_id", event_private_id);
+            */
+/*onEventShowListener = (OnEventShowListener) dayDialogFragment.getOwnerActivity();
+            onEventShowListener.onEventShow(event_private_id);*//*
+
+            Intent i = new Intent(DayDialog.ACTION_TO_SHOW_EVENT);
+            i.putExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID, event_private_id);
             LocalBroadcastManager.getInstance(this).sendBroadcast(i);
         }
     }
@@ -814,3 +749,4 @@ public class Calendar_Screen extends AppCompatActivity implements CalendarAdapte
 
 
 
+*/

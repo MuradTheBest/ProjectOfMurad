@@ -64,7 +64,22 @@
 
         </com.facebook.shimmer.ShimmerFrameLayout>
 
-        <!--<EditText
+
+        <LinearLayout
+            android:id="@+id/ll_user_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="25sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.491"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_profile_picture"
+            app:layout_constraintVertical_bias="0.02"
+            android:gravity="center">
+
+            <!--<EditText
             android:id="@+id/et_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -76,140 +91,120 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.273" />-->
 
-        <!--<EditText
-            android:id="@+id/et_email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Email:"
-            android:textSize="18sp"
-            android:inputType="textEmailAddress"
-            android:autofillHints="emailAddress"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_username"
-            app:layout_constraintVertical_bias="0.02" />-->
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/et_username"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:autofillHints="name"
-            android:hint="Username:"
-            android:inputType="text"
-            android:textColor="@color/colorAccent"
-            android:textSize="20sp"
-            app:boxBackgroundMode="outline"
-            app:endIconMode="clear_text"
-            app:endIconTint="@color/colorAccent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.491"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_profile_picture"
-            app:layout_constraintVertical_bias="0.04">
-
-            <com.google.android.material.textfield.TextInputEditText
+            <!--<EditText
+                android:id="@+id/et_email"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:autofillHints="name"
-                android:inputType="text" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/et_email"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:boxBackgroundMode="outline"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:hint="E-mail address"
-            android:autofillHints="emailAddress"
-            android:inputType="textEmailAddress"
-            android:textColor="@color/colorAccent"
-            app:helperTextTextColor="@color/red"
-            android:textSize="20sp"
-            app:endIconMode="clear_text"
-            app:endIconTint="@color/colorAccent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_username"
-            app:layout_constraintVertical_bias="0.02">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Email:"
+                android:textSize="18sp"
                 android:inputType="textEmailAddress"
                 android:autofillHints="emailAddress"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/et_username"
+                app:layout_constraintVertical_bias="0.02" />-->
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/et_username"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="name"
+                android:hint="Username"
+                android:inputType="text"
+                android:textColor="@color/colorAccent"
+                android:textSize="20sp"
+                app:boxBackgroundMode="outline"
+                app:endIconMode="clear_text"
+                app:endIconTint="@color/colorAccent"
+                android:layout_marginVertical="5sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.491"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/iv_profile_picture"
+                app:layout_constraintVertical_bias="0.02">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:autofillHints="name"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/et_email"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:boxBackgroundMode="outline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="E-mail address"
+                android:autofillHints="emailAddress"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/colorAccent"
+                app:helperTextTextColor="@color/red"
+                android:textSize="20sp"
+                app:endIconMode="clear_text"
+                app:endIconTint="@color/colorAccent"
+                android:layout_marginVertical="5sp"
+                app:errorTextColor="@color/red"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/et_username"
+                app:layout_constraintVertical_bias="0.02">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="textEmailAddress"
+                    android:autofillHints="emailAddress"
+                    />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/btn_verify_identity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Verify"
+                android:visibility="gone"
+                android:textSize="12sp"
                 />
 
-
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:id="@+id/tv_verify_email"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-
-            app:layout_constraintBottom_toBottomOf="@+id/et_email"
-            app:layout_constraintVertical_bias="1.0"
-            app:layout_constraintHorizontal_bias="1.0"
-            android:layout_marginEnd="1sp"
-            app:layout_constraintTop_toTopOf="@+id/et_email"
-            app:layout_constraintStart_toStartOf="@+id/et_email"
-            app:layout_constraintEnd_toEndOf="@+id/et_email"
-            android:text="Verify Email"
-            android:textColor="@color/colorAccent"
-            android:textStyle="bold"/>
-
-        <!--<EditText
-            android:id="@+id/et_phone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Phone:"
-            android:textSize="18sp"
-            android:inputType="phone"
-            android:autofillHints="phone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_email"
-            app:layout_constraintVertical_bias="0.02" />-->
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/et_phone"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:boxBackgroundMode="outline"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:textColor="@color/colorAccent"
-            android:textSize="20sp"
-            app:endIconMode="clear_text"
-            app:endIconTint="@color/colorAccent"
-            android:hint="Phone:"
-            app:prefixText="+972"
-            android:inputType="phone"
-            android:autofillHints="phone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_email"
-            app:layout_constraintVertical_bias="0.02">
-
-            <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/et_phone"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:boxBackgroundMode="outline"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorAccent"
+                android:textSize="20sp"
+                app:endIconMode="clear_text"
+                app:endIconTint="@color/colorAccent"
+                android:hint="Phone"
+                app:prefixText="+972"
                 android:inputType="phone"
                 android:autofillHints="phone"
-                />
+                android:layout_marginVertical="5sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/et_email">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="phone"
+                    android:autofillHints="phone"
+                    />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+        </LinearLayout>
 
         <CheckBox
             android:id="@+id/et_madrich"
@@ -223,7 +218,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_phone"
+            app:layout_constraintTop_toBottomOf="@+id/ll_user_data"
             app:layout_constraintVertical_bias="0.02" />
 
         <!--<Button
@@ -246,9 +241,19 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btn_verify_email"
-            app:layout_constraintVertical_bias="0.112" />
+            app:layout_constraintTop_toBottomOf="@+id/btn_change_password"
+            app:layout_constraintVertical_bias="0.2" />
 
+        <Button
+            android:id="@+id/btn_change_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change password"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
+            app:layout_constraintVertical_bias="0.2" />
 
         <Button
             android:id="@+id/btn_sign_out"
@@ -259,7 +264,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_delete_account"
-            app:layout_constraintVertical_bias="0.184" />
+            app:layout_constraintVertical_bias="0.2" />
 
         <RelativeLayout
             android:id="@+id/linearLayout4"
@@ -354,16 +359,6 @@
                 app:iconTintMode="multiply" />
 
         </RelativeLayout>
-
-        <Button
-            android:id="@+id/btn_verify_email"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Verify email"
-            app:layout_constraintEnd_toEndOf="@+id/linearLayout4"
-            app:layout_constraintStart_toStartOf="@+id/linearLayout4"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

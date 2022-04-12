@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public class UserAndTraining {
 
     private String UID;
+    private String eventPrivateId;
     private ArrayList<Training> training;
 
     public UserAndTraining() {}
@@ -14,6 +15,12 @@ public class UserAndTraining {
     public UserAndTraining(String UID, ArrayList<Training> training) {
         this.UID = UID;
         this.training = training;
+    }
+
+    public UserAndTraining(String UID, String eventPrivateId, ArrayList<Training> training) {
+        this.UID = UID;
+        this.training = training;
+        this.eventPrivateId = eventPrivateId;
     }
 
     public String getUID() {
@@ -30,5 +37,13 @@ public class UserAndTraining {
 
     public void setTraining(ArrayList<Training> training) {
         this.training = training;
+    }
+
+    public String getEventPrivateId() {
+        return eventPrivateId;
+    }
+
+    public void setEventPrivateId(String eventPrivateId) {
+        this.eventPrivateId = eventPrivateId;
     }
 }

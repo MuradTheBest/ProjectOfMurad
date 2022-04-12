@@ -85,7 +85,13 @@ public class FirebaseUtils {
 
     @NonNull
     public static DatabaseReference getCurrentUserTrainingsRef() {
-        return getCurrentUserDataRef().child("Trainings");
+        return trainingsDatabase.child("Users").child(getCurrentUID());
+//        return getCurrentUserDataRef().child("Trainings");
+    }
+
+    @NonNull
+    public static DatabaseReference getCurrentUserTrackingRef(String event_private_id){
+        return attendanceDatabase.child(event_private_id).child(getCurrentUID());
     }
 
     public static final DatabaseReference eventsDatabase = getDatabase().getReference("Events").getRef();
@@ -98,7 +104,7 @@ public class FirebaseUtils {
 
     @NonNull
     public static DatabaseReference getCurrentUserTrainingsRefForEvent(String eventPrivateId){
-        return allEventsDatabase.child(eventPrivateId).child("Users").child(getCurrentUID())/*.child("Trainings")*/;
+        return trainingsDatabase.child("Events").child(eventPrivateId).child(getCurrentUID());
     }
 
     @NonNull
@@ -331,7 +337,7 @@ public class FirebaseUtils {
                 }
             }
         });
-        /*StorageReference sr = FirebaseUtils.getProfilePicturesRef().child(userID).getDownloadUrl().addOnCompleteListener(
+        /*StorageReference sr = FirebaseUtils.getProfilePicturesRef().child(UID).getDownloadUrl().addOnCompleteListener(
                 new OnCompleteListener<Uri>() {
                     @Override
                     public void onComplete(@NonNull Task<Uri> task) {

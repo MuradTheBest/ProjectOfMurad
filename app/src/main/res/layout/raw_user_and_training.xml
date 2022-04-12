@@ -49,6 +49,16 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/iv_profile_picture" />
 
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/bc_average_speed"
+                android:layout_width="match_parent"
+                android:layout_height="200sp"
+                android:layout_marginTop="20sp"
+
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/rv_training" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>

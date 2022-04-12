@@ -1,11 +1,14 @@
 package com.example.projectofmurad;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -22,6 +25,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 
 public class Log_In_Screen extends UserSigningActivity {
@@ -40,6 +44,8 @@ public class Log_In_Screen extends UserSigningActivity {
 	private MaterialButton btn_log_in_with_google;
 	private MaterialButton btn_log_in_with_facebook;
 	private MaterialButton btn_log_in_with_phone;
+
+	private TextView tv_forgot_password;
 
 	SharedPreferences sp;
 
@@ -142,6 +148,14 @@ public class Log_In_Screen extends UserSigningActivity {
 			}
 		});
 
+		tv_forgot_password = findViewById(R.id.tv_forgot_password);
+		tv_forgot_password.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				createPasswordResetDialog();
+			}
+		});
+
 		btn_log_in_with_google = findViewById(R.id.sign_up_with_google);
 		btn_log_in_with_google.setOnClickListener(v -> showGoogleSignIn());
 
@@ -150,6 +164,70 @@ public class Log_In_Screen extends UserSigningActivity {
 		btn_log_in_with_phone = findViewById(R.id.sign_up_with_phone);
 		btn_log_in_with_phone.setOnClickListener(v -> createPhoneAuthenticationDialog());
 
+	}
+
+	ProgressDialog loadingBar;
+
+	private void createPasswordResetDialog() {
+		LayoutInflater inflater = LayoutInflater.from(this);
+		View view = inflater.inflate(R.layout.password_verification_dialog, null);
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+		builder.setView(view);
+		builder.setCancelable(false);
+		builder.setTitle("Reset password");
+		builder.setMessage("Enter email that will receive reset password mail");
+
+		EditText et_reset_password = ((TextInputLayout) view.findViewById(R.id.et_reset_password)).getEditText();
+
+		// Click on Recover and a email will be sent to your registered email id
+		builder.setPositiveButton("Reset", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				String email = et_reset_password.getText().toString().trim();
+				beginRecovery(email);
+			}
+		});
+
+		builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+		AlertDialog alertDialog = builder.create();
+		Utils.createCustomDialog(alertDialog);
+
+		alertDialog.show();
+	}
+
+	private void beginRecovery(String email) {
+		loadingBar = new ProgressDialog(this);
+		Utils.createCustomDialog(loadingBar);
+		loadingBar.setMessage("Sending password reset mail...");
+		loadingBar.setCanceledOnTouchOutside(false);
+		loadingBar.show();
+
+		// calling sendPasswordResetEmail
+		// open your email and write the new
+		// password and then you can login
+		FirebaseUtils.getFirebaseAuth().sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+			@Override
+			public void onComplete(@NonNull Task<Void> task) {
+				loadingBar.dismiss();
+				if(task.isSuccessful()) {
+					// if isSuccessful then done message will be shown
+					// and you can change the password
+					Toast.makeText(Log_In_Screen.this,"Password reset mail was sent",Toast.LENGTH_LONG).show();
+				}
+				else {
+					Toast.makeText(Log_In_Screen.this,"Error occurred",Toast.LENGTH_LONG).show();
+				}
+			}
+		}).addOnFailureListener(new OnFailureListener() {
+			@Override
+			public void onFailure(@NonNull Exception e) {
+				loadingBar.dismiss();
+				Toast.makeText(Log_In_Screen.this,"Failed",Toast.LENGTH_LONG).show();
+			}
+		});
 	}
 
 	@Override

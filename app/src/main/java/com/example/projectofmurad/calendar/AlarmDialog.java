@@ -1,6 +1,5 @@
 package com.example.projectofmurad.calendar;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -85,11 +84,10 @@ public class AlarmDialog extends Dialog {
 
         gotChecked = false;
 
-        timePickerDialog = new TimePickerDialog(context, AlertDialog.THEME_HOLO_LIGHT,
+        timePickerDialog = new TimePickerDialog(context/*, AlertDialog.THEME_HOLO_LIGHT*/,
                 new TimePickerDialog.OnTimeSetListener() {
                     @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay,
-                                          int minute) {
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         gotChecked = true;
 
                         alarm_hour = hourOfDay;
@@ -116,8 +114,7 @@ public class AlarmDialog extends Dialog {
                     }
                 }, alarm_hour, alarm_minute, true);
 
-        timePickerDialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
-        timePickerDialog.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
+        Utils.createCustomPickerDialog(timePickerDialog);
 
 /*
         timePickerDialog.setOnShowListener(new OnShowListener() {

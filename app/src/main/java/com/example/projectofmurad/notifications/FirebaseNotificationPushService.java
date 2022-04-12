@@ -2,29 +2,26 @@ package com.example.projectofmurad.notifications;
 
 import static com.example.projectofmurad.notifications.FCMSend.FCM_TAG;
 
-import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
-import com.example.projectofmurad.calendar.Calendar_Screen;
-import com.example.projectofmurad.calendar.DayDialogFragmentWithRecyclerView2;
+import com.example.projectofmurad.calendar.DayDialog;
 import com.example.projectofmurad.calendar.UtilsCalendar;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -33,12 +30,12 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
+import java.util.Date;
+
 public class FirebaseNotificationPushService extends FirebaseMessagingService {
 
     SharedPreferences sp;
-
     
-    @SuppressLint("NewApi")
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
 
@@ -114,7 +111,6 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
 
         String tag = remoteMessage.getNotification().getTag();
 
-
         Log.d("murad", event.toString());
 
         String CHANNEL_ID = "MESSAGE";
@@ -124,17 +120,18 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
                 "Message_Notification",
                 NotificationManager.IMPORTANCE_HIGH);
 
-        Intent intentToShowEvent = new Intent(this, Calendar_Screen.class);
-        intentToShowEvent.setAction(DayDialogFragmentWithRecyclerView2.ACTION_TO_SHOW_EVENT);
+        Intent intentToShowEvent = new Intent(this, MainActivity.class);
+        intentToShowEvent.setAction(DayDialog.ACTION_TO_SHOW_EVENT);
         intentToShowEvent.putExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID, event.getPrivateId());
         intentToShowEvent.putExtra(UtilsCalendar.KEY_EVENT_START_DATE_TIME, event.getStart());
-        intentToShowEvent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        Log.d("murad", "event.getStart() is " + new Date(event.getStart()));
+        intentToShowEvent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        PendingIntent pintentToShowEvent = PendingIntent.getActivity(this, 0, intentToShowEvent, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pintentToShowEvent = PendingIntent.getActivity(this, 0, intentToShowEvent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Action actionToShowEvent = new NotificationCompat.Action(null, "View event", pintentToShowEvent);
 
         /*Intent intentToSetAlarm = new Intent();
-        intentToSetAlarm.setAction(DayDialogFragmentWithRecyclerView2.ACTION_TO_SHOW_EVENT);
+        intentToSetAlarm.setAction(DayDialog.ACTION_TO_SHOW_EVENT);
         intentToSetAlarm.putExtra("event_private_id", event.getPrivateId());
 
         PendingIntent pintentToSetAlarm = PendingIntent.getActivity(this, 10, intentToSetAlarm, PendingIntent.FLAG_IMMUTABLE);
@@ -149,7 +146,8 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
                 .setColorized(true)
                 .setColor(color)
                 .setAutoCancel(true)
-                .setContentIntent(pintentToShowEvent);
+                .setContentIntent(pintentToShowEvent)
+                .setFullScreenIntent(pintentToShowEvent, false);
 
         if(type == Utils.ADD_EVENT_NOTIFICATION_CODE || type == Utils.EDIT_EVENT_NOTIFICATION_CODE){
             notification.addAction(actionToShowEvent);

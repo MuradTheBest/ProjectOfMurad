@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class LinearLayoutManagerWrapper extends LinearLayoutManager {
 
@@ -22,5 +23,22 @@ public class LinearLayoutManagerWrapper extends LinearLayoutManager {
     @Override
     public boolean supportsPredictiveItemAnimations() {
         return false;
+    }
+
+    public void setCallback(OnLayoutCompleteCallback callback) {
+        mCallback = callback;
+    }
+
+    private OnLayoutCompleteCallback mCallback = null;
+
+    @Override
+    public void onLayoutCompleted(RecyclerView.State state) {
+        super.onLayoutCompleted(state);
+        if (mCallback != null)
+            mCallback.onLayoutComplete();
+    }
+
+    public interface OnLayoutCompleteCallback {
+        void onLayoutComplete();
     }
 }

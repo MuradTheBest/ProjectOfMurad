@@ -4,18 +4,10 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.MutableLiveData;
-
-import com.example.projectofmurad.Utils;
-import com.google.android.gms.maps.model.LatLng;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class TrackingViewModel extends AndroidViewModel {
 
-    public static MutableLiveData<Boolean> isRunning = new MutableLiveData<>(false);
+/*    public static MutableLiveData<Boolean> isRunning = new MutableLiveData<>(false);
 
     public static MutableLiveData<Boolean> isNewTraining = new MutableLiveData<>(true);
 
@@ -66,7 +58,7 @@ public class TrackingViewModel extends AndroidViewModel {
         maxPaceData.setValue("");
 
         totalDistance.setValue(0D);
-    }
+    }*/
 
     public TrackingViewModel(@NonNull Application application) {
         super(application);

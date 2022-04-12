@@ -150,6 +150,7 @@
         android:layout_gravity="bottom"
         app:behavior_peekHeight="110sp"
         android:background="@drawable/bottom_sheet_training_background"
+        android:backgroundTint="@color/white"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <include layout="@layout/bottom_sheet_training_collapsed" />

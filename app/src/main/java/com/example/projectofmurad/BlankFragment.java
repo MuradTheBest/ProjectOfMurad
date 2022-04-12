@@ -3,6 +3,8 @@ package com.example.projectofmurad;
 import android.animation.Animator;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -29,7 +32,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.EventSlidePageAdapter;
 import com.example.projectofmurad.calendar.ZoomOutPageTransformer;
-import com.example.projectofmurad.tracking.TrackingViewModel;
+import com.example.projectofmurad.tracking.TrackingService;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -97,9 +100,12 @@ public class BlankFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.home_fragment_menu, menu);
+        inflater.inflate(R.menu.blank_fragment_menu, menu);
+        this.menu = menu;
         super.onCreateOptionsMenu(menu, inflater);
     }
+
+    private Menu menu;
 
     // methods to control the operations that will
     // happen when user clicks on the action buttons
@@ -107,8 +113,21 @@ public class BlankFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
         switch (item.getItemId()){
-            case R.id.go_to_profile:
-                startActivity(new Intent(requireContext(), Profile_Screen.class));
+            case android.R.id.home:
+                if (tabLayout.getSelectedTabPosition() == 1){
+                    tabLayout.selectTab(tabLayout.getTabAt(0), true);
+                }
+                else {
+                    startActivity(new Intent(requireContext(), Profile_Screen.class));
+                }
+                break;
+            case R.id.to_next_event:
+                if (tabLayout.getSelectedTabPosition() == 0){
+                    tabLayout.selectTab(tabLayout.getTabAt(1), true);
+                }
+                else {
+                    startActivity(new Intent(requireContext(), Profile_Screen.class));
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -118,6 +137,7 @@ public class BlankFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+//        return inflater.inflate(R.layout.fragment_blank_motion_layout, container, false);
         return inflater.inflate(R.layout.fragment_blank_for_viewpager2, container, false);
     }
 
@@ -172,21 +192,28 @@ public class BlankFragment extends Fragment {
 
     private boolean onLastEventTab = false;
 
+    ActionBar actionBar;
+
+    int finalTriggerHeight;
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
 //        bottomNavigationView = requireActivity().findViewById(R.id.bottomNavigationView);
 
+
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         appBarLayout = view.findViewById(R.id.app_bar_layout);
+
+
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
 
                 if (!onLastEventTab){
-                    if (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() == 0) {
+                    /*if (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() == 0) {
                         //  Collapsed
                         fab_add_training.hide();
                         fab_add_training2.show();
@@ -195,20 +222,73 @@ public class BlankFragment extends Fragment {
                         //Expanded
                         fab_add_training.show();
                         fab_add_training2.hide();
+                    }*/
+                    /*if (Math.abs(verticalOffset) + tabLayout.getHeight() - appBarLayout.getTotalScrollRange() == 0) {
+                        //  Collapsed
+                        fab_add_training.hide();
+                        fab_add_training2.show();
                     }
+                    else {
+                        //Expanded
+                        fab_add_training.show();
+                        fab_add_training2.hide();
+                    }*/
                 }
 
+                Log.d(Utils.LOG_TAG, "********************************************************************************************* ");
+                Log.d(Utils.LOG_TAG, "Math.abs(verticalOffset) + Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() = " + (Math.abs(verticalOffset) + Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange()));
+                Log.d(Utils.LOG_TAG, "Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() = " + (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange()));
+                Log.d(Utils.LOG_TAG, "Math.abs(verticalOffset) = " + Math.abs(verticalOffset));
+                Log.d(Utils.LOG_TAG, "appBarLayout.getTotalScrollRange() = " + appBarLayout.getTotalScrollRange());
+                Log.d(Utils.LOG_TAG, "tabLayout.getHeight() = " + tabLayout.getHeight());
+                Log.d(Utils.LOG_TAG, "finalTriggerHeight = " + finalTriggerHeight);
+                Log.d(Utils.LOG_TAG, "collapsingToolbarLayout.getScrimVisibleHeightTrigger() = " + collapsingToolbarLayout.getScrimVisibleHeightTrigger());
+                Log.d(Utils.LOG_TAG, "********************************************************************************************* ");
+
+
+
+                if (/*(Math.abs(verticalOffset) + Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange()) > collapsingToolbarLayout.getScrimVisibleHeightTrigger()*/
+                    /*vp_event.getY() == tabLayout.getY()*/
+                !isVisible(tabLayout)) {
+
+                    Log.d(Utils.LOG_TAG, "show text" + tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText());
+
+//                    toolbar.setTitle(tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText());
+
+                    finalTriggerHeight = Math.min(finalTriggerHeight, Math.abs(verticalOffset));
+
+                    collapsingToolbarLayout.setTitle(tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText());
+//                    toolbar.setTitle(tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText());
+
+                    fab_add_training.hide();
+                    fab_add_training2.show();
+                }
+                else {
+                    //Expanded
+                    fab_add_training.show();
+                    fab_add_training2.hide();
+
+                    collapsingToolbarLayout.setTitle("");
+                }
             }
         });
 
         toolbar = view.findViewById(R.id.toolbar);
+//        ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity) requireActivity()).getSupportActionBar();
+
 //        toolbar.setVisibility(View.GONE);
 
         collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar_layout);
 
-        collapsingToolbarLayout.setContentScrimColor(requireContext().getColor(R.color.colorAccent));
+        ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
 
-//        ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
+        actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
+
+//        actionBar.setHomeAsUpIndicator(R.drawable.ic_baseline_arrow_back_24);
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         progressBar = view.findViewById(R.id.progress_bar);
 
@@ -300,10 +380,10 @@ public class BlankFragment extends Fragment {
             public void onClick(View v) {
 //                bottomNavigationView.setSelectedItemId(R.id.tracking_Fragment);
                 ((MainActivity) requireActivity()).moveToTrackingFragment();
-                TrackingViewModel.trainingType.setValue(TrackingViewModel.GROUP_TRAINING);
+                TrackingService.trainingType.setValue(TrackingService.GROUP_TRAINING);
 
-                CalendarEvent event = new ViewModelProvider(BlankFragment.this).get(MainViewModel.class).getNextEvent().getValue();
-                TrackingViewModel.eventPrivateId.setValue(event.getPrivateId());
+                CalendarEvent event = mainViewModel.getNextEvent().getValue();
+                TrackingService.eventPrivateId.setValue(event.getPrivateId());
             }
         });
 
@@ -347,7 +427,7 @@ public class BlankFragment extends Fragment {
             public void onClick(View v) {
 //                bottomNavigationView.setSelectedItemId(R.id.tracking_Fragment);
                 ((MainActivity) requireActivity()).moveToTrackingFragment();
-                TrackingViewModel.trainingType.setValue(TrackingViewModel.PRIVATE_TRAINING);
+                TrackingService.trainingType.setValue(TrackingService.PRIVATE_TRAINING);
             }
         });
 
@@ -357,7 +437,7 @@ public class BlankFragment extends Fragment {
             public void onClick(View v) {
 //                bottomNavigationView.setSelectedItemId(R.id.tracking_Fragment);
                 ((MainActivity) requireActivity()).moveToTrackingFragment();
-                TrackingViewModel.trainingType.setValue(TrackingViewModel.GROUP_TRAINING);
+                TrackingService.trainingType.setValue(TrackingService.GROUP_TRAINING);
             }
         });
 
@@ -380,6 +460,19 @@ public class BlankFragment extends Fragment {
         from_end_anim = AnimationUtils.loadAnimation(requireContext(), R.anim.from_end_anim);
         to_end_anim = AnimationUtils.loadAnimation(requireContext(), R.anim.to_end_anim);
 
+    }
+
+    public static boolean isVisible(final View view) {
+        if (view == null) {
+            return false;
+        }
+        if (!view.isShown()) {
+            return false;
+        }
+        final Rect actualPosition = new Rect();
+        boolean isGlobalVisible = view.getGlobalVisibleRect(actualPosition);
+        final Rect screen = new Rect(0, 0, Resources.getSystem().getDisplayMetrics().widthPixels, Resources.getSystem().getDisplayMetrics().heightPixels);
+        return isGlobalVisible && actualPosition.intersect(screen);
     }
 
     private void setVisibility(boolean expand){
@@ -425,6 +518,9 @@ public class BlankFragment extends Fragment {
                         else if (position == 1){
                             tab.setText("Next event");
                         }
+
+                        finalTriggerHeight = appBarLayout.getTotalScrollRange();
+
                     }
                 }).attach();
 
@@ -437,11 +533,26 @@ public class BlankFragment extends Fragment {
 
                     fab_add_training.hide();
                     fab_add_training2.hide();
+                    actionBar.setHomeAsUpIndicator(R.drawable.ic_baseline_person_24);
+                    if (menu.findItem(R.id.to_next_event) != null){
+                        menu.findItem(R.id.to_next_event).setIcon(R.drawable.ic_baseline_arrow_back_24_180_degrees);
+                    }
                 }
                 else if (tab.getText().toString().equals("Next event")){
                     onLastEventTab = false;
                     fab_add_training.show();
+                    if (menu != null && menu.findItem(R.id.to_next_event) != null){
+                        menu.findItem(R.id.to_next_event).setIcon(R.drawable.ic_baseline_person_24);
+                    }
+                    actionBar.setHomeAsUpIndicator(R.drawable.ic_baseline_arrow_back_24);
                 }
+
+/*
+
+                actionBar.setDisplayShowHomeEnabled(tab.getPosition() == 1);
+                actionBar.setHomeButtonEnabled(tab.getPosition() == 1);
+                actionBar.setDisplayHomeAsUpEnabled(tab.getPosition() == 1);*/
+
             }
 
             @Override

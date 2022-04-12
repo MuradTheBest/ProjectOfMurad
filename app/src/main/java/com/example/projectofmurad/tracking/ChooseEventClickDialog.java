@@ -191,12 +191,12 @@ public class ChooseEventClickDialog extends Dialog implements EventsAdapterForFi
                         progressDialog.dismiss();
                         dismiss();
                         if (!task.isSuccessful()){
-                            Toast.makeText(context, "Adding the trainingData to this event failed \n" +
-                                    "The trainingData will be added to private trainings", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "Adding the training to this event failed \n" +
+                                    "The training will be added to private trainings", Toast.LENGTH_SHORT).show();
                             onAddTrainingListener.onAddTraining(training);
                         }
 
-                        Toast.makeText(context, "The trainingData was added to this event successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "The training was added to this event successfully", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

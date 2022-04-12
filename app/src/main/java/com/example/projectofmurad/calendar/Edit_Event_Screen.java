@@ -1,14 +1,11 @@
 package com.example.projectofmurad.calendar;
 
 import android.animation.Animator;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
@@ -33,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
@@ -49,7 +47,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.List;
 
@@ -194,21 +191,24 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         start_hour = 8;
         start_min = 0;
 
-        startTime = LocalTime.of(start_hour, start_min);
+//        startTime = LocalTime.of(start_hour, start_min);
 
         end_hour = 9;
         end_min = 0;
 
-        endTime = LocalTime.of(end_hour, end_min);
+//        endTime = LocalTime.of(end_hour, end_min);
 
         start_day = end_day = gotten_intent.getIntExtra("day", LocalDate.now().getDayOfMonth());
         start_month = end_month = gotten_intent.getIntExtra("month", LocalDate.now().getMonthValue());
         start_year = end_year = gotten_intent.getIntExtra("year", LocalDate.now().getYear());
 
-        startDate = endDate = LocalDate.of(start_year, start_month, start_day);
+//        startDate = endDate = LocalDate.of(start_year, start_month, start_day);
 
-        startDateTime = LocalDateTime.of(startDate, startTime);
-        endDateTime = LocalDateTime.of(endDate, endTime);
+//        startDateTime = LocalDateTime.of(startDate, startTime);
+//        endDateTime = LocalDateTime.of(endDate, endTime);
+
+        startDateTime = LocalDateTime.of(start_year, start_month, start_day, start_hour, start_min);
+        endDateTime = LocalDateTime.of(end_year, end_month, end_day, end_hour, end_min);
 
         Log.d("murad", "startDateTime is " + UtilsCalendar.DateTimeToTextOnline(startDateTime));
         Log.d("murad", "endDateTime is " + UtilsCalendar.DateTimeToTextOnline(endDateTime));
@@ -231,20 +231,18 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             selectedColor = event.getColor();
             boolean allDay = event.isAllDay();
 
-            startDate = event.receiveStartDateTime().toLocalDate();
-            endDate = event.receiveEndDateTime().toLocalDate();
+//            startDate = event.receiveStartDateTime().toLocalDate();
+//            endDate = event.receiveEndDateTime().toLocalDate();
 
-            chain_start_date = event.receiveFrequency_start();
-            chain_end_date = event.receiveFrequency_end();
+//            chain_start_date = event.receiveFrequency_start();
+//            chain_end_date = event.receiveFrequency_end();
 
-            startTime = event.receiveStart_time();
-            endTime = event.receiveEnd_time();
+//            startTime = event.receiveStart_time();
+//            endTime = event.receiveEnd_time();
 
             startDateTime = event.receiveStartDateTime();
             endDateTime = event.receiveEndDateTime();
 
-            chain_start_date = event.receiveFrequency_start();
-            chain_end_date = event.receiveFrequency_end();
 
             et_name.setText(name);
             et_description.setText(description);
@@ -310,7 +308,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             public void onClick(View view) {
 
                 startDatePickerDialog = new DatePickerDialog(Edit_Event_Screen.this,
-                        AlertDialog.THEME_HOLO_LIGHT,
+                        /*AlertDialog.THEME_HOLO_LIGHT,*/
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month,
@@ -330,19 +328,19 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                                 String date_text = UtilsCalendar.DateToTextLocal(startDateTime.toLocalDate());
                                 btn_choose_start_date.setText(date_text);
 
-                                if (startDateTime.toLocalDate().isAfter(endDateTime.toLocalDate())) {
-//                                    endDate = startDate;
+                                if (startDateTime.isAfter(endDateTime)) {
 
-                                    LocalDate startDate = startDateTime.toLocalDate();
-                                    LocalTime endTime = endDateTime.toLocalTime();
+                                    endDateTime = startDateTime.plusDays(1);
 
-                                    endDateTime = LocalDateTime.of(startDate, endTime);
                                     btn_choose_end_date.setText(UtilsCalendar.DateToTextLocal(endDateTime.toLocalDate()));
-
+                                    btn_choose_end_time.setText(UtilsCalendar.TimeToText(endDateTime.toLocalTime()));
                                 }
+
+                                event.updateStartDateTime(startDateTime);
+                                event.updateEndDateTime(endDateTime);
                             }
                         },
-                        start_year, start_month - 1, start_day);
+                        startDateTime.getYear(), startDateTime.getMonthValue() - 1, startDateTime.getDayOfMonth());
 
                 startDatePickerDialog.getDatePicker().setFirstDayOfWeek(Calendar.SUNDAY);
                 startDatePickerDialog.updateDate(start_year, start_month - 1, start_day);
@@ -351,10 +349,13 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 calendar.set(Calendar.MINUTE, 0);
                 startDatePickerDialog.getDatePicker().setMinDate(calendar.getTimeInMillis());
 
+                Utils.createCustomPickerDialog(startDatePickerDialog);
+
                 startDatePickerDialog.show();
             }
         });
 
+/*
         btn_choose_start_date.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -371,8 +372,14 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                                     start_month = month;
                                     start_day = dayOfMonth;
 
-                                    startDate = LocalDate.of(start_year, start_month, start_day);
-                                    String date_text = UtilsCalendar.DateToTextLocal(startDate);
+//                                    startDate = LocalDate.of(start_year, start_month, start_day);
+
+                                    startDateTime = startDateTime.withYear(start_year);
+                                    startDateTime = startDateTime.withMonth(start_month);
+                                    startDateTime = startDateTime.withDayOfMonth(start_day);
+
+
+                                    String date_text = UtilsCalendar.DateToTextLocal(startDateTime.toLocalDate());
                                     btn_choose_start_date.setText(date_text);
                                 }
                             },
@@ -388,6 +395,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 }
             }
         });
+*/
 
         btn_choose_end_date.setText(UtilsCalendar.DateToTextLocal(endDateTime.toLocalDate()));
         btn_choose_end_date.setOnClickListener(new View.OnClickListener() {
@@ -395,7 +403,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             public void onClick(View view) {
 
                 endDatePickerDialog = new DatePickerDialog(Edit_Event_Screen.this,
-                        android.R.style.ThemeOverlay_Material_Dialog,
+                        /*android.R.style.ThemeOverlay_Material_Dialog,*/
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view1, int year, int month,
@@ -415,21 +423,20 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                                 String date_text = UtilsCalendar.DateToTextLocal(endDateTime.toLocalDate());
                                 btn_choose_end_date.setText(date_text);
 
-                                if (endDate.isBefore(startDate)) {
-                                    startDate = endDate;
+                                if (endDateTime.isBefore(startDateTime)) {
 
-                                    LocalDate endDate = endDateTime.toLocalDate();
-                                    LocalTime startTime = startDateTime.toLocalTime();
+                                    startDateTime = endDateTime.minusHours(1);
 
-                                    startDateTime = LocalDateTime.of(endDate, startTime);
-
-                                    btn_choose_start_date.setText(
-                                            UtilsCalendar.DateToTextLocal(startDateTime.toLocalDate()));
+                                    btn_choose_start_date.setText(UtilsCalendar.DateToTextLocal(startDateTime.toLocalDate()));
+                                    btn_choose_start_time.setText(UtilsCalendar.TimeToText(startDateTime.toLocalTime()));
 
                                 }
+
+                                event.updateStartDateTime(startDateTime);
+                                event.updateEndDateTime(endDateTime);
                             }
                         },
-                        end_year, end_month - 1, end_day);
+                        endDateTime.getYear(), endDateTime.getMonthValue() - 1, endDateTime.getDayOfMonth());
 
                 endDatePickerDialog.getDatePicker().setFirstDayOfWeek(Calendar.SUNDAY);
                 endDatePickerDialog.updateDate(end_year, end_month - 1, end_day);
@@ -437,6 +444,8 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 calendar.set(Calendar.HOUR_OF_DAY, 0);
                 calendar.set(Calendar.MINUTE, 0);
                 endDatePickerDialog.getDatePicker().setMinDate(calendar.getTimeInMillis());
+
+                Utils.createCustomPickerDialog(endDatePickerDialog);
 
                 endDatePickerDialog.show();
             }
@@ -448,7 +457,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             public void onClick(View v) {
                 //Initialize timeData picker dialog
                 startTimePickerDialog = new TimePickerDialog(Edit_Event_Screen.this,
-                        AlertDialog.THEME_HOLO_LIGHT,
+                        /*AlertDialog.THEME_HOLO_LIGHT,*/
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -469,18 +478,23 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                                 btn_choose_start_time.setText(time_text);
 
                                 if (startDateTime.isAfter(endDateTime)) {
-//                                    endTime = startTime.plusHours(1);
 
-                                    endDateTime = endDateTime.toLocalDate().atTime(LocalTime.from(startDateTime.plusHours(1)));
+                                    endDateTime = startDateTime.plusHours(1);
+
                                     btn_choose_end_date.setText(UtilsCalendar.DateToTextLocal(endDateTime.toLocalDate()));
 
                                     btn_choose_end_time.setText(UtilsCalendar.TimeToText(endDateTime.toLocalTime()));
                                 }
+
+                                event.updateStartDateTime(startDateTime);
+                                event.updateEndDateTime(endDateTime);
                             }
                         },
-                        start_hour, start_min, true);
+                        startDateTime.getHour(), startDateTime.getMinute(), true);
 
-                startTimePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//                startTimePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+                Utils.createCustomPickerDialog(startTimePickerDialog);
 
                 startTimePickerDialog.updateTime(start_hour, start_min);
                 startTimePickerDialog.show();
@@ -493,7 +507,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             public void onClick(View v) {
                 //Initialize timeData picker dialog
                 endTimePickerDialog = new TimePickerDialog(Edit_Event_Screen.this,
-                        android.R.style.ThemeOverlay_Material_Dialog,
+                        /*android.R.style.ThemeOverlay_Material_Dialog,*/
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -509,15 +523,20 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                                 btn_choose_end_time.setText(time_text);
 
                                 if (endDateTime.isBefore(startDateTime)) {
-//                                    endTime = startTime.plusHours(1);
 
-                                    startDateTime = startDateTime.toLocalDate().atTime(LocalTime.from(endDateTime.minusHours(1)));
+                                    startDateTime = endDateTime.minusHours(1);
 
+                                    btn_choose_start_date.setText(UtilsCalendar.DateToTextLocal(startDateTime.toLocalDate()));
                                     btn_choose_start_time.setText(UtilsCalendar.TimeToText(startDateTime.toLocalTime()));
                                 }
+
+                                event.updateStartDateTime(startDateTime);
+                                event.updateEndDateTime(endDateTime);
                             }
                         },
-                        end_hour, end_min, true);
+                        endDateTime.getHour(), endDateTime.getMinute(), true);
+
+                Utils.createCustomPickerDialog(endTimePickerDialog);
 
                 endTimePickerDialog.updateTime(end_hour, end_min);
                 endTimePickerDialog.show();
@@ -539,7 +558,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                             Log.d("murad", "DELETING EVENT HAS BEEN SUCCESSFULLY FINISHED");
                             Toast.makeText(getApplicationContext(), "DELETING EVENT HAS BEEN SUCCESSFULLY FINISHED", Toast.LENGTH_SHORT).show();
 
-                            startActivity(new Intent(Edit_Event_Screen.this, Calendar_Screen.class));
+                            startActivity(new Intent(Edit_Event_Screen.this, MainActivity.class));
                         }
                     });
                 }
@@ -559,8 +578,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 LocalDate startDate = LocalDate.of(start_year, start_month, start_day);
                 String start_date = UtilsCalendar.DateToTextLocal(startDate);
 
-                //ChooseEventFrequencyDialog chooseEventFrequencyDialog = new ChooseEventFrequencyDialog(Add_Event_Screen.this);
-                //AlertDialogToChooseFrequency chooseEventFrequencyDialog = new AlertDialogToChooseFrequency(Add_Event_Screen.this, startDate);
+
 /*                if (initial){
                     Toast.makeText(getApplicationContext(), "Initial open", Toast.LENGTH_SHORT).show();
                     chooseEventFrequencyDialog.setStartDateForRepeatInitial(startDate);
@@ -676,7 +694,23 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             public void onClick(View v) {
                 bottomSheetDialog.dismiss();
 
-                absoluteDeleteSingleEvent(private_key, () -> Edit_Event_Screen.this.onAddEventClick(item));
+                Log.d(Utils.EVENT_TAG, "starting editing single event with privateId " + event.getChainId());
+                absoluteDeleteSingleEvent(private_key, () -> uploadEvent(event));
+            }
+        });
+
+        TextView tv_this_and_future_event = bottomSheetDialog.findViewById(R.id.tv_this_and_future_event);
+        tv_this_and_future_event.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomSheetDialog.dismiss();
+
+                Log.d(Utils.EVENT_TAG, "starting editing this and future events with privateId " + event.getPrivateId());
+
+                getEventData((updatedEvent) -> {
+                    absoluteDeleteAllEventsInChain(chain_key, updatedEvent.getStart(), () -> copyAllEventsInChain(updatedEvent, item));
+                });
+
             }
         });
 
@@ -686,9 +720,16 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             public void onClick(View v) {
                 bottomSheetDialog.dismiss();
 
-                getEventData(() -> {
-                    event.updateStart_date(event.receiveFrequency_start());
-                    absoluteDeleteAllEventsInChain(chain_key, () -> Edit_Event_Screen.this.onAddEventClick(item));
+                Log.d(Utils.EVENT_TAG, "starting editing all events with chainId " + event.getChainId());
+
+                getEventData((updatedEvent) -> {
+
+                    updatedEvent.updateStart_date(updatedEvent.receiveFrequency_start());
+                    updatedEvent.setEnd(updatedEvent.getStart() + event.getRange());
+
+                    Log.d(Utils.EVENT_TAG, "deleting all events after getting data " + updatedEvent);
+
+                    absoluteDeleteAllEventsInChain(chain_key, updatedEvent.getStart(), () -> uploadEvent(updatedEvent));
                 });
 
             }
@@ -697,7 +738,24 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         bottomSheetDialog.show();
     }
 
+    public void copyAllEventsInChain(@NonNull CalendarEvent event, MenuItem item){
+        String private_key = "Event" + FirebaseUtils.allEventsDatabase.push().getKey();
+        String chain_key = "Event" + FirebaseUtils.allEventsDatabase.push().getKey();
+
+        Log.d(Utils.EVENT_TAG, "event before copying data " + event);
+
+        event.updateFrequency_start(event.receiveStart_date());
+
+        event.setPrivateId(private_key);
+        event.setChainId(chain_key);
+
+        Log.d(Utils.EVENT_TAG, "event after copying data " + event);
+
+        uploadEvent(event);
+    }
+
     private void getEventData(OnGetEventDataListener onGetEventDataListener){
+
         FirebaseUtils.allEventsDatabase.child(event.getChainId()).get().addOnCompleteListener(
                 new OnCompleteListener<DataSnapshot>() {
                     @Override
@@ -705,10 +763,14 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                         if (task.isSuccessful() && task.getResult().exists()){
                             CalendarEvent superEvent = task.getResult().getValue(CalendarEvent.class);
 
+                            Log.d(Utils.EVENT_TAG, "event before getting data " + event.toString());
+
                             event.setFrequency_start(superEvent.getFrequency_start());
                             event.setFrequency_end(superEvent.getFrequency_end());
 
-                            onGetEventDataListener.onGetEventData();
+                            Log.d(Utils.EVENT_TAG, "event after getting data " + event.toString());
+
+                            onGetEventDataListener.onGetEventData(event);
                         }
                     }
                 });
@@ -716,9 +778,8 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
     }
 
     public interface OnGetEventDataListener{
-        void onGetEventData();
+        void onGetEventData(CalendarEvent updatedEvent);
     }
-
 
     private int getDips(int dps) {
         Resources resources = getResources();
@@ -751,11 +812,11 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 sv_add_event_screen.setVisibility(View.INVISIBLE);
 
                 Intent toCalendar_Screen = new Intent(getApplicationContext(),
-                        Calendar_Screen.class);
+                        MainActivity.class);
 
-                int day = startDate.getDayOfMonth();
-                int month = startDate.getMonthValue();
-                int year = startDate.getYear();
+                int day = startDateTime.getDayOfMonth();
+                int month = startDateTime.getMonthValue();
+                int year = startDateTime.getYear();
 
                 toCalendar_Screen.putExtra("day", day);
                 toCalendar_Screen.putExtra("month", month);
@@ -804,7 +865,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             Log.d(Utils.LOG_TAG, "event  is " + event.toString());
 
             if (event.getPrivateId().equals(event.getChainId())){
-                absoluteDeleteSingleEvent(chain_key, () -> Edit_Event_Screen.super.onAddEventClick(item));
+                absoluteDeleteSingleEvent(chain_key, () -> uploadEvent(event));
             }
             else {
                 createSaveDialog(item);
@@ -881,7 +942,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         });
     }
 
-    public void absoluteDeleteAllEventsInChain(String chain_key, OnDeleteFinishedCallback onDeleteFinishedCallback){
+    public void absoluteDeleteAllEventsInChain(String chain_key, long start, OnDeleteFinishedCallback onDeleteFinishedCallback){
         DatabaseReference allEventsDatabase = FirebaseUtils.allEventsDatabase;
 
         CircularProgressIndicator circularProgressIndicator = new CircularProgressIndicator(this);
@@ -891,11 +952,12 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         deletingProgressDialog = new ProgressDialog(this);
 
         deletingProgressDialog.setMessage("Editing event");
-        deletingProgressDialog.setIndeterminate(true);
         deletingProgressDialog.show();
 
-        Query query = allEventsDatabase.orderByKey().equalTo(chain_key);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        Query query = allEventsDatabase.orderByChild("chainId").equalTo(chain_key);
+        Query q = query.getRef().orderByChild("start").startAt(start);
+
+        q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot data : snapshot.getChildren()){
@@ -926,7 +988,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                         Log.d("murad", "Event chain_key is " + date.getKey());
                         Log.d("murad", event.getValue(CalendarEvent.class).toString());
 
-                        if (event.child(UtilsCalendar.KEY_EVENT_CHAIN_ID).getValue(String.class).equals(chain_key)){
+                        if (event.child(UtilsCalendar.KEY_EVENT_CHAIN_ID).getValue(String.class).equals(chain_key) && event.child("start").getValue(long.class) >= start){
                             Log.d("murad", "Event found");
                             event.getRef().removeValue();
                         }

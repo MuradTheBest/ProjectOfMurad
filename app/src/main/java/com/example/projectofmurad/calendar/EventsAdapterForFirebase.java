@@ -268,7 +268,7 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if(buttonView == checkbox_all_attendances){
                 FirebaseUtils.attendanceDatabase.child(getItem(getBindingAdapterPosition()).getPrivateId())
-                        .child(FirebaseUtils.getCurrentUID()).setValue(isChecked);
+                        .child(FirebaseUtils.getCurrentUID()).child("attend").setValue(isChecked);
                 Toast.makeText(context, "Attendance " + (isChecked ? "approved" : "disapproved"), Toast.LENGTH_SHORT).show();
             }
         }
@@ -386,7 +386,7 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         }
 
         if (selected_UID != null){
-            DatabaseReference ref = FirebaseUtils.attendanceDatabase.child(event_private_id).child(selected_UID);
+            DatabaseReference ref = FirebaseUtils.attendanceDatabase.child(event_private_id).child(selected_UID).child("attend");
 
             final boolean[] attend = {false};
 

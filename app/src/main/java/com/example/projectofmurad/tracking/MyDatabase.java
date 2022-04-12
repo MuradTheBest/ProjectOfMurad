@@ -10,7 +10,7 @@ import androidx.room.TypeConverters;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Training.class}, version = 1, exportSchema = false)
+@Database(entities = {Training.class}, version = 2, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class MyDatabase extends RoomDatabase {
     public abstract TrainingDao trainingDao();
@@ -26,6 +26,7 @@ public abstract class MyDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             MyDatabase.class, "my_database")
+                            .fallbackToDestructiveMigration()
                             .build();
                 }
             }

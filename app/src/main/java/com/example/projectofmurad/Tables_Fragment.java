@@ -34,7 +34,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.projectofmurad.calendar.Calendar_Screen;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -124,7 +123,7 @@ public class Tables_Fragment extends Fragment {
 
         btn_calendar = view.findViewById(R.id.btn_calendar);
         btn_calendar.setVisibility(View.VISIBLE);
-        btn_calendar.setOnClickListener(v -> startActivity(new Intent(requireContext(), Calendar_Screen.class)));
+//        btn_calendar.setOnClickListener(v -> startActivity(new Intent(requireContext(), Calendar_Screen.class)));
 
         tv_table_name = view.findViewById(R.id.tv_table_name);
 

@@ -558,7 +558,7 @@ public class CalendarEvent implements Serializable {
     }
 
     public long getRange() {
-        return range;
+        return end - start;
     }
 
     public void setRange(long range) {

@@ -33,15 +33,6 @@ public class Training_Info_DialogFragment extends DialogFragment {
 
     public final static String TAG = "Training_Info_DialogFragment";
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private Training training;
 
     public Training_Info_DialogFragment() {
@@ -52,18 +43,16 @@ public class Training_Info_DialogFragment extends DialogFragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param training Training which details are shown.
      *
      * @return A new instance of fragment Training_Info_DialogFragment.
      */
     // TODO: Rename and change types and number of parameters
     @NonNull
-    public static Training_Info_DialogFragment newInstance(String param1, String param2) {
+    public static Training_Info_DialogFragment newInstance(Training training) {
         Training_Info_DialogFragment fragment = new Training_Info_DialogFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putSerializable(Training.KEY_TRAINING, training);
         fragment.setArguments(args);
         return fragment;
     }
@@ -72,8 +61,6 @@ public class Training_Info_DialogFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
             training = (Training) getArguments().getSerializable(Training.KEY_TRAINING);
         }
 
@@ -124,7 +111,6 @@ public class Training_Info_DialogFragment extends DialogFragment {
         speeds = training.getSpeeds();
 
 
-
         tv_name = view.findViewById(R.id.tv_name);
         tv_start_date = view.findViewById(R.id.tv_start_date);
         tv_time = view.findViewById(R.id.tv_time);
@@ -137,7 +123,7 @@ public class Training_Info_DialogFragment extends DialogFragment {
         tv_start_date.setText("" + training.getStartDate());
         tv_time.setText("" + training.getStartTime() + " - " + training.getEndTime());
         tv_duration.setText("" + training.getDuration());
-        tv_distance.setText("" + training.getTotalDistance());
+        tv_distance.setText("" + training.getTotalDistance() + " km");
         tv_pace.setText("" + training.getAvgPace());
 
 
@@ -202,37 +188,37 @@ public class Training_Info_DialogFragment extends DialogFragment {
 
         speedEntries.sort((o1, o2) -> Float.compare(o1.getX(), o2.getX()));
 
-        LineDataSet speed_lineDataSet = new LineDataSet(speedEntries, "");
-        speed_lineDataSet.setLabel("");
+        LineDataSet speedLineDataSet = new LineDataSet(speedEntries, "Speed");
+        speedLineDataSet.setLabel("");
 
         Log.d(Utils.LOG_TAG, speedEntries.toString());
 
-        speed_lineDataSet.setCircleColor(requireContext().getColor(R.color.colorAccent));
-        speed_lineDataSet.setFillColor(requireContext().getColor(R.color.colorAccent));
-        speed_lineDataSet.setDrawFilled(true);
+        speedLineDataSet.setCircleColor(requireContext().getColor(R.color.colorAccent));
+        speedLineDataSet.setFillColor(requireContext().getColor(R.color.colorAccent));
+        speedLineDataSet.setDrawFilled(true);
 
-        speed_lineDataSet.setMode(LineDataSet.Mode.LINEAR);
-        speed_lineDataSet.setDrawValues(false);
-        speed_lineDataSet.setDrawCircles(false);
+        speedLineDataSet.setMode(LineDataSet.Mode.LINEAR);
+        speedLineDataSet.setDrawValues(false);
+        speedLineDataSet.setDrawCircles(false);
 
 
 
         paceEntries.sort((o1, o2) -> Float.compare(o1.getX(), o2.getX()));
 
-        LineDataSet pace_lineDataSet = new LineDataSet(paceEntries, "");
-        pace_lineDataSet.setLabel("");
+        LineDataSet paceLineDataSet = new LineDataSet(paceEntries, "Pace");
+        paceLineDataSet.setLabel("");
 
         Log.d(Utils.LOG_TAG, paceEntries.toString());
 
-        pace_lineDataSet.setCircleColor(requireContext().getColor(R.color.purple_500));
-        pace_lineDataSet.setFillColor(requireContext().getColor(R.color.purple_500));
-        pace_lineDataSet.setDrawFilled(true);
+        paceLineDataSet.setCircleColor(requireContext().getColor(R.color.purple_500));
+        paceLineDataSet.setFillColor(requireContext().getColor(R.color.purple_500));
+        paceLineDataSet.setDrawFilled(true);
 
-        pace_lineDataSet.setMode(LineDataSet.Mode.LINEAR);
-        pace_lineDataSet.setDrawValues(false);
-        pace_lineDataSet.setDrawCircles(false);
+        paceLineDataSet.setMode(LineDataSet.Mode.LINEAR);
+        paceLineDataSet.setDrawValues(false);
+        paceLineDataSet.setDrawCircles(false);
 
-        LineData lineData = new LineData(speed_lineDataSet, pace_lineDataSet);
+        LineData lineData = new LineData(speedLineDataSet, paceLineDataSet);
 
 
         lineChart_speed.setData(lineData);

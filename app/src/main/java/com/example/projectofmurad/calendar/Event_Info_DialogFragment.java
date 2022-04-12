@@ -4,8 +4,10 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -27,6 +29,7 @@ import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
@@ -34,6 +37,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.LinearLayoutManagerWrapper;
+import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.MainViewModel;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.RVOnItemTouchListenerForVP2;
@@ -50,6 +54,8 @@ import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.database.DataSnapshot;
@@ -77,6 +83,8 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
     private static final String ARG_PARAM2 = "param2";
     public static final String ARG_IS_SHOWS_DIALOG = "isShowsDialog";
 
+    public static final String TAG = "event_info_dialog_fragment";
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -99,18 +107,16 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param event Event which details are shown.
+     * @param isShowsDialog Determines if to show the fragment like normal or dialog.
      *
      * @return A new instance of fragment Event_Info_DialogFragment.
      */
     // TODO: Rename and change types and number of parameters
     @NonNull
-    public static Event_Info_DialogFragment newInstance(String param1, String param2, CalendarEvent event, boolean isShowsDialog) {
+    public static Event_Info_DialogFragment newInstance(CalendarEvent event, boolean isShowsDialog) {
         Event_Info_DialogFragment fragment = new Event_Info_DialogFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         args.putSerializable(UtilsCalendar.KEY_EVENT, event);
         args.putBoolean(ARG_IS_SHOWS_DIALOG, isShowsDialog);
         fragment.setArguments(args);
@@ -121,8 +127,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
             event = (CalendarEvent) getArguments().getSerializable(UtilsCalendar.KEY_EVENT);
             if (event == null){
 
@@ -141,8 +145,12 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_event__info_, container, false);
+        return inflater.inflate(isShowsDialog ? R.layout.fragment_event__info_with_collapsing : R.layout.fragment_event__info_, container, false);
     }
+
+    private AppBarLayout app_bar_layout;
+
+    private CollapsingToolbarLayout collapsing_toolbar_layout;
 
     private CardView cv_event;
     private TextView tv_there_are_no_upcoming_events;
@@ -177,16 +185,14 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (isShowsDialog){
-            getDialog().getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
-        }
-
         db = requireContext().openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
 
         event_private_id = event.getPrivateId();
 
         rv_users = view.findViewById(R.id.rv_users_home_fragment);
         shimmer_rv_users = view.findViewById(R.id.shimmer_rv_users_home_fragment);
+
+
 
         cv_event = view.findViewById(R.id.cv_event);
         tv_there_are_no_upcoming_events = view.findViewById(R.id.tv_there_are_no_upcoming_events);
@@ -210,13 +216,20 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
         vp_trainings = view.findViewById(R.id.vp_trainings);
 
-        setUpEventData(event);
-
-
         ll_manage_event = view.findViewById(R.id.ll_manage_event);
-        if (!isShowsDialog){
+
+        if (isShowsDialog){
+            getDialog().getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+
+            app_bar_layout = view.findViewById(R.id.app_bar_layout);
+            collapsing_toolbar_layout = view.findViewById(R.id.collapsing_toolbar_layout);
+        }
+        else {
             ll_manage_event.setVisibility(View.GONE);
         }
+
+        setUpEventData(event);
+
 
         btn_copy_event = view.findViewById(R.id.btn_copy_event);
         btn_copy_event.setOnClickListener(this);
@@ -229,6 +242,9 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
         btn_delete_event = view.findViewById(R.id.btn_delete_event);
         btn_delete_event.setOnClickListener(this);
+
+
+
     }
 
     public void setUpEventData(@NonNull CalendarEvent event){
@@ -289,9 +305,37 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
         cv_event.getBackground().setTint(event.getColor());
 
+        if (isShowsDialog){
+            collapsing_toolbar_layout.setContentScrimColor(event.getColor());
+            collapsing_toolbar_layout.setTitleEnabled(true);
+            collapsing_toolbar_layout.setTitle(event.getName());
+
+            app_bar_layout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+                @Override
+                public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+
+                    Log.d(Utils.LOG_TAG, "=============================================================");
+                    Log.d(Utils.LOG_TAG, "verticalOffset = " + verticalOffset);
+                    Log.d(Utils.LOG_TAG, "getScrimVisibleHeightTrigger = " + collapsing_toolbar_layout.getScrimVisibleHeightTrigger());
+                    Log.d(Utils.LOG_TAG, "getTotalScrollRange = " + appBarLayout.getTotalScrollRange());
+
+                    Log.d(Utils.LOG_TAG, "isVisible " + isVisible(cv_event));
+                    collapsing_toolbar_layout.setTitle(event.getName());
+                    if (!isVisible(cv_event)){
+                    }
+                    else {
+//                        collapsing_toolbar_layout.setTitle("");
+                    }
+
+                    Log.d(Utils.LOG_TAG, "=============================================================");
+                }
+            });
+        }
+
+
         String event_private_id = event.getPrivateId();
 
-        DatabaseReference ref = FirebaseUtils.attendanceDatabase.child(event_private_id).child(FirebaseUtils.getCurrentUID());
+        DatabaseReference ref = FirebaseUtils.attendanceDatabase.child(event_private_id).child(FirebaseUtils.getCurrentUID()).child("attend");
 
         final boolean[] attend = {false};
         ref.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
@@ -321,8 +365,10 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
         shimmer_rv_users.startShimmer();
 
-//        Query query = FirebaseUtils.usersDatabase.orderByChild("madrich").startAt(true);
-        Query users = FirebaseUtils.usersDatabase.orderByChild("notMadrich");
+
+//        Query users = FirebaseUtils.usersDatabase.orderByChild("madrich");
+        Query users = FirebaseUtils.usersDatabase.orderByValue();
+//        Query users = FirebaseUtils.usersDatabase.orderByChild("madrich").startAt(true);
 
         FirebaseRecyclerOptions<UserData> userOptions
                 = new FirebaseRecyclerOptions.Builder<UserData>()
@@ -337,7 +383,12 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
         rv_users.setAdapter(userAdapter);
         Log.d("murad", "rv_events.getChildCount() = " + rv_users.getChildCount());
 
-        rv_users.setLayoutManager(new LinearLayoutManagerWrapper(requireContext()));
+
+        LinearLayoutManagerWrapper layoutManagerWrapper = new LinearLayoutManagerWrapper(requireContext(),
+                LinearLayoutManager.VERTICAL, true);
+        layoutManagerWrapper.setStackFromEnd(true);
+
+        rv_users.setLayoutManager(layoutManagerWrapper);
 
         rv_users.addOnItemTouchListener(new RVOnItemTouchListenerForVP2(rv_users,
                 MainViewModel.getToSwipeViewModelForTrainings()));
@@ -355,14 +406,17 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
             shimmer_rv_users.setVisibility(View.GONE);
         }, 1000);
 
-        Query usersAndTrainingsKeys = FirebaseUtils.allEventsDatabase.child(event_private_id).child("Users");
+        Query usersAndTrainingsKeys = FirebaseUtils.trainingsDatabase.child("Events").child(event_private_id);
         HashMap<String, ArrayList<Training>> map = new HashMap<>();
 
-        ArrayList<UserAndTraining> userAndTrainingArrayList = new ArrayList<>();
 
         usersAndTrainingsKeys.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                ArrayList<UserAndTraining> userAndTrainingArrayList = new ArrayList<>();
+
+
                 for (DataSnapshot user : snapshot.getChildren()){
                     ArrayList<Training> trainings = new ArrayList<>();
                     map.put(user.getKey(), trainings);
@@ -377,7 +431,8 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
                         trainingArrayList.add(t);
                     }
 
-                    UserAndTraining userAndTraining = new UserAndTraining(user.getKey(), trainingArrayList);
+//                    UserAndTraining userAndTraining = new UserAndTraining(user.getKey(), trainingArrayList);
+                    UserAndTraining userAndTraining = new UserAndTraining(user.getKey(), event_private_id, trainingArrayList);
 
                     userAndTrainingArrayList.add(userAndTraining);
                 }
@@ -418,10 +473,19 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
 
         TrainingAdapterForFirebase trainingAdapterForFirebase = new TrainingAdapterForFirebase(userAndTrainingOptions);
+    }
 
-
-
-
+    public static boolean isVisible(final View view) {
+        if (view == null) {
+            return false;
+        }
+        if (!view.isShown()) {
+            return false;
+        }
+        final Rect actualPosition = new Rect();
+        boolean isGlobalVisible = view.getGlobalVisibleRect(actualPosition);
+        final Rect screen = new Rect(0, 0, Resources.getSystem().getDisplayMetrics().widthPixels, Resources.getSystem().getDisplayMetrics().heightPixels);
+        return isGlobalVisible && actualPosition.intersect(screen);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -535,8 +599,11 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
             Log.d("murad", "expanded is " + ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition))
                     .expanded);
             Log.d("murad","=================position==================");
+
+
             ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition))
                     .ll_contact.setVisibility(View.GONE);
+
             ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition))
                     .expanded = false;
         }
@@ -545,15 +612,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
     @Override
     public void onUserClick(int position, UserData userData) {
 
-    }
-
-    public void onEventClick(int position, @NonNull CalendarEvent event) {
-//        this.dismiss();
-
-        Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
-        intent.putExtra("event", event);
-
-        requireContext().startActivity(intent);
     }
 
     @Override
@@ -611,14 +669,9 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
             Toast.makeText(requireContext(), "Event was deleted successfully", Toast.LENGTH_SHORT).show();
 
             if (event.getPrivateId().equals(event.getChainId())){
-                deleteSingleEvent(event.getChainId(), new OnDeleteFinishedCallback() {
-                    @Override
-                    public void onDeleteFinished() {
-                        Event_Info_DialogFragment.this.requireActivity().startActivity(
-                                new Intent(Event_Info_DialogFragment.this.requireContext(),
-                                        Calendar_Screen.class));
-                    }
-                });
+                deleteSingleEvent(event.getChainId(), () -> requireActivity().startActivity(
+                        new Intent(requireContext(),
+                                MainActivity.class).setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT)));
             }
             else {
                 createDeleteDialog();
@@ -664,7 +717,8 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
             public void onClick(View v) {
                 bottomSheetDialog.dismiss();
 
-                deleteSingleEvent(event.getPrivateId(), () -> requireActivity().startActivity(new Intent(requireContext(), Calendar_Screen.class)));
+                deleteSingleEvent(event.getPrivateId(), () -> requireActivity().startActivity(new Intent(requireContext(),
+                        MainActivity.class).setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT)));
             }
         });
 
@@ -674,7 +728,8 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
             public void onClick(View v) {
                 bottomSheetDialog.dismiss();
 
-                deleteAllEventsInChain(event.getChainId(), () -> requireActivity().startActivity(new Intent(requireContext(), Calendar_Screen.class)));
+                deleteAllEventsInChain(event.getChainId(), () -> requireActivity().startActivity(new Intent(requireContext(),
+                        MainActivity.class).setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT)));
             }
         });
 
@@ -690,25 +745,20 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
         deletingProgressDialog.setIndeterminate(true);
         deletingProgressDialog.show();
 
-
-        if (private_key.equals(event.getChainId())){
-
-            Query query = allEventsDatabase.orderByKey().equalTo(private_key);
-            query.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    for (DataSnapshot data : snapshot.getChildren()){
-                        data.getRef().removeValue();
-                    }
+        Query query = allEventsDatabase.orderByKey().equalTo(private_key);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot data : snapshot.getChildren()){
+                    data.getRef().removeValue();
                 }
+            }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
-                }
-            });
-        }
-
+            }
+        });
 
         DatabaseReference eventsDatabaseReference = FirebaseUtils.eventsDatabase;
 
@@ -834,7 +884,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
     }
 
     public void copySingleEvent(@NonNull CalendarEvent event){
-        String private_key = FirebaseUtils.allEventsDatabase.push().getKey();
+        String private_key = "Event" + FirebaseUtils.allEventsDatabase.push().getKey();
         String chain_key = private_key;
 
         event.setPrivateId(private_key);
@@ -853,8 +903,8 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
     }
 
     public void copyAllEventsInChain(@NonNull CalendarEvent event){
-        String private_key = FirebaseUtils.allEventsDatabase.push().getKey();
-        String chain_key = FirebaseUtils.allEventsDatabase.push().getKey();
+        String private_key = "Event" + FirebaseUtils.allEventsDatabase.push().getKey();
+        String chain_key = "Event" + FirebaseUtils.allEventsDatabase.push().getKey();
 
         getEventData(() -> {
             event.setPrivateId(private_key);

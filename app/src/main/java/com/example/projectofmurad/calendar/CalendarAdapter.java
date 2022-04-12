@@ -37,7 +37,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     private String name;
     boolean changed = false;
 
-    class CalendarViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private int oldPosition;
+
+    public class CalendarViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView dayOfMonth;
         private TextView tv_event_1;
         private TextView tv_event_2;
@@ -57,8 +59,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         @Override
         public void onClick(View view) {
             if(view == itemView){
-                Log.d("murad", getLayoutPosition() + " | " + dayOfMonth.getText().toString() + " | " + UtilsCalendar.DateToTextOnline(daysOfMonth.get(getLayoutPosition())));
-                calendarOnItemListener.onItemClick(getLayoutPosition(), dayOfMonth.getText().toString(), daysOfMonth.get(getLayoutPosition()));
+                Log.d("murad", getAbsoluteAdapterPosition() + " | " + dayOfMonth.getText().toString() + " | " + UtilsCalendar.DateToTextOnline(daysOfMonth.get(getAbsoluteAdapterPosition())));
+                calendarOnItemListener.onItemClick(getAbsoluteAdapterPosition(), oldPosition, dayOfMonth.getText().toString(), daysOfMonth.get(getAbsoluteAdapterPosition()));
+                oldPosition = getAbsoluteAdapterPosition();
             }
         }
 
@@ -97,12 +100,31 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         Log.d("murad ", "length"+getItemCount());
         Log.d("murad ", "adapterPosition"+position);*/
 
-        if(position > 0){
+        if(position > -1){
             if(daysOfMonth.get(position).getDayOfWeek().getValue() == 5) {
                 holder.dayOfMonth.setTextColor(Color.BLUE);
             }
             if (daysOfMonth.get(position).getDayOfWeek().getValue() == 6) {
                 holder.dayOfMonth.setTextColor(Color.RED);
+            }
+            if (daysOfMonth.get(position).equals(LocalDate.now())){
+
+                holder.dayOfMonth.setBackgroundResource(R.drawable.calendar_cell_text_today_background);
+                holder.itemView.setBackgroundResource(R.drawable.calendar_cell_selected_background);
+
+                oldPosition = position;
+
+                int textColor = holder.dayOfMonth.getCurrentTextColor();
+
+                if(textColor == Color.RED || textColor == Color.BLUE){
+                    holder.dayOfMonth.getBackground().setTint(textColor);
+                    holder.dayOfMonth.setTextColor(Color.WHITE);
+                }
+            }
+            if (daysOfMonth.get(position).getMonthValue() != selectedDate.getMonthValue()){
+                int finalColor = Color.GRAY | holder.dayOfMonth.getCurrentTextColor();
+
+                holder.dayOfMonth.setTextColor(finalColor);
             }
         }
 
@@ -254,7 +276,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     }
 
     public interface CalendarOnItemListener {
-        void onItemClick(int position, String dayText, LocalDate selectedDate);
+        void onItemClick(int position, int oldPosition, String dayText, LocalDate selectedDate);
     }
 
     public interface OnTextViewListener {

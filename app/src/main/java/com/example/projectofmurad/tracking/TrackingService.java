@@ -54,6 +54,7 @@ public class TrackingService extends LifecycleService {
     public static final String ACTION_AUTO_RESUME_OR_PAUSE_TRACKING_SERVICE = Utils.APPLICATION_ID + "action_auto_resume_or_pause_tracking";
 
     public static final String ACTION_MOVE_TO_TRACKING_FRAGMENT = Utils.APPLICATION_ID + "action_move_to_tracking_fragment";
+    public static final int CODE_FOR_RESULT = 5000;
 
     public static final int TRACKING_NOTIFICATION_ID = 0;
 
@@ -178,8 +179,11 @@ public class TrackingService extends LifecycleService {
             double latitude = Utils.round(locationResult.getLastLocation().getLatitude(), 4);
             double longitude = Utils.round(locationResult.getLastLocation().getLongitude(), 4);
 
-            FirebaseUtils.getCurrentUserDataRef().child("latitude").setValue(latitude);
-            FirebaseUtils.getCurrentUserDataRef().child("longitude").setValue(longitude);
+
+            if (TrackingService.eventPrivateId.getValue() != null){
+                FirebaseUtils.getCurrentUserTrackingRef(eventPrivateId.getValue()).child("latitude").setValue(latitude);
+                FirebaseUtils.getCurrentUserTrackingRef(eventPrivateId.getValue()).child("longitude").setValue(longitude);
+            }
 
             Log.d(TAG, "latitude = " + latitude);
             Log.d(TAG, "longitude = " + longitude);
@@ -209,7 +213,9 @@ public class TrackingService extends LifecycleService {
             super.onLocationAvailability(locationAvailability);
             boolean locationAvailable = locationAvailability.isLocationAvailable();
 
-            FirebaseUtils.getCurrentUserDataRef().child("locationAvailable").setValue(locationAvailable);
+            if (TrackingService.eventPrivateId.getValue() != null){
+                FirebaseUtils.getCurrentUserTrackingRef(eventPrivateId.getValue()).child("locationAvailable").setValue(locationAvailable);
+            }
         }
     };
 
@@ -351,7 +357,7 @@ public class TrackingService extends LifecycleService {
         /*PendingIntent pintent = PendingIntent.getBroadcast(this, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);*/
 
-        PendingIntent pintent = PendingIntent.getActivity(this, 0, intent,
+        PendingIntent pintent = PendingIntent.getActivity(this, CODE_FOR_RESULT, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         notificationBuilder = new NotificationCompat.Builder(this, "CHANNEL_ID");
@@ -465,7 +471,7 @@ public class TrackingService extends LifecycleService {
 
     public Task<Void> uploadTraining(long start, long end){
 
-        String trainingId = FirebaseUtils.getCurrentUserTrainingsRef().push().getKey();
+        String trainingId = "Training" + FirebaseUtils.getCurrentUserTrainingsRef().push().getKey();
 
         long time = timeData.getValue();
         long totalTime = totalTimeData.getValue();
