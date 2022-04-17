@@ -7,7 +7,7 @@
     android:overScrollMode="never"
     android:orientation="vertical"
     android:scrollbars="none"
-    tools:context=".BlankFragment"
+    tools:context=".home.HomeFragment"
     tools:ignore="ContentDescription">
 
     <com.google.android.material.appbar.AppBarLayout

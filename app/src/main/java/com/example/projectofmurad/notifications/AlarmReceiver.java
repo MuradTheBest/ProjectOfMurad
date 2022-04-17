@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.service.notification.StatusBarNotification;
@@ -19,12 +18,11 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.DayDialog;
 import com.example.projectofmurad.calendar.UtilsCalendar;
@@ -38,7 +36,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     public final static int ALARM_NOTIFICATION_ID = 500;
 
-    @RequiresApi(api = Build.VERSION_CODES.R)
     @SuppressLint("MissingPermission")
     @Override
     public void onReceive(@NonNull Context context, @NonNull Intent intent) {

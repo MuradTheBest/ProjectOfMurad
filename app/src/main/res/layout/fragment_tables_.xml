@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Tables_Fragment">
+    tools:context=".table.Tables_Fragment">
 
     <EditText
         android:id="@+id/tv_table_name"

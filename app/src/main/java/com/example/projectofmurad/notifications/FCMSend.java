@@ -3,7 +3,6 @@ package com.example.projectofmurad.notifications;
 import android.content.Context;
 import android.os.StrictMode;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -15,22 +14,16 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.projectofmurad.FirebaseUtils;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.UtilsCalendar;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class FCMSend {
@@ -45,7 +38,6 @@ public class FCMSend {
     public final static String ADD_EVENT_TOPIC = "add_event_topic";
     public final static String EDIT_EVENT_TOPIC = "edit_event_topic";
     public final static String DELETE_EVENT_TOPIC = "delete_event_topic";
-
 
     public final static String KEY_SENDER_UID = "senderUID";
 
@@ -372,70 +364,5 @@ public class FCMSend {
 
     public static void sendNotificationsToAllUsersWithTopic(Context context, CalendarEvent event, int notificationType){
         sendNotificationToTopic(context, event, notificationType);
-    }
-
-    public static void sendNotificationsToAllUsers(Context context, CalendarEvent event, int notificationType){
-
-        Log.d(FCM_TAG, "******************************************************************************************");
-        Log.d(FCM_TAG, "sending notification to all user");
-        Log.d(FCM_TAG, "******************************************************************************************");
-
-        FirebaseUtils.usersDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ArrayList<String> TOKENS = new ArrayList<>();
-
-                for (DataSnapshot data : snapshot.getChildren()){
-
-                    data = data.child("tokens");
-
-                    List<String> tokens = new ArrayList<>();
-                    if (data.exists()){
-                        tokens = (ArrayList<String>) data.getValue();
-                    }
-
-                    Log.d(FCM_TAG, tokens.toString());
-
-                    TOKENS.addAll(tokens);
-
-                    for (String token : tokens){
-                        Log.d(FCM_TAG, "token is " + token);
-                        sendNotificationToOneUser(context, event, notificationType, token);
-                    }
-/*                    String token = data.child("token").getValue(String.class);
-                    sendNotificationToOneUser(context, event, notificationType, token);*/
-                }
-
-                String[] tokens = TOKENS.toArray(new String[0]);
-
-                Log.d(FCM_TAG, Arrays.toString(tokens));
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    public static void sendNotificationsToAllUsersExceptSender(Context context, CalendarEvent event, int notificationType){
-
-        FirebaseUtils.usersDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot data : snapshot.getChildren()){
-                    if (data.exists() && !data.getKey().equals(FirebaseUtils.getCurrentUID())){
-                        String token = data.child("token").getValue(String.class);
-                        sendNotificationToOneUser(context, event, notificationType, token);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 }

@@ -4,7 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.projectofmurad.tracking.Training;
+import com.example.projectofmurad.training.Training;
 import com.google.gson.Gson;
 
 import java.io.Serializable;

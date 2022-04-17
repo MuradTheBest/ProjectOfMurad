@@ -1,7 +1,7 @@
 
 package com.example.projectofmurad;
 
-import static com.example.projectofmurad.Utils.LOG_TAG;
+import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -12,14 +12,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.example.projectofmurad.helpers.Utils;
 
 public class Splash_Screen extends Activity {
 
@@ -39,10 +39,6 @@ public class Splash_Screen extends Activity {
     private TextView e_2;
     private TextView d;
     private RelativeLayout group_1;
-
-    private Button button;
-
-    int LOCATION_REQUEST_CODE = 10001;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,118 +69,34 @@ public class Splash_Screen extends Activity {
         group_1.setOnClickListener(view -> {
             Intent nextScreen = new Intent(Splash_Screen.this,
                     FirebaseUtils.isUserLoggedIn() ? MainActivity.class : Log_In_Screen.class);
-/*            if (FirebaseUtils.isUserLoggedIn()){
-                nextScreen = new Intent(getApplicationContext(), MainActivity.class);
-            }
-            else {
-                nextScreen = new Intent(getApplicationContext(), Log_In_Screen.class);
-            }*/
 
-            ;
             startActivity(nextScreen);
         });
 
-        button = findViewById(R.id.button);
-        button.setVisibility(View.GONE);
-        button.setOnClickListener(view -> {
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
-        });
-
-        //custom code goes here
-
     }
-
 
     @Override
     protected void onStart() {
         super.onStart();
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) {
-//            getLastLocation();
-        }
-        else {
-            askNetworkPermission();
-        }
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) {
-//            getLastLocation();
-        }
-        else {
-            askNetworkPermission();
-        }
-
         checkPermissions();
     }
 
-    private void askNetworkPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_NETWORK_STATE)) {
-                Log.d(LOG_TAG, "askLocationPermission: you should show an alert dialog...");
-            }
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_NETWORK_STATE}, LOCATION_REQUEST_CODE);
-
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.INTERNET)) {
-                Log.d(LOG_TAG, "askLocationPermission: you should show an alert dialog...");
-            }
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET},
-                    LOCATION_REQUEST_CODE + 1);
-
-        }
-    }
-
     public void checkPermissions(){
-        boolean hasPermissions = true;
-
         for (String permission : new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}){
             if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(LOG_TAG, "Permission " + permission + " is granted");
             } else {
                 Log.d(LOG_TAG, "Permission " + permission + " is not granted");
-                hasPermissions = false;
-                askLocationPermission(permission);
+                askPermission(permission);
             }
         }
-
-        /*if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(LOG_TAG, "Permission is granted");
-        } else {
-            Log.d(LOG_TAG, "Permission is not granted");
-            askLocationPermission();
-        }
-
-        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(LOG_TAG, "Permission is granted");
-        } else {
-            Log.d(LOG_TAG, "Permission is not granted");
-            askLocationPermission();
-        }
-
-        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(LOG_TAG, "Permission is granted");
-        } else {
-            Log.d(LOG_TAG, "Permission is not granted");
-            askLocationPermission();
-        }
-
-        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(LOG_TAG, "Permission is granted");
-        } else {
-            Log.d(LOG_TAG, "Permission is not granted");
-            askLocationPermission();
-        }
-*/
     }
 
-    private void askLocationPermission(String permission) {
+    private void askPermission(String permission) {
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
             Log.d(LOG_TAG, "Asking for the permission " + permission);
             if (shouldShowRequestPermissionRationale(permission)) {
-                Log.d(LOG_TAG, "askLocationPermission: you should show an alert dialog...");
+                Log.d(LOG_TAG, "askPermission: you should show an alert dialog...");
             }
 
             requestPermissions(new String[]{permission}, 10000);

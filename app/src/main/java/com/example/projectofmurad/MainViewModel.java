@@ -1,7 +1,6 @@
 package com.example.projectofmurad;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -23,8 +22,6 @@ public class MainViewModel extends AndroidViewModel {
     private MutableLiveData<LocalDate> eventDate;
     private MutableLiveData<String> eventPrivateId;
 
-    private MutableLiveData<Boolean> isReady;
-
     public MainViewModel(@NonNull Application application) {
         super(application);
 
@@ -33,8 +30,6 @@ public class MainViewModel extends AndroidViewModel {
 
         eventDate = new MutableLiveData<>(LocalDate.now());
         eventPrivateId = new MutableLiveData<>(null);
-
-        isReady = new MutableLiveData<>(false);
     }
 
     public static MutableLiveData<Boolean> getToSwipeFragments() {
@@ -85,19 +80,5 @@ public class MainViewModel extends AndroidViewModel {
 
     public void setEventPrivateId(String eventPrivateId) {
         this.eventPrivateId.setValue(eventPrivateId);
-    }
-
-    public void setDefaultData(){
-        setEventDate(LocalDate.now());
-        setEventPrivateId(null);
-    }
-
-    public MutableLiveData<Boolean> isReady() {
-        return isReady;
-    }
-
-    public void setReady(boolean isReady) {
-        this.isReady.setValue(isReady);
-        Log.d(Utils.LOG_TAG, "mainviewmodel setReady");
     }
 }

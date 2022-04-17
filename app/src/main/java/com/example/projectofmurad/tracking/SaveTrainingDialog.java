@@ -13,18 +13,19 @@ import android.widget.RadioGroup;
 import androidx.annotation.NonNull;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.training.Training;
 
 import java.time.LocalDate;
 
 public class SaveTrainingDialog extends Dialog implements CompoundButton.OnCheckedChangeListener,
         View.OnClickListener {
 
-    RadioButton rb_private_training;
-    RadioButton rb_group_training;
+    private RadioButton rb_private_training;
+    private RadioButton rb_group_training;
 
-    LinearLayout ll_private_training;
-    LinearLayout ll_group_training;
+    private LinearLayout ll_private_training;
+    private LinearLayout ll_group_training;
 
     private Training training;
 
@@ -43,10 +44,6 @@ public class SaveTrainingDialog extends Dialog implements CompoundButton.OnCheck
 
         this.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
         this.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
-    }
-
-    public SaveTrainingDialog(@NonNull Context context, int themeResId) {
-        super(context, themeResId);
     }
 
     @Override
@@ -69,7 +66,6 @@ public class SaveTrainingDialog extends Dialog implements CompoundButton.OnCheck
         ll_private_training.setOnClickListener(this);
         ll_group_training = findViewById(R.id.ll_group_training);
         ll_group_training.setOnClickListener(this);
-
 
         Utils.createCustomDialog(this);
     }

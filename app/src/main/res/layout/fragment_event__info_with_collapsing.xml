@@ -4,7 +4,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent"
-    android:backgroundTint="@color/colorAccent"
     android:layout_width="match_parent">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -13,7 +12,7 @@
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
         android:theme="@style/Theme.ProjectOfMurad"
-        android:backgroundTint="@color/white"
+        android:backgroundTint="@color/colorSecondary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -162,21 +161,19 @@
 
             </androidx.cardview.widget.CardView>
 
-         <!--   <com.google.android.material.appbar.MaterialToolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark"
                 android:backgroundTint="@color/colorAccent"
                 android:visibility="visible"
-                app:title="EventName"
                 app:titleCentered="true"
-                app:layout_collapseMode="parallax"/>-->
+                app:layout_collapseMode="parallax"/>
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
-
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -184,7 +181,6 @@
         android:animateLayoutChanges="true"
         android:paddingBottom="50sp"
         android:background="@drawable/event_info_for_fragment_background"
-        android:backgroundTint="@color/colorAccent"
         android:fillViewport="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -192,9 +188,10 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_event"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
+            android:layout_height="wrap_content"
+            android:background="@color/colorSecondary">
 
             <TextView
                 android:id="@+id/tv_there_are_no_upcoming_events"
@@ -216,9 +213,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginHorizontal="10sp"
                 android:visibility="invisible"
-
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
-
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

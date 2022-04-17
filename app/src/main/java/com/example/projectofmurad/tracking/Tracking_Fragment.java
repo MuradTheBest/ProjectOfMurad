@@ -1,6 +1,6 @@
 package com.example.projectofmurad.tracking;
 
-import static com.example.projectofmurad.Utils.LOG_TAG;
+import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -57,15 +57,14 @@ import com.bumptech.glide.request.transition.Transition;
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.training.MyRepository;
+import com.example.projectofmurad.training.Training;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.ActivityTransition;
 import com.google.android.gms.location.ActivityTransitionRequest;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationAvailability;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -120,38 +119,6 @@ SaveTrainingDialog.OnAddTrainingListener{
     public int map_type = GoogleMap.MAP_TYPE_NORMAL;
 
     private FusedLocationProviderClient fusedLocationProviderClient;
-
-    private LocationCallback locationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(@NonNull LocationResult locationResult) {
-            super.onLocationResult(locationResult);
-
-            if (FirebaseUtils.isUserLoggedIn()){
-                Location lastLocation = locationResult.getLastLocation();
-
-                double latitude = lastLocation.getLatitude();
-                double longitude = lastLocation.getLongitude();
-
-
-/*                FirebaseUtils.getCurrentUserDataRef().child("latitude").setValue(latitude);
-                FirebaseUtils.getCurrentUserDataRef().child("longitude").setValue(longitude);*/
-
-//                gpsTrack.setPoints(TrackingService.getLocations());
-
-//                updateTrack(lastLocation);
-            }
-
-        }
-
-        @Override
-        public void onLocationAvailability(
-                @NonNull LocationAvailability locationAvailability) {
-            super.onLocationAvailability(locationAvailability);
-            boolean locationAvailable = locationAvailability.isLocationAvailable();
-
-            FirebaseUtils.getCurrentUserDataRef().child("locationAvailable").setValue(locationAvailable);
-        }
-    };
 
     private void updateTrack(@NonNull Location location) {
         LatLng lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
@@ -248,8 +215,7 @@ SaveTrainingDialog.OnAddTrainingListener{
         getActivity().startService(i);*\
 
         requireActivity().startService(new Intent(getContext(), TrackingService.class));
-/*        requireActivity().startForegroundService(new Intent(getContext(), TrackingService.class));
-        requireActivity().startService(new Intent(getContext(), mService.class));*/
+/*        requireActivity().startForegroundService(new Intent(getContext(), TrackingService.class));*/
 
 //        initializeBroadcastReceiver();
 
@@ -966,7 +932,7 @@ SaveTrainingDialog.OnAddTrainingListener{
         });
 
         AlertDialog alertDialog = builder.create();
-        Utils.createCustomAlertDialog(alertDialog);
+        Utils.createCustomDialog(alertDialog);
 
         alertDialog.show();
     }
@@ -993,7 +959,7 @@ SaveTrainingDialog.OnAddTrainingListener{
         });
 
         AlertDialog alertDialog = builder.create();
-        Utils.createCustomAlertDialog(alertDialog);
+        Utils.createCustomDialog(alertDialog);
 
         alertDialog.show();
     }

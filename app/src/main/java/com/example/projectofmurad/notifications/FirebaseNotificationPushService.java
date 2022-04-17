@@ -19,7 +19,7 @@ import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.DayDialog;
 import com.example.projectofmurad.calendar.UtilsCalendar;

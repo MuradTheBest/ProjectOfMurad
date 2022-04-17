@@ -2,23 +2,23 @@ package com.example.projectofmurad.calendar;
 
 public class Alarm {
 
-    private int alarm_id;
+    private int alarmId;
     private String eventPrivateId;
     private String eventDateTime;
 
 
-    public Alarm(int alarm_id, String eventPrivateId, String eventDateTime) {
-        this.alarm_id = alarm_id;
+    public Alarm(int alarmId, String eventPrivateId, String eventDateTime) {
+        this.alarmId = alarmId;
         this.eventPrivateId = eventPrivateId;
         this.eventDateTime = eventDateTime;
     }
 
-    public int getAlarm_id() {
-        return alarm_id;
+    public int getAlarmId() {
+        return alarmId;
     }
 
-    public void setAlarm_id(int alarm_id) {
-        this.alarm_id = alarm_id;
+    public void setAlarmId(int alarmId) {
+        this.alarmId = alarmId;
     }
 
     public String getEventPrivateId() {

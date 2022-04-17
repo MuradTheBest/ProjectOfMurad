@@ -1,6 +1,6 @@
 <resources>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+    <string name="hello_blank_fragment" translatable="false">Hello blank calendarFragment</string>
     <string name="app_name" translatable="false">CalendarAppExample</string>
     <string name="calendar_back" translatable="false"><![CDATA[<-]]></string>
     <string name="calendar_forward" translatable="false"><![CDATA[->]]></string>
@@ -20,8 +20,8 @@
     <string name="default_notification_channel_name" translatable="false">fcm_default_channel_name</string>
     <!-- [END fcm_default_icon_string] -->
 
-    <string name="hello_first_fragment" translatable="false">Hello first fragment</string>
-    <string name="hello_second_fragment" translatable="false">Hello second fragment. Arg: %1$s</string>
+    <string name="hello_first_fragment" translatable="false">Hello first calendarFragment</string>
+    <string name="hello_second_fragment" translatable="false">Hello second calendarFragment. Arg: %1$s</string>
     <string name="all_day">All day</string>
     <string name="every">Every</string>
     <string name="until">Until</string>
@@ -47,7 +47,6 @@
     <string name="place">Place</string>
     <string name="name">Name</string>
     <string name="description">Description</string>
-    <string name="calendar">Calendar</string>
     <string name="no_events">No events</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
@@ -88,4 +87,9 @@
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
 
     <string name="google_sign_in_api_key" translatable="false">"1059282703260-j1otqlruj256io9ouf22dtcqd2neg65n.apps.googleusercontent.com"</string>
+    <string name="tables">Tables</string>
+    <string name="calendar">Calendar</string>
+    <string name="home">Home</string>
+    <string name="tracking">Tracking</string>
+    <string name="preferences">Preferences</string>
 </resources>

@@ -11,7 +11,6 @@ import android.transition.ChangeBounds;
 import android.transition.Slide;
 import android.transition.TransitionManager;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,11 +29,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.firebase.ui.database.ObservableSnapshotArray;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -57,12 +55,9 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
      */
 
     private LocalDate selectedDate;
-    private ObservableSnapshotArray<CalendarEvent> calendarEventArrayList;
-    private OnEventClickListener onEventClickListener;
+    private final OnEventClickListener onEventClickListener;
     private OnEventChooseListener onEventChooseListener;
-    private OnEventExpandListener onEventExpandListener;
-    private FirebaseRecyclerOptions<CalendarEvent> options;
-    private Context context;
+    private final Context context;
     private String selected_UID;
 
     private boolean isChooseEventDialog;
@@ -75,7 +70,6 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
                                     @NonNull Context context, OnEventClickListener onEventClickListener) {
 
         super(options);
-        this.calendarEventArrayList = options.getSnapshots();
         this.selectedDate = selectedDate;
         this.onEventClickListener = onEventClickListener;
         this.context = context;
@@ -87,7 +81,6 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
                                     OnEventChooseListener onEventChooseListener) {
 
         super(options);
-        this.calendarEventArrayList = options.getSnapshots();
         this.selectedDate = selectedDate;
         this.onEventClickListener = onEventClickListener;
         this.onEventChooseListener = onEventChooseListener;
@@ -99,18 +92,14 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
                                     @NonNull Context context, OnEventClickListener onEventClickListener) {
 
         super(options);
-        this.calendarEventArrayList = options.getSnapshots();
         this.onEventClickListener = onEventClickListener;
         this.context = context;
         this.selected_UID = selected_UID;
         this.db = context.openOrCreateDatabase(Utils.DATABASE_NAME, MODE_PRIVATE, null);
     }
 
-    private int alarm_hour = 2;
-    private int alarm_minute = 0;
-
     public class EventViewHolderForFirebase extends RecyclerView.ViewHolder implements
-            View.OnClickListener, OnEventExpandListener, CompoundButton.OnCheckedChangeListener {
+            View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
         public ConstraintLayout constraintLayout;
 
@@ -195,7 +184,10 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
                     Log.d("murad", "Alarm added");
 
-                    AlarmDialog alarmDialog = new AlarmDialog(context, event, switch_alarm, alarm_hour, alarm_minute);
+                    int alarm_hour = 2;
+                    int alarm_minute = 0;
+                    AlarmDialog alarmDialog = new AlarmDialog(context, event, switch_alarm,
+                            alarm_hour, alarm_minute);
 
                     alarmDialog.show();
                 }
@@ -228,40 +220,6 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             TransitionManager.beginDelayedTransition(constraintLayout, changeBounds);
 
             set.applyTo(constraintLayout);
-        }
-
-        @Override
-        public void onEventExpand(int position, boolean expanded) {
-            if(expanded){
-                wrapped_layout.setVisibility(View.GONE);
-                expanded_layout.setVisibility(View.VISIBLE);
-
-                ConstraintSet constraintSet = new ConstraintSet();
-                constraintSet.clone(constraintLayout);
-                constraintSet.connect(R.id.tv_event_place, ConstraintSet.TOP, R.id.linearLayout, ConstraintSet.BOTTOM);
-                //constraintSet.applyTo(constraintLayout);
-
-                animateConstraintLayout(constraintLayout, constraintSet, 300, Gravity.TOP);
-            }
-            else {
-                expanded_layout.setVisibility(View.GONE);
-                wrapped_layout.setVisibility(View.VISIBLE);
-
-                ConstraintSet constraintSet = new ConstraintSet();
-                constraintSet.clone(constraintLayout);
-                constraintSet.connect(R.id.tv_event_place, ConstraintSet.TOP, R.id.tv_event_description, ConstraintSet.BOTTOM);
-                //constraintSet.applyTo(constraintLayout);
-
-                animateConstraintLayout(constraintLayout, constraintSet, 300, Gravity.BOTTOM);
-            }
-
-            /*expanded_layout.setVisibility(expanded ? View.VISIBLE : View.GONE);
-            wrapped_layout.setVisibility(!expanded ? View.VISIBLE : View.GONE);
-            ConstraintSet constraintSet = new ConstraintSet();
-            constraintSet.clone(constraintLayout);
-            constraintSet.connect(R.id.tv_event_place, ConstraintSet.TOP, expanded ? R.id.linearLayout : R.id.tv_event_description, ConstraintSet.BOTTOM);
-            animateConstraintLayout(constraintLayout, constraintSet, 300, expanded ? Gravity.TOP : Gravity.BOTTOM);*/
-
         }
 
         @Override
@@ -444,7 +402,7 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
     @Override
     public EventViewHolderForFirebase onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.event_info_expanded_with_card_view, parent, false);
+                .inflate(R.layout.row_event_info, parent, false);
 
         return new EventViewHolderForFirebase(view, onEventClickListener);
     }
@@ -457,12 +415,8 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         void onEventChoose(int oldPosition, int newPosition, String eventPrivateId);
     }
 
-    public interface OnEventExpandListener {
-        void onEventExpand(int position, boolean expanded);
-    }
-
     @Override
     public int getItemCount() {
-        return calendarEventArrayList.size();
+        return getSnapshots().size();
     }
 }

@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.helpers.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -205,47 +206,6 @@ public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
 
             }
         });
-
-        /*Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(!btn_sign_up.isPressed() || go){
-                    TextView tv_match;
-                    tv_match = findViewById(R.id.tv_match);
-                    try {
-                        if(!et_confirm_password.getText().toString().isEmpty() && !et_password.getText().toString().isEmpty()){
-                            if(et_password.getText().toString().equals(et_confirm_password.getText().toString())){
-                                try {
-                                    tv_match.setVisibility(View.INVISIBLE);
-                                } catch(Exception e) {
-                                    e.printStackTrace();
-                                    tv_match.setVisibility(View.INVISIBLE);
-                                }
-                            }
-                            else{
-                                tv_match.setVisibility(View.VISIBLE);
-                            }
-                        }
-                        else{
-                            tv_match.setVisibility(View.INVISIBLE);
-                        }
-                        if(et_confirm_password.getText().toString().isEmpty() || et_password.getText().toString().isEmpty()){
-                            tv_match.setVisibility(View.INVISIBLE);
-                        }
-                    }
-                    catch(Exception e) {
-                        try {
-                            e.printStackTrace();
-                            tv_match.setVisibility(View.VISIBLE);
-                        } catch(Exception exception) {
-                            exception.printStackTrace();
-                            tv_match.setVisibility(View.VISIBLE);
-                        }
-                    }
-                }
-            }
-        });
-        thread.start();*/
 
         et_password.addTextChangedListener(this);
         et_confirm_password.addTextChangedListener(this);

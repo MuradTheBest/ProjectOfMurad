@@ -1,6 +1,6 @@
 package com.example.projectofmurad;
 
-import static com.example.projectofmurad.Utils.LOG_TAG;
+import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -22,6 +22,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -69,7 +70,7 @@ public class UserSigningActivity extends AppCompatActivity {
         getSupportActionBar().hide();
 
         progressDialog = new ProgressDialog(this);
-        Utils.createCustomProgressDialog(progressDialog);
+        Utils.createCustomDialog(progressDialog);
     }
 
     protected void createPhoneAuthenticationDialog(){
@@ -134,7 +135,7 @@ public class UserSigningActivity extends AppCompatActivity {
         builder.setNegativeButton("Back", (dialog, which) -> dialog.dismiss());
 
         AlertDialog alertDialog = builder.create();
-        Utils.createCustomAlertDialog(alertDialog);
+        Utils.createCustomDialog(alertDialog);
 
         alertDialog.show();
 
@@ -153,13 +154,15 @@ public class UserSigningActivity extends AppCompatActivity {
                             public void onVerificationCompleted(
                                     @NonNull PhoneAuthCredential phoneAuthCredential) {
 
-                                /*
-                                  This callback will be invoked in two situations:
-                                  1 - Instant verification. In some cases the phone number can be instantly
-                                  verified without needing to send or enter a verification code.
-                                  2 - Auto-retrieval. On some devices Google Play services can automatically
-                                  detect the incoming verification SMS and perform verification without
-                                  user action.
+                                /**
+                                 * This callback will be invoked in two situations:
+                                 * 1 - Instant verification. In some cases the phone number can be instantly
+                                 * verified without needing to send or enter a verification code.
+                                 * 2 - Auto-retrieval. On some devices Google Play services can automatically
+                                 * detect the incoming verification SMS and perform verification without
+                                 * user action.
+                                 *
+                                 *
                                  */
 
                                 Log.d("murad", "onVerificationCompleted:" + phoneAuthCredential);
@@ -224,7 +227,7 @@ public class UserSigningActivity extends AppCompatActivity {
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
         androidx.appcompat.app.AlertDialog alertDialog = builder.create();
-        Utils.createCustomAlertDialog(alertDialog);
+        Utils.createCustomDialog(alertDialog);
 
         alertDialog.show();
     }
@@ -388,7 +391,6 @@ public class UserSigningActivity extends AppCompatActivity {
     protected void googleAuth(String idToken) {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-//		Toast.makeText(this, "credential" + credential, Toast.LENGTH_SHORT).show();
         Log.d("murad", "credential" + credential);
 
         progressDialog.setMessage("Logging via Google, please wait...");

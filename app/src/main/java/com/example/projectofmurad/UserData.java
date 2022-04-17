@@ -23,10 +23,6 @@ public class UserData {
     private boolean online;
     private boolean offline = true;
 
-    private double latitude;
-    private double longitude;
-    private boolean locationAvailable;
-
     private boolean subscribedToAddEvent;
     private boolean subscribedToEditEvent;
     private boolean subscribedToDeleteEvent;
@@ -143,31 +139,12 @@ public class UserData {
                 ",\nemailVerified = " + emailVerified +
                 ",\nonline = " + online +
                 ",\noffline = " + offline +
-                ",\nlatitude = " + latitude +
-                ",\nlongitude = " + longitude +
-                ",\nlocationAvailable = " + locationAvailable +
                 ",\nsubscribedToAddEvent = " + subscribedToAddEvent +
                 ",\nsubscribedToEditEvent = " + subscribedToEditEvent +
                 ",\nsubscribedToDeleteEvent = " + subscribedToDeleteEvent +
                 ",\nsubscribedToAutoAlarmSet = " + subscribedToAutoAlarmSet +
                 ",\nsubscribedToAutoAlarmMove = " + subscribedToAutoAlarmMove +
                 "\n}";
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public boolean isLocationAvailable() {
-        return locationAvailable;
-    }
-
-    public void setLocationAvailable(boolean locationAvailable) {
-        this.locationAvailable = locationAvailable;
     }
 
     public String getProfile_picture() {
@@ -185,14 +162,6 @@ public class UserData {
     public void setMadrich(boolean madrich) {
         this.madrich = madrich;
         this.notMadrich = !madrich;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
     }
 
     public boolean isNotMadrich() {

@@ -2,10 +2,8 @@ package com.example.projectofmurad.calendar;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -26,20 +24,16 @@ import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.example.projectofmurad.BuildConfig;
 import com.example.projectofmurad.FirebaseUtils;
-import com.example.projectofmurad.LinearLayoutManagerWrapper;
-import com.example.projectofmurad.MainViewModel;
+import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.RecyclerViewSwipeDecorator;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.helpers.RecyclerViewSwipeDecorator;
+import com.example.projectofmurad.helpers.Utils;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -51,16 +45,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
-public class DayDialog extends Dialog implements
-        EventsAdapterForFirebase.OnEventClickListener,
-        EventsAdapterForFirebase.OnEventExpandListener{
+public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEventClickListener{
 
     public final LocalDate passingDate;
     private final Context context;
-
-    private ArrayList<CalendarEvent> calendarEventArrayList;
 
     private FloatingActionButton fab_add_event;
     private Button btn_clear_all;
@@ -68,16 +57,15 @@ public class DayDialog extends Dialog implements
     private RecyclerView rv_events;
     private EventsAdapterForFirebase adapterForFirebase;
 
-
     private DatabaseReference eventsDatabase;
 
     private FirebaseRecyclerOptions<CalendarEvent> options;
 
     public static final String ACTION_TO_SHOW_EVENT = BuildConfig.APPLICATION_ID + "to show event";
 
-    FragmentManager fm;
+    private final FragmentManager fm;
 
-    private String event_private_id;
+    private final String event_private_id;
 
     public DayDialog(@NonNull Context context, LocalDate passingDate, String event_private_id) {
         super(context);
@@ -94,22 +82,22 @@ public class DayDialog extends Dialog implements
 
         this.event_private_id = event_private_id;
 
-        vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        this.vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             vibrationEffect = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK);
         }
     }
 
+
+
     public LocalDate getPassingDate() {
         return passingDate;
     }
 
-    MainViewModel mainViewModel;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setContentView(R.layout.day_dialog_with_recyclerview);
+        this.setContentView(R.layout.day_dialog);
         this.setCancelable(true);
 
         String day = String.valueOf(passingDate.getDayOfMonth());
@@ -128,8 +116,6 @@ public class DayDialog extends Dialog implements
 
 
         eventsDatabase = FirebaseUtils.eventsDatabase;
-
-        calendarEventArrayList = new ArrayList<>();
 
         eventsDatabase = eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(passingDate));
         Query query = eventsDatabase.orderByChild("start");
@@ -152,7 +138,7 @@ public class DayDialog extends Dialog implements
         options = new FirebaseRecyclerOptions.Builder<CalendarEvent>()
                 .setQuery(query, CalendarEvent.class)
 //                .setIndexedQuery(, , CalendarEvent.class)
-                .setLifecycleOwner((LifecycleOwner) this.getOwnerActivity())
+                .setLifecycleOwner((LifecycleOwner) context)
                 .build();
 
 
@@ -162,12 +148,10 @@ public class DayDialog extends Dialog implements
 
         rv_events.setAdapter(adapterForFirebase);
 
-        mainViewModel = new ViewModelProvider((ViewModelStoreOwner) context).get(MainViewModel.class);
-
         Log.d("murad", "rv_events.getChildCount() = " + rv_events.getChildCount());
 
         LinearLayoutManagerWrapper layoutManager = new LinearLayoutManagerWrapper(getContext());
-        layoutManager.setCallback(() -> showEvent(event_private_id));
+        layoutManager.setOnLayoutCompleteListener(() -> showEvent(event_private_id));
 
         rv_events.setLayoutManager(layoutManager);
         rv_events.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -264,53 +248,6 @@ public class DayDialog extends Dialog implements
 
 //        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(rv_events);
-
-        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, @NonNull Intent intent) {
-                String action = intent.getAction();
-
-                if (action.equals(ACTION_TO_SHOW_EVENT)){
-
-                    String event_private_id = intent.getStringExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID);
-
-                    Log.d(Utils.LOG_TAG, "mainViewModel event_private_id is " + event_private_id);
-
-                    int position = -1;
-
-                    int i = 0;
-                    for (CalendarEvent calendarEvent : options.getSnapshots()){
-                        if (calendarEvent.getPrivateId().equals(event_private_id)){
-                            position = i;
-                        }
-                        i++;
-                    }
-
-                    if (rv_events.findViewHolderForAdapterPosition(position) != null && position > -1){
-                        View event = rv_events.findViewHolderForAdapterPosition(position).itemView;
-
-                        Runnable unPressRunnable = () -> event.setPressed(false);
-
-                        Runnable pressRunnable = new Runnable() {
-                            @Override
-                            public void run() {
-                                event.setPressed(true);
-                                event.postOnAnimationDelayed(unPressRunnable, 1000);
-                            }
-                        };
-
-                        new Handler().postDelayed(pressRunnable, 500);
-                    }
-
-                }
-            }
-        };
-
-        // registering the specialized custom BroadcastReceiver in LocalBroadcastManager to receive custom broadcast.
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_TO_SHOW_EVENT);
-
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, intentFilter);
 
     }
 
@@ -450,7 +387,7 @@ public class DayDialog extends Dialog implements
                 }
             };
 
-            new Handler().postDelayed(pressRunnable, 1000);
+            new Handler().postDelayed(pressRunnable, 500);
         }
     }
 
@@ -460,8 +397,8 @@ public class DayDialog extends Dialog implements
         adapterForFirebase.stopListening();
     }
 
-    Vibrator vibrator;
-    VibrationEffect vibrationEffect;
+    private final Vibrator vibrator;
+    private VibrationEffect vibrationEffect;
 
     boolean at_the_time = false;
     boolean before_5_minutes = false;
@@ -767,11 +704,6 @@ public class DayDialog extends Dialog implements
             Event_Info_DialogFragment event_info_dialogFragment = Event_Info_DialogFragment.newInstance(event, true);
             event_info_dialogFragment.show(fm, Event_Info_DialogFragment.TAG);
         }
-    }
-
-    @Override
-    public void onEventExpand(int position, boolean expanded) {
 
     }
-
 }

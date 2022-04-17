@@ -18,6 +18,7 @@ public class Settings_Fragment extends PreferenceFragmentCompat {
 
     }
 
+    @NonNull
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {

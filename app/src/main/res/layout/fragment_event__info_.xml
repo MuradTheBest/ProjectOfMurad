@@ -330,6 +330,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_event"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -455,7 +456,6 @@
 
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
-
 
             </androidx.cardview.widget.CardView>
 

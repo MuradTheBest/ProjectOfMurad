@@ -1,12 +1,10 @@
 package com.example.projectofmurad;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,15 +19,14 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -57,7 +54,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.UploadTask;
-import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.util.HashMap;
 import java.util.List;
@@ -76,7 +72,6 @@ public class Profile_Screen extends AppCompatActivity {
 
     private CheckBox et_madrich;
 
-    private Button btn_save_profile;
     private Button btn_delete_account;
     private Button btn_sign_out;
 
@@ -123,7 +118,7 @@ public class Profile_Screen extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         progressDialog = new ProgressDialog(this/*, ProgressDialog.THEME_HOLO_LIGHT*/);
-        Utils.createCustomProgressDialog(progressDialog);
+        Utils.createCustomDialog(progressDialog);
 
         if (!FirebaseUtils.isUserLoggedIn()){
             startActivity(new Intent(Profile_Screen.this, Log_In_Screen.class));
@@ -177,9 +172,6 @@ public class Profile_Screen extends AppCompatActivity {
 
             }
         });
-
-        cameraPermission = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        storagePermission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
         et_phone.addTextChangedListener(new TextWatcher() {
 
@@ -390,7 +382,7 @@ public class Profile_Screen extends AppCompatActivity {
         });
 
         AlertDialog alertDialog = builder.create();
-        Utils.createCustomAlertDialog(alertDialog);
+        Utils.createCustomDialog(alertDialog);
 
         alertDialog.show();
     }
@@ -432,7 +424,7 @@ public class Profile_Screen extends AppCompatActivity {
         builder.setNegativeButton("Cancel", (dialog, which) -> et_madrich.setChecked(false));
 
         AlertDialog alertDialog = builder.create();
-        Utils.createCustomAlertDialog(alertDialog);
+        Utils.createCustomDialog(alertDialog);
 
         alertDialog.show();
     }
@@ -451,120 +443,10 @@ public class Profile_Screen extends AppCompatActivity {
         builder.setNegativeButton("No", (dialog, which) -> et_madrich.setChecked(true));
 
         AlertDialog alertDialog = builder.create();
-        Utils.createCustomAlertDialog(alertDialog);
+        Utils.createCustomDialog(alertDialog);
 
         alertDialog.show();
     }
-
-    ImageView userpic;
-    private static final int GalleryPick = 1;
-    private static final int CAMERA_REQUEST = 100;
-    private static final int STORAGE_REQUEST = 200;
-    private static final int IMAGEPICK_GALLERY_REQUEST = 300;
-    private static final int IMAGE_PICKCAMERA_REQUEST = 400;
-    String[] cameraPermission;
-    String[] storagePermission;
-    Uri imageuri;
-
-    private void showImagePicDialog() {
-        String[] options = {"Camera", "Gallery"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Pick Image From");
-        builder.setItems(options, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == 0) {
-                    if (!checkCameraPermission()) {
-                        requestCameraPermission();
-                    } else {
-                        pickFromGallery();
-                    }
-                } else if (which == 1) {
-                    if (!checkStoragePermission()) {
-                        requestStoragePermission();
-                    } else {
-                        pickFromGallery();
-                    }
-                }
-            }
-        });
-        builder.create().show();
-    }
-
-    // checking storage permissions
-    private boolean checkStoragePermission() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-    }
-
-    // Requesting  gallery permission
-    private void requestStoragePermission() {
-        requestPermissions(storagePermission, STORAGE_REQUEST);
-    }
-
-    // checking camera permissions
-    private boolean checkCameraPermission() {
-        boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == (PackageManager.PERMISSION_GRANTED);
-        boolean result1 = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-        return result && result1;
-    }
-
-    // Requesting camera permission
-    private void requestCameraPermission() {
-        requestPermissions(cameraPermission, CAMERA_REQUEST);
-    }
-
-    // Requesting camera and gallery
-    // permission if not given
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case CAMERA_REQUEST: {
-                if (grantResults.length > 0) {
-                    boolean camera_accepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean writeStorageAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
-                    if (camera_accepted && writeStorageAccepted) {
-                        pickFromGallery();
-                    }
-                    else {
-                        Toast.makeText(this, "Please Enable Camera and Storage Permissions",
-                                Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
-            break;
-            case STORAGE_REQUEST: {
-                if (grantResults.length > 0) {
-                    boolean writeStorageAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    if (writeStorageAccepted) {
-                        pickFromGallery();
-                    }
-                    else {
-                        Toast.makeText(this, "Please Enable Storage Permissions",
-                                Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
-            break;
-        }
-    }
-
-    // Here we will pick image from gallery or camera
-    private void pickFromGallery() {
-        CropImage.activity().start(this);
-    }
-
-    /*@Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK) {
-                Uri resultUri = result.getUri();
-                Glide.with(Profile_Screen.this).load(resultUri).into(iv_profile_picture);
-            }
-        }
-    }*/
 
     @Override
     public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
@@ -876,7 +758,7 @@ public class Profile_Screen extends AppCompatActivity {
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
         AlertDialog alertDialog = builder.create();
-        Utils.createCustomAlertDialog(alertDialog);
+        Utils.createCustomDialog(alertDialog);
 
         alertDialog.show();
     }
@@ -1125,7 +1007,7 @@ public class Profile_Screen extends AppCompatActivity {
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
         AlertDialog alertDialog = builder.create();
-        Utils.createCustomAlertDialog(alertDialog);
+        Utils.createCustomDialog(alertDialog);
 
         alertDialog.show();
 
@@ -1237,7 +1119,7 @@ public class Profile_Screen extends AppCompatActivity {
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
         AlertDialog alertDialog = builder.create();
-        Utils.createCustomAlertDialog(alertDialog);
+        Utils.createCustomDialog(alertDialog);
 
         alertDialog.show();
 
@@ -1401,9 +1283,5 @@ public class Profile_Screen extends AppCompatActivity {
     public void onBackPressed() {
         startActivity(new Intent(Profile_Screen.this,
                 editMode ? Profile_Screen.class : MainActivity.class));
-    }
-
-    private interface OnUpdateFinishedListener{
-        void onUpdateFinishedListener();
     }
 }

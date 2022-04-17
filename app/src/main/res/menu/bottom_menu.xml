@@ -4,31 +4,26 @@
 
     <item
         android:id="@+id/tables_Fragment"
-        android:title="Tables"
+        android:title="@string/tables"
         android:icon="@drawable/ic_baseline_table_view_24" />
 
     <item
         android:id="@+id/calendar_Fragment"
-        android:title="Calendar"
+        android:title="@string/calendar"
         android:icon="@drawable/ic_baseline_calendar_month_24"/>
 
     <item
         android:id="@+id/blankFragment"
-        android:title="Home"
+        android:title="@string/home"
         android:icon="@drawable/ic_baseline_home_24"/>
 
     <item
         android:id="@+id/tracking_Fragment"
-        android:title="Map"
+        android:title="@string/tracking"
         android:icon="@drawable/ic_baseline_location_on_24"/>
-
-<!--    <item
-        android:id="@+id/graph_Fragment"
-        android:title="Graph"
-        android:icon="@drawable/ic_baseline_show_chart_24"/>-->
 
     <item
         android:id="@+id/preferences_Fragment"
-        android:title="Preferences"
+        android:title="@string/preferences"
         android:icon="@drawable/ic_baseline_settings_24"/>
 </menu>

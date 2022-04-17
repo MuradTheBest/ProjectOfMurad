@@ -1,12 +1,10 @@
 package com.example.projectofmurad;
 
-import static com.example.projectofmurad.Utils.LOG_TAG;
+import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,9 +20,6 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
@@ -36,10 +31,11 @@ import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.CalendarFragment;
 import com.example.projectofmurad.calendar.DayDialog;
 import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.home.HomeFragment;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
 import com.example.projectofmurad.notifications.AlarmReceiver;
 import com.example.projectofmurad.tracking.TrackingService;
-import com.example.projectofmurad.tracking.Tracking_Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.time.LocalDate;
@@ -48,17 +44,12 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements NavController.OnDestinationChangedListener {
 
-    View containerView;
+    private View containerView;
 
-    BottomNavigationView bottomNavigationView;
-
-    int LOCATION_REQUEST_CODE = 10001;
-
-    private NavController navController;
+    private BottomNavigationView bottomNavigationView;
 
     private MainViewModel mainViewModel;
 
-    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,12 +59,13 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
-        containerView = findViewById(R.id.fragment);
+        containerView = findViewById(R.id.fragmentContainerView);
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
 
-        navController = Navigation.findNavController(this, R.id.fragment);
+        NavController navController = Navigation.findNavController(this,
+                R.id.fragmentContainerView);
         navController.addOnDestinationChangedListener(this);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
@@ -93,26 +85,11 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
             switch (gotten_intent.getAction()) {
                 case TrackingService.ACTION_MOVE_TO_TRACKING_FRAGMENT:
                     Log.d("murad", "Going to Tracking_Fragment");
-
                     moveToTrackingFragment();
                     break;
                 case CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT:
 
                     Log.d("murad", "Going to CalendarFragment");
-
-                    int day = gotten_intent.getIntExtra("day", LocalDate.now().getDayOfMonth());
-                    int month = gotten_intent.getIntExtra("month", LocalDate.now().getMonthValue());
-                    int year = gotten_intent.getIntExtra("year", LocalDate.now().getYear());
-
-//                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment, CalendarFragment.newInstance(goTo)).commit();
-
-
-                    Bundle args = new Bundle();
-                    args.putInt(CalendarFragment.SELECTED_DATE_DAY, day);
-                    args.putInt(CalendarFragment.SELECTED_DATE_MONTH, month);
-                    args.putInt(CalendarFragment.SELECTED_DATE_YEAR, year);
-
-//                    Navigation.findNavController(this, R.id.fragment).navigate(R.id.calendar_Fragment, args);
 
                     mainViewModel.setEventDate(LocalDate.now());
 
@@ -127,6 +104,10 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
 
     }
 
+    public void moveToTrackingFragment() {
+        bottomNavigationView.setSelectedItemId(R.id.tracking_Fragment);
+    }
+
     @Override
     public void onNewIntent(Intent intent) {
 
@@ -135,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
         Log.d(LOG_TAG, "MainActivity got NewIntent");
 
         showEvent(intent);
-
     }
 
     private void showEvent(@NonNull Intent intent){
@@ -174,25 +154,10 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
             sendBroadcast(intent_stop_alarm);
         }
 
-//            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, CalendarFragment.newInstance(goTo, event_private_id)).commit();
-
-        Bundle args = new Bundle();
-        args.putInt(CalendarFragment.SELECTED_DATE_DAY, goTo.getDayOfMonth());
-        args.putInt(CalendarFragment.SELECTED_DATE_MONTH, goTo.getMonthValue());
-        args.putInt(CalendarFragment.SELECTED_DATE_YEAR, goTo.getYear());
-
-        args.putString(CalendarFragment.EVENT_TO_SHOW_PRIVATE_ID, event_private_id);
-
-//            Navigation.findNavController(this, R.id.fragment).navigate(R.id.calendar_Fragment, args);
-
         mainViewModel.setEventPrivateId(event_private_id);
         mainViewModel.setEventDate(goTo);
 
         bottomNavigationView.setSelectedItemId(R.id.calendar_Fragment);
-    }
-
-    public void moveToTrackingFragment(){
-        bottomNavigationView.setSelectedItemId(R.id.tracking_Fragment);
     }
 
     public void animate(ViewGroup viewGroup, int gravity, int duration){
@@ -217,7 +182,6 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
             TransitionManager.beginDelayedTransition(viewGroup, slide);
         }
 
-
     }
 
     @Override
@@ -234,64 +198,6 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-//            getLastLocation();
-        } else {
-            askLocationPermission();
-        }
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) {
-//            getLastLocation();
-        } else {
-            askLocationPermission();
-        }
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) {
-//            getLastLocation();
-        } else {
-            askLocationPermission();
-        }
-    }
-
-    private void askLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-                Log.d(LOG_TAG, "askLocationPermission: you should show an alert dialog...");
-            }
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_NETWORK_STATE}, LOCATION_REQUEST_CODE+1);
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_NETWORK_STATE)) {
-                Log.d(LOG_TAG, "askLocationPermission: you should show an alert dialog...");
-            }
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.INTERNET)) {
-                Log.d(LOG_TAG, "askLocationPermission: you should show an alert dialog...");
-            }
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.INTERNET}, LOCATION_REQUEST_CODE);
-
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == LOCATION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted
-//                getLastLocation();
-                getSupportFragmentManager().beginTransaction().replace(
-                        R.id.bottomNavigationView, new Tracking_Fragment(), LOG_TAG);
-            }
-            else {
-                //Permission not granted
-            }
-        }
-    }
-
     @SuppressLint("NonConstantResourceId")
     @Override
     public void onDestinationChanged(@NonNull NavController navController,
@@ -299,13 +205,13 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
                                      @Nullable Bundle bundle) {
 
 
-        Fragment newFragment = new BlankFragment();
+        androidx.fragment.app.Fragment newFragment = new HomeFragment();
         String TAG = "blankFragment";
 
         switch (navDestination.getId()){
             case R.id.blankFragment:
                 TAG = "blankFragment";
-                newFragment = new BlankFragment();
+                newFragment = new HomeFragment();
 //                getSupportActionBar().setTitle("ProjectOfMurad");
                 break;
             case R.id.tables_Fragment:
@@ -328,12 +234,11 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
 
         if (TAG.equals("blankFragment")){
 
-            Fragment fragment = getSupportFragmentManager().findFragmentByTag(TAG);
+            androidx.fragment.app.Fragment fragment = getSupportFragmentManager().findFragmentByTag(TAG);
             if (fragment == null){
                 fragment = newFragment;
             }
 
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment);
         }
 
 

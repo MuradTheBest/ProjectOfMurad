@@ -12,6 +12,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.projectofmurad.helpers.Utils;
+
 public class EmptyBlankActivity extends AppCompatActivity {
 
     private AlertDialog alertDialog;
@@ -25,7 +27,6 @@ public class EmptyBlankActivity extends AppCompatActivity {
         setTheme(R.style.Theme_Transparent);
 
         Intent gotten_intent = getIntent();
-
 
     }
 

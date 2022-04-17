@@ -1,6 +1,6 @@
 package com.example.projectofmurad;
 
-import com.example.projectofmurad.tracking.Training;
+import com.example.projectofmurad.training.Training;
 
 import java.util.ArrayList;
 

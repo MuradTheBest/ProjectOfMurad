@@ -15,12 +15,13 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.FirebaseUtils;
-import com.example.projectofmurad.LinearLayoutManagerWrapper;
+import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.EventsAdapterForFirebase;
 import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.training.Training;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -39,17 +40,10 @@ public class ChooseEventClickDialog extends Dialog implements EventsAdapterForFi
     private final Context context;
 
     private RecyclerView rv_events;
-    private EventsAdapterForFirebase adapterForFirebase;
-
-    private DatabaseReference eventsDatabase;
-
-    private FirebaseRecyclerOptions<CalendarEvent> options;
 
     private final Training training;
 
     private final SaveTrainingDialog.OnAddTrainingListener onAddTrainingListener;
-
-    private String selectedEventPrivateId = "";
 
     private ProgressDialog progressDialog;
 
@@ -72,11 +66,11 @@ public class ChooseEventClickDialog extends Dialog implements EventsAdapterForFi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.day_dialog_with_recyclerview);
+        setContentView(R.layout.day_dialog);
         setCancelable(false);
 
         progressDialog = new ProgressDialog(getContext());
-        Utils.createCustomProgressDialog(progressDialog);
+        Utils.createCustomDialog(progressDialog);
 
         TextView tv_day = findViewById(R.id.tv_day);
         tv_day.setVisibility(View.GONE);
@@ -95,20 +89,22 @@ public class ChooseEventClickDialog extends Dialog implements EventsAdapterForFi
 
         rv_events = this.findViewById(R.id.rv_events);
 
-        eventsDatabase = FirebaseUtils.eventsDatabase;
+        DatabaseReference eventsDatabase = FirebaseUtils.eventsDatabase;
 
         eventsDatabase = eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(passingDate));
 //        Query query = eventsDatabase.orderByChild("start");
         Query query = eventsDatabase;
 
-        options = new FirebaseRecyclerOptions.Builder<CalendarEvent>()
+        //                .setIndexedQuery(, , CalendarEvent.class)
+        FirebaseRecyclerOptions<CalendarEvent> options = new FirebaseRecyclerOptions.Builder<CalendarEvent>()
                 .setQuery(query, CalendarEvent.class)
 //                .setIndexedQuery(, , CalendarEvent.class)
                 .setLifecycleOwner((LifecycleOwner) context)
                 .build();
 
 
-        adapterForFirebase = new EventsAdapterForFirebase(options, passingDate, context, this);
+        EventsAdapterForFirebase adapterForFirebase = new EventsAdapterForFirebase(options,
+                passingDate, context, this);
         Log.d("murad", "passingDate is " + UtilsCalendar.DateToTextOnline(passingDate));
         Log.d("murad", "adapterForFirebase.getItemCount() = " + adapterForFirebase.getItemCount());
         Log.d("murad", "options.getItemCount() = " + options.getSnapshots().size());
@@ -179,7 +175,7 @@ public class ChooseEventClickDialog extends Dialog implements EventsAdapterForFi
 
     @Override
     public void onEventClick(int position, @NonNull CalendarEvent calendarEvent) {
-        selectedEventPrivateId = calendarEvent.getPrivateId();
+        String selectedEventPrivateId = calendarEvent.getPrivateId();
 
         progressDialog.setMessage("Adding the trainingData to selected event...");
         progressDialog.show();

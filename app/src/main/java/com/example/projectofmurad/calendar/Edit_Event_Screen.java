@@ -32,7 +32,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -349,7 +349,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 calendar.set(Calendar.MINUTE, 0);
                 startDatePickerDialog.getDatePicker().setMinDate(calendar.getTimeInMillis());
 
-                Utils.createCustomPickerDialog(startDatePickerDialog);
+                Utils.createCustomDialog(startDatePickerDialog);
 
                 startDatePickerDialog.show();
             }
@@ -445,7 +445,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 calendar.set(Calendar.MINUTE, 0);
                 endDatePickerDialog.getDatePicker().setMinDate(calendar.getTimeInMillis());
 
-                Utils.createCustomPickerDialog(endDatePickerDialog);
+                Utils.createCustomDialog(endDatePickerDialog);
 
                 endDatePickerDialog.show();
             }
@@ -494,7 +494,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
 //                startTimePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-                Utils.createCustomPickerDialog(startTimePickerDialog);
+                Utils.createCustomDialog(startTimePickerDialog);
 
                 startTimePickerDialog.updateTime(start_hour, start_min);
                 startTimePickerDialog.show();
@@ -536,7 +536,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                         },
                         endDateTime.getHour(), endDateTime.getMinute(), true);
 
-                Utils.createCustomPickerDialog(endTimePickerDialog);
+                Utils.createCustomDialog(endTimePickerDialog);
 
                 endTimePickerDialog.updateTime(end_hour, end_min);
                 endTimePickerDialog.show();
@@ -617,7 +617,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                  * dialog, so make our own transaction and take care of that here.
                  */
 
-      /*          Fragment prev = getSupportFragmentManager().findFragmentByTag(ChooseEventFrequency_Screen.LOG_TAG);
+      /*          CalendarFragment prev = getSupportFragmentManager().findFragmentByTag(ChooseEventFrequency_Screen.LOG_TAG);
                 if (prev != null) {
                     prev.show(ft, ChooseEventFrequency_Screen.LOG_TAG);
 //                    ((ChooseEventFrequency_Screen) prev).show(getSupportFragmentManager(), ChooseEventFrequency_Screen.LOG_TAG);

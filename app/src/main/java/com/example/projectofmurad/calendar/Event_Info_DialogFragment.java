@@ -5,9 +5,9 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -16,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,34 +27,34 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.projectofmurad.FirebaseUtils;
-import com.example.projectofmurad.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.MainViewModel;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.RVOnItemTouchListenerForVP2;
 import com.example.projectofmurad.SuperUserTraining;
-import com.example.projectofmurad.TrainingAdapterForFirebase;
-import com.example.projectofmurad.TrainingsAdapter;
 import com.example.projectofmurad.UserAndTraining;
 import com.example.projectofmurad.UserData;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
+import com.example.projectofmurad.helpers.RVOnItemTouchListenerForVP2;
+import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.ViewAnimationUtils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
 import com.example.projectofmurad.notifications.FCMSend;
-import com.example.projectofmurad.tracking.Training;
+import com.example.projectofmurad.training.Training;
+import com.example.projectofmurad.training.TrainingAdapterForFirebase;
+import com.example.projectofmurad.training.TrainingsAdapter;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.database.DataSnapshot;
@@ -68,36 +67,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * A simple {@link Fragment} subclass.
+ * A simple {@link androidx.fragment.app.Fragment} subclass.
  * Use the {@link Event_Info_DialogFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class Event_Info_DialogFragment extends DialogFragment implements UsersAdapterForFirebase.OnUserExpandListener,
-        UsersAdapterForFirebase.OnUserListener,
+        UsersAdapterForFirebase.OnUserClickListener,
         View.OnClickListener, CompoundButton.OnCheckedChangeListener,
         TrainingsAdapter.OnTrainingClickListener {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
     public static final String ARG_IS_SHOWS_DIALOG = "isShowsDialog";
 
     public static final String TAG = "event_info_dialog_fragment";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private CalendarEvent event;
     private boolean isShowsDialog;
 
     private RecyclerView rv_users;
-    private UsersAdapterForFirebase userAdapter;
 
     private ShimmerFrameLayout shimmer_rv_users;
-
-    private String event_private_id;
 
     public Event_Info_DialogFragment() {
         // Required empty public constructor
@@ -128,9 +117,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             event = (CalendarEvent) getArguments().getSerializable(UtilsCalendar.KEY_EVENT);
-            if (event == null){
-
-            }
             isShowsDialog = getArguments().getBoolean(ARG_IS_SHOWS_DIALOG);
         }
 
@@ -148,9 +134,13 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
         return inflater.inflate(isShowsDialog ? R.layout.fragment_event__info_with_collapsing : R.layout.fragment_event__info_, container, false);
     }
 
+    private ConstraintLayout cl_event;
+
     private AppBarLayout app_bar_layout;
 
     private CollapsingToolbarLayout collapsing_toolbar_layout;
+
+    private MaterialToolbar toolbar;
 
     private CardView cv_event;
     private TextView tv_there_are_no_upcoming_events;
@@ -163,11 +153,8 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
     private TextView tv_event_place;
     private TextView tv_event_description;
 
-    private LinearLayout expanded_layout;
     private TextView tv_event_start_date_time;
     private TextView tv_event_end_date_time;
-
-    private CheckBox checkbox_all_attendances;
 
     private SQLiteDatabase db;
 
@@ -181,18 +168,18 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
     private ProgressDialog deletingProgressDialog;
 
+    private int currentUserPosition = -1;
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         db = requireContext().openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
 
-        event_private_id = event.getPrivateId();
+        cl_event = view.findViewById(R.id.cl_event);
 
         rv_users = view.findViewById(R.id.rv_users_home_fragment);
         shimmer_rv_users = view.findViewById(R.id.shimmer_rv_users_home_fragment);
-
-
 
         cv_event = view.findViewById(R.id.cv_event);
         tv_there_are_no_upcoming_events = view.findViewById(R.id.tv_there_are_no_upcoming_events);
@@ -207,12 +194,8 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
         tv_event_place = view.findViewById(R.id.tv_event_place);
         tv_event_description = view.findViewById(R.id.tv_event_description);
 
-        expanded_layout = view.findViewById(R.id.expanded_layout);
         tv_event_start_date_time = view.findViewById(R.id.tv_event_start_date_time);
         tv_event_end_date_time = view.findViewById(R.id.tv_event_end_date_time);
-
-        checkbox_all_attendances = view.findViewById(R.id.checkbox__all_attendances);
-        checkbox_all_attendances.setOnCheckedChangeListener(this);
 
         vp_trainings = view.findViewById(R.id.vp_trainings);
 
@@ -223,6 +206,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
             app_bar_layout = view.findViewById(R.id.app_bar_layout);
             collapsing_toolbar_layout = view.findViewById(R.id.collapsing_toolbar_layout);
+            toolbar = view.findViewById(R.id.toolbar);
         }
         else {
             ll_manage_event.setVisibility(View.GONE);
@@ -249,6 +233,10 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
     public void setUpEventData(@NonNull CalendarEvent event){
 
+        ColorDrawable colorDrawable = new ColorDrawable(event.getColor());
+
+        cl_event.setBackground(colorDrawable);
+
         tv_event_name.setText(event.getName());
         Log.d("murad","name: " + event.getName());
 
@@ -264,44 +252,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
         tv_event_end_date_time.setText(String.format(getString(R.string.ending_time_s_s),
                 UtilsCalendar.OnlineTextToLocal(event.getEndDate()), event.getEndTime()));
-
-/*
-        if (selectedDate != null){
-            if(event.getStartDate().equals(event.getEndDate())){
-                tv_event_start_time.setText(event.getStartTime());
-                Log.d("murad","Starting timeData: " + event.getStartTime());
-
-                tv_event_end_time.setText(event.getEndTime());
-                Log.d("murad","Ending timeData: " + event.getEndTime());
-
-            }
-            else if(event.getStartDate().equals(UtilsCalendar.DateToTextOnline(selectedDate))){
-                tv_event_start_time.setText(event.getStartTime());
-                Log.d("murad","Starting timeData: " + event.getStartTime());
-
-            }
-            else if(event.getEndDate().equals(UtilsCalendar.DateToTextOnline(selectedDate))){
-                tv_event_end_time.setText(event.getEndTime());
-                Log.d("murad","Ending timeData: " + event.getEndTime());
-
-            }
-            else{
-                tv_hyphen.setText(R.string.all_day);
-            }
-
-            if(event.getTimestamp() == 0){
-                tv_event_start_time.setText("");
-                tv_hyphen.setText(R.string.all_day);
-                tv_event_end_time.setText("");
-            }
-        }
-*/
-
-        /*tv_event_start_date_time.setText(String.format(res.getString(R.string.starting_time_s_s),
-                UtilsCalendar.OnlineTextToLocal(event.getStartDate()), event.getStartTime()));
-
-        tv_event_end_date_time.setText(String.format(res.getString(R.string.ending_time_s_s),
-                UtilsCalendar.OnlineTextToLocal(event.getEndDate()), event.getEndTime()));*/
 
         cv_event.getBackground().setTint(event.getColor());
 
@@ -332,36 +282,9 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
             });
         }
 
-
         String event_private_id = event.getPrivateId();
 
-        DatabaseReference ref = FirebaseUtils.attendanceDatabase.child(event_private_id).child(FirebaseUtils.getCurrentUID()).child("attend");
-
-        final boolean[] attend = {false};
-        ref.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if(task.getResult().exists()){
-                    attend[0] = task.getResult().getValue(boolean.class);
-                }
-                checkbox_all_attendances.setChecked(attend[0]);
-                checkbox_all_attendances.setVisibility(View.GONE);
-
-            }
-        });
-
-        boolean alarmSet = false;
-
-        Cursor cursor = db.rawQuery("select * from tbl_alarm where "
-                + Utils.TABLE_AlARM_COL_EVENT_PRIVATE_ID + " = '" + event_private_id + "'",  null);
-
-        while (cursor.moveToNext()){
-            alarmSet = true;
-        }
-
-        cursor.close();
-
-        switch_alarm.setChecked(alarmSet);
+        checkIfAlarmSet(event_private_id);
 
         shimmer_rv_users.startShimmer();
 
@@ -376,28 +299,19 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
                 .setLifecycleOwner(this)
                 .build();
 
-        userAdapter = new UsersAdapterForFirebase(userOptions, event.getPrivateId(), requireContext(), this, this);
-        Log.d("murad", "adapterForFirebase.getItemCount() = " + userAdapter.getItemCount());
-        Log.d("murad", "userOptions.getItemCount() = " + userOptions.getSnapshots().size());
+        UsersAdapterForFirebase userAdapter = new UsersAdapterForFirebase(userOptions, requireContext(),
+                event.getPrivateId(), event.getColor(), this, this);
 
         rv_users.setAdapter(userAdapter);
-        Log.d("murad", "rv_events.getChildCount() = " + rv_users.getChildCount());
 
+        LinearLayoutManagerWrapper layoutManagerWrapper = new LinearLayoutManagerWrapper(requireContext());
 
-        LinearLayoutManagerWrapper layoutManagerWrapper = new LinearLayoutManagerWrapper(requireContext(),
-                LinearLayoutManager.VERTICAL, true);
-        layoutManagerWrapper.setStackFromEnd(true);
+        layoutManagerWrapper.setOnLayoutCompleteListener(() -> {});
 
         rv_users.setLayoutManager(layoutManagerWrapper);
 
         rv_users.addOnItemTouchListener(new RVOnItemTouchListenerForVP2(rv_users,
                 MainViewModel.getToSwipeViewModelForTrainings()));
-
-//        rv_users.setNestedScrollingEnabled(false);
-
-        /*rv_users.getLayoutManager().setAutoMeasureEnabled(true);
-        rv_users.setNestedScrollingEnabled(false);
-        rv_users.setHasFixedSize(false);*/
 
         Handler handler = new Handler();
         handler.postDelayed(() -> {
@@ -409,17 +323,20 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
         Query usersAndTrainingsKeys = FirebaseUtils.trainingsDatabase.child("Events").child(event_private_id);
         HashMap<String, ArrayList<Training>> map = new HashMap<>();
 
-
         usersAndTrainingsKeys.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                 ArrayList<UserAndTraining> userAndTrainingArrayList = new ArrayList<>();
 
-
+                int i = 0;
                 for (DataSnapshot user : snapshot.getChildren()){
                     ArrayList<Training> trainings = new ArrayList<>();
                     map.put(user.getKey(), trainings);
+
+                    if (FirebaseUtils.isCurrentUID(user.getKey())){
+                        currentUserPosition = i;
+                    }
 
                     ArrayList<Training> trainingArrayList = new ArrayList<>();
 
@@ -435,10 +352,11 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
                     UserAndTraining userAndTraining = new UserAndTraining(user.getKey(), event_private_id, trainingArrayList);
 
                     userAndTrainingArrayList.add(userAndTraining);
+                    i++;
                 }
 
                 if (getContext() != null){
-                    TrainingsAdapter trainingsAdapter = new TrainingsAdapter(requireContext(), userAndTrainingArrayList, Event_Info_DialogFragment.this);
+                    TrainingsAdapter trainingsAdapter = new TrainingsAdapter(requireContext(), userAndTrainingArrayList, event.getColor(), Event_Info_DialogFragment.this);
 
                     Log.d("murad", map.toString());
 
@@ -532,12 +450,9 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
         CompositePageTransformer compositePageTransformer = new CompositePageTransformer();
         compositePageTransformer.addTransformer(new MarginPageTransformer(10));
-        compositePageTransformer.addTransformer(new ViewPager2.PageTransformer() {
-            @Override
-            public void transformPage(@NonNull View page, float position) {
-                float r = 1 - Math.abs(position);
-                page.setScaleY(0.85f + r * 0.15f);
-            }
+        compositePageTransformer.addTransformer((page, position) -> {
+            float r = 1 - Math.abs(position);
+            page.setScaleY(0.85f + r * 0.15f);
         });
 
         vp_trainings.setPageTransformer(compositePageTransformer);
@@ -545,47 +460,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
         Toast.makeText(getContext(), "vp_trainings.getChildCount() = " + vp_trainings.getChildCount(), Toast.LENGTH_SHORT).show();
         Toast.makeText(requireContext(), "trainingsAdapter.getItemCount() = " + trainingsAdapter.getItemCount(), Toast.LENGTH_SHORT).show();
 
-        final int[] pos = {0};
-
-
-/*
-        vp_trainings.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset,
-                                       int positionOffsetPixels) {
-                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
-
-                Log.d("murad", "onPageScrolled ");
-                Log.d("murad","position = " + position);
-                Log.d("murad","positionOffset = " + positionOffset);
-                Log.d("murad", "positionOffsetPixels = " + positionOffsetPixels);
-
-                */
-/*MainViewModel.toSwipeFragments.setValue(false);
-
-                if (pos[0] != position){
-                    MainViewModel.toSwipeFragments.setValue(true);
-                    pos[0] = position;
-                }*//*
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-
-//                MainViewModel.toSwipeFragments.setValue(true);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                super.onPageScrollStateChanged(state);
-
-//                MainViewModel.toSwipeFragments.setValue(false);
-
-            }
-        });
-*/
+        if (currentUserPosition > -1) vp_trainings.setCurrentItem(currentUserPosition, true);
 
     }
 
@@ -596,22 +471,36 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
             Log.d("murad","position is " + position);
             Log.d("murad", "oldPosition is " + oldPosition);
-            Log.d("murad", "expanded is " + ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition))
-                    .expanded);
+            Log.d("murad", "expanded is "/* + ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition))
+                    .expanded*/);
             Log.d("murad","=================position==================");
 
 
-            ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition))
-                    .ll_contact.setVisibility(View.GONE);
+//            ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition))
+//                    .ll_contact.setVisibility(View.GONE);
 
-            ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition))
-                    .expanded = false;
+            UsersAdapterForFirebase.UserViewHolderForFirebase oldCollapsedItem = ((UsersAdapterForFirebase.UserViewHolderForFirebase)
+                    rv_users.findViewHolderForAdapterPosition(oldPosition));
+
+            if (oldCollapsedItem != null){
+                ViewAnimationUtils.collapse(oldCollapsedItem.ll_contact);
+
+                oldCollapsedItem.expanded = false;
+
+//            rv_users.scrollToPosition(position);
+            }
+            else {
+
+            }
+
         }
     }
 
     @Override
-    public void onUserClick(int position, UserData userData) {
-
+    public void onUserClick(int position, @NonNull UserData userData) {
+        Intent intent = new Intent(requireContext(), All_Attendances.class);
+        intent.putExtra(UserData.KEY_UID, userData.getUID());
+        startActivity(intent);
     }
 
     @Override
@@ -695,6 +584,10 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
                         }
                     }
                 });
+
+    }
+
+    public void checkIfAlarmSet(String event_private_id){
 
     }
 
@@ -885,10 +778,9 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
     public void copySingleEvent(@NonNull CalendarEvent event){
         String private_key = "Event" + FirebaseUtils.allEventsDatabase.push().getKey();
-        String chain_key = private_key;
 
         event.setPrivateId(private_key);
-        event.setChainId(chain_key);
+        event.setChainId(private_key);
 
         event.clearFrequencyData();
 

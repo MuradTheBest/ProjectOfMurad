@@ -1,10 +1,8 @@
 package com.example.projectofmurad;
 
-import static com.example.projectofmurad.Utils.LOG_TAG;
+import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
 
-import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -13,17 +11,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.bumptech.glide.Glide;
-import com.example.projectofmurad.tracking.Training;
+import com.example.projectofmurad.training.Training;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthOptions;
-import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,10 +25,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class FirebaseUtils {
 
@@ -116,87 +105,6 @@ public class FirebaseUtils {
         void SimpleFirebaseCallback();
     }
 
-    public interface OnUpdateListener{
-        void onUpdate();
-    }
-
-    private static boolean emailUpdateComplete = true;
-    private static boolean phoneUpdateComplete = true;
-    private static boolean profileUpdateComplete = true;
-
-    public static void updateUserData(String username, String email, String phone, Uri profile_picture, Context context){
-        update(username, email, phone, profile_picture, context, new OnUpdateListener() {
-            @Override
-            public void onUpdate() {
-
-                if (emailUpdateComplete && phoneUpdateComplete && profileUpdateComplete){
-                    //Updated
-                }
-
-            }
-        });
-    }
-
-    private static void update(@NonNull String username, String email, String phone, Uri profile_picture, Context context, OnUpdateListener onUpdateListener){
-        UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder();
-
-        if (!username.equals(getCurrentFirebaseUser().getDisplayName())) {
-            profileUpdateComplete = false;
-            builder.setDisplayName(username);
-        }
-        if (!email.equals(getCurrentFirebaseUser().getEmail())) {
-            emailUpdateComplete = false;
-//            FirebaseUtils.getCurrentFirebaseUser().updateEmail(email);
-            FirebaseUtils.getCurrentFirebaseUser().verifyBeforeUpdateEmail(email).addOnCompleteListener(
-                    (Activity) context, new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                emailUpdateComplete = true;
-                                onUpdateListener.onUpdate();
-                            }
-                        }
-                    });
-        }
-        if (!phone.equals(getCurrentFirebaseUser().getPhoneNumber())) {
-            phoneUpdateComplete = false;
-            updatePhoneNumber(phone, context, onUpdateListener);
-        }
-        if (profile_picture != getCurrentFirebaseUser().getPhotoUrl()){
-            profileUpdateComplete = false;
-            builder.setPhotoUri(profile_picture);
-        }
-
-        FirebaseUtils.getCurrentFirebaseUser().updateProfile(builder.build()).addOnCompleteListener(
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        profileUpdateComplete = true;
-                        onUpdateListener.onUpdate();
-                    }
-                });
-    }
-
-    private static void updatePhoneNumber(String phone, Context context, OnUpdateListener onUpdateListener){
-        PhoneAuthOptions phoneAuthOptions = PhoneAuthOptions.newBuilder().setPhoneNumber(phone).setActivity((Activity) context).requireSmsValidation(true).setCallbacks(
-                new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-                    @Override
-                    public void onVerificationCompleted(
-                            @NonNull PhoneAuthCredential phoneAuthCredential) {
-                        FirebaseUtils.getCurrentFirebaseUser().updatePhoneNumber(phoneAuthCredential);
-                        phoneUpdateComplete = true;
-                        onUpdateListener.onUpdate();
-                    }
-
-                    @Override
-                    public void onVerificationFailed(@NonNull FirebaseException e) {
-                        Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }).setTimeout(120L, TimeUnit.SECONDS).build();
-
-        PhoneAuthProvider.verifyPhoneNumber(phoneAuthOptions);
-    }
-
     @NonNull
     public static DatabaseReference getCurrentUserDataRef(){
         return usersDatabase.child(getCurrentUID()).getRef();
@@ -228,89 +136,18 @@ public class FirebaseUtils {
 //        return currentUserData;
     }
 
-
-
     @NonNull
     public static DatabaseReference getUserDataByUIDRef(String UID){
         return usersDatabase.child(UID).getRef();
     }
-
-    private static UserData userData;
 
     public interface OnUserDataCallBack{
         void onUserDataCallBack(UserData userData);
     }
 
     @NonNull
-    public static UserData getUserDataByUID(String UID, OnUserDataCallBack onUserDataCallBack){
-        userData = new UserData();
-
-        usersDatabase.child(UID).addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(snapshot.exists()) {
-                            userData = snapshot.getValue(UserData.class);
-                        }
-                        else {
-                            Toast.makeText(getContext(), "This user doesn't exist", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-        return userData;
-    }
-
     public static String getCurrentUID(){
-//        Log.d(LOG_TAG, "CurrentUID is " + getCurrentFirebaseUser().getUid());
         return getCurrentFirebaseUser().getUid();
-    }
-
-    @NonNull
-    public static List<String> getAllUIDs(){
-        List<String> UIDs = new ArrayList<>();
-        usersDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot data : snapshot.getChildren()){
-                    UIDs.add(data.getKey());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        return UIDs;
-    }
-
-    @NonNull
-    public static List<String> getAllUIDs(String except){
-        List<String> UIDs = new ArrayList<>();
-        usersDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot data : snapshot.getChildren()){
-                    UIDs.add(data.getKey());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        UIDs.remove(getCurrentUID());
-
-        return UIDs;
     }
 
     public static boolean isCurrentUID(@NonNull String UID){

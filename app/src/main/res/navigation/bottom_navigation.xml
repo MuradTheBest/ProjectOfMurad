@@ -7,21 +7,18 @@
 
     <fragment
         android:id="@+id/blankFragment"
-        android:name="com.example.projectofmurad.BlankFragment"
+        android:name="com.example.projectofmurad.home.HomeFragment"
         android:label="fragment_blank"
-        tools:layout="@layout/fragment_blank" />
+        tools:layout="@layout/fragment_blank_for_viewpager2" >
+        <action
+            android:id="@+id/action_blankFragment_to_tracking_Fragment"
+            app:destination="@id/tracking_Fragment" />
 
-    <fragment
-        android:id="@+id/map_Fragment"
-        android:name="com.example.projectofmurad.Map_Fragment"
-        android:label="fragment_map_"
-        tools:layout="@layout/fragment_map_" />
+    </fragment>
 
-<!--    <fragment
-        android:id="@+id/graph_Fragment"
-        android:name="com.example.projectofmurad.Graph_Fragment"
-        android:label="fragment_graph_"
-        tools:layout="@layout/fragment_graph_" />  -->
+    <action
+        android:id="@+id/action_blankFragment_to_calendar_Fragment"
+        app:destination="@id/calendar_Fragment" />
 
     <fragment
         android:id="@+id/preferences_Fragment"
@@ -31,7 +28,7 @@
 
     <fragment
         android:id="@+id/tables_Fragment"
-        android:name="com.example.projectofmurad.Tables_Fragment"
+        android:name="com.example.projectofmurad.table.Tables_Fragment"
         android:label="fragment_tables_"
         tools:layout="@layout/fragment_tables_" />
 
@@ -40,21 +37,9 @@
         android:name="com.example.projectofmurad.calendar.CalendarFragment"
         android:label="fragment_calendar_"
         tools:layout="@layout/fragment_calendar" >
-
-        <argument
-            android:name="eventDate"
-            app:argType="integer" />
-        <argument
-            android:name="month"
-            app:argType="integer" />
-        <argument
-            android:name="year"
-            app:argType="integer" />
-        <argument
-            android:name="eventPrivateId"
-            app:argType="string"
-            android:defaultValue="null" />
-
+        <action
+            android:id="@+id/action_calendar_Fragment_to_tracking_Fragment"
+            app:destination="@id/tracking_Fragment" />
     </fragment>
 
     <fragment
@@ -62,6 +47,5 @@
         android:name="com.example.projectofmurad.tracking.Tracking_Fragment"
         android:label="fragment_tracking_"
         tools:layout="@layout/fragment_tracking_" />
-
 
 </navigation>

@@ -19,7 +19,6 @@ import com.example.projectofmurad.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
@@ -27,12 +26,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder> {
-    private ArrayList<LocalDate> daysOfMonth;
-    private LocalDate selectedDate;
-    private final CalendarOnItemListener calendarOnItemListener;
-    private LayoutInflater inflater;
-    private FirebaseDatabase firebase;
-    private DatabaseReference eventsDatabase;
+    private final ArrayList<LocalDate> daysOfMonth;
+    private final LocalDate selectedDate;
+    private final OnCalendarCellClickListener onCalendarCellClickListener;
+    private final LayoutInflater inflater;
 
     private String name;
     boolean changed = false;
@@ -40,13 +37,13 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     private int oldPosition;
 
     public class CalendarViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private TextView dayOfMonth;
-        private TextView tv_event_1;
-        private TextView tv_event_2;
-        private TextView tv_event_3;
-        private TextView tv_event_4;
+        private final TextView dayOfMonth;
+        private final TextView tv_event_1;
+        private final TextView tv_event_2;
+        private final TextView tv_event_3;
+        private final TextView tv_event_4;
 
-        public CalendarViewHolder(@NonNull View itemView, CalendarOnItemListener calendarOnItemListener) {
+        public CalendarViewHolder(@NonNull View itemView, OnCalendarCellClickListener onCalendarCellClickListener) {
             super(itemView);
             dayOfMonth = itemView.findViewById(R.id.cellDayText);
             tv_event_1 = itemView.findViewById(R.id.tv_event_1);
@@ -60,25 +57,20 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         public void onClick(View view) {
             if(view == itemView){
                 Log.d("murad", getAbsoluteAdapterPosition() + " | " + dayOfMonth.getText().toString() + " | " + UtilsCalendar.DateToTextOnline(daysOfMonth.get(getAbsoluteAdapterPosition())));
-                calendarOnItemListener.onItemClick(getAbsoluteAdapterPosition(), oldPosition, dayOfMonth.getText().toString(), daysOfMonth.get(getAbsoluteAdapterPosition()));
+                onCalendarCellClickListener.onCalendarCellClick(getAbsoluteAdapterPosition(), oldPosition, daysOfMonth.get(getAbsoluteAdapterPosition()));
                 oldPosition = getAbsoluteAdapterPosition();
             }
         }
-
-        public void changeDayTextColor(int color){
-            dayOfMonth.setTextColor(color);
-        }
-
     }
 
     public CalendarAdapter(ArrayList<LocalDate> daysOfMonth, Context context,
-                           CalendarOnItemListener calendarOnItemListener,
+                           OnCalendarCellClickListener onCalendarCellClickListener,
                            LocalDate selectedDate) {
 
         inflater = LayoutInflater.from(context);
         this.daysOfMonth = daysOfMonth;
         this.selectedDate = selectedDate;
-        this.calendarOnItemListener = calendarOnItemListener;
+        this.onCalendarCellClickListener = onCalendarCellClickListener;
     }
 
     @NonNull
@@ -88,7 +80,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
         layoutParams.height = (int) (parent.getHeight() * 0.166666666);
 
-        return new CalendarViewHolder(view, calendarOnItemListener);
+        return new CalendarViewHolder(view, onCalendarCellClickListener);
     }
 
     Query query;
@@ -107,6 +99,11 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             if (daysOfMonth.get(position).getDayOfWeek().getValue() == 6) {
                 holder.dayOfMonth.setTextColor(Color.RED);
             }
+            /*if (daysOfMonth.get(position).equals(selectedDate)){
+                holder.itemView.setBackgroundResource(R.drawable.calendar_cell_selected_background);
+
+                oldPosition = position;
+            }*/
             if (daysOfMonth.get(position).equals(LocalDate.now())){
 
                 holder.dayOfMonth.setBackgroundResource(R.drawable.calendar_cell_text_today_background);
@@ -133,12 +130,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         holder.tv_event_3.setVisibility(View.INVISIBLE);
         holder.tv_event_4.setVisibility(View.INVISIBLE);
 
-        firebase = FirebaseDatabase.getInstance();
-        eventsDatabase = FirebaseUtils.eventsDatabase;
+        DatabaseReference eventsDatabase = FirebaseUtils.eventsDatabase;
 
-//        query = eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(daysOfMonth.get(position))).orderByChild("timestamp");
         query = eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(daysOfMonth.get(position))).orderByChild("start");
-        query.keepSynced(true);
 
         query.addValueEventListener(new ValueEventListener() {
             @Override
@@ -268,22 +262,12 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         return textView;
     }
 
-
-
     @Override
     public int getItemCount() {
         return daysOfMonth.size();
     }
 
-    public interface CalendarOnItemListener {
-        void onItemClick(int position, int oldPosition, String dayText, LocalDate selectedDate);
-    }
-
-    public interface OnTextViewListener {
-        void onTextView(int position, String dayText, LocalDate selectedDate);
-    }
-
-    public interface OnColorListener {
-        void OnColor(int position);
+    public interface OnCalendarCellClickListener {
+        void onCalendarCellClick(int position, int oldPosition, LocalDate selectedDate);
     }
 }

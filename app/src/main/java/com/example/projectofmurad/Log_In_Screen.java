@@ -21,6 +21,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.helpers.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -149,12 +150,7 @@ public class Log_In_Screen extends UserSigningActivity {
 		});
 
 		tv_forgot_password = findViewById(R.id.tv_forgot_password);
-		tv_forgot_password.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				createPasswordResetDialog();
-			}
-		});
+		tv_forgot_password.setOnClickListener(v -> createPasswordResetDialog());
 
 		btn_log_in_with_google = findViewById(R.id.sign_up_with_google);
 		btn_log_in_with_google.setOnClickListener(v -> showGoogleSignIn());

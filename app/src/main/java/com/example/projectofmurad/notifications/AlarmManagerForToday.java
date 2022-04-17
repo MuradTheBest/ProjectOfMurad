@@ -8,15 +8,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Build;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.MyApplication;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.UtilsCalendar;
 import com.google.firebase.database.DataSnapshot;
@@ -24,7 +22,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -37,8 +34,6 @@ public class AlarmManagerForToday {
     public static LocalDate getToday(){
         return LocalDate.now();
     }
-
-    public static LocalDate tmp;
 
     public static String getTodayText(){
         return UtilsCalendar.DateToTextOnline(getToday());
@@ -148,55 +143,6 @@ public class AlarmManagerForToday {
         cursor.close();
 
         return alarmSet;
-    }
-
-    public static void createAlarm(@NonNull Context context, @NonNull LocalTime start_time, @NonNull CalendarEvent event){
-
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        
-        PendingIntent pendingIntent = null;
-
-        long time = start_time.toSecondOfDay() * 1000L;
-
-        int year = event.receiveStart_date().getYear();
-        int month = event.receiveStart_date().getMonthValue();
-        int day = event.receiveStart_date().getDayOfMonth();
-        int hour = event.receiveStart_time().getHour();
-        int minute = event.receiveStart_time().getMinute();
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month, day, hour, minute);
-
-        time = calendar.getTimeInMillis() + System.currentTimeMillis();
-        Log.d(TAG, "Current timeData in millis" + System.currentTimeMillis());
-        Log.d(TAG, "Time in millis = " + time);
-
-        Toast.makeText(context, "ALARM ON", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(context, AlarmReceiver.class);
-
-        intent.putExtra("notification_body", "The event " + event.getName() + " started. \n" +
-                "It will finish at " + event.getEndTime());
-        intent.putExtra("notification_color", event.getColor());
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_MUTABLE);
-        }
-
-
-/*
-
-        if(System.currentTimeMillis() > timeData) {
-            if (Calendar.AM_PM == 0)
-                timeData = timeData + (1000*60*60*12);
-            else
-                timeData = timeData + (1000*60*60*24);
-        }
-*/
-
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pendingIntent);
-//        alarmManager.cancel(pendingIntent);
-
-        //   alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (timeData * 1000), pendingIntent);
     }
 
     public static void addAlarm(@NonNull Context context, @NonNull CalendarEvent event, long before){
@@ -337,37 +283,4 @@ public class AlarmManagerForToday {
 
         return event[0];
     }
-
-    @SuppressLint("MissingPermission")
-    public static void addAllAlarmsForToday(@NonNull Context context, @NonNull SQLiteDatabase db){
-
-        /*FirebaseUtils.eventsDatabase.child(getTodayText()).addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for (DataSnapshot data : snapshot.getChildren()){
-                            CalendarEvent event = data.getValue(CalendarEvent.class);
-                            LocalTime start_time = event.receiveStart_time();
-
-                            addAlarm(context, start_time, event);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });*/
-
-        Cursor cursor = db.rawQuery("select * from tbl_alarm where " + Utils.TABLE_AlARM_COL_EVENT_DATE_TIME + " = '" + getTodayText() + "'", null);
-        while (cursor.moveToNext()){
-            String event_private_id = cursor.getString(0);
-            CalendarEvent event = findCalendarEventById(event_private_id);
-
-            addAlarm(context, event, 0);
-        }
-        cursor.close();
-    }
-
-
 }

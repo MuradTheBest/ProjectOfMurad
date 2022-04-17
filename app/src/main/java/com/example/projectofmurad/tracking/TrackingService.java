@@ -26,7 +26,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.training.Training;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
@@ -312,7 +313,7 @@ public class TrackingService extends LifecycleService {
         });
 
         AlertDialog alertDialog = builder.create();
-        Utils.createCustomAlertDialog(alertDialog);
+        Utils.createCustomDialog(alertDialog);
 
         alertDialog.show();
     }

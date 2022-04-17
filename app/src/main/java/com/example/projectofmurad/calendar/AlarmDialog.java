@@ -1,5 +1,6 @@
 package com.example.projectofmurad.calendar;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -15,35 +16,29 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SwitchCompat;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Utils;
+import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
 
 public class AlarmDialog extends Dialog {
 
-    private Context context;
-
-    private boolean gotChecked;
+    private final Context context;
 
     private CalendarEvent event;
 
     private int alarm_hour;
     private int alarm_minute;
 
-    private SwitchCompat switch_alarm;
+    private final SwitchCompat switch_alarm;
 
-    TimePickerDialog timePickerDialog;
+    private TimePickerDialog timePickerDialog;
 
     private OnAutoAlarmSetListener onAutoAlarmSetListener;
 
     public AlarmDialog(@NonNull Context context, CalendarEvent event, SwitchCompat switch_alarm, int alarm_hour, int alarm_minute) {
         super(context);
-//        this.setOnCancelAlarmListener = (SetOnCancelAlarmListener) context;
 
         this.context = context;
-
-        this.gotChecked = false;
         this.event = event;
-
         this.alarm_hour = alarm_hour;
         this.alarm_minute = alarm_minute;
 
@@ -58,14 +53,9 @@ public class AlarmDialog extends Dialog {
 
     public AlarmDialog(@NonNull Context context, SwitchCompat switch_alarm, OnAutoAlarmSetListener onAutoAlarmSetListener) {
         super(context);
-//        this.setOnCancelAlarmListener = (SetOnCancelAlarmListener) context;
 
         this.context = context;
-
-        this.gotChecked = false;
-
         this.switch_alarm = switch_alarm;
-
         this.onAutoAlarmSetListener = onAutoAlarmSetListener;
 
         setCancelable(true);
@@ -79,23 +69,19 @@ public class AlarmDialog extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         setContentView(R.layout.alarm_dialog_layout);
-
-        gotChecked = false;
 
         timePickerDialog = new TimePickerDialog(context/*, AlertDialog.THEME_HOLO_LIGHT*/,
                 new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        gotChecked = true;
 
                         alarm_hour = hourOfDay;
                         alarm_minute = minute;
 
                         switch_alarm.setChecked(true);
 
-                        Log.d("murad", "switch_alarm is " + (switch_alarm == null ? "" : " not ") + " null");
+                        Log.d("murad", "switch_alarm is " + " not " + " null");
                         Log.d("murad", "switch_alarm.isChecked() is " + switch_alarm.isChecked());
 
                         long before = (alarm_hour*60L + alarm_minute)*60*1000;
@@ -114,43 +100,13 @@ public class AlarmDialog extends Dialog {
                     }
                 }, alarm_hour, alarm_minute, true);
 
-        Utils.createCustomPickerDialog(timePickerDialog);
-
-/*
-        timePickerDialog.setOnShowListener(new OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-
-                timePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        switch_alarm.setChecked(true);
-                        Log.d("murad", "switch_alarm is " + (switch_alarm == null ? "" : " not ") + " null");
-                        Log.d("murad", "switch_alarm.isChecked() is " + switch_alarm.isChecked());
-
-                        long before = (alarm_hour*60L + alarm_minute)*60*1000;
-
-                        Log.d(Utils.LOG_TAG, String.valueOf(before));
-
-                        if (onAutoAlarmSetListener == null){
-                            AlarmManagerForToday.addAlarm(getContext(), event, before);
-                            //new Handler().postDelayed(AlarmDialog.this::dismiss,300);
-                        }
-                        else {
-                            onAutoAlarmSetListener.onAutoAlarmSet(before, Utils.longToTimeText(before));
-                        }
-
-                        timePickerDialog.dismiss();
-                    }
-                });
-            }
-        });
-*/
+        Utils.createCustomDialog(timePickerDialog);
 
         timePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", (dialog, which) -> switch_alarm.setChecked(false));
 
         RadioGroup rg_alarm = findViewById(R.id.rg_alarm);
         rg_alarm.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @SuppressLint("NonConstantResourceId")
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch_alarm.setChecked(true);
@@ -165,32 +121,27 @@ public class AlarmDialog extends Dialog {
                     case R.id.rb_at_time:
                         before = 0;
                         toast += "Alarm was set for time of the event";
-                        Toast.makeText(AlarmDialog.this.getContext(), toast,
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), toast, Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.rb_5_mins_before:
                         before = 5 * 60 * 1000;
                         toast += "Alarm was set for 5 minutes before beginning of the event";
-                        Toast.makeText(AlarmDialog.this.getContext(), toast,
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), toast, Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.rb_15_mins_before:
                         before = 15 * 60 * 1000;
                         toast += "Alarm was set for 15 minutes before beginning of the event";
-                        Toast.makeText(AlarmDialog.this.getContext(), toast,
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), toast, Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.rb_30_mins_before:
                         before = 30 * 60 * 1000;
                         toast += "Alarm was set for 30 minutes before beginning of the event";
-                        Toast.makeText(AlarmDialog.this.getContext(), toast,
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), toast, Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.rb_1_hour_before:
                         before = 60 * 60 * 1000;
                         toast += "Alarm was set for 1 hour before beginning of the event";
-                        Toast.makeText(AlarmDialog.this.getContext(), toast,
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), toast, Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.rb_custom:
                         delay = 0;

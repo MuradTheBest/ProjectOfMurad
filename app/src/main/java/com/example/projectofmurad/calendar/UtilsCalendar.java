@@ -422,10 +422,6 @@ public class UtilsCalendar {
         return android.util.Patterns.PHONE.matcher(phone).matches();
     }
 
-    public static boolean isBooleanValid(@NonNull String bool){
-        return bool.equals("true") || bool.equals("false");
-    }
-
     public static int lighten(int color, double fraction) {
         int red = Color.red(color);
         int green = Color.green(color);
