@@ -2,6 +2,8 @@ package com.example.projectofmurad.training;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
@@ -21,6 +24,7 @@ import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.utils.MPPointF;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -173,13 +177,22 @@ public class Training_Info_DialogFragment extends DialogFragment {
                 Entry speedEntry = new Entry(time, (float) speed);
                 Entry paceEntry = new Entry(time, (float) pace);
 
+                if (speed == 0){
+                    Drawable vectorDrawable = ContextCompat.getDrawable(requireContext(),
+                            R.drawable.ic_baseline_pause_circle_filled_24);
+
+                    vectorDrawable.setTint(Color.RED);
+
+                    speedEntry.setIcon(vectorDrawable);
+                }
+
                 speedEntries.add(speedEntry);
                 paceEntries.add(paceEntry);
             }
 
         }
 
-        /*speedEntries.sort(new Comparator<Entry>() {
+/*        speedEntries.sort(new Comparator<Entry>() {
             @Override
             public int compare(Entry o1, Entry o2) {
                 return (o1.getX() < o2.getX() ? -1 :
@@ -190,7 +203,8 @@ public class Training_Info_DialogFragment extends DialogFragment {
         speedEntries.sort((o1, o2) -> Float.compare(o1.getX(), o2.getX()));
 
         LineDataSet speedLineDataSet = new LineDataSet(speedEntries, "Speed");
-        speedLineDataSet.setLabel("");
+
+        speedLineDataSet.setIconsOffset(new MPPointF(0, 30));
 
         Log.d(Utils.LOG_TAG, speedEntries.toString());
 
@@ -202,12 +216,9 @@ public class Training_Info_DialogFragment extends DialogFragment {
         speedLineDataSet.setDrawValues(false);
         speedLineDataSet.setDrawCircles(false);
 
-
-
         paceEntries.sort((o1, o2) -> Float.compare(o1.getX(), o2.getX()));
 
         LineDataSet paceLineDataSet = new LineDataSet(paceEntries, "Pace");
-        paceLineDataSet.setLabel("");
 
         Log.d(Utils.LOG_TAG, paceEntries.toString());
 
@@ -221,7 +232,6 @@ public class Training_Info_DialogFragment extends DialogFragment {
 
         LineData lineData = new LineData(speedLineDataSet, paceLineDataSet);
 
-
         lineChart_speed.setData(lineData);
         lineChart_speed.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
 
@@ -233,6 +243,7 @@ public class Training_Info_DialogFragment extends DialogFragment {
         lineChart_speed.animateXY(2000, 2000);
         lineChart_speed.getDescription().setEnabled(false);
 
+        lineChart_speed.setExtraBottomOffset(35);
     }
 
 }

@@ -2,6 +2,7 @@ package com.example.projectofmurad.calendar;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
@@ -50,7 +51,7 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData, U
     private final OnUserClickListener onUserClickListener;
     private final OnUserExpandListener onUserExpandListener;
 
-    private int color;
+    private final int color;
 
     private final Context context;
 
@@ -69,7 +70,7 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData, U
     public class UserViewHolderForFirebase extends RecyclerView.ViewHolder implements
             CompoundButton.OnCheckedChangeListener, View.OnClickListener, View.OnLongClickListener {
 
-        private ConstraintLayout constraintLayout;
+        private final ConstraintLayout constraintLayout;
         public LinearLayout ll_contact;
 
         private final CircleImageView iv_profile_picture;
@@ -149,58 +150,49 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData, U
 
                 Toast.makeText(context, getItem(getBindingAdapterPosition()).toString(), Toast.LENGTH_SHORT).show();
             }
+            else if (v == iv_phone) {
+                String phoneNumber = getItem(getAbsoluteAdapterPosition()).getPhone();
 
-            switch (v.getId()) {
-                case R.id.iv_phone: {
-                    String phoneNumber = getItem(getAbsoluteAdapterPosition()).getPhone();
-
-                    if (phoneNumber == null || phoneNumber.isEmpty()) {
-                        Toast.makeText(context, "This user has no registered phone number",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        Intent callIntent = new Intent(Intent.ACTION_DIAL);
-                        callIntent.setData(Uri.parse("tel:" + phoneNumber));//change the number
-                        context.startActivity(callIntent);
-                    }
-                    break;
+                if (phoneNumber == null || phoneNumber.isEmpty()) {
+                    Toast.makeText(context, "This user has no registered phone number",
+                            Toast.LENGTH_SHORT).show();
                 }
-                case R.id.iv_email:
-                    String email = getItem(getBindingAdapterPosition()).getEmail();
-                    if (email == null || email.isEmpty() || /*!getItem(getAbsoluteAdapterPosition()).isEmailVerified()*/
-                            !FirebaseUtils.getCurrentFirebaseUser().isEmailVerified()){
-                        Toast.makeText(context, "This user has no verified email address",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        String[] emails = {email};
-                        Intent intent_email = new Intent(Intent.ACTION_SEND);
-                        intent_email.setType("text/plain");
-                        intent_email.putExtra(Intent.EXTRA_EMAIL, emails);
-                        intent_email.putExtra(Intent.EXTRA_SUBJECT, "Subject");
-                        intent_email.putExtra(Intent.EXTRA_TEXT, "this is the email body");
+                else {
+                    Intent callIntent = new Intent(Intent.ACTION_DIAL);
+                    callIntent.setData(Uri.parse("tel:" + phoneNumber));//change the number
+                    context.startActivity(callIntent);
+                }
+            }
+            else if (v == iv_email) {
+                String email = getItem(getBindingAdapterPosition()).getEmail();
+                if (email == null || email.isEmpty() || /*!getItem(getAbsoluteAdapterPosition()).isEmailVerified()*/
+                        !FirebaseUtils.getCurrentFirebaseUser().isEmailVerified()) {
+                    Toast.makeText(context, "This user has no verified email address", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    String[] emails = {email};
+                    Intent intent_email = new Intent(Intent.ACTION_SEND);
+                    intent_email.setType("text/plain");
+                    intent_email.putExtra(Intent.EXTRA_EMAIL, emails);
+                    intent_email.putExtra(Intent.EXTRA_SUBJECT, "Subject");
+                    intent_email.putExtra(Intent.EXTRA_TEXT, "this is the email body");
 //                context.startActivity(Intent.createChooser(intent_email, "send email"));
-                        context.startActivity(intent_email);
-                    }
+                    context.startActivity(intent_email);
+                }
+            }
+            else if (v == iv_message) {
+                String phoneNumber = getItem(getAbsoluteAdapterPosition()).getPhone();
 
-                    break;
-                case R.id.iv_message:
+                if (phoneNumber == null || phoneNumber.isEmpty()) {
+                    Toast.makeText(context, "This user has no registered phone number",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Intent intent_sms = new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("sms:" + phoneNumber));
 
-                    String phoneNumber = getItem(getAbsoluteAdapterPosition()).getPhone();
-
-                    if (phoneNumber == null || phoneNumber.isEmpty()) {
-                        Toast.makeText(context, "This user has no registered phone number",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        Intent intent_sms = new Intent(Intent.ACTION_VIEW,
-                                Uri.parse("sms:" + phoneNumber));
-
-                        context.startActivity(Intent.createChooser(intent_sms, "Choose app"));
-                    }
-
-                    break;
-
+                    context.startActivity(Intent.createChooser(intent_sms, "Choose app"));
+                }
             }
         }
 
@@ -236,13 +228,27 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData, U
     @Override
     public void onBindViewHolder(@NonNull UserViewHolderForFirebase holder, int position, @NonNull UserData model) {
 
-        GradientDrawable gd = new GradientDrawable(
-                GradientDrawable.Orientation.LEFT_RIGHT,
-                new int[] {color, Color.DKGRAY});
+        int textColor = Utils.getContrastColor(color);
 
-        gd.setCornerRadius(10);
+        int gradientColor = (textColor == Color.WHITE) ? Color.LTGRAY : Color.DKGRAY;
+
+        GradientDrawable gd = new GradientDrawable(
+                GradientDrawable.Orientation.TL_BR,
+                new int[] {color, color, gradientColor});
+
+//        gd.setCornerRadius(10);
+
+        gd.setShape(GradientDrawable.RECTANGLE);
 
         holder.constraintLayout.setBackground(gd);
+
+        holder.tv_username.setTextColor(textColor);
+
+//        holder.checkbox_attendance.setButtonTintList(ColorStateList.valueOf(textColor));
+
+        holder.iv_phone.setImageTintList(ColorStateList.valueOf(textColor));
+        holder.iv_email.setImageTintList(ColorStateList.valueOf(textColor));
+        holder.iv_message.setImageTintList(ColorStateList.valueOf(textColor));
 
         Log.d("murad", "RECYCLING STARTED");
 
@@ -254,8 +260,8 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData, U
 
         if (model.isMadrich()){
             Log.d("murad", model.getUID() + " is madrich" + true);
-            holder.iv_profile_picture.getLayoutParams().height = 120;
-            holder.iv_profile_picture.getLayoutParams().width = 120;
+            holder.iv_profile_picture.getLayoutParams().height = 100;
+            holder.iv_profile_picture.getLayoutParams().width = 100;
 
             holder.iv_profile_picture.setBorderColor(context.getColor(R.color.colorAccent));
             holder.iv_profile_picture.setBorderWidth(4);

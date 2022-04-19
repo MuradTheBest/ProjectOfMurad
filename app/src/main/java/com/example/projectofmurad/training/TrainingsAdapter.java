@@ -3,6 +3,8 @@ package com.example.projectofmurad.training;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -51,13 +54,13 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.TrainingsViewHolder> {
 
     private HashMap<String, ArrayList<Training>> trainings;
-    private ArrayList<UserAndTraining> userAndTrainingArrayList;
+    private final ArrayList<UserAndTraining> userAndTrainingArrayList;
 
     private OnTrainingClickListener onTrainingClickListener;
 
-    private Context context;
+    private final Context context;
 
-    private int color;
+    private final int color;
 
     public TrainingsAdapter(Context context, ArrayList<UserAndTraining> userAndTrainingArrayList, int color,OnTrainingClickListener onTrainingClickListener) {
         super();
@@ -72,8 +75,7 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
     @Override
     public TrainingsViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                                                   int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.row_user_and_training, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_user_and_training, parent, false);
 
         return new TrainingsViewHolder(view);
     }
@@ -85,9 +87,19 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
         Log.d("murad", "size = " + trainings.get(keys[position]).size());
         Log.d("murad", trainings.get(keys[position]).toString());*/
 
+        int textColor = Utils.getContrastColor(color);
 
-        FirebaseUtils.usersDatabase.get().addOnCompleteListener(
-                new OnCompleteListener<DataSnapshot>() {
+        int gradientColor = (textColor == Color.WHITE) ? Color.LTGRAY : Color.DKGRAY;
+
+        GradientDrawable gd = new GradientDrawable(
+                GradientDrawable.Orientation.TL_BR,
+                new int[] {color, color, gradientColor});
+
+        gd.setShape(GradientDrawable.RECTANGLE);
+
+        holder.constraintLayout.setBackground(gd);
+
+        FirebaseUtils.usersDatabase.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DataSnapshot> task) {
                         String profile_picture = task.getResult().child(userAndTrainingArrayList.get(position).getUID()).child("profile_picture").getValue(String.class);
@@ -98,12 +110,10 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
 
         ArrayList<Training> trainings = userAndTrainingArrayList.get(position).getTraining();
 
-        TrainingAdapter trainingAdapter = new TrainingAdapter(context, trainings);
+        TrainingAdapter trainingAdapter = new TrainingAdapter(context, color, trainings);
         holder.rv_training.setAdapter(trainingAdapter);
         holder.rv_training.setLayoutManager(new LinearLayoutManagerWrapper(context));
-        holder.rv_training.addOnItemTouchListener(new RVOnItemTouchListenerForVP2(holder.rv_training,
-                MainViewModel.getToSwipeViewModelForTrainings()));
-
+        holder.rv_training.addOnItemTouchListener(new RVOnItemTouchListenerForVP2(holder.rv_training, MainViewModel.getToSwipeViewModelForTrainings()));
 
         String UID = userAndTrainingArrayList.get(position).getUID();
 
@@ -149,7 +159,8 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
 //                        speedEntries.sort((o1, o2) -> Float.compare(o1.getX(), o2.getX()));
 
                         BarDataSet speedLineDataSet = new BarDataSet(speedEntries, "Average speed");
-                        speedLineDataSet.setColor(context.getColor(R.color.colorAccent));
+//                        speedLineDataSet.setColor(context.getColor(R.color.colorAccent));
+                        speedLineDataSet.setGradientColor(gradientColor, context.getColor(R.color.colorAccent));
 
                         Log.d(Utils.LOG_TAG, speedEntries.toString());
 
@@ -223,7 +234,6 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
 
                     }
                 });
-
 
 /*
         holder.bc_average_speed.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
@@ -314,7 +324,9 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
 
     }
 
-    //class for renedering X Axis labels' data
+
+
+    //class for rendering X Axis labels' data
     public static class CustomXAxisRenderer extends XAxisRenderer {
 
         public CustomXAxisRenderer(ViewPortHandler viewPortHandler, XAxis xAxis, Transformer trans) {
@@ -344,6 +356,8 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
 
     public static class TrainingsViewHolder extends RecyclerView.ViewHolder {
 
+        private final ConstraintLayout constraintLayout;
+
         private final CircleImageView iv_profile_picture;
         private final RecyclerView rv_training;
 
@@ -351,6 +365,8 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
 
         public TrainingsViewHolder(@NonNull View itemView) {
             super(itemView);
+
+            constraintLayout = itemView.findViewById(R.id.constraintLayout);
 
             iv_profile_picture = itemView.findViewById(R.id.iv_profile_picture);
             rv_training = itemView.findViewById(R.id.rv_training);

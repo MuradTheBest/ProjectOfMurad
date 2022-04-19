@@ -24,8 +24,8 @@
             android:id="@+id/constraintLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/event_background"
-            android:padding="10dp"
+            android:background="@drawable/user_background"
+            android:padding="10sp"
             >
 
             <de.hdodenhof.circleimageview.CircleImageView

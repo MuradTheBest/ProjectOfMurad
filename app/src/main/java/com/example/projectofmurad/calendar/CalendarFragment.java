@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -37,6 +38,7 @@ import com.example.projectofmurad.helpers.MyGridLayoutManager;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
 import com.example.projectofmurad.notifications.FCMSend;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -67,14 +69,14 @@ public class CalendarFragment extends Fragment implements
 
     private ConstraintLayout ll_calendar_view;
 
-    private LocalDate today;
-
     private int prev = 0;
     private int next = 1;
 
     private MainViewModel mainViewModel;
 
     private final String[] days = UtilsCalendar.getShortDaysOfWeek();
+
+    private MaterialToolbar materialToolbar;
 
     public CalendarFragment() {
         // Required empty public constructor
@@ -139,7 +141,7 @@ public class CalendarFragment extends Fragment implements
 
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
-        today = LocalDate.now();
+        LocalDate today = LocalDate.now();
 
         calendarRecyclerView = view.findViewById(R.id.calendarRecyclerView);
 
@@ -196,7 +198,19 @@ public class CalendarFragment extends Fragment implements
             }
         });
 
-
+        materialToolbar = view.findViewById(R.id.materialToolbar);
+        materialToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.calendar_app_bar_today:
+                        selectedDate = LocalDate.now();
+                        setMonthView();
+                        break;
+                }
+                return false;
+            }
+        });
     }
 
     private void showEvent(String event_private_id){
@@ -303,9 +317,11 @@ public class CalendarFragment extends Fragment implements
 
         MyGridLayoutManager gridLayoutManager = new MyGridLayoutManager(requireContext(), 7);
 
-        gridLayoutManager.setOnLayoutCompleteListener(() -> mainViewModel.getEventPrivateId().observe(getViewLifecycleOwner(), CalendarFragment.this::showEvent));
+        gridLayoutManager.setOnLayoutCompleteListener(
+                () -> mainViewModel.getEventPrivateId().observe(getViewLifecycleOwner(), CalendarFragment.this::showEvent));
 
         calendarRecyclerView.setLayoutManager(gridLayoutManager);
+        calendarRecyclerView.setHasFixedSize(true);
 
         animate(ll_calendar_view);
 
@@ -333,7 +349,6 @@ public class CalendarFragment extends Fragment implements
         Log.d("murad", "last day is " + lastDayOfPrevMonth);
         Log.d("murad", "daysInCurrentMonth " + daysInCurrentMonth);
         Log.d("murad", "dayOfWeek " + firstOfCurrentMonth.getDayOfWeek().toString());
-
 
         int current = 1;
 

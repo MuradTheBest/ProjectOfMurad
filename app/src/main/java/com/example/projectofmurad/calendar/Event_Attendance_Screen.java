@@ -10,13 +10,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.FirebaseUtils;
-import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
+import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -122,12 +121,7 @@ public class Event_Attendance_Screen extends AppCompatActivity implements
                 this, this);
 
         rv_users.setAdapter(userAdapter);
-        rv_users.startLayoutAnimation();
-
-        LinearLayoutManagerWrapper linearLayoutManagerWrapper = new LinearLayoutManagerWrapper(this, LinearLayoutManager.VERTICAL, true);
-//        linearLayoutManagerWrapper.setReverseLayout(true);
-//        linearLayoutManagerWrapper.setStackFromEnd(true);
-        rv_users.setLayoutManager(linearLayoutManagerWrapper);
+        rv_users.setLayoutManager(new LinearLayoutManagerWrapper(this));
 
         Handler handler = new Handler();
         handler.postDelayed(() -> {

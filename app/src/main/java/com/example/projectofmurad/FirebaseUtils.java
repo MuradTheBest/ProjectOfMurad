@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.bumptech.glide.Glide;
 import com.example.projectofmurad.training.Training;
@@ -25,6 +27,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.util.ArrayList;
 
 public class FirebaseUtils {
 
@@ -99,6 +103,36 @@ public class FirebaseUtils {
     @NonNull
     public static Task<Void> addTrainingForEvent(String eventPrivateId, @NonNull Training training){
         return getCurrentUserTrainingsRefForEvent(eventPrivateId).child(training.getPrivateId()).setValue(training);
+    }
+
+    @NonNull
+    public static LiveData<ArrayList<Training>> getCurrentUserTrainingsForEvent(String event_private_id){
+        MutableLiveData<ArrayList<Training>> trainings = new MutableLiveData<>();
+
+        ArrayList<Training> trainingArrayList = new ArrayList<>();
+
+        getCurrentUserTrainingsRefForEvent(event_private_id).addValueEventListener(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Log.d(LOG_TAG, snapshot.getRef().toString());
+
+                        for (DataSnapshot training : snapshot.getChildren()){
+                            Training t = training.getValue(Training.class);
+                            Log.d(LOG_TAG, t.toString());
+                            trainingArrayList.add(t);
+                        }
+                        Log.d(LOG_TAG, trainingArrayList.toString());
+                        trainings.postValue(trainingArrayList);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+        return trainings;
     }
 
     public interface onSimpleFirebaseCallback{

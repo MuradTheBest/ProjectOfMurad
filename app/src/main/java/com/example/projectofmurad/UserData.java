@@ -30,6 +30,10 @@ public class UserData {
     private boolean subscribedToAutoAlarmSet;
     private boolean subscribedToAutoAlarmMove;
 
+    private long totalTime;
+    private long totalDistance;
+    private long totalSpeed;
+
     public final static String KEY_UID = "key_user_UID";
     public final static String KEY_email = "key_user_email";
     public final static String KEY_username = "key_user_username";
@@ -127,7 +131,7 @@ public class UserData {
     @Override
     public String toString() {
         return "UserData{" +
-                "\n UID = '" + UID + '\'' +
+                " \nUID = '" + UID + '\'' +
                 ",\nemail = '" + email + '\'' +
                 ",\nusername = '" + username + '\'' +
                 ",\nphone = '" + phone + '\'' +

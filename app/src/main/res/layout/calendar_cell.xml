@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="1dp">
 
@@ -27,6 +28,7 @@
         android:orientation="vertical"
         android:weightSum="4"
         android:layout_marginTop="2dp"
+        android:layout_marginHorizontal="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cellDayText" >
@@ -36,12 +38,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="start"
-            android:text=" TextView "
+            android:text="Event 1"
             android:textColor="@color/black"
             android:textSize="10sp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:minLines="1"
             android:layout_weight="1"
             android:paddingHorizontal="2sp"
-            android:layout_marginHorizontal="1dp"
             android:background="@drawable/calendar_cell_text_has_events_background"
         />
 
@@ -51,13 +55,14 @@
             android:layout_height="wrap_content"
             android:background="@drawable/calendar_cell_text_has_events_background"
             android:gravity="start"
-            android:text=" TextView "
+            android:text="Event 2"
             android:textColor="@color/black"
             android:textSize="10sp"
-            android:layout_marginTop="0.2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:minLines="1"
             android:layout_weight="1"
             android:paddingHorizontal="2sp"
-            android:layout_marginHorizontal="1dp"
             />
 
         <TextView
@@ -66,13 +71,14 @@
             android:layout_height="wrap_content"
             android:background="@drawable/calendar_cell_text_has_events_background"
             android:gravity="start"
-            android:text=" TextView "
+            android:text="Event 3"
             android:textColor="@color/black"
             android:textSize="10sp"
-            android:layout_marginTop="0.2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:minLines="1"
             android:layout_weight="1"
             android:paddingHorizontal="2sp"
-            android:layout_marginHorizontal="1dp"
         />
 
         <TextView
@@ -81,16 +87,45 @@
             android:layout_height="wrap_content"
             android:background="@drawable/calendar_cell_text_has_events_background"
             android:gravity="start"
-            android:text=" TextView "
+            android:text="Event 4"
             android:textColor="@color/black"
             android:textSize="10sp"
-            android:layout_marginTop="0.2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:minLines="1"
             android:layout_weight="1"
             android:paddingHorizontal="2sp"
-            android:layout_marginHorizontal="1dp"
          />
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/tv_event_5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/calendar_cell_text_has_events_background"
+            android:gravity="start"
+            android:text="Event 5"
+            android:textColor="@color/black"
+            android:textSize="10sp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:minLines="1"
+            android:layout_weight="1"
+            android:paddingHorizontal="2sp"
+            />
 
+        <TextView
+            android:id="@+id/tv_more"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="1sp"
+            android:text="+5 "
+            android:textSize="8sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:backgroundTint="@color/colorAccent"
+            android:background="@drawable/more_events_background"/>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -30,26 +29,36 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     private final LocalDate selectedDate;
     private final OnCalendarCellClickListener onCalendarCellClickListener;
     private final LayoutInflater inflater;
+    private final int rows;
 
     private String name;
-    boolean changed = false;
 
     private int oldPosition;
 
     public class CalendarViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
         private final TextView dayOfMonth;
+
         private final TextView tv_event_1;
         private final TextView tv_event_2;
         private final TextView tv_event_3;
         private final TextView tv_event_4;
+        private final TextView tv_event_5;
 
-        public CalendarViewHolder(@NonNull View itemView, OnCalendarCellClickListener onCalendarCellClickListener) {
+        private final TextView tv_more;
+
+        public CalendarViewHolder(@NonNull View itemView) {
             super(itemView);
             dayOfMonth = itemView.findViewById(R.id.cellDayText);
+
             tv_event_1 = itemView.findViewById(R.id.tv_event_1);
             tv_event_2 = itemView.findViewById(R.id.tv_event_2);
             tv_event_3 = itemView.findViewById(R.id.tv_event_3);
             tv_event_4 = itemView.findViewById(R.id.tv_event_4);
+            tv_event_5 = itemView.findViewById(R.id.tv_event_5);
+
+            tv_more = itemView.findViewById(R.id.tv_more);
+
             itemView.setOnClickListener(this);
         }
 
@@ -63,7 +72,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         }
     }
 
-    public CalendarAdapter(ArrayList<LocalDate> daysOfMonth, Context context,
+    public CalendarAdapter(@NonNull ArrayList<LocalDate> daysOfMonth, Context context,
                            OnCalendarCellClickListener onCalendarCellClickListener,
                            LocalDate selectedDate) {
 
@@ -71,6 +80,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         this.daysOfMonth = daysOfMonth;
         this.selectedDate = selectedDate;
         this.onCalendarCellClickListener = onCalendarCellClickListener;
+        this.rows = daysOfMonth.size()/7;
     }
 
     @NonNull
@@ -78,19 +88,14 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     public CalendarViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.calendar_cell, parent, false);
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-        layoutParams.height = (int) (parent.getHeight() * 0.166666666);
+        layoutParams.height = (int) (parent.getHeight()/rows);
 
-        return new CalendarViewHolder(view, onCalendarCellClickListener);
+        return new CalendarViewHolder(view);
     }
-
-    Query query;
 
     @Override
     public void onBindViewHolder(@NonNull CalendarViewHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.dayOfMonth.setText(" " + daysOfMonth.get(position).getDayOfMonth() + " ");
-/*
-        Log.d("murad ", "length"+getItemCount());
-        Log.d("murad ", "adapterPosition"+position);*/
 
         if(position > -1){
             if(daysOfMonth.get(position).getDayOfWeek().getValue() == 5) {
@@ -125,14 +130,23 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             }
         }
 
-        holder.tv_event_1.setVisibility(View.INVISIBLE);
-        holder.tv_event_2.setVisibility(View.INVISIBLE);
-        holder.tv_event_3.setVisibility(View.INVISIBLE);
-        holder.tv_event_4.setVisibility(View.INVISIBLE);
+        holder.tv_event_1.setVisibility(View.GONE);
+        holder.tv_event_2.setVisibility(View.GONE);
+        holder.tv_event_3.setVisibility(View.GONE);
+        holder.tv_event_4.setVisibility(View.GONE);
+        holder.tv_event_5.setVisibility(View.GONE);
+        holder.tv_more.setVisibility(View.GONE);
+
+        TextView[] tv_events = new TextView[5];
+        tv_events[0] = holder.tv_event_1;
+        tv_events[1] = holder.tv_event_2;
+        tv_events[2] = holder.tv_event_3;
+        tv_events[3] = holder.tv_event_4;
+        tv_events[4] = holder.tv_event_5;
 
         DatabaseReference eventsDatabase = FirebaseUtils.eventsDatabase;
 
-        query = eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(daysOfMonth.get(position))).orderByChild("start");
+        Query query = eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(daysOfMonth.get(position))).orderByChild("start");
 
         query.addValueEventListener(new ValueEventListener() {
             @Override
@@ -143,53 +157,21 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                 Log.d("murad", "getChildrenCount" + snapshot.getChildrenCount());
 
                 if(snapshot.hasChildren()){
-                    int count = 0;
-                    int backgroundColor = Color.GREEN;
 
-                    int[] ids = new int[]{R.id.tv_event_1, R.id.tv_event_2, R.id.tv_event_3, R.id.tv_event_4};
+                    int allEventsCount = (int) snapshot.getChildrenCount();
+
+                    int shownEventCount = 0;
+                    int backgroundColor;
 
                     for(DataSnapshot data : snapshot.getChildren()){
-                        Log.d("murad", "count = " + count);
+                        Log.d("murad", "shownEventCount = " + shownEventCount);
 
-                        if (count < ids.length){
+                        if (shownEventCount < tv_events.length){
                             CalendarEvent event = data.getValue(CalendarEvent.class);
-                            /*assert event != null;
-                            count = event.getPosition();*/
-
-                            int id = ids[count];
-
-
-                            data.getRef().child("position").setValue(count);
-
-                            //                            LocalDate startDate = event.receiveStart_date();
-                            Log.d("murad", "Start date of event: " + event.getStartDate());
-//                            LocalDate endDate = event.receiveEnd_date();
-                            Log.d("murad", "End date of event: " + event.getEndDate());
-
-                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                            int left = 0;
-                            int right = 0;
-
-
-
-                            params.setMargins(left,0,right,0);
 
                             Log.d("murad", "event " + event);
 
-                            /*if(!event.getStartDate().equals(event.getEndDate())){
-                                data.getRef().child("position").setValue(count);
-                            }
-
-                            if(selectedDate.isEqual(event.receiveStart_date())){
-                                left = 5;
-                            }
-                            if(selectedDate.isEqual(event.receiveEnd_date())){
-                                right = 5;
-                            }*/
-
-                            params.setMargins(left, 0, right, 0);
-
-                            holder.itemView.findViewById(id).setLayoutParams(params);
+                            TextView textView = tv_events[shownEventCount];
 
                             name = data.child("name").getValue().toString();
                             backgroundColor = Integer.parseInt(data.child("color").getValue().toString());
@@ -203,35 +185,38 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                             Log.d("murad", " ");
                             Log.d("murad", "----------------------------------------------date-------------------------------------------------------");
 
+                            //adding gray contrast for events from non-selected months
                             if (daysOfMonth.get(position).getMonthValue() != selectedDate.getMonthValue()) {
                                 backgroundColor = ColorUtils.blendARGB(backgroundColor, Color.LTGRAY, 0.6f);
-
-/*                            int dayColor = holder.dayOfMonth.getCurrentTextColor();
-                            dayColor = ColorUtils.blendARGB(dayColor, Color.LTGRAY, 0.7f);
-                            holder.dayOfMonth.setTextColor(dayColor);*/
-
                                 textColor = Color.DKGRAY;
                             }
 
+                            textView.setVisibility(View.VISIBLE);
+                            textView.setText(name);
+                            textView.setTextColor(textColor);
+                            textView.getBackground().setTint(backgroundColor);
 
-                            ((TextView) holder.itemView.findViewById(id)).setVisibility(View.VISIBLE);
-                            ((TextView) holder.itemView.findViewById(id)).setText(name);
-                            ((TextView) holder.itemView.findViewById(id)).setTextColor(textColor);
-                            //((TextView) holder.itemView.findViewById(id)) = editTextView(((TextView) holder.itemView.findViewById(id)), timestamp);
-                            ((TextView) holder.itemView.findViewById(id)).getBackground().setTint(backgroundColor);
-
-                            Log.d("murad", "Event number " + count + " is set VISIBLE");
-
+                            Log.d("murad", "Event number " + shownEventCount + " is set VISIBLE");
                         }
                         else {
                             break;
                         }
-                        count++;
+                        shownEventCount++;
                     }
-                    Log.d("murad", "count after loop = " + count);
-                }
+                    Log.d("murad", "shownEventCount after loop = " + shownEventCount);
 
-                changed = true;
+                    int hiddenEventsCount = allEventsCount - shownEventCount;
+
+                    if (hiddenEventsCount > 0){
+                        holder.tv_more.setVisibility(View.VISIBLE);
+                        if (holder.tv_event_5.getVisibility() == View.VISIBLE){
+                            holder.tv_event_5.setVisibility(View.GONE);
+                            hiddenEventsCount++;
+                        }
+
+                        holder.tv_more.setText("+" + hiddenEventsCount + " ");
+                    }
+                }
             }
 
             @Override
@@ -240,26 +225,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             }
         });
 
-        if(changed){
-//            this.notifyDataSetChanged();
-        }
-
         Log.d("murad", "---------------------------------------------------------------------------------");
 
-    }
-
-    public TextView editTextView(@NonNull TextView textView, int timestamp){
-        textView.setText(name);
-        if(timestamp == 0){
-            textView.setBackgroundResource(R.drawable.calendar_cell_text_has_events_background);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.setMargins(0,0,0,0);
-            textView.setLayoutParams(params);
-
-        }
-        int height = textView.getHeight();
-        Log.d("murad", "tv_height "+height);
-        return textView;
     }
 
     @Override

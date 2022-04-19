@@ -1,13 +1,10 @@
 package com.example.projectofmurad.calendar;
 
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Rect;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -156,8 +153,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
     private TextView tv_event_start_date_time;
     private TextView tv_event_end_date_time;
 
-    private SQLiteDatabase db;
-
     private ViewPager2 vp_trainings;
 
     private LinearLayout ll_manage_event;
@@ -170,11 +165,11 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
     private int currentUserPosition = -1;
 
+    private TextView tv_there_is_no_event;
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        db = requireContext().openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
 
         cl_event = view.findViewById(R.id.cl_event);
 
@@ -201,33 +196,36 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
         ll_manage_event = view.findViewById(R.id.ll_manage_event);
 
+        btn_copy_event = view.findViewById(R.id.btn_copy_event);
+        btn_edit_event = view.findViewById(R.id.btn_edit_event);
+        btn_share_event = view.findViewById(R.id.btn_share_event);
+        btn_delete_event = view.findViewById(R.id.btn_delete_event);
+
         if (isShowsDialog){
             getDialog().getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
 
             app_bar_layout = view.findViewById(R.id.app_bar_layout);
             collapsing_toolbar_layout = view.findViewById(R.id.collapsing_toolbar_layout);
             toolbar = view.findViewById(R.id.toolbar);
+//            toolbar.setVisibility(View.GONE);
+
+            btn_copy_event.setOnClickListener(this);
+            btn_edit_event.setOnClickListener(this);
+            btn_share_event.setOnClickListener(this);
+            btn_delete_event.setOnClickListener(this);
         }
         else {
-            ll_manage_event.setVisibility(View.GONE);
+
         }
 
-        setUpEventData(event);
+        tv_there_is_no_event = view.findViewById(R.id.tv_there_is_no_event);
 
+        if (event != null){
+            setUpEventData(event);
+        }
+        else {
 
-        btn_copy_event = view.findViewById(R.id.btn_copy_event);
-        btn_copy_event.setOnClickListener(this);
-
-        btn_edit_event = view.findViewById(R.id.btn_edit_event);
-        btn_edit_event.setOnClickListener(this);
-
-        btn_share_event = view.findViewById(R.id.btn_share_event);
-        btn_share_event.setOnClickListener(this);
-
-        btn_delete_event = view.findViewById(R.id.btn_delete_event);
-        btn_delete_event.setOnClickListener(this);
-
-
+        }
 
     }
 
@@ -235,7 +233,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
         ColorDrawable colorDrawable = new ColorDrawable(event.getColor());
 
-        cl_event.setBackground(colorDrawable);
+//        cl_event.setBackground(colorDrawable);
 
         tv_event_name.setText(event.getName());
         Log.d("murad","name: " + event.getName());
@@ -253,12 +251,27 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
         tv_event_end_date_time.setText(String.format(getString(R.string.ending_time_s_s),
                 UtilsCalendar.OnlineTextToLocal(event.getEndDate()), event.getEndTime()));
 
-        cv_event.getBackground().setTint(event.getColor());
+//        cv_event.getBackground().setTint(event.getColor());
+
+        int textColor = Utils.getContrastColor(event.getColor());
+
+        int gradientColor = (textColor == Color.WHITE) ? Color.LTGRAY : Color.DKGRAY;
+
+        GradientDrawable gd = new GradientDrawable(
+                GradientDrawable.Orientation.TL_BR,
+                new int[] {event.getColor(), event.getColor(), gradientColor});
+
+//        gd.setShape(GradientDrawable.RECTANGLE);
+
+        gd.setCornerRadius(20);
+
+        cv_event.setBackground(gd);
+
+        tv_event_name.setTextColor(textColor);
 
         if (isShowsDialog){
             collapsing_toolbar_layout.setContentScrimColor(event.getColor());
             collapsing_toolbar_layout.setTitleEnabled(true);
-            collapsing_toolbar_layout.setTitle(event.getName());
 
             app_bar_layout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
                 @Override
@@ -269,12 +282,16 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
                     Log.d(Utils.LOG_TAG, "getScrimVisibleHeightTrigger = " + collapsing_toolbar_layout.getScrimVisibleHeightTrigger());
                     Log.d(Utils.LOG_TAG, "getTotalScrollRange = " + appBarLayout.getTotalScrollRange());
 
-                    Log.d(Utils.LOG_TAG, "isVisible " + isVisible(cv_event));
-                    collapsing_toolbar_layout.setTitle(event.getName());
-                    if (!isVisible(cv_event)){
+                    Log.d(Utils.LOG_TAG, "isLifted " + appBarLayout.isLifted());
+                    Log.d(Utils.LOG_TAG, "isLiftOnScroll " + appBarLayout.isLiftOnScroll());
+
+                    //triggered when scrim starts
+                    if((appBarLayout.getTotalScrollRange() - verticalOffset)*2 < collapsing_toolbar_layout.getScrimVisibleHeightTrigger()) {
+
+                        collapsing_toolbar_layout.setTitle(event.getName());
                     }
                     else {
-//                        collapsing_toolbar_layout.setTitle("");
+                        collapsing_toolbar_layout.setTitle("");
                     }
 
                     Log.d(Utils.LOG_TAG, "=============================================================");
@@ -304,11 +321,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
         rv_users.setAdapter(userAdapter);
 
-        LinearLayoutManagerWrapper layoutManagerWrapper = new LinearLayoutManagerWrapper(requireContext());
-
-        layoutManagerWrapper.setOnLayoutCompleteListener(() -> {});
-
-        rv_users.setLayoutManager(layoutManagerWrapper);
+        rv_users.setLayoutManager(new LinearLayoutManagerWrapper(requireContext()));
 
         rv_users.addOnItemTouchListener(new RVOnItemTouchListenerForVP2(rv_users,
                 MainViewModel.getToSwipeViewModelForTrainings()));
@@ -393,20 +406,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
         TrainingAdapterForFirebase trainingAdapterForFirebase = new TrainingAdapterForFirebase(userAndTrainingOptions);
     }
 
-    public static boolean isVisible(final View view) {
-        if (view == null) {
-            return false;
-        }
-        if (!view.isShown()) {
-            return false;
-        }
-        final Rect actualPosition = new Rect();
-        boolean isGlobalVisible = view.getGlobalVisibleRect(actualPosition);
-        final Rect screen = new Rect(0, 0, Resources.getSystem().getDisplayMetrics().widthPixels, Resources.getSystem().getDisplayMetrics().heightPixels);
-        return isGlobalVisible && actualPosition.intersect(screen);
-    }
 
-    @SuppressLint("ClickableViewAccessibility")
     public void initializeTrainingViewPager2(TrainingsAdapter trainingsAdapter){
 
         DisplayMetrics displayMetrics = new DisplayMetrics();

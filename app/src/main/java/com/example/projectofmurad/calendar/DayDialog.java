@@ -20,18 +20,16 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.example.projectofmurad.BuildConfig;
 import com.example.projectofmurad.FirebaseUtils;
-import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.R;
+import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.RecyclerViewSwipeDecorator;
 import com.example.projectofmurad.helpers.Utils;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -56,8 +54,6 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
 
     private RecyclerView rv_events;
     private EventsAdapterForFirebase adapterForFirebase;
-
-    private DatabaseReference eventsDatabase;
 
     private FirebaseRecyclerOptions<CalendarEvent> options;
 
@@ -88,8 +84,6 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
         }
     }
 
-
-
     public LocalDate getPassingDate() {
         return passingDate;
     }
@@ -114,10 +108,8 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
         TextView tv_no_events = this.findViewById(R.id.tv_no_events);
         tv_no_events.setVisibility(View.GONE);
 
+        DatabaseReference eventsDatabase = FirebaseUtils.eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(passingDate));
 
-        eventsDatabase = FirebaseUtils.eventsDatabase;
-
-        eventsDatabase = eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(passingDate));
         Query query = eventsDatabase.orderByChild("start");
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -137,10 +129,8 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
 
         options = new FirebaseRecyclerOptions.Builder<CalendarEvent>()
                 .setQuery(query, CalendarEvent.class)
-//                .setIndexedQuery(, , CalendarEvent.class)
                 .setLifecycleOwner((LifecycleOwner) context)
                 .build();
-
 
         adapterForFirebase = new EventsAdapterForFirebase(options, passingDate, context, this);
         Log.d("murad", "adapterForFirebase.getItemCount() = " + adapterForFirebase.getItemCount());
@@ -153,7 +143,10 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
         LinearLayoutManagerWrapper layoutManager = new LinearLayoutManagerWrapper(getContext());
         layoutManager.setOnLayoutCompleteListener(() -> showEvent(event_private_id));
 
-        rv_events.setLayoutManager(layoutManager);
+//        rv_events.setLayoutManager(layoutManager);
+        rv_events.setLayoutManager(new LinearLayoutManagerWrapper(getContext())
+                .addOnLayoutCompleteListener(() -> showEvent(event_private_id)));
+
         rv_events.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
@@ -184,7 +177,6 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
             }
         });
 
-
         eventsDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -204,7 +196,6 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
 
             }
         });
-
 
         fab_add_event = this.findViewById(R.id.fab_add_event);
         fab_add_event.setOnClickListener(new View.OnClickListener() {
@@ -237,8 +228,7 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
 
         btn_clear_all = this.findViewById(R.id.btn_clear_all);
         btn_clear_all.setOnClickListener(v -> {
-            FirebaseUtils.eventsDatabase
-                    .child(UtilsCalendar.DateToTextForFirebase(passingDate)).setValue(null);
+            FirebaseUtils.eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(passingDate)).setValue(null);
 
             rv_events.setVisibility(View.INVISIBLE);
             Log.d("murad", "Visibility set to " + rv_events.getVisibility());
@@ -250,51 +240,6 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
         itemTouchHelper.attachToRecyclerView(rv_events);
 
     }
-
-    RecyclerView.ItemAnimator itemAnimator = new SimpleItemAnimator() {
-        @Override
-        public boolean animateRemove(RecyclerView.ViewHolder holder) {
-            return false;
-        }
-
-        @Override
-        public boolean animateAdd(RecyclerView.ViewHolder holder) {
-            return false;
-        }
-
-        @Override
-        public boolean animateMove(RecyclerView.ViewHolder holder, int fromX, int fromY, int toX,
-                                   int toY) {
-            return false;
-        }
-
-        @Override
-        public boolean animateChange(RecyclerView.ViewHolder oldHolder,
-                                     RecyclerView.ViewHolder newHolder, int fromLeft, int fromTop,
-                                     int toLeft, int toTop) {
-            return false;
-        }
-
-        @Override
-        public void runPendingAnimations() {
-
-        }
-
-        @Override
-        public void endAnimation(@NonNull RecyclerView.ViewHolder item) {
-
-        }
-
-        @Override
-        public void endAnimations() {
-
-        }
-
-        @Override
-        public boolean isRunning() {
-            return false;
-        }
-    };
 
 /*
     private void revealShow(View dialogView, boolean b, final Dialog dialog) {
@@ -400,14 +345,6 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
     private final Vibrator vibrator;
     private VibrationEffect vibrationEffect;
 
-    boolean at_the_time = false;
-    boolean before_5_minutes = false;
-    boolean before_15_minutes = false;
-    boolean before_30_minutes = false;
-    boolean before_1_hour = false;
-    boolean custom = false;
-
-
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END | ItemTouchHelper.START) {
         @Override
         public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
@@ -420,7 +357,6 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
             return false;
         }
 
-        String text = "";
         String attendance = "";
         String alarm = "";
 
@@ -429,105 +365,10 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
         @Override
         public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
 
-            final int position = viewHolder.getAbsoluteAdapterPosition();
-
             vibrator.vibrate(vibrationEffect);
 
             switch (direction) {
                 case ItemTouchHelper.START:
-
-                    /*if (!text.isEmpty()){
-                        long before = 0;
-                        *//*switch (text){
-                            case "5 minutes before":
-                                Log.d("murad", "swipe text is " + text);
-                                before = 5 * 60 * 1000;
-                                break;
-                            case "15 minutes before":
-                                Log.d("murad", "swipe text is " + text);
-                                before = 15 * 60 * 1000;
-                                break;
-                            case "30 minutes before":
-                                Log.d("murad", "swipe text is " + text);
-                                before = 30 * 60 * 1000;
-                                break;
-                            case "1 hour before":
-                                Log.d("murad", "swipe text is " + text);
-                                before = 60 * 60 * 1000;
-                                break;
-                            case "Custom":
-                                Log.d("murad", "swipe text is " + text);
-                                ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).switch_alarm.setChecked(true);
-                                break;
-                        }*//*
-
-                        if (before_5_minutes) {
-                            Log.d("murad", "swipe text is " + text);
-                            before = 5 * 60 * 1000;
-                        }
-                        else if (before_15_minutes) {
-                            Log.d("murad", "swipe text is " + text);
-                            before = 15 * 60 * 1000;
-                        }
-                        else if (before_30_minutes) {
-                            Log.d("murad", "swipe text is " + text);
-                            before = 30 * 60 * 1000;
-                        }
-                        else if (before_1_hour) {
-                            Log.d("murad", "swipe text is " + text);
-                            before = 60 * 60 * 1000;
-                        }
-                        else if (custom) {
-                            Log.d("murad", "swipe text is " + text);
-                            ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).switch_alarm.setChecked(true);
-                        }
-
-
-                        CalendarEvent event = options.getSnapshots().get(viewHolder.getAbsoluteAdapterPosition());
-
-                        AlarmManagerForToday.addAlarm(context, event, before);
-                    }
-                    else
-                        ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).switch_alarm.toggle();
-*/
-
-                    /*long before = 0;
-
-                    if (before_5_minutes) {
-                        Log.d("murad", "swipe text is " + text);
-                        before = 5 * 60 * 1000;
-                        CalendarEvent event = options.getSnapshots().get(viewHolder.getAbsoluteAdapterPosition());
-
-                        AlarmManagerForToday.addAlarm(context, event, before);
-                    }
-                    else if (before_15_minutes) {
-                        Log.d("murad", "swipe text is " + text);
-                        before = 15 * 60 * 1000;
-                        CalendarEvent event = options.getSnapshots().get(viewHolder.getAbsoluteAdapterPosition());
-
-                        AlarmManagerForToday.addAlarm(context, event, before);
-                    }
-                    else if (before_30_minutes) {
-                        Log.d("murad", "swipe text is " + text);
-                        before = 30 * 60 * 1000;
-                        CalendarEvent event = options.getSnapshots().get(viewHolder.getAbsoluteAdapterPosition());
-
-                        AlarmManagerForToday.addAlarm(context, event, before);
-                    }
-                    else if (before_1_hour) {
-                        Log.d("murad", "swipe text is " + text);
-                        before = 60 * 60 * 1000;
-                        CalendarEvent event = options.getSnapshots().get(viewHolder.getAbsoluteAdapterPosition());
-
-                        AlarmManagerForToday.addAlarm(context, event, before);
-                    }
-                    else if (custom) {
-                        Log.d("murad", "swipe text is " + text);
-                        ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).switch_alarm.setChecked(true);
-                    }
-                    else {
-                        ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).switch_alarm.toggle();
-                    }*/
 
                     ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).switch_alarm.performClick();
 
@@ -540,7 +381,8 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
                                 public void onClick(View view) {
                                     ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).switch_alarm.performClick();
                                 }
-                            }).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show();
+                            })
+                            .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show();
                     break;
                 case ItemTouchHelper.END :
 
@@ -554,17 +396,16 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
                                 public void onClick(View view) {
                                     ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).checkbox_all_attendances.toggle();
                                 }
-                            })/*.setGestureInsetBottomIgnored(true)*/.setAnimationMode(Snackbar.ANIMATION_MODE_FADE).show();
+                            })
+                            /*.setGestureInsetBottomIgnored(true)*/
+                            .setAnimationMode(Snackbar.ANIMATION_MODE_FADE).show();
 
                     break;
-
             }
 //            rv_events.getAdapter().notifyItemChanged(position);
             itemTouchHelper.startSwipe(viewHolder);
 
         }
-
-        float last_Dx = 0;
 
         @Override
         public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
@@ -574,96 +415,11 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
             boolean alarmSet = ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).switch_alarm.isChecked();
             Log.d("murad", "swipe alarmSet is " + alarmSet);
 
-            float xColor = dX;
-            int swipeLeftBackgroundColor = ContextCompat.getColor(getContext(), R.color.colorAccent);
-//            swipeLeftBackgroundColor = ColorUtils.blendARGB(swipeLeftBackgroundColor, Color.WHITE, 1-dX/1000);
-            swipeLeftBackgroundColor = ColorUtils.blendARGB(swipeLeftBackgroundColor, Color.WHITE, -dX/1000);
-
-//            text = "";
-
-            if (dX < 0 && !alarmSet){
-                if (-dX != 0){
-//                    dX += -50;
-                }
-            /*if (-dX < 100){
-                text = "At timeData of the event";
-            }
-            else if (-dX > 100 && -dX < 200){
-                text = "5 minutes before";
-            }
-            else if (-dX > 200 && -dX < 300){
-                text = "15 minutes before";
-            }
-            else if (-dX > 300 && -dX < 400){
-                text = "30 minutes before";
-            }
-            else if (-dX > 400 && -dX < 500){
-                text = "1 hour before";
-            }
-            else if (-dX > 500){
-                text = "custom";
-            }*/
-                if (-last_Dx < -dX){
-                    resetAllBooleans();
-                }
-                if (-dX < 100){
-                    text = "At the timeData of event";
-                    at_the_time = true;
-                    Log.d("murad", "swipe text label is " + text);
-                }
-                else if (-dX > 100 && -dX < 330){
-                    text = "5 minutes"/* + " before"*/;
-                    before_5_minutes = true;
-                    Log.d("murad", "swipe text label is " + text);
-                }
-                else if (-dX > 330 && -dX < 390){
-                    text = "15 minutes"/* + " before"*/;
-                    before_15_minutes = true;
-                    Log.d("murad", "swipe text label is " + text);
-                }
-                else if (-dX > 390 && -dX < 450){
-                    before_30_minutes = true;
-                    text = "30 minutes"/* + " before"*/;
-                    Log.d("murad", "swipe text label is " + text);
-                }
-                else if (-dX > 450 && -dX < 510){
-                    before_1_hour = true;
-                    text = "1 hour"/* + " before"*/;
-                    Log.d("murad", "swipe text label is " + text);
-                }
-                else if (-dX > 510){
-                    custom = true;
-                    text = "Custom";
-                    Log.d("murad", "swipe text label is " + text);
-                }
-
-                Log.d("murad","*****************************swipe*********************************");
-                Log.d("murad","swipe at_the_time is " + at_the_time);
-                Log.d("murad","swipe before_5_minutes is " + before_5_minutes);
-                Log.d("murad","swipe before_15_minutes is " + before_15_minutes);
-                Log.d("murad","swipe before_30_minutes is " + before_30_minutes);
-                Log.d("murad","swipe before_1_hour is " + before_1_hour);
-                Log.d("murad", "swipe custom is " + custom);
-
-
-                int x = (int) -dX/2;
-                if (x > 0 && x < 255){
-//                swipeLeftBackgroundColor = ColorUtils.setAlphaComponent(swipeLeftBackgroundColor, x);
-                }
-            }
-
-            alarm = alarmSet ? "Alarm cancelling" : text;
+            alarm = alarmSet ? "Alarm cancelling" : "Alarm setting";
             attendance = approved ? "Attendance disapproving" : "Attendance approving";
 
-
-            Log.d("murad", "swipe dX = " + dX);
-            Log.d("murad", "swipe last_Dx " + last_Dx);
-            Log.d("murad","*********************************swipe*****************************");
-            last_Dx = dX;
-
             new RecyclerViewSwipeDecorator.Builder(getContext(), c, recyclerView, (EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder, dX, dY, actionState, isCurrentlyActive)
-//                    .addSwipeLeftBackgroundColor(ContextCompat.getColor(getContext(), alarmSet ? R.color.alarm_off : R.color.colorAccent))
-                    .addSwipeLeftBackgroundColor(alarmSet ? ContextCompat.getColor(getContext(), R.color.alarm_off) : swipeLeftBackgroundColor)
+                    .addSwipeLeftBackgroundColor(ContextCompat.getColor(getContext(), alarmSet ? R.color.alarm_off : R.color.colorAccent))
                     .addSwipeLeftActionIcon(alarmSet ? R.drawable.ic_baseline_notifications_off_40 : R.drawable.ic_baseline_notifications_active_40)
                     .addSwipeLeftLabel(alarm)
                     .setSwipeLeftLabelColor(ContextCompat.getColor(recyclerView.getContext(), android.R.color.white))
@@ -682,21 +438,12 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
         }
 
         @Override
-        public long getAnimationDuration(@NonNull RecyclerView recyclerView, int animationType,
-                                         float animateDx, float animateDy) {
+        public long getAnimationDuration(@NonNull RecyclerView recyclerView, int animationType, float animateDx, float animateDy) {
             return super.getAnimationDuration(recyclerView, animationType, animateDx, animateDy);
         }
     };
-    ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
 
-    public void resetAllBooleans(){
-        at_the_time = false;
-        before_5_minutes = false;
-        before_15_minutes = false;
-        before_30_minutes = false;
-        before_1_hour = false;
-        custom = false;
-    }
+    ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
 
     @Override
     public void onEventClick(int position, @NonNull CalendarEvent event) {

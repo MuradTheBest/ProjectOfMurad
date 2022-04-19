@@ -2,10 +2,15 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
+<!--    <item
         android:id="@+id/tables_Fragment"
         android:title="@string/tables"
-        android:icon="@drawable/ic_baseline_table_view_24" />
+        android:icon="@drawable/ic_baseline_table_view_24" /> -->
+
+    <item
+        android:id="@+id/graph_Fragment"
+        android:title="Progress"
+        android:icon="@drawable/ic_baseline_show_chart_24" />
 
     <item
         android:id="@+id/calendar_Fragment"

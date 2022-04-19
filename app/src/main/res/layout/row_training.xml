@@ -7,16 +7,17 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     style="@style/ThemeOverlay.AppCompat.Dark"
-    android:background="@drawable/event_background"
     app:cardUseCompatPadding="true"
     app:cardCornerRadius="10sp"
     app:cardElevation="3sp"
     android:gravity="start">
 
-
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@drawable/user_background"
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -58,128 +59,53 @@
                 app:layout_constraintVertical_weight="2"
                 android:rowOrderPreserved="true" >
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_distance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="10sp"
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:padding="2sp"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:text="10.7 km"
+                    android:textSize="12sp"/>
 
-                    <TextView
-                        android:id="@+id/tv_distance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10sp"
-                        android:gravity="center"
-                        android:text="10.7"
-                        android:textSize="12sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/iv"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tv_distance2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="left"
-                        android:text=" km"
-                        android:textSize="12sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/tv_distance"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                </LinearLayout>
-
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="10sp"
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:padding="2sp"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:text="00:42:17"
+                    android:textSize="12sp" />
 
-                    <TextView
-                        android:id="@+id/tv_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10sp"
-                        android:gravity="center"
-                        android:text="00:42:17"
-                        android:textSize="12sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/tv_distance2"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <!--<TextView
-                        android:id="@+id/tv_time2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="left"
-                        android:text=" h"
-                        android:textSize="12sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/tv_time"
-                        app:layout_constraintTop_toTopOf="parent" />-->
-
-
-                </LinearLayout>
-
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_speed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="10sp"
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:padding="2sp"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:text="7.75 km/h"
+                    android:textSize="12sp"/>
 
-                    <TextView
-                        android:id="@+id/tv_speed"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10sp"
-                        android:gravity="center"
-                        android:text="7.75"
-                        android:textSize="12sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/tv_time2"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tv_speed2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="left"
-                        android:text=" km/h"
-                        android:textSize="12sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/tv_speed"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-
-                </LinearLayout>
-
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="10sp"
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:padding="2sp"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/tv_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10sp"
-                        android:gravity="start"
-                        android:text="10/02/2022 -\n11/02/2022"
-                        android:textSize="12sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/tv_time2"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                </LinearLayout>
+                    android:gravity="center"
+                    android:text="10/02/2022 -\n11/02/2022"
+                    android:textSize="12sp" />
 
             </GridLayout>
 

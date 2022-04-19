@@ -1,7 +1,6 @@
 package com.example.projectofmurad.home;
 
 import android.animation.Animator;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Rect;
@@ -16,17 +15,14 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.projectofmurad.FirebaseUtils;
@@ -34,10 +30,9 @@ import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.MainViewModel;
 import com.example.projectofmurad.Profile_Screen;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.calendar.CalendarFragment;
-import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.EventSlidePageAdapter;
+import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.helpers.ZoomOutPageTransformer;
 import com.example.projectofmurad.tracking.TrackingService;
 import com.google.android.material.appbar.AppBarLayout;
@@ -51,7 +46,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.time.LocalDate;
 import java.util.Calendar;
 
 /**
@@ -126,25 +120,15 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-//        return inflater.inflate(R.layout.fragment_blank_motion_layout, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_blank_for_viewpager2, container, false);
     }
-
-    //Todo dashboard screen
-
-    //ToDo show last happened event and show closest one to happen
 
     public TabLayout tabLayout;
     public TabLayoutMediator tabLayoutMediator;
     public MaterialToolbar toolbar;
 
     private CollapsingToolbarLayout collapsingToolbarLayout;
-
-    public CardView cv_event;
-    public TextView tv_there_are_no_upcoming_events;
 
     public ConstraintLayout constraintLayout;
 
@@ -161,7 +145,6 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
 
     private MainViewModel mainViewModel;
 
-    private ProgressDialog progressDialog;
     private ProgressBar progressBar;
 
     private Animation rotate_open_anim;
@@ -177,14 +160,11 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
 
     private boolean onNextEventTab = false;
 
-    ActionBar actionBar;
+    private ActionBar actionBar;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-//        bottomNavigationView = requireActivity().findViewById(R.id.bottomNavigationView);
-
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
@@ -194,13 +174,15 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
 
-                if (onNextEventTab && !isVisible(tabLayout)){
-                    fab_add_training.hide();
-                    fab_add_training2.show();
-                }
-                else {
-                    fab_add_training.show();
-                    fab_add_training2.hide();
+                if (onNextEventTab){
+                    if (isVisible(tabLayout)){
+                        fab_add_training.show();
+                        fab_add_training2.hide();
+                    }
+                    else {
+                        fab_add_training.hide();
+                        fab_add_training2.show();
+                    }
                 }
 
                 Log.d(Utils.LOG_TAG, "********************************************************************************************* ");
@@ -212,12 +194,15 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
                 Log.d(Utils.LOG_TAG, "collapsingToolbarLayout.getScrimVisibleHeightTrigger() = " + collapsingToolbarLayout.getScrimVisibleHeightTrigger());
                 Log.d(Utils.LOG_TAG, "********************************************************************************************* ");
 
-
-
                 if (/*(Math.abs(verticalOffset) + Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange()) > collapsingToolbarLayout.getScrimVisibleHeightTrigger()*/
                     /*vp_event.getY() == tabLayout.getY()*/
-                !isVisible(tabLayout)) {
+                        isVisible(tabLayout)) {
 
+                    //Expanded
+                    collapsingToolbarLayout.setTitle("");
+
+                }
+                else {
                     Log.d(Utils.LOG_TAG, "show text" + tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText());
 
 //                    toolbar.setTitle(tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText());
@@ -225,11 +210,6 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
 
                     collapsingToolbarLayout.setTitle(tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText());
 //                    toolbar.setTitle(tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText());
-
-                }
-                else {
-                    //Expanded
-                    collapsingToolbarLayout.setTitle("");
                 }
             }
         });
@@ -238,7 +218,6 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
 //        ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) requireActivity()).getSupportActionBar();
 
-//        toolbar.setVisibility(View.GONE);
 
         collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar_layout);
 
@@ -255,66 +234,51 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
 
         vp_event = view.findViewById(R.id.vp_event);
 
-/*        Query queryLast = FirebaseUtils.allEventsDatabase.orderByChild("start")
-                .startAt(Calendar.getInstance().getTimeInMillis()).limitToFirst(1);*/
-
         isNext_event_ready.setValue(false);
         isLast_event_ready.setValue(false);
 
         Query queryLast = FirebaseUtils.allEventsDatabase.orderByChild("end").endAt(Calendar.getInstance().getTimeInMillis()).limitToLast(1);
         Query queryNext = FirebaseUtils.allEventsDatabase.orderByChild("end").startAt(Calendar.getInstance().getTimeInMillis()).limitToFirst(1);
 
-
         queryLast.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot data : snapshot.getChildren()){
-                    if (data.exists()){
-                        mainViewModel.getLastEvent().setValue(data.getValue(CalendarEvent.class));
 
-                        Log.d(Utils.LOG_TAG, "last event is" + mainViewModel.getLastEvent().getValue().toString());
+                    mainViewModel.getLastEvent().setValue(data.getValue(CalendarEvent.class));
 
-                        isLast_event_ready.setValue(true);
+                    Log.d(Utils.LOG_TAG, "last event is" + mainViewModel.getLastEvent().getValue().toString());
 
-//                        tv_there_are_no_upcoming_events.setVisibility(View.GONE);
+                    isLast_event_ready.setValue(true);
+                }
 
-                    }
-                    else {
-                        cv_event.setVisibility(View.GONE);
-                        tv_there_are_no_upcoming_events.setVisibility(View.VISIBLE);
-                    }
+                if (!snapshot.hasChildren() && snapshot.exists()){
+                    mainViewModel.getLastEvent().setValue(null);
+                    isLast_event_ready.setValue(true);
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
 
         queryNext.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot data : snapshot.getChildren()){
-                    if (data.exists()){
-                        mainViewModel.getNextEvent().setValue(data.getValue(CalendarEvent.class));
-                        Log.d(Utils.LOG_TAG,"next event is" +  mainViewModel.getNextEvent().getValue().toString());
-                        isNext_event_ready.setValue(true);
+                    mainViewModel.getNextEvent().setValue(data.getValue(CalendarEvent.class));
+                    Log.d(Utils.LOG_TAG,"next event is" +  mainViewModel.getNextEvent().getValue().toString());
+                    isNext_event_ready.setValue(true);
+                }
 
-//                        tv_there_are_no_upcoming_events.setVisibility(View.GONE);
-
-                    }
-                    else {
-                        cv_event.setVisibility(View.GONE);
-                        tv_there_are_no_upcoming_events.setVisibility(View.VISIBLE);
-                    }
+                if (!snapshot.hasChildren() && snapshot.exists()){
+                    mainViewModel.getNextEvent().setValue(null);
+                    isNext_event_ready.setValue(true);
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
 
         mainViewModel.getNextEvent().observe(getViewLifecycleOwner(), event -> isNext_event_ready.setValue(true));
@@ -412,6 +376,11 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
             }
         });*/
 
+        initializeAnimations();
+
+    }
+
+    private void initializeAnimations(){
         rotate_open_anim = AnimationUtils.loadAnimation(requireContext(),R.anim.rotate_open_anim);
         rotate_close_anim = AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_close_anim);
 
@@ -420,7 +389,6 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
 
         from_end_anim = AnimationUtils.loadAnimation(requireContext(), R.anim.from_end_anim);
         to_end_anim = AnimationUtils.loadAnimation(requireContext(), R.anim.to_end_anim);
-
     }
 
     public static boolean isVisible(final View view) {
@@ -452,12 +420,7 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
         fab_add_group_training2.setClickable(clickable);
     }
 
-    private void setUpEverything(){
-
-    }
-
     private void setPagerAdapter() {
-//        progressDialog.dismiss();
         progressBar.setVisibility(View.GONE);
 
         EventSlidePageAdapter pagerAdapter = new EventSlidePageAdapter(this,
@@ -490,8 +453,9 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
                     Log.d(Utils.LOG_TAG, "on last event tab");
                     onNextEventTab = false;
 
-                    fab_add_training.hide();
-                    fab_add_training2.hide();
+                    fab_add_training.setVisibility(View.GONE);
+                    fab_add_training2.setVisibility(View.GONE);
+
                     actionBar.setHomeAsUpIndicator(R.drawable.ic_baseline_person_24);
                     if (menu.findItem(R.id.to_next_event) != null){
                         menu.findItem(R.id.to_next_event).setIcon(R.drawable.ic_baseline_arrow_back_24_180_degrees);
@@ -500,7 +464,9 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
                 else if (tab.getText().toString().equals("Next event")){
                     onNextEventTab = true;
 
-                    fab_add_training.show();
+                    fab_add_training.setVisibility(View.VISIBLE);
+                    fab_add_training2.setVisibility(View.VISIBLE);
+
                     if (menu != null && menu.findItem(R.id.to_next_event) != null){
                         menu.findItem(R.id.to_next_event).setIcon(R.drawable.ic_baseline_person_24);
                     }
@@ -526,16 +492,5 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
             }
         });
 
-    }
-
-    public void goToCalendar(@NonNull LocalDate localDate, String event_private_id){
-
-        Bundle bundle = new Bundle();
-        bundle.putInt(CalendarFragment.SELECTED_DATE_DAY, localDate.getDayOfMonth());
-        bundle.putInt(CalendarFragment.SELECTED_DATE_MONTH, localDate.getMonthValue());
-        bundle.putInt(CalendarFragment.SELECTED_DATE_YEAR, localDate.getYear());
-        bundle.putString(CalendarFragment.EVENT_TO_SHOW_PRIVATE_ID, event_private_id);
-
-        NavHostFragment.findNavController(this).navigate(R.id.action_blankFragment_to_calendar_Fragment, bundle);
     }
 }

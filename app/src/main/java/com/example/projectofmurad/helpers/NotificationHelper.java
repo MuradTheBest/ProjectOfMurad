@@ -7,15 +7,15 @@ import android.content.ContextWrapper;
 
 import androidx.core.app.NotificationCompat;
 
-
 public class NotificationHelper extends ContextWrapper {
+
     public static final String channelID = "channelID";
     public static final String channelName = "Channel Name";
 
     private NotificationManager mManager;
 
-    public NotificationHelper(Context base) {
-        super(base);
+    public NotificationHelper(Context context) {
+        super(context);
         createChannel();
     }
 

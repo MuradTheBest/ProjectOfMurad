@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public class RVOnItemTouchListenerForVP2 implements RecyclerView.OnItemTouchListener {
 
     private final RecyclerView recyclerView;
-    private MutableLiveData<Boolean> toSwipe;
+    private final MutableLiveData<Boolean> toSwipe;
 
     public RVOnItemTouchListenerForVP2(RecyclerView recyclerView,
                                        MutableLiveData<Boolean> toSwipe) {
@@ -19,6 +19,7 @@ public class RVOnItemTouchListenerForVP2 implements RecyclerView.OnItemTouchList
     }
 
     int lastX = 0;
+
     @Override
     public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
         switch (e.getAction()) {

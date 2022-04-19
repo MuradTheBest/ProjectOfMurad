@@ -9,7 +9,9 @@ import androidx.annotation.NonNull;
 public class ViewAnimationUtils {
 
     public static void expand(@NonNull final View v) {
-        v.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        v.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+
         final int targetHeight = v.getMeasuredHeight();
 
         v.getLayoutParams().height = 0;

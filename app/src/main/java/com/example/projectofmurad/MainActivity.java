@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
                 newFragment = new HomeFragment();
 //                getSupportActionBar().setTitle("ProjectOfMurad");
                 break;
-            case R.id.tables_Fragment:
+            case R.id.graph_Fragment:
 //                getSupportActionBar().setTitle("Tables");
                 break;
 /*            case R.id.graph_Fragment:

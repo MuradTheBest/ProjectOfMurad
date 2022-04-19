@@ -15,12 +15,17 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Path;
+import android.graphics.Rect;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.AnyRes;
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.core.graphics.ColorUtils;
 
 import com.example.projectofmurad.BuildConfig;
 import com.example.projectofmurad.MyApplication;
@@ -207,6 +212,7 @@ public class Utils {
         Runtime.getRuntime().exit(0);
     }
 
+    @ColorInt
     public static int generateRandomColor(){
         Random rnd = new Random();
         return Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
@@ -416,5 +422,44 @@ public class Utils {
         if (context != null){
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @ColorInt
+    public static int getContrastColor(@ColorInt int color) {
+        double whiteContrast = ColorUtils.calculateContrast(Color.WHITE, color);
+        double blackContrast = ColorUtils.calculateContrast(Color.BLACK, color);
+
+        return (whiteContrast > blackContrast) ? Color.WHITE : Color.BLACK;
+    }
+
+    @NonNull
+    public static GradientDrawable getGradientBackground(@ColorInt int color) {
+        int textColor = Utils.getContrastColor(color);
+
+        int gradientColor = (textColor == Color.WHITE) ? Color.LTGRAY : Color.DKGRAY;
+
+        GradientDrawable gd = new GradientDrawable(
+                GradientDrawable.Orientation.TL_BR,
+                new int[] {color, gradientColor});
+
+        gd.setShape(GradientDrawable.RECTANGLE);
+
+        return gd;
+    }
+
+    public static boolean isVisible(final View view) {
+        if (view == null) {
+            return false;
+        }
+        if (!view.isShown()) {
+            return false;
+        }
+        final Rect actualPosition = new Rect();
+        boolean isGlobalVisible = view.getGlobalVisibleRect(actualPosition);
+        final Rect screen = new Rect(0, 0,
+                Resources.getSystem().getDisplayMetrics().widthPixels,
+                Resources.getSystem().getDisplayMetrics().heightPixels);
+
+        return isGlobalVisible && actualPosition.intersect(screen);
     }
 }

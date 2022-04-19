@@ -46,9 +46,11 @@ public class AlarmDialog extends Dialog {
 
         setCancelable(true);
 
-        getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+        Utils.createCustomDialog(this);
 
-        getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
+/*        getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+
+        getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);*/
     }
 
     public AlarmDialog(@NonNull Context context, SwitchCompat switch_alarm, OnAutoAlarmSetListener onAutoAlarmSetListener) {
@@ -60,9 +62,11 @@ public class AlarmDialog extends Dialog {
 
         setCancelable(true);
 
+        Utils.createCustomDialog(this);
+/*
         getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
 
-        getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
+        getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);*/
     }
 
     @Override
@@ -165,8 +169,8 @@ public class AlarmDialog extends Dialog {
 
     @Override
     public void dismiss() {
-//        super.dismiss();
-        hide();
+        super.dismiss();
+//        hide();
     }
 
     public interface OnAutoAlarmSetListener{
