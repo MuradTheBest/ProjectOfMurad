@@ -10,7 +10,7 @@ import androidx.room.TypeConverters;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Training.class}, version = 2, exportSchema = false)
+@Database(entities = {Training.class}, version = 3, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class MyDatabase extends RoomDatabase {
     public abstract TrainingDao trainingDao();

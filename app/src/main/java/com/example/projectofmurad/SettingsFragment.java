@@ -7,6 +7,8 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
+import java.util.Objects;
+
 public class SettingsFragment extends PreferenceFragmentCompat {
 
 
@@ -17,7 +19,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
 
         notifications = findPreference("notifications");
-        notifications.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        Objects.requireNonNull(notifications).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
 

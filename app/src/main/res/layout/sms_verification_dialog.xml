@@ -7,8 +7,8 @@
     android:hint="Verification Code"
     android:textColor="@color/colorAccent"
     android:textSize="20sp"
-    android:paddingVertical="5sp"
-    android:paddingHorizontal="20sp"
+    android:paddingVertical="5dp"
+    android:paddingHorizontal="20dp"
     app:counterEnabled="true"
     app:counterMaxLength="6"
     app:endIconMode="clear_text"
@@ -22,6 +22,5 @@
         android:maxLength="6"
         android:inputType="number"
         android:singleLine="true" />
-
 
 </com.google.android.material.textfield.TextInputLayout>

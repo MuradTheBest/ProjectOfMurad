@@ -10,7 +10,6 @@ import java.util.List;
 public class MyRepository {
 
     private final TrainingDao mTrainingDao;
-    private LiveData<List<Training>> mAllTrainings;
 
     private final AppExecutors appExecutors;
 
@@ -30,56 +29,55 @@ public class MyRepository {
         appExecutors.diskIO().execute(() -> mTrainingDao.insert(training));
     }
 
-
-    public MutableLiveData<List<Training>> getAll(){
+    public LiveData<List<Training>> getAll(){
         MutableLiveData<List<Training>> trainings = new MutableLiveData<>();
         appExecutors.diskIO().execute(() -> trainings.postValue(mTrainingDao.getAll()));
         return trainings;
     }
 
-    public MutableLiveData<List<Training>> loadAllByIds(int[] trainingIds) {
+    public LiveData<List<Training>> loadAllByIds(int[] trainingIds) {
         MutableLiveData<List<Training>> trainings = new MutableLiveData<>();
         appExecutors.diskIO().execute(() -> trainings.postValue(mTrainingDao.loadAllByIds(trainingIds)));
         return trainings;
     }
 
-    public MutableLiveData<List<Training>> loadAllByPrivateId(String privateId) {
+    public LiveData<List<Training>> loadAllByPrivateId(String privateId) {
         MutableLiveData<List<Training>> trainings = new MutableLiveData<>();
         appExecutors.diskIO().execute(() -> trainings.postValue(mTrainingDao.loadAllByPrivateId(privateId)));
          return trainings;
     }
 
-    public MutableLiveData<List<Training>> loadAllByDay(int day) {
+    public LiveData<List<Training>> loadAllByDay(int day) {
         MutableLiveData<List<Training>> trainings = new MutableLiveData<>();
         appExecutors.diskIO().execute(() -> trainings.postValue(mTrainingDao.loadAllByDay(day)));
          return trainings;
     }
 
-    public MutableLiveData<List<Training>> loadAllByDayAndMonth(int day, int month) {
+    public LiveData<List<Training>> loadAllByDayAndMonth(int day, int month) {
         MutableLiveData<List<Training>> trainings = new MutableLiveData<>();
         appExecutors.diskIO().execute(() -> trainings.postValue(mTrainingDao.loadAllByDayAndMonth(day, month)));
         return trainings;
     }
 
-    public MutableLiveData<List<Training>> loadAllByMonth(int month) {
+    public LiveData<List<Training>> loadAllByMonth(int month) {
         MutableLiveData<List<Training>> trainings = new MutableLiveData<>();
         appExecutors.diskIO().execute(() -> trainings.postValue(mTrainingDao.loadAllByMonth(month)));
         return trainings;
     }
 
-    public MutableLiveData<List<Training>> loadAllByMonthAndYear(int month, int year) {
+    public LiveData<List<Training>> loadAllByMonthAndYear(int month, int year) {
         MutableLiveData<List<Training>> trainings = new MutableLiveData<>();
         appExecutors.diskIO().execute(() -> trainings.postValue(mTrainingDao.loadAllByMonthAndYear(month, year)));
         return trainings;
     }
 
-    public MutableLiveData<List<Training>> loadAllByYear(int year) {
+    public LiveData<List<Training>> loadAllByYear(int year) {
         MutableLiveData<List<Training>> trainings = new MutableLiveData<>();
         appExecutors.diskIO().execute(() -> trainings.postValue(mTrainingDao.loadAllByYear(year)));
         return trainings;
     }
 
-    public MutableLiveData<List<Training>> loadAllByDayAndMonthAndYear(int day, int month, int year) {
+    public LiveData<List<Training>> loadAllByDayAndMonthAndYear(int day, int month, int year) {
         MutableLiveData<List<Training>> trainings = new MutableLiveData<>();
         appExecutors.diskIO().execute(() -> trainings.postValue(mTrainingDao.loadAllByDayAndMonthAndYear(day, month, year)));
         return trainings;

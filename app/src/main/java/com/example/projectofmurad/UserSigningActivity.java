@@ -44,10 +44,8 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -88,14 +86,10 @@ public class UserSigningActivity extends AppCompatActivity {
         et_verify_phone.addTextChangedListener(new TextWatcher() {
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -103,15 +97,6 @@ public class UserSigningActivity extends AppCompatActivity {
                     s.append("-");
                 }
                 length = s.length();
-            }
-        });
-
-        et_verify_phone.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-				/*if (hasFocus){
-					et_verify_phone.setHint("##-###-####");
-				}*/
             }
         });
 
@@ -237,7 +222,7 @@ public class UserSigningActivity extends AppCompatActivity {
         progressDialog.show();
 
         FirebaseUtils.getFirebaseAuth().signInWithCredential(phoneAuthCredential)
-                .addOnCompleteListener(this, authCompleteListener);
+                .addOnCompleteListener(authCompleteListener);
     }
 
     protected final OnCompleteListener<AuthResult> authCompleteListener = new OnCompleteListener<AuthResult>() {
@@ -245,7 +230,7 @@ public class UserSigningActivity extends AppCompatActivity {
         public void onComplete(@NonNull Task<AuthResult> task) {
             if (!task.isSuccessful()) {
                 progressDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "Logging failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Signing in failed", Toast.LENGTH_SHORT).show();
                 Log.d("murad", "signInWithCredential:failure", task.getException());
                 // Sign in failed, display a message and update the UI
                 Log.w(LOG_TAG, "signInWithCredential:failure", task.getException());
@@ -257,7 +242,7 @@ public class UserSigningActivity extends AppCompatActivity {
 
             Log.d("murad", "signInWithCredential:success");
 
-            FirebaseUser user = FirebaseUtils.getCurrentFirebaseUser();
+            FirebaseUser user = task.getResult().getUser();
 
             String UID = user.getUid();
             String username = user.getDisplayName();
@@ -265,79 +250,17 @@ public class UserSigningActivity extends AppCompatActivity {
             String phone = user.getPhoneNumber();
             Uri photoUri = user.getPhotoUrl();
 
-            if (user.getPhotoUrl() == null || (user.getPhotoUrl() != null && user.getPhotoUrl().toString().contains("/a/"))){
+            UserData data = new UserData(UID, email, username, phone);
 
-                Uri sample_profile = Utils.getUriToDrawable(getApplicationContext(), R.drawable.images);
-                Log.d("murad", "new sample_profile url: " + sample_profile.toString());
-
-                UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder();
-                builder.setPhotoUri(sample_profile);
-
-                user.updateProfile(builder.build()).addOnCompleteListener(
-                        new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-
-                                FirebaseUtils.getProfilePicturesRef().child(UID).putFile(sample_profile).addOnCompleteListener(
-                                        new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                            @Override
-                                            public void onComplete(
-                                                    @NonNull Task<UploadTask.TaskSnapshot> task) {
-                                                if (task.isSuccessful()){
-                                                    FirebaseUtils.getProfilePicturesRef().child(UID).getDownloadUrl().addOnCompleteListener(
-                                                            new OnCompleteListener<Uri>() {
-                                                                @Override
-                                                                public void onComplete(
-                                                                        @NonNull Task<Uri> task) {
-                                                                    if (task.isSuccessful()){
-                                                                        String profile_picture = task.getResult().toString();
-
-                                                                        UserData data = new UserData(UID, email, username, phone, profile_picture);
-                                                                        Log.d("murad", data.toString());
-
-                                                                        FirebaseUtils.usersDatabase.child(UID).setValue(data).addOnCompleteListener(
-                                                                                new OnCompleteListener<Void>() {
-                                                                                    @Override
-                                                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                                                        if (task.isSuccessful()){
-                                                                                            getToken();
-                                                                                            subscribeToTopics();
-                                                                                        }
-                                                                                    }
-                                                                                });
-                                                                    }
-
-                                                                }
-                                                            });
-                                                }
-                                            }
-                                        });
-
-
-                            }
-                        });
-            }
-            else{
-
+            if (photoUri != null && !photoUri.toString().contains("/a/")){
                 String profile_picture = user.getPhotoUrl().toString();
-
-                Log.d("murad", "existing profile_picture: " + profile_picture);
-
-                UserData data = new UserData(UID, email, username, phone, profile_picture);
-                Log.d("murad", data.toString());
-
-                FirebaseUtils.usersDatabase.child(UID).setValue(data).addOnCompleteListener(
-                        new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()){
-                                    getToken();
-                                    subscribeToTopics();
-                                }
-                            }
-                        });
-
+                data.setProfile_picture(profile_picture);
             }
+
+            FirebaseUtils.usersDatabase.child(UID).setValue(data)
+                    .addOnSuccessListener(unused -> subscribeToTopics())
+                    .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed",
+                                                            Toast.LENGTH_SHORT).show());
         }
     };
 
@@ -396,8 +319,7 @@ public class UserSigningActivity extends AppCompatActivity {
         progressDialog.setMessage("Logging via Google, please wait...");
         progressDialog.show();
 
-        firebaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, authCompleteListener);
+        firebaseAuth.signInWithCredential(credential).addOnCompleteListener(authCompleteListener);
     }
 
     protected void getToken(){
@@ -455,38 +377,20 @@ public class UserSigningActivity extends AppCompatActivity {
     }
 
     protected void subscribeToTopics(){
-        FirebaseMessaging.getInstance().subscribeToTopic(FCMSend.ADD_EVENT_TOPIC).addOnCompleteListener(
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
-                            FirebaseUtils.getCurrentUserDataRef().child(UserData.KEY_SUBSCRIBED_TO_ADD_EVENT).setValue(true);
-                            Log.d(FCMSend.FCM_TAG, "subscription to topic " + FCMSend.ADD_EVENT_TOPIC + " is successful");
-                        }
-                    }
-                });
+//        getToken();
 
-        FirebaseMessaging.getInstance().subscribeToTopic(FCMSend.EDIT_EVENT_TOPIC).addOnCompleteListener(
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
-                            FirebaseUtils.getCurrentUserDataRef().child(UserData.KEY_SUBSCRIBED_TO_EDIT_EVENT).setValue(true);
-                            Log.d(FCMSend.FCM_TAG, "subscription to topic " + FCMSend.EDIT_EVENT_TOPIC + " is successful");
-                        }
-                    }
-                });
+        FirebaseMessaging.getInstance().subscribeToTopic(FCMSend.ADD_EVENT_TOPIC).addOnSuccessListener(
+                unused -> FirebaseUtils.getCurrentUserDataRef().child(UserData.KEY_SUBSCRIBED_TO_ADD_EVENT).setValue(true));
 
-        FirebaseMessaging.getInstance().subscribeToTopic(FCMSend.DELETE_EVENT_TOPIC).addOnCompleteListener(
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
-                            FirebaseUtils.getCurrentUserDataRef().child(UserData.KEY_SUBSCRIBED_TO_DELETE_EVENT).setValue(true);
-                            Log.d(FCMSend.FCM_TAG, "subscription to topic " + FCMSend.DELETE_EVENT_TOPIC + " is successful");
-                        }
-                    }
-                });
+        FirebaseMessaging.getInstance().subscribeToTopic(FCMSend.EDIT_EVENT_TOPIC).addOnSuccessListener(
+                unused -> FirebaseUtils.getCurrentUserDataRef().child(UserData.KEY_SUBSCRIBED_TO_EDIT_EVENT).setValue(true));
+
+        FirebaseMessaging.getInstance().subscribeToTopic(FCMSend.DELETE_EVENT_TOPIC).addOnSuccessListener(
+                unused -> FirebaseUtils.getCurrentUserDataRef().child(UserData.KEY_SUBSCRIBED_TO_DELETE_EVENT).setValue(true));
+
+        progressDialog.dismiss();
+
+        startActivity(new Intent(getApplicationContext(), Profile_Screen.class));
     }
 
     @Override

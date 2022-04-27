@@ -2,7 +2,6 @@ package com.example.projectofmurad.training;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -55,19 +54,14 @@ public class TrainingAdapter extends RecyclerView.Adapter<TrainingAdapter.Traini
 
         int textColor = Utils.getContrastColor(color);
 
-        int gradientColor = (textColor == Color.WHITE) ? Color.LTGRAY : Color.DKGRAY;
-
-        GradientDrawable gd = new GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                new int[] {color, color, gradientColor});
-
-        gd.setShape(GradientDrawable.RECTANGLE);
+        GradientDrawable gd = Utils.getGradientBackground(color);
 
         holder.constraintLayout.setBackground(gd);
 
         Training training = trainingArrayList.get(position);
-        Log.d("murad", "trainingArrayList.size() = " + trainingArrayList.size());
-        Log.d("murad", trainingArrayList.toString());
+        Log.d("training", "trainingArrayList.size() = " + trainingArrayList.size());
+        Log.d("training", "position = " + position);
+        Log.d("training", training.toString());
 
 
         holder.tv_distance.setText(training.getTotalDistance() + " km");
@@ -137,4 +131,13 @@ public class TrainingAdapter extends RecyclerView.Adapter<TrainingAdapter.Traini
         void onTrainingClick(int position, Training training);
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
 }

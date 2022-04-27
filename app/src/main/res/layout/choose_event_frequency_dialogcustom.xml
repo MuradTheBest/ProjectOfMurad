@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="10sp"
+    android:padding="10dp"
     android:clipToPadding="false">
 
     <RadioGroup
@@ -37,100 +37,100 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Every week"
-            android:textSize="16sp"/>
+            android:textSize="16dp"/>
 
         <LinearLayout
             android:id="@+id/choose_day_of_week_layout"
-            android:layout_width="238sp"
-            android:layout_height="38sp"
+            android:layout_width="238dp"
+            android:layout_height="38dp"
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_gravity="center"
             android:weightSum="7"
-            android:layout_marginHorizontal="10sp"
+            android:layout_marginHorizontal="10dp"
             android:clipToPadding="false"
             >
 
             <ToggleButton
                 android:id="@+id/tb_Sunday"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
-                android:layout_marginHorizontal="2sp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginHorizontal="2dp"
                 android:textOff="S"
                 android:textOn="S"
-                android:textSize="14sp"
+                android:textSize="14dp"
                 style="@style/toggleButton"
                 android:background="@drawable/toggle_bg"
                 android:checked="true"/>
 
             <ToggleButton
                 android:id="@+id/tb_Monday"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
-                android:layout_marginHorizontal="2sp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginHorizontal="2dp"
                 android:textOff="M"
                 android:textOn="M"
-                android:textSize="14sp"
+                android:textSize="14dp"
                 style="@style/toggleButton"
                 android:background="@drawable/toggle_bg"
                 android:checked="true"/>
 
             <ToggleButton
                 android:id="@+id/tb_Tuesday"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
-                android:layout_marginHorizontal="2sp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginHorizontal="2dp"
                 android:textOff="T"
                 android:textOn="T"
-                android:textSize="14sp"
+                android:textSize="14dp"
                 style="@style/toggleButton"
                 android:background="@drawable/toggle_bg"
                 android:checked="true"/>
 
             <ToggleButton
                 android:id="@+id/tb_Wednesday"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
-                android:layout_marginHorizontal="2sp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginHorizontal="2dp"
                 android:textOff="W"
                 android:textOn="W"
-                android:textSize="14sp"
+                android:textSize="14dp"
                 style="@style/toggleButton"
                 android:background="@drawable/toggle_bg"
                 android:checked="true"/>
 
             <ToggleButton
                 android:id="@+id/tb_Thursday"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
-                android:layout_marginHorizontal="2sp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginHorizontal="2dp"
                 android:textOff="T"
                 android:textOn="T"
-                android:textSize="14sp"
+                android:textSize="14dp"
                 style="@style/toggleButton"
                 android:background="@drawable/toggle_bg"
                 android:checked="true"/>
 
             <ToggleButton
                 android:id="@+id/tb_Friday"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
-                android:layout_marginHorizontal="2sp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginHorizontal="2dp"
                 android:textOff="F"
                 android:textOn="F"
-                android:textSize="14sp"
+                android:textSize="14dp"
                 style="@style/toggleButton"
                 android:background="@drawable/toggle_bg"
                 android:checked="true"/>
 
             <ToggleButton
                 android:id="@+id/tb_Saturday"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
-                android:layout_marginHorizontal="2sp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginHorizontal="2dp"
                 android:textOff="S"
                 android:textOn="S"
-                android:textSize="14sp"
+                android:textSize="14dp"
                 style="@style/toggleButton"
                 android:background="@drawable/toggle_bg"
                 android:checked="true"/>

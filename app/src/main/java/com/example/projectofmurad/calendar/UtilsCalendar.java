@@ -94,7 +94,7 @@ public class UtilsCalendar {
 
     @NonNull
     public static DatabaseReference getEventByPrivate_Id(String private_id){
-        return FirebaseUtils.allEventsDatabase.child(private_id).getRef();
+        return FirebaseUtils.getAllEventsDatabase().child(private_id).getRef();
     }
 
     public static HashMap<LocalDate, ArrayList<CalendarEvent>> map = new HashMap<>();

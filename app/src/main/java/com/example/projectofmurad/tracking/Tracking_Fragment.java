@@ -16,6 +16,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -32,11 +33,14 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -46,16 +50,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.MainActivity;
+import com.example.projectofmurad.MainViewModel;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.training.MyRepository;
@@ -75,6 +82,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -83,6 +91,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
@@ -91,6 +100,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -99,24 +111,28 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+@SuppressLint("MissingPermission")
 public class Tracking_Fragment extends Fragment implements
         GoogleMap.OnMyLocationButtonClickListener,
+        SaveTrainingDialog.OnAddTrainingListener,
+        CompoundButton.OnCheckedChangeListener,
         GoogleMap.OnMyLocationClickListener,
-        OnMapReadyCallback,
-        GoogleMap.OnMarkerClickListener, CompoundButton.OnCheckedChangeListener,
-SaveTrainingDialog.OnAddTrainingListener{
+        GoogleMap.OnMarkerClickListener,
+        GoogleMap.OnMapClickListener,
+        OnMapReadyCallback {
 
     private GoogleMap map;
 
     public final static String TRACKING_CHANNEL_ID = Utils.APPLICATION_ID + "tracking_channel_id";
 
+    public final static String SELECTED_LOCATION_TAG = Utils.APPLICATION_ID + "selected_location_tag";
+
+    public final static String ACTION_MOVE_TO_TRACKING_FRAGMENT_TO_SHOW_TRACK = Utils.APPLICATION_ID + "action_show__track";
 
     private boolean mapReady;
     private boolean selfTraining;
 
     GoogleMapOptions options;
-
-    public int map_type = GoogleMap.MAP_TYPE_NORMAL;
 
     private FusedLocationProviderClient fusedLocationProviderClient;
 
@@ -124,7 +140,6 @@ SaveTrainingDialog.OnAddTrainingListener{
         LatLng lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
         List<LatLng> points = gpsTrack.getPoints();
-
 
         points.add(lastLocation);
         gpsTrack.setPoints(points);
@@ -170,11 +185,8 @@ SaveTrainingDialog.OnAddTrainingListener{
     }
 
     private Map<String, Marker> markers;
-    private Map<String, Marker> last_markers;
 
-    private DatabaseReference usersLocations;
-
-//    private SwitchCompat switch_last_location;
+    //    private SwitchCompat switch_last_location;
     private SwitchCompat switch_map_type;
 
     private Polyline gpsTrack;
@@ -194,6 +206,7 @@ SaveTrainingDialog.OnAddTrainingListener{
 
     private LinearLayout ll_pause_or_finish_training;
 
+    private Marker selected_location_marker;
 
     //ToDo start activity on button press and collect data connected to event
     // or create new one if nt exists
@@ -310,25 +323,26 @@ SaveTrainingDialog.OnAddTrainingListener{
     private TextView tv_training_average_pace;
     private TextView tv_training_max_pace;
 
-    @SuppressLint("MissingPermission")
+    private MainViewModel mainViewModel;
+
+    private MaterialToolbar materialToolbar;
+
+    private ImageView iv_share_location;
+
+    private View mapView;
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        requireActivity().getActionBar().hide();
 
         initializeBottomSheet(view);
 
         markers = new HashMap<>();
-        last_markers = new HashMap<>();
 
         switch_map_type = view.findViewById(R.id.switch_map_type);
-        switch_map_type.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                map.setMapType(isChecked ? GoogleMap.MAP_TYPE_HYBRID : GoogleMap.MAP_TYPE_NORMAL);
-                map_type = isChecked ? GoogleMap.MAP_TYPE_HYBRID : GoogleMap.MAP_TYPE_NORMAL;
-            }
-        });
+        switch_map_type.setOnCheckedChangeListener(
+                (buttonView, isChecked)
+                        -> map.setMapType(isChecked ? GoogleMap.MAP_TYPE_HYBRID : GoogleMap.MAP_TYPE_NORMAL));
 
         options = new GoogleMapOptions();
         options.mapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -337,16 +351,46 @@ SaveTrainingDialog.OnAddTrainingListener{
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+
         if (mapFragment != null) {
+            mapView = mapFragment.getView();
             mapFragment.getMapAsync(this);
         }
+
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext());
         /*fusedLocationProviderClient.requestLocationUpdates(
                 new LocationRequest().setWaitForAccurateLocation(true).setInterval(2000),
                 locationCallback, Looper.myLooper());*/
 
+        materialToolbar = view.findViewById(R.id.materialToolbar);
+        materialToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
 
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.share_my_location:
+                        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(Tracking_Fragment.this::shareMyLocation)
+                                .addOnFailureListener(e -> Toast.makeText(requireContext(),
+                                        "Can;t get your current location",
+                                        Toast.LENGTH_SHORT).show());
+                        break;
+                }
+                return false;
+            }
+        });
+
+        iv_share_location = view.findViewById(R.id.iv_share_location);
+        iv_share_location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fusedLocationProviderClient.getLastLocation()
+                        .addOnSuccessListener(Tracking_Fragment.this::shareMyLocation)
+                        .addOnFailureListener(e -> Toast.makeText(requireContext(),
+                                "Can;t get your current location",
+                                Toast.LENGTH_SHORT).show());
+            }
+        });
 
         btn_start_tracking = view.findViewById(R.id.btn_start_tracking);
         btn_start_tracking.setOnClickListener(new View.OnClickListener() {
@@ -401,6 +445,81 @@ SaveTrainingDialog.OnAddTrainingListener{
         if (TrackingService.isRunning.getValue()){
             startTracking();
         }
+
+        mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+
+        Button button = view.findViewById(R.id.button);
+        button.setOnClickListener(v -> {
+            LatLng northEast = new LatLng(40.465, 35.846532);
+            LatLng southWest = new LatLng(50.45120, 35.452);
+
+            LatLngBounds bounds = LatLngBounds.builder().include(northEast).include(southWest).build();
+
+            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 5), 200,
+                    new GoogleMap.CancelableCallback() {
+                        @Override
+                        public void onCancel() {
+
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            map.setMyLocationEnabled(false);
+                            captureScreen();
+                        }
+                    });
+        });
+    }
+
+    private void shareMyLocation(@NonNull Location location) {
+//      String uri = "http://maps.google.com/maps?saddr=" + location.getLatitude()+","+location.getLongitude();
+        String uri = "http://maps.google.com/maps?q=loc:" + location.getLatitude() + "," + location.getLongitude();
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        String ShareSub = "Here is my location";
+        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, ShareSub);
+        sharingIntent.putExtra(Intent.EXTRA_TEXT, uri);
+        startActivity(Intent.createChooser(sharingIntent, "Share via"));
+    }
+
+    public void captureScreen() {
+        GoogleMap.SnapshotReadyCallback callback = new GoogleMap.SnapshotReadyCallback() {
+
+            @Override
+            public void onSnapshotReady(Bitmap snapshot) {
+                // TODO Auto-generated method stub
+
+                OutputStream fout;
+
+                String filePath = System.currentTimeMillis() + ".jpeg";
+
+                try {
+                    fout = requireActivity().openFileOutput(filePath, Context.MODE_PRIVATE);
+
+                    // Write the string to the file
+                    snapshot.compress(Bitmap.CompressFormat.PNG, 90, fout);
+                    fout.flush();
+                    fout.close();
+                }
+                catch (FileNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    Log.d("ImageCapture", "FileNotFoundException");
+                    Log.d("ImageCapture", e.getMessage());
+                    filePath = "";
+                }
+                catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    Log.d("ImageCapture", "IOException");
+                    Log.d("ImageCapture", e.getMessage());
+                    filePath = "";
+                }
+
+                mainViewModel.setFilePath(filePath);
+                map.setMyLocationEnabled(true);
+            }
+        };
+
+        map.snapshot(callback);
     }
 
     private void initializeBottomSheet(@NonNull View view){
@@ -536,7 +655,8 @@ SaveTrainingDialog.OnAddTrainingListener{
 
         if (TrackingService.trainingType.getValue() != null && TrackingService.trainingType.getValue().equals(TrackingService.GROUP_TRAINING)){
             String event_private_id = TrackingService.eventPrivateId.getValue();
-            usersLocations = FirebaseUtils.attendanceDatabase.child(event_private_id);
+            DatabaseReference usersLocations = FirebaseUtils.getAttendanceDatabase().child(
+                    event_private_id);
             usersLocations.addValueEventListener(valueEventListener);
         }
 
@@ -707,10 +827,14 @@ SaveTrainingDialog.OnAddTrainingListener{
 
         requireActivity().unregisterReceiver(broadcastReceiver);
 
+        List<LatLng> latLngs = TrackingService.locationsData.getValue();
+        LatLngBounds bounds = Utils.getLatLngBounds(latLngs);
+
+        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,  10));
+
         TrackingService.trainingData.observe(getViewLifecycleOwner(), new Observer<Training>() {
             @Override
             public void onChanged(Training t) {
-
                 if (TrackingService.trainingType.getValue() == null){
                     SaveTrainingDialog saveTrainingDialog = new SaveTrainingDialog(requireContext(), t, Tracking_Fragment.this);
                     saveTrainingDialog.show();
@@ -886,8 +1010,6 @@ SaveTrainingDialog.OnAddTrainingListener{
     }
 */
 
-
-
     public void createSaveTrainingDialog(){
         /*Dialog dialog = new Dialog(requireContext());
         dialog.setTitle("Choose trainingData type");
@@ -1011,9 +1133,24 @@ SaveTrainingDialog.OnAddTrainingListener{
 
         gpsTrack = map.addPolyline(new PolylineOptions().color(Color.BLUE));
 
-        map.setMapType(map_type);
+        if (mapView != null && mapView.findViewById(Integer.parseInt("1")) != null) {
+            // Get the button view
+            ImageView locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
 
+            // and next place it, on bottom right (as Google Maps app)
+            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)
+                    locationButton.getLayoutParams();
 
+            // position on right bottom
+            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+            layoutParams.setMargins(0, 0, 50, 100);
+
+            locationButton.setImageResource(R.drawable.ic_baseline_my_location_24);
+            locationButton.setBackgroundColor(Color.WHITE);
+            locationButton.setPadding(10, 10, 10, 10);
+            locationButton.setImageTintList(ColorStateList.valueOf(requireContext().getColor(R.color.colorAccent)));
+        }
 
         map.setOnMarkerClickListener(this);
 
@@ -1023,59 +1160,103 @@ SaveTrainingDialog.OnAddTrainingListener{
 
             map.setOnMyLocationButtonClickListener(this);
             map.setOnMyLocationClickListener(this);
-            getMyLocation();
+
+            map.setOnMapClickListener(this);
 
             //ToDo track only users that attend to this trainingData
 //            usersLocations.addValueEventListener(valueEventListener);
             gpsTrack.setJointType(JointType.ROUND);
 
+            if (mainViewModel.getLocation().getValue() != null){
+                mainViewModel.getLocation().observe(getViewLifecycleOwner(),
+                        new Observer<com.example.projectofmurad.tracking.Location>() {
+                            @Override
+                            public void onChanged(com.example.projectofmurad.tracking.Location location) {
+                                LatLng selected_location  = location.toLatLng();
 
+                                Log.d(TrackingService.TAG, "location.getLatitude() = " + location.getLatitude());
+                                Log.d(TrackingService.TAG, "location.getLongitude() = " + location.getLongitude());
+
+                                map.animateCamera(CameraUpdateFactory.newLatLngZoom(selected_location,  18));
+
+                                selected_location_marker = map.addMarker(new MarkerOptions()
+                                        .position(selected_location)
+                                        .title("Marker"));
+
+                                selected_location_marker.setTag(SELECTED_LOCATION_TAG);
+
+                                mainViewModel.resetLocation();
+                            }
+                        });
+            }
+            else if (mainViewModel.getLocations().getValue() != null){
+                mainViewModel.getLocations().observe(getViewLifecycleOwner(),
+                        new Observer<List<com.example.projectofmurad.tracking.Location>>() {
+                            @Override
+                            public void onChanged(List<com.example.projectofmurad.tracking.Location> locations) {
+                                List<LatLng> latLngs = new ArrayList<>();
+                                locations.forEach(location -> latLngs.add(location.toLatLng()));
+
+                                gpsTrack.setPoints(latLngs);
+
+                                LatLngBounds bounds = Utils.getLatLngBounds(latLngs);
+                                map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 10));
+
+                                mainViewModel.resetLocations();
+                            }
+                        });
+            }
+            else {
+                getMyLocation();
+            }
         }
-
 
     }
 
     ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
+            if (!snapshot.exists() && !snapshot.hasChildren()){
+                return;
+            }
             //ToDo to not trigger users' locationsData' markers' reload when current user's location changed
             for (DataSnapshot user : snapshot.getChildren()){
-                if (user.exists() && !FirebaseUtils.isCurrentUID(user.getKey())){
+                if (user.exists() && !FirebaseUtils.isCurrentUID(user.getKey())
+                        && user.hasChild("latitude") && user.hasChild("longitude")
+                        && user.hasChild("profile_picture") && user.hasChild("username")){
+
                     Log.d("map", "*************************************************************");
                     String UID = user.getKey();
                     Log.d("map", "tracking id is " + UID);
 
-                    if (user.hasChild("latitude") && user.hasChild("longitude") && user.hasChild("profile_picture") && user.hasChild("username")){
-                        String username = user.child("username").getValue().toString();
+                    String username = user.child("username").getValue().toString();
 
-                        String profile_picture = user.child("profile_picture").getValue(String.class);
+                    String profile_picture = user.child("profile_picture").getValue(String.class);
 
-                        double latitude = user.child("latitude").getValue(double.class);
-                        double longitude = user.child("longitude").getValue(double.class);
-
-
-                        Log.d("map", "username is " + username);
-                        Log.d("map", "latitude is " + latitude);
-                        Log.d("map", "longitude is " + longitude);
+                    double latitude = user.child("latitude").getValue(double.class);
+                    double longitude = user.child("longitude").getValue(double.class);
 
 
-                        LatLng latLng = new LatLng(latitude, longitude);
-                        MarkerOptions markerOptions = new MarkerOptions()
-                                .position(latLng)
-                                .title(username)
-                                .flat(true)
-                                .zIndex(0)
-                                /*.snippet(username)*/;
+                    Log.d("map", "username is " + username);
+                    Log.d("map", "latitude is " + latitude);
+                    Log.d("map", "longitude is " + longitude);
 
-                        if (user.hasChild("locationAvailable") && !user.child("locationAvailable").getValue(boolean.class)){
-                            markerOptions.alpha(0.5f);
-                        }
 
-                        //to check if the fragment was changed
-                        if (getActivity() != null){
-                            getUserPPBitmap(UID, profile_picture,markerOptions);
-                        }
+                    LatLng latLng = new LatLng(latitude, longitude);
+                    MarkerOptions markerOptions = new MarkerOptions()
+                            .position(latLng)
+                            .title(username)
+                            .flat(true)
+                            .zIndex(0)
+                            /*.snippet(username)*/;
 
+                    if (user.hasChild("locationAvailable") && !user.child("locationAvailable").getValue(boolean.class)){
+                        markerOptions.alpha(0.5f);
+                    }
+
+                    //to check if the fragment was changed
+                    if (getContext() != null){
+                        getUserBitmap(UID, profile_picture, markerOptions);
                     }
 
                 }
@@ -1088,10 +1269,11 @@ SaveTrainingDialog.OnAddTrainingListener{
         }
     };
 
-    private void getUserPPBitmap(String UID, String profile_picture, MarkerOptions markerOptions){
+    //creates bitmap with user's profile picture
+    private void getUserBitmap(String UID, String profile_picture, MarkerOptions markerOptions){
         Glide.with(this)
                 .asBitmap()
-                .load(profile_picture)
+                .load(profile_picture != null ? profile_picture : R.drawable.images)
                 .dontTransform()
                 .into(new SimpleTarget<Bitmap>() {
                     @Override
@@ -1103,13 +1285,6 @@ SaveTrainingDialog.OnAddTrainingListener{
                         int pixels = (int) (40 * scale + 0.5f);
 
                         Bitmap bitmap = Bitmap.createScaledBitmap(resource, pixels, pixels, true);
-                        if (bitmap == null){
-                            Toast.makeText(requireContext(), "Bitmap is null", Toast.LENGTH_SHORT).show();
-                            Log.d(LOG_TAG, "Bitmap is null");
-                        }
-                        else {
-                            Log.d(LOG_TAG, "Bitmap is not null");
-                        }
 
                         if(bitmap != null){
                             bitmap = getBitmapClippedCircle(bitmap);
@@ -1119,8 +1294,6 @@ SaveTrainingDialog.OnAddTrainingListener{
                             Marker old_marker = markers.get(UID);
 
                             if (old_marker != null){
-//                            Log.d(LOG_TAG, "Old marker's tag is " + old_marker.getTag().toString());
-//                            last_markers.put(UID, old_marker);
                                 old_marker.remove();
                                 Log.d(LOG_TAG, "Old marker is successfully removed");
                             }
@@ -1168,6 +1341,7 @@ SaveTrainingDialog.OnAddTrainingListener{
         return output;
     }
 
+    //makes bitmap circle
     public Bitmap getBitmapClippedCircle(@NonNull Bitmap bitmap) {
 
         final int width = bitmap.getWidth();
@@ -1235,7 +1409,8 @@ SaveTrainingDialog.OnAddTrainingListener{
 
     @Override
     public void onMyLocationClick(@NonNull Location location) {
-
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(location.getLatitude(), location.getLongitude()), 18));
     }
 
     /*@Override
@@ -1423,5 +1598,12 @@ SaveTrainingDialog.OnAddTrainingListener{
 
 //        Toast.makeText(requireContext(), "UID: " + marker.getTag().toString(), Toast.LENGTH_SHORT).show();
         return false;
+    }
+
+    @Override
+    public void onMapClick(@NonNull LatLng latLng) {
+        if (selected_location_marker != null){
+            selected_location_marker.remove();
+        }
     }
 }

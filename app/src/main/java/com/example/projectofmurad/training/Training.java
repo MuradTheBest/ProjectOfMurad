@@ -7,8 +7,10 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.tracking.Location;
+import com.example.projectofmurad.tracking.SpeedAndLocation;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -16,8 +18,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 @Entity(tableName = "trainings")
@@ -56,7 +60,7 @@ public class Training implements Serializable {
 
     private double avgSpeed;
     @Ignore
-    private HashMap<String, Double> speeds;
+    private HashMap<String, SpeedAndLocation> speeds;
     private double maxSpeed;
 
     private String avgPace;
@@ -72,6 +76,11 @@ public class Training implements Serializable {
     private String endDateTime;
 
     private int color;
+
+    @Ignore
+    private List<Location> locations;
+
+    private String picture;
 
     private String date;
     private String dateTime;
@@ -150,7 +159,7 @@ public class Training implements Serializable {
         this.endDateTime = UtilsCalendar.DateTimeToTextOnline(getDateTime(end));
     }
 
-    public Training(String privateId, long start, long end, long time, long totalTime, double avgSpeed, double maxSpeed, HashMap<String, Double> speeds, double totalDistance) {
+    public Training(String privateId, long start, long end, long time, long totalTime, double avgSpeed, double maxSpeed, HashMap<String, SpeedAndLocation> speeds, List<Location> locations, double totalDistance) {
         this.start = start;
         this.end = end;
         this.privateId = privateId;
@@ -176,7 +185,7 @@ public class Training implements Serializable {
         this.endDateTime = UtilsCalendar.DateTimeToTextOnline(getDateTime(end));
     }
 
-    public Training(String privateId, LocalDateTime start, LocalDateTime end, long time, long totalTime, double avgSpeed, double maxSpeed, HashMap<String, Double> speeds, double totalDistance) {
+    public Training(String privateId, LocalDateTime start, LocalDateTime end, long time, long totalTime, double avgSpeed, double maxSpeed, HashMap<String, SpeedAndLocation> speeds, List<Location> locations, double totalDistance) {
         this.start = getMillis(start);
         this.end = getMillis(end);
         this.privateId = privateId;
@@ -196,6 +205,7 @@ public class Training implements Serializable {
         this.duration = getDurationFromTime(time);
         this.totalDuration = getDurationFromTime(totalTime);
 
+        this.locations = locations;
 
         this.startDate = UtilsCalendar.DateToTextOnline(start.toLocalDate());
         this.startTime = UtilsCalendar.TimeToText(start.toLocalTime());
@@ -431,11 +441,11 @@ public class Training implements Serializable {
         this.totalDistance = totalDistance;
     }
 
-    public HashMap<String, Double> getSpeeds() {
+    public HashMap<String, SpeedAndLocation> getSpeeds() {
         return speeds;
     }
 
-    public void setSpeeds(HashMap<String, Double> speeds) {
+    public void setSpeeds(HashMap<String, SpeedAndLocation> speeds) {
         this.speeds = speeds;
     }
 
@@ -527,5 +537,21 @@ public class Training implements Serializable {
 
     public void setDateTime(String dateTime) {
         this.dateTime = dateTime;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
+    public ArrayList<Location> getLocations() {
+        return (ArrayList<Location>) locations;
+    }
+
+    public void setLocations(List<Location> locations) {
+        this.locations = locations;
     }
 }

@@ -9,14 +9,14 @@
     style="@style/ThemeOverlay.AppCompat.Dark"
     android:background="@drawable/event_background"
     app:cardUseCompatPadding="true"
-    app:cardCornerRadius="10sp"
-    app:cardElevation="3sp"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="3dp"
     android:gravity="start">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="10sp">
+        android:padding="10dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/iv_profile_picture"
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
 
             android:text="Username"
-            android:layout_marginStart="10sp"
+            android:layout_marginStart="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/iv_profile_picture"
             app:layout_constraintTop_toTopOf="parent" />

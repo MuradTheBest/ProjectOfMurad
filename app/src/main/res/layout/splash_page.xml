@@ -37,7 +37,7 @@
 		android:gravity="center"
 		android:text="Welcome!"
 		android:textColor="@color/sign_up_color"
-		android:textSize="34sp"
+		android:textSize="34dp"
 		app:layout_constraintBottom_toBottomOf="@+id/ellipse_3"
 		app:layout_constraintEnd_toEndOf="@+id/ellipse_3"
 		app:layout_constraintStart_toStartOf="@+id/ellipse_3"
@@ -79,7 +79,7 @@
 				android:layout_marginTop="7dp"
 				android:text="G"
 				android:textColor="@color/username_color"
-				android:textSize="20sp" />
+				android:textSize="20dp" />
 
 			<TextView
 				android:id="@+id/e_1"
@@ -89,7 +89,7 @@
 				android:layout_marginTop="4dp"
 				android:text="e"
 				android:textColor="@color/username_color"
-				android:textSize="20sp" />
+				android:textSize="20dp" />
 
 			<TextView
 				android:id="@+id/t_1"
@@ -99,7 +99,7 @@
 				android:layout_marginTop="2dp"
 				android:text="t"
 				android:textColor="@color/username_color"
-				android:textSize="20sp" />
+				android:textSize="20dp" />
 
 			<TextView
 				android:id="@+id/__"
@@ -109,7 +109,7 @@
 				android:layout_marginTop="1dp"
 				android:text=" "
 				android:textColor="@color/username_color"
-				android:textSize="20sp" />
+				android:textSize="20dp" />
 
 			<TextView
 				android:id="@+id/s"
@@ -119,7 +119,7 @@
 				android:layout_marginTop="0dp"
 				android:text="S"
 				android:textColor="@color/username_color"
-				android:textSize="20sp" />
+				android:textSize="20dp" />
 
 			<TextView
 				android:id="@+id/t_2"
@@ -129,7 +129,7 @@
 				android:layout_marginTop="0dp"
 				android:text="t"
 				android:textColor="@color/username_color"
-				android:textSize="20sp" />
+				android:textSize="20dp" />
 
 			<TextView
 				android:id="@+id/a"
@@ -139,7 +139,7 @@
 				android:layout_marginTop="0dp"
 				android:text="a"
 				android:textColor="@color/username_color"
-				android:textSize="20sp" />
+				android:textSize="20dp" />
 
 			<TextView
 				android:id="@+id/r"
@@ -149,7 +149,7 @@
 				android:layout_marginTop="1dp"
 				android:text="r"
 				android:textColor="@color/username_color"
-				android:textSize="20sp" />
+				android:textSize="20dp" />
 
 			<TextView
 				android:id="@+id/t_3"
@@ -159,7 +159,7 @@
 				android:layout_marginTop="2dp"
 				android:text="t"
 				android:textColor="@color/username_color"
-				android:textSize="20sp" />
+				android:textSize="20dp" />
 
 			<TextView
 				android:id="@+id/e_2"
@@ -184,5 +184,28 @@
 		</RelativeLayout>
 
 	</RelativeLayout>
+
+	<Button
+		android:id="@+id/button2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="136dp"
+		android:onClick="goToGroupScreen"
+		android:text="Groups"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.498"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/ellipse_3" />
+
+	<Button
+		android:id="@+id/button3"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Button"
+		android:onClick="checkGroup"
+		app:layout_constraintBottom_toTopOf="@+id/group_10"
+		app:layout_constraintEnd_toEndOf="@+id/button2"
+		app:layout_constraintStart_toStartOf="@+id/button2"
+		app:layout_constraintTop_toBottomOf="@+id/button2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

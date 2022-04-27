@@ -14,7 +14,7 @@
         android:textAlignment="center"
         android:text=" 1 "
         android:textColor="@color/black"
-        android:textSize="15sp"
+        android:textSize="15dp"
         android:layout_margin="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -40,12 +40,12 @@
             android:gravity="start"
             android:text="Event 1"
             android:textColor="@color/black"
-            android:textSize="10sp"
+            android:textSize="10dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:minLines="1"
             android:layout_weight="1"
-            android:paddingHorizontal="2sp"
+            android:paddingHorizontal="2dp"
             android:background="@drawable/calendar_cell_text_has_events_background"
         />
 
@@ -57,12 +57,12 @@
             android:gravity="start"
             android:text="Event 2"
             android:textColor="@color/black"
-            android:textSize="10sp"
+            android:textSize="10dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:minLines="1"
             android:layout_weight="1"
-            android:paddingHorizontal="2sp"
+            android:paddingHorizontal="2dp"
             />
 
         <TextView
@@ -73,12 +73,12 @@
             android:gravity="start"
             android:text="Event 3"
             android:textColor="@color/black"
-            android:textSize="10sp"
+            android:textSize="10dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:minLines="1"
             android:layout_weight="1"
-            android:paddingHorizontal="2sp"
+            android:paddingHorizontal="2dp"
         />
 
         <TextView
@@ -89,12 +89,12 @@
             android:gravity="start"
             android:text="Event 4"
             android:textColor="@color/black"
-            android:textSize="10sp"
+            android:textSize="10dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:minLines="1"
             android:layout_weight="1"
-            android:paddingHorizontal="2sp"
+            android:paddingHorizontal="2dp"
          />
 
         <TextView
@@ -105,12 +105,12 @@
             android:gravity="start"
             android:text="Event 5"
             android:textColor="@color/black"
-            android:textSize="10sp"
+            android:textSize="10dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:minLines="1"
             android:layout_weight="1"
-            android:paddingHorizontal="2sp"
+            android:paddingHorizontal="2dp"
             />
 
         <TextView
@@ -118,9 +118,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:layout_marginTop="1sp"
+            android:layout_marginTop="1dp"
             android:text="+5 "
-            android:textSize="8sp"
+            android:textSize="8dp"
             android:textStyle="bold"
             android:textColor="@color/black"
             android:backgroundTint="@color/colorAccent"

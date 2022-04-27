@@ -2,7 +2,7 @@
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
     android:color="@color/gray"
     android:effectColor="@color/black"
-    android:radius="5sp">
+    android:radius="5dp">
 
     <item android:id="@android:id/mask"
         android:drawable="@android:color/background_dark" />

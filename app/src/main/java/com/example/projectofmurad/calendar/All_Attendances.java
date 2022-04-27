@@ -28,7 +28,7 @@ public class All_Attendances extends AppCompatActivity implements EventsAdapterF
 
         String selected_UID = gotten_intent.getStringExtra("selected_UID");
 
-        Query query = FirebaseUtils.allEventsDatabase.orderByChild("start");
+        Query query = FirebaseUtils.getAllEventsDatabase().orderByChild("start");
 
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

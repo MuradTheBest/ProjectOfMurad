@@ -21,7 +21,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.lifecycle.MutableLiveData;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -125,15 +126,11 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
     }
 
     public TabLayout tabLayout;
-    public TabLayoutMediator tabLayoutMediator;
     public MaterialToolbar toolbar;
 
     private CollapsingToolbarLayout collapsingToolbarLayout;
 
     public ConstraintLayout constraintLayout;
-
-    private MutableLiveData<Boolean> isNext_event_ready = new MutableLiveData<>();
-    private MutableLiveData<Boolean> isLast_event_ready = new MutableLiveData<>();
 
     private ViewPager2 vp_event;
 
@@ -158,9 +155,9 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
 
     private boolean expand;
 
-    private boolean onNextEventTab = false;
-
     private ActionBar actionBar;
+
+    private CoordinatorLayout coordinatorLayout;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -168,13 +165,22 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
+        coordinatorLayout = view.findViewById(R.id.coordinatorLayout);
+
+        mainViewModel.getScrollUp().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                coordinatorLayout.scrollTo(0, coordinatorLayout.getTop());
+            }
+        });
+
         AppBarLayout appBarLayout = view.findViewById(R.id.app_bar_layout);
 
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
 
-                if (onNextEventTab){
+                if (tabLayout.getSelectedTabPosition() == 1){
                     if (isVisible(tabLayout)){
                         fab_add_training.show();
                         fab_add_training2.hide();
@@ -185,14 +191,14 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
                     }
                 }
 
-                Log.d(Utils.LOG_TAG, "********************************************************************************************* ");
-                Log.d(Utils.LOG_TAG, "Math.abs(verticalOffset) + Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() = " + (Math.abs(verticalOffset) + Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange()));
-                Log.d(Utils.LOG_TAG, "Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() = " + (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange()));
-                Log.d(Utils.LOG_TAG, "Math.abs(verticalOffset) = " + Math.abs(verticalOffset));
-                Log.d(Utils.LOG_TAG, "appBarLayout.getTotalScrollRange() = " + appBarLayout.getTotalScrollRange());
-                Log.d(Utils.LOG_TAG, "tabLayout.getHeight() = " + tabLayout.getHeight());
-                Log.d(Utils.LOG_TAG, "collapsingToolbarLayout.getScrimVisibleHeightTrigger() = " + collapsingToolbarLayout.getScrimVisibleHeightTrigger());
-                Log.d(Utils.LOG_TAG, "********************************************************************************************* ");
+//                Log.d(Utils.LOG_TAG, "********************************************************************************************* ");
+//                Log.d(Utils.LOG_TAG, "Math.abs(verticalOffset) + Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() = " + (Math.abs(verticalOffset) + Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange()));
+//                Log.d(Utils.LOG_TAG, "Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() = " + (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange()));
+//                Log.d(Utils.LOG_TAG, "Math.abs(verticalOffset) = " + Math.abs(verticalOffset));
+//                Log.d(Utils.LOG_TAG, "appBarLayout.getTotalScrollRange() = " + appBarLayout.getTotalScrollRange());
+//                Log.d(Utils.LOG_TAG, "tabLayout.getHeight() = " + tabLayout.getHeight());
+//                Log.d(Utils.LOG_TAG, "collapsingToolbarLayout.getScrimVisibleHeightTrigger() = " + collapsingToolbarLayout.getScrimVisibleHeightTrigger());
+//                Log.d(Utils.LOG_TAG, "********************************************************************************************* ");
 
                 if (/*(Math.abs(verticalOffset) + Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange()) > collapsingToolbarLayout.getScrimVisibleHeightTrigger()*/
                     /*vp_event.getY() == tabLayout.getY()*/
@@ -203,7 +209,7 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
 
                 }
                 else {
-                    Log.d(Utils.LOG_TAG, "show text" + tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText());
+//                    Log.d(Utils.LOG_TAG, "show text" + tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText());
 
 //                    toolbar.setTitle(tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText());
 
@@ -215,7 +221,6 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
         });
 
         toolbar = view.findViewById(R.id.toolbar);
-//        ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) requireActivity()).getSupportActionBar();
 
 
@@ -234,27 +239,21 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
 
         vp_event = view.findViewById(R.id.vp_event);
 
-        isNext_event_ready.setValue(false);
-        isLast_event_ready.setValue(false);
-
-        Query queryLast = FirebaseUtils.allEventsDatabase.orderByChild("end").endAt(Calendar.getInstance().getTimeInMillis()).limitToLast(1);
-        Query queryNext = FirebaseUtils.allEventsDatabase.orderByChild("end").startAt(Calendar.getInstance().getTimeInMillis()).limitToFirst(1);
+        Query queryLast = FirebaseUtils.getAllEventsDatabase().orderByChild("end").endAt(Calendar.getInstance().getTimeInMillis()).limitToLast(1);
+        Log.d(Utils.LOG_TAG, queryLast.getRef().toString());
+        Query queryNext = FirebaseUtils.getAllEventsDatabase().orderByChild("end").startAt(Calendar.getInstance().getTimeInMillis()).limitToFirst(1);
 
         queryLast.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot data : snapshot.getChildren()){
-
-                    mainViewModel.getLastEvent().setValue(data.getValue(CalendarEvent.class));
-
-                    Log.d(Utils.LOG_TAG, "last event is" + mainViewModel.getLastEvent().getValue().toString());
-
-                    isLast_event_ready.setValue(true);
-                }
-
-                if (!snapshot.hasChildren() && snapshot.exists()){
+                if (!snapshot.exists() || !snapshot.hasChildren()){
                     mainViewModel.getLastEvent().setValue(null);
-                    isLast_event_ready.setValue(true);
+                    Log.d(Utils.LOG_TAG, "last event is null");
+                    return;
+                }
+                for (DataSnapshot data : snapshot.getChildren()){
+                    mainViewModel.getLastEvent().setValue(data.getValue(CalendarEvent.class));
+                    Log.d(Utils.LOG_TAG, "last event is" + mainViewModel.getLastEvent().getValue().toString());
                 }
             }
 
@@ -265,15 +264,14 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
         queryNext.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists() || !snapshot.hasChildren()){
+                    mainViewModel.getNextEvent().setValue(null);
+                    Log.d(Utils.LOG_TAG, "next event is null");
+                    return;
+                }
                 for (DataSnapshot data : snapshot.getChildren()){
                     mainViewModel.getNextEvent().setValue(data.getValue(CalendarEvent.class));
                     Log.d(Utils.LOG_TAG,"next event is" +  mainViewModel.getNextEvent().getValue().toString());
-                    isNext_event_ready.setValue(true);
-                }
-
-                if (!snapshot.hasChildren() && snapshot.exists()){
-                    mainViewModel.getNextEvent().setValue(null);
-                    isNext_event_ready.setValue(true);
                 }
             }
 
@@ -281,21 +279,17 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
             public void onCancelled(@NonNull DatabaseError error) {}
         });
 
-        mainViewModel.getNextEvent().observe(getViewLifecycleOwner(), event -> isNext_event_ready.setValue(true));
+        mainViewModel.getNextEvent().observe(getViewLifecycleOwner(), event -> mainViewModel.addReady());
 
-        mainViewModel.getLastEvent().observe(getViewLifecycleOwner(), event -> isLast_event_ready.setValue(true));
+        mainViewModel.getLastEvent().observe(getViewLifecycleOwner(), event -> mainViewModel.addReady());
 
-        isNext_event_ready.observe(getViewLifecycleOwner(), aBoolean -> {
-            if (isLast_event_ready.getValue()){
-                setPagerAdapter();
-            }
-        });
-
-        isLast_event_ready.observe(getViewLifecycleOwner(), aBoolean -> {
-            if (isNext_event_ready.getValue()){
-                setPagerAdapter();
-            }
-        });
+        mainViewModel.getReady().observe(getViewLifecycleOwner(),
+                integer -> {
+                    Log.d("home", "getReady = " + integer);
+                    if (integer == 2){
+                        setPagerAdapter();
+                    }
+                });
 
         tabLayout = view.findViewById(R.id.tabLayout);
 
@@ -303,12 +297,11 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
         fab_add_training.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                bottomNavigationView.setSelectedItemId(R.id.tracking_Fragment);
-                ((MainActivity) requireActivity()).moveToTrackingFragment();
                 TrackingService.trainingType.setValue(TrackingService.GROUP_TRAINING);
 
                 CalendarEvent event = mainViewModel.getNextEvent().getValue();
                 TrackingService.eventPrivateId.setValue(event.getPrivateId());
+                ((MainActivity) requireActivity()).moveToTrackingFragment();
             }
         });
 
@@ -350,9 +343,8 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
         fab_add_private_training2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                bottomNavigationView.setSelectedItemId(R.id.tracking_Fragment);
-                ((MainActivity) requireActivity()).moveToTrackingFragment();
                 TrackingService.trainingType.setValue(TrackingService.PRIVATE_TRAINING);
+                ((MainActivity) requireActivity()).moveToTrackingFragment();
             }
         });
 
@@ -360,9 +352,8 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
         fab_add_group_training2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                bottomNavigationView.setSelectedItemId(R.id.tracking_Fragment);
-                ((MainActivity) requireActivity()).moveToTrackingFragment();
                 TrackingService.trainingType.setValue(TrackingService.GROUP_TRAINING);
+                ((MainActivity) requireActivity()).moveToTrackingFragment();
             }
         });
 
@@ -421,6 +412,8 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
     }
 
     private void setPagerAdapter() {
+        mainViewModel.resetReady();
+
         progressBar.setVisibility(View.GONE);
 
         EventSlidePageAdapter pagerAdapter = new EventSlidePageAdapter(this,
@@ -429,7 +422,6 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
         vp_event.setAdapter(pagerAdapter);
         vp_event.setPageTransformer(new ZoomOutPageTransformer());
 
-        vp_event.setCurrentItem(1, false);
         vp_event.setNestedScrollingEnabled(true);
 
         vp_event.setUserInputEnabled(false);
@@ -449,9 +441,8 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                if (tab.getText().toString().equals("Last event")){
+                if (tab.getPosition() == 0){
                     Log.d(Utils.LOG_TAG, "on last event tab");
-                    onNextEventTab = false;
 
                     fab_add_training.setVisibility(View.GONE);
                     fab_add_training2.setVisibility(View.GONE);
@@ -461,8 +452,7 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
                         menu.findItem(R.id.to_next_event).setIcon(R.drawable.ic_baseline_arrow_back_24_180_degrees);
                     }
                 }
-                else if (tab.getText().toString().equals("Next event")){
-                    onNextEventTab = true;
+                else if (tab.getPosition() == 1){
 
                     fab_add_training.setVisibility(View.VISIBLE);
                     fab_add_training2.setVisibility(View.VISIBLE);
@@ -492,5 +482,8 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
             }
         });
 
+        vp_event.setCurrentItem(1, false);
+        tabLayout.selectTab(tabLayout.getTabAt(1));
     }
+
 }

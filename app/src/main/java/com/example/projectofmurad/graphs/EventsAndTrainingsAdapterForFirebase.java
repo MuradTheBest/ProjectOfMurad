@@ -6,15 +6,11 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.transition.AutoTransition;
-import android.transition.ChangeBounds;
-import android.transition.Slide;
-import android.transition.TransitionManager;
+import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
@@ -24,7 +20,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
@@ -166,34 +161,15 @@ public class EventsAndTrainingsAdapterForFirebase extends FirebaseRecyclerAdapte
             }
         }
 
-        public void animateConstraintLayout(ConstraintLayout constraintLayout, @NonNull ConstraintSet set,
-                                            long duration, int direction) {
-            AutoTransition trans = new AutoTransition();
-            trans.setDuration(duration);
-            trans.setInterpolator(new AccelerateDecelerateInterpolator());
-            //trans.setInterpolator(new DecelerateInterpolator());
-            //trans.setInterpolator(new FastOutSlowInInterpolator());
-
-            Slide slide = new Slide(direction);
-//            slide.setInterpolator(new AccelerateDecelerateInterpolator());
-
-            slide.setDuration(500);
-
-            ChangeBounds changeBounds = new ChangeBounds();
-            changeBounds.setDuration(300);
-            changeBounds.setInterpolator(new AccelerateDecelerateInterpolator());
-
-            TransitionManager.beginDelayedTransition(constraintLayout, changeBounds);
-
-            set.applyTo(constraintLayout);
-        }
-
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if(buttonView == checkbox_all_attendances){
-                FirebaseUtils.attendanceDatabase.child(getItem(getBindingAdapterPosition()).getPrivateId())
-                        .child(FirebaseUtils.getCurrentUID()).child("attend").setValue(isChecked);
-                Toast.makeText(context, "Attendance " + (isChecked ? "approved" : "disapproved"), Toast.LENGTH_SHORT).show();
+                if (getAbsoluteAdapterPosition() > -1 && getAbsoluteAdapterPosition() < getItemCount()) {
+                    Log.d(Utils.LOG_TAG, "getAbsoluteAdapterPosition() = " + getAbsoluteAdapterPosition());
+                    FirebaseUtils.getAttendanceDatabase().child(getItem(getAbsoluteAdapterPosition()).getPrivateId())
+                            .child(FirebaseUtils.getCurrentUID()).child("attend").setValue(isChecked);
+                    Toast.makeText(context, "Attendance " + (isChecked ? "approved" : "disapproved"), Toast.LENGTH_SHORT).show();
+                }
             }
         }
 
@@ -204,7 +180,17 @@ public class EventsAndTrainingsAdapterForFirebase extends FirebaseRecyclerAdapte
         Log.d("murad", "RECYCLING STARTED");
         String info = "";
 
-//        holder.iv_circle.getDrawable().setTint(model.getColor());
+        int textColor = Utils.getContrastColor(model.getColor());
+
+        int gradientColor = Utils.getContrastBackgroundColor(textColor);
+
+        GradientDrawable gd = new GradientDrawable(
+                GradientDrawable.Orientation.TL_BR,
+                new int[] {model.getColor(), model.getColor(), gradientColor});
+
+        gd.setShape(GradientDrawable.RECTANGLE);
+
+        holder.constraintLayout.setBackground(gd);
 
         holder.tv_event_name.setText(model.getName());
         Log.d("murad","name: " + model.getName());
@@ -242,7 +228,7 @@ public class EventsAndTrainingsAdapterForFirebase extends FirebaseRecyclerAdapte
         }
 
         if (selected_UID != null){
-            DatabaseReference ref = FirebaseUtils.attendanceDatabase.child(event_private_id).child(selected_UID).child("attend");
+            DatabaseReference ref = FirebaseUtils.getAttendanceDatabase().child(event_private_id).child(selected_UID).child("attend");
 
             final boolean[] attend = {false};
 
@@ -304,6 +290,12 @@ public class EventsAndTrainingsAdapterForFirebase extends FirebaseRecyclerAdapte
                     }
                 });
 
+        holder.tv_event_name.setTextColor(textColor);
+        holder.tv_event_place.setTextColor(textColor);
+        holder.tv_event_description.setTextColor(textColor);
+        holder.tv_event_start_date_time.setTextColor(textColor);
+        holder.tv_event_end_date_time.setTextColor(textColor);
+
     }
 
     @NonNull
@@ -326,5 +318,16 @@ public class EventsAndTrainingsAdapterForFirebase extends FirebaseRecyclerAdapte
     @Override
     public int getItemCount() {
         return getSnapshots().size();
+    }
+
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 }

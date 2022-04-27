@@ -91,7 +91,7 @@ public class TrackingService extends LifecycleService {
     public static MutableLiveData<Long> totalTimeData = new MutableLiveData<>(0L);
 
     public static MutableLiveData<Double> avgSpeedData = new MutableLiveData<>(0D);
-    public static MutableLiveData<HashMap<String, Double>> speedsData = new MutableLiveData<>(new HashMap<>());
+    public static MutableLiveData<HashMap<String, SpeedAndLocation>> speedsData = new MutableLiveData<>(new HashMap<>());
     public static MutableLiveData<Double> maxSpeedData = new MutableLiveData<>(0D);
 
     public static MutableLiveData<String> avgPaceData = new MutableLiveData<>("--'--" + '"' + "/km");
@@ -478,16 +478,21 @@ public class TrackingService extends LifecycleService {
         long totalTime = totalTimeData.getValue();
 
         double speed = avgSpeedData.getValue();
-        HashMap<String, Double> speeds = speedsData.getValue();
+        HashMap<String, SpeedAndLocation> speeds = speedsData.getValue();
         double maxSpeed = maxSpeedData.getValue();
 
         double totalDistance = totalDistanceData.getValue();
 
         Log.d("murad", speeds.toString());
 
+        List<LatLng> latLngs = locationsData.getValue();
+
+        List<com.example.projectofmurad.tracking.Location> locations = new ArrayList<>();
+
+        latLngs.forEach(latLng -> locations.add(com.example.projectofmurad.tracking.Location.fromLatLng(latLng)));
 
 //        Training trainingData = new Training(trainingId, start, end, timeData, totalTimeData, speed, maxSpeedData, speedsData, totalDistanceData);
-        Training training = new Training(trainingId, startDateTime, endDateTime, time, totalTime, speed, maxSpeed, speeds, totalDistance);
+        Training training = new Training(trainingId, startDateTime, endDateTime, time, totalTime, speed, maxSpeed, speeds, locations, totalDistance);
         Log.d("tracking", training.toString());
 
         trainingData.setValue(training);
@@ -523,8 +528,10 @@ public class TrackingService extends LifecycleService {
         totalDistanceData.setValue(Utils.round(totalDistanceData.getValue() + distance, 3));
 
         avgSpeedData.setValue(Utils.round(totalDistanceData.getValue()/hours, 3));
-        HashMap<String, Double> addedSpeeds = speedsData.getValue();
-        addedSpeeds.put(timeData.getValue() + " sec", avgSpeedData.getValue());
+        HashMap<String, SpeedAndLocation> addedSpeeds = speedsData.getValue();
+        addedSpeeds.put(timeData.getValue() + " sec",
+                new SpeedAndLocation(avgSpeedData.getValue(), current.latitude, current.longitude));
+
         speedsData.setValue(addedSpeeds);
 
         maxSpeedData.setValue(Math.max(avgSpeedData.getValue(), maxSpeedData.getValue()));

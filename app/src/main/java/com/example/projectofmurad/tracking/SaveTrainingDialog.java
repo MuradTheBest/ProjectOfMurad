@@ -27,11 +27,11 @@ public class SaveTrainingDialog extends Dialog implements CompoundButton.OnCheck
     private LinearLayout ll_private_training;
     private LinearLayout ll_group_training;
 
-    private Training training;
+    private final Training training;
 
-    private Context context;
+    private final Context context;
 
-    private OnAddTrainingListener onAddTrainingListener;
+    private final OnAddTrainingListener onAddTrainingListener;
 
     public SaveTrainingDialog(@NonNull Context context, Training training, OnAddTrainingListener onAddTrainingListener) {
         super(context);

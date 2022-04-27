@@ -1,9 +1,8 @@
 package com.example.projectofmurad.calendar;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,6 +23,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
@@ -33,8 +33,8 @@ import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.MainViewModel;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.SuperUserTraining;
-import com.example.projectofmurad.UserAndTraining;
+import com.example.projectofmurad.Show;
+import com.example.projectofmurad.TrainingsAdapterForFirebase;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.RVOnItemTouchListenerForVP2;
@@ -42,8 +42,6 @@ import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.helpers.ViewAnimationUtils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
 import com.example.projectofmurad.notifications.FCMSend;
-import com.example.projectofmurad.training.Training;
-import com.example.projectofmurad.training.TrainingAdapterForFirebase;
 import com.example.projectofmurad.training.TrainingsAdapter;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -61,22 +59,22 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * A simple {@link androidx.fragment.app.Fragment} subclass.
  * Use the {@link Event_Info_DialogFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Event_Info_DialogFragment extends DialogFragment implements UsersAdapterForFirebase.OnUserExpandListener,
+public class Event_Info_DialogFragment extends DialogFragment implements
+        UsersAdapterForFirebase.OnUserExpandListener,
         UsersAdapterForFirebase.OnUserClickListener,
         View.OnClickListener, CompoundButton.OnCheckedChangeListener,
-        TrainingsAdapter.OnTrainingClickListener {
+        TrainingsAdapter.OnTrainingClickListener,
+        TrainingsAdapterForFirebase.OnShowToOthersListener {
 
     public static final String ARG_IS_SHOWS_DIALOG = "isShowsDialog";
 
     public static final String TAG = "event_info_dialog_fragment";
-
 
     private CalendarEvent event;
     private boolean isShowsDialog;
@@ -84,6 +82,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
     private RecyclerView rv_users;
 
     private ShimmerFrameLayout shimmer_rv_users;
+    private ShimmerFrameLayout shimmer_vp_user_and_training;
 
     public Event_Info_DialogFragment() {
         // Required empty public constructor
@@ -165,7 +164,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
     private int currentUserPosition = -1;
 
-    private TextView tv_there_is_no_event;
+    private SwitchCompat switch_only_attend;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -175,6 +174,19 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
         rv_users = view.findViewById(R.id.rv_users_home_fragment);
         shimmer_rv_users = view.findViewById(R.id.shimmer_rv_users_home_fragment);
+
+        rv_users.addOnItemTouchListener(new RVOnItemTouchListenerForVP2(rv_users,
+                MainViewModel.getToSwipeViewModelForTrainings()));
+
+        rv_users.addRecyclerListener(new RecyclerView.RecyclerListener() {
+            @Override
+            public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+                ((UsersAdapterForFirebase.UserViewHolderForFirebase) holder).ll_contact.setVisibility(View.GONE);
+                ((UsersAdapterForFirebase.UserViewHolderForFirebase) holder).expanded = false;
+            }
+        });
+
+        shimmer_vp_user_and_training = view.findViewById(R.id.shimmer_vp_user_and_training);
 
         cv_event = view.findViewById(R.id.cv_event);
         tv_there_are_no_upcoming_events = view.findViewById(R.id.tv_there_are_no_upcoming_events);
@@ -214,26 +226,23 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
             btn_share_event.setOnClickListener(this);
             btn_delete_event.setOnClickListener(this);
         }
-        else {
 
-        }
-
-        tv_there_is_no_event = view.findViewById(R.id.tv_there_is_no_event);
+        switch_only_attend = view.findViewById(R.id.switch_only_attend);
+        switch_only_attend.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked){
+                setUpOnlyAttendUsersRecyclerView();
+            }
+            else {
+                setUpAllUsersRecyclerView();
+            }
+        });
 
         if (event != null){
             setUpEventData(event);
         }
-        else {
-
-        }
-
     }
 
     public void setUpEventData(@NonNull CalendarEvent event){
-
-        ColorDrawable colorDrawable = new ColorDrawable(event.getColor());
-
-//        cl_event.setBackground(colorDrawable);
 
         tv_event_name.setText(event.getName());
         Log.d("murad","name: " + event.getName());
@@ -255,7 +264,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
         int textColor = Utils.getContrastColor(event.getColor());
 
-        int gradientColor = (textColor == Color.WHITE) ? Color.LTGRAY : Color.DKGRAY;
+        int gradientColor = Utils.getContrastBackgroundColor(textColor);
 
         GradientDrawable gd = new GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
@@ -263,7 +272,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
 //        gd.setShape(GradientDrawable.RECTANGLE);
 
-        gd.setCornerRadius(20);
+        gd.setCornerRadius(Utils.dpToPx(10, requireContext()));
 
         cv_event.setBackground(gd);
 
@@ -303,111 +312,73 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
         checkIfAlarmSet(event_private_id);
 
-        shimmer_rv_users.startShimmer();
+//        shimmer_rv_users.startShimmer();
 
+        setUpAllUsersRecyclerView();
 
-//        Query users = FirebaseUtils.usersDatabase.orderByChild("madrich");
-        Query users = FirebaseUtils.usersDatabase.orderByValue();
-//        Query users = FirebaseUtils.usersDatabase.orderByChild("madrich").startAt(true);
-
-        FirebaseRecyclerOptions<UserData> userOptions
-                = new FirebaseRecyclerOptions.Builder<UserData>()
-                .setQuery(users, UserData.class)
-                .setLifecycleOwner(this)
-                .build();
-
-        UsersAdapterForFirebase userAdapter = new UsersAdapterForFirebase(userOptions, requireContext(),
-                event.getPrivateId(), event.getColor(), this, this);
-
-        rv_users.setAdapter(userAdapter);
-
-        rv_users.setLayoutManager(new LinearLayoutManagerWrapper(requireContext()));
-
-        rv_users.addOnItemTouchListener(new RVOnItemTouchListenerForVP2(rv_users,
-                MainViewModel.getToSwipeViewModelForTrainings()));
-
-        Handler handler = new Handler();
+/*        Handler handler = new Handler();
         handler.postDelayed(() -> {
             rv_users.setVisibility(View.VISIBLE);
             shimmer_rv_users.stopShimmer();
             shimmer_rv_users.setVisibility(View.GONE);
-        }, 1000);
+        }, 1000);*/
 
-        Query usersAndTrainingsKeys = FirebaseUtils.trainingsDatabase.child("Events").child(event_private_id);
-        HashMap<String, ArrayList<Training>> map = new HashMap<>();
+        Query usersAndTrainings = FirebaseUtils.getTrainingsDatabase().child("Events").child(event_private_id)/*.orderByChild("show").equalTo(true)*/;
 
-        usersAndTrainingsKeys.addValueEventListener(new ValueEventListener() {
+
+        MutableLiveData<ArrayList<String>> userKeys = new MutableLiveData<>();
+
+        userKeys.observe(this, this::initializeTrainingsFirebaseViewPager2);
+
+        usersAndTrainings.addValueEventListener(new ValueEventListener() {
+
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                ArrayList<UserAndTraining> userAndTrainingArrayList = new ArrayList<>();
-
-                int i = 0;
+                ArrayList<String> UIDs = new ArrayList<>();
                 for (DataSnapshot user : snapshot.getChildren()){
-                    ArrayList<Training> trainings = new ArrayList<>();
-                    map.put(user.getKey(), trainings);
 
+                    Log.d(Utils.LOG_TAG, "user.getKey()" + user.getKey());
+                    Log.d(Utils.LOG_TAG, "user.child(show).toString()" + user.child("show"));
+
+                    boolean visible = user.hasChild("show") && (user.child("show").getValue(int.class) >= Show.Madrich.getValue());
                     if (FirebaseUtils.isCurrentUID(user.getKey())){
-                        currentUserPosition = i;
+                        currentUserPosition = UIDs.indexOf(user.getKey());
+                        visible = true;
                     }
 
-                    ArrayList<Training> trainingArrayList = new ArrayList<>();
-
-                    for (DataSnapshot training : user.getChildren()){
-                        Training t = training.getValue(Training.class);
-
-                        map.get(user.getKey()).add(t);
-
-                        trainingArrayList.add(t);
+                    if (visible){
+                        UIDs.add(user.getKey());
                     }
-
-//                    UserAndTraining userAndTraining = new UserAndTraining(user.getKey(), trainingArrayList);
-                    UserAndTraining userAndTraining = new UserAndTraining(user.getKey(), event_private_id, trainingArrayList);
-
-                    userAndTrainingArrayList.add(userAndTraining);
-                    i++;
                 }
-
-                if (getContext() != null){
-                    TrainingsAdapter trainingsAdapter = new TrainingsAdapter(requireContext(), userAndTrainingArrayList, event.getColor(), Event_Info_DialogFragment.this);
-
-                    Log.d("murad", map.toString());
-
-                    initializeTrainingViewPager2(trainingsAdapter);
-                }
-
-                }
+                userKeys.setValue(UIDs);
+/*                FirebaseUtils.getCurrentUserTrainingsForEvent(event_private_id).observe(Event_Info_DialogFragment.this,
+                        new Observer<ArrayList<Training>>() {
+                            @Override
+                            public void onChanged(ArrayList<Training> trainings) {
+                                if (trainings != null && !trainings.isEmpty()) {
+                                    ArrayList<String> users = userKeys.getValue();
+                                    if (!users.contains(FirebaseUtils.getCurrentUID())) {
+                                        users.add(0, FirebaseUtils.getCurrentUID());
+                                    }
+                                    userKeys.setValue(users);
+                                }
+                            }
+                        });*/
+            }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
 
-
-        Query usersAndTrainingsData = FirebaseUtils.allEventsDatabase.child(event_private_id).child("Users");
-
-        Log.d("murad", "usersAndTrainingsKeys is " + usersAndTrainingsKeys.getRef().getKey());
-
-        FirebaseRecyclerOptions<SuperUserTraining> userAndTrainingOptions
-                = new FirebaseRecyclerOptions.Builder<SuperUserTraining>()
-                .setQuery(usersAndTrainingsKeys, SuperUserTraining.class)
-                .setLifecycleOwner(this)
-                .build();
-
-        /*PagingConfig pagingConfig = new PagingConfig(1);
-
-        DatabasePagingOptions<UserAndTraining> databasePagingOptions = new DatabasePagingOptions.Builder<UserAndTraining>()
-                .setQuery(usersAndTrainingsKeys, pagingConfig, UserAndTraining.class)
-                .setLifecycleOwner(this)
-                .build();*/
-
-
-        TrainingAdapterForFirebase trainingAdapterForFirebase = new TrainingAdapterForFirebase(userAndTrainingOptions);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    public void initializeTrainingsFirebaseViewPager2(ArrayList<String> UIDs){
 
-    public void initializeTrainingViewPager2(TrainingsAdapter trainingsAdapter){
+        TrainingsAdapterForFirebase trainingsAdapterForFirebase = new TrainingsAdapterForFirebase(requireContext(), UIDs,
+                event.getPrivateId(), event.getColor(), this);
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
 
@@ -418,6 +389,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
             requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         }
         int width = displayMetrics.widthPixels;
+
         vp_trainings.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -431,8 +403,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
             }
         });
 
-
-        vp_trainings.setAdapter(trainingsAdapter);
+        vp_trainings.setAdapter(trainingsAdapterForFirebase);
         vp_trainings.setClipToPadding(false);
         vp_trainings.setClipChildren(false);
         vp_trainings.setOffscreenPageLimit(3);
@@ -458,10 +429,61 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
         vp_trainings.setPageTransformer(compositePageTransformer);
 
         Toast.makeText(getContext(), "vp_trainings.getChildCount() = " + vp_trainings.getChildCount(), Toast.LENGTH_SHORT).show();
-        Toast.makeText(requireContext(), "trainingsAdapter.getItemCount() = " + trainingsAdapter.getItemCount(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), "trainingsAdapter.getItemCount() = " + trainingsAdapterForFirebase.getItemCount(), Toast.LENGTH_SHORT).show();
 
-        if (currentUserPosition > -1) vp_trainings.setCurrentItem(currentUserPosition, true);
+        if (currentUserPosition > -1)
+            vp_trainings.setCurrentItem(currentUserPosition, true);
 
+    }
+
+    public void setUpAllUsersRecyclerView(){
+        startRVUsersShimmer();
+
+        Log.d(Utils.LOG_TAG,"shimmer_rv_users visibility is " + shimmer_rv_users.isShimmerVisible());
+
+//        Query users = FirebaseUtils.usersDatabase.orderByChild("madrich");
+        Query users = FirebaseUtils.usersDatabase.orderByValue();
+//        Query users = FirebaseUtils.usersDatabase.orderByChild("madrich").startAt(true);
+
+        FirebaseRecyclerOptions<UserData> userOptions
+                = new FirebaseRecyclerOptions.Builder<UserData>()
+                .setQuery(users, UserData.class)
+                .setLifecycleOwner(this)
+                .build();
+
+        UsersAdapterForFirebase userAdapter = new UsersAdapterForFirebase(userOptions, requireContext(),
+                event.getPrivateId(), event.getColor(), this, this);
+
+        rv_users.setAdapter(userAdapter);
+        LinearLayoutManagerWrapper linearLayoutManagerWrapper = new LinearLayoutManagerWrapper(requireContext());
+        linearLayoutManagerWrapper.addOnLayoutCompleteListener(()
+                -> new Handler().postDelayed(this::stopRVUsersShimmer, 500));
+        rv_users.setLayoutManager(linearLayoutManagerWrapper);
+    }
+
+    public void setUpOnlyAttendUsersRecyclerView(){
+        startRVUsersShimmer();
+
+        Log.d(Utils.LOG_TAG,"shimmer_rv_users visibility is " + shimmer_rv_users.isShimmerVisible());
+
+        Query usersKeys = FirebaseUtils.getAttendanceDatabase().child(event.getPrivateId()).orderByChild("attend").equalTo(true);
+        DatabaseReference users = FirebaseUtils.usersDatabase;
+//        Query users = FirebaseUtils.usersDatabase.orderByChild("madrich").startAt(true);
+
+        FirebaseRecyclerOptions<UserData> userOptions
+                = new FirebaseRecyclerOptions.Builder<UserData>()
+                .setIndexedQuery(usersKeys, users, UserData.class)
+                .setLifecycleOwner(this)
+                .build();
+
+        UsersAdapterForFirebase userAdapter = new UsersAdapterForFirebase(userOptions, requireContext(),
+                event.getPrivateId(), event.getColor(), this, this);
+
+        rv_users.setAdapter(userAdapter);
+        LinearLayoutManagerWrapper linearLayoutManagerWrapper = new LinearLayoutManagerWrapper(requireContext());
+        linearLayoutManagerWrapper.addOnLayoutCompleteListener(()
+                -> new Handler().postDelayed(this::stopRVUsersShimmer, 500));
+        rv_users.setLayoutManager(linearLayoutManagerWrapper);
     }
 
     @Override
@@ -570,7 +592,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
     }
 
     private void getEventData(OnGetEventDataListener onGetEventDataListener){
-        FirebaseUtils.allEventsDatabase.child(event.getChainId()).get().addOnCompleteListener(
+        FirebaseUtils.getAllEventsDatabase().child(event.getChainId()).get().addOnCompleteListener(
                 new OnCompleteListener<DataSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DataSnapshot> task) {
@@ -589,6 +611,48 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
 
     public void checkIfAlarmSet(String event_private_id){
 
+    }
+
+    public void startRVUsersShimmer(){
+        rv_users.setVisibility(View.INVISIBLE);
+        shimmer_rv_users.setVisibility(View.VISIBLE);
+        shimmer_rv_users.startShimmer();
+    }
+
+    public void stopRVUsersShimmer(){
+        shimmer_rv_users.stopShimmer();
+        Log.d(Utils.LOG_TAG,"shimmer_rv_users visibility is " + shimmer_rv_users.isShimmerVisible());
+        shimmer_rv_users.setVisibility(View.GONE);
+        rv_users.setVisibility(View.VISIBLE);
+    }
+
+    public void startVPTrainingsShimmer(){
+        vp_trainings.setVisibility(View.INVISIBLE);
+        shimmer_vp_user_and_training.setVisibility(View.VISIBLE);
+        shimmer_vp_user_and_training.startShimmer();
+
+        new Handler().postDelayed(this::stopVPTrainingsShimmer, 500);
+    }
+
+    public void stopVPTrainingsShimmer(){
+        shimmer_vp_user_and_training.stopShimmer();
+        shimmer_vp_user_and_training.setVisibility(View.GONE);
+        vp_trainings.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onShowToOthers(int toWho) {
+        FirebaseUtils.getCurrentUserTrainingsRefForEvent(event.getPrivateId()).getParent()
+                .child("show").setValue(toWho).addOnSuccessListener(
+                        task -> Toast.makeText(requireContext(),
+                                "Now your results are visible to " +
+                                        ((toWho == 2) ? "everyone"
+                                                : (toWho == 1) ? "madrichs only"
+                                                : "no one"), Toast.LENGTH_SHORT).show());
+
+        startVPTrainingsShimmer();
+
+        Log.d("home", "starting shimmer");
     }
 
     public interface OnGetEventDataListener{
@@ -630,7 +694,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
     }
 
     public void deleteSingleEvent(@NonNull String private_key, OnDeleteFinishedCallback onDeleteFinishedCallback){
-        DatabaseReference allEventsDatabase = FirebaseUtils.allEventsDatabase;
+        DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
 
         deletingProgressDialog = new ProgressDialog(requireContext());
 
@@ -653,7 +717,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
             }
         });
 
-        DatabaseReference eventsDatabaseReference = FirebaseUtils.eventsDatabase;
+        DatabaseReference eventsDatabaseReference = FirebaseUtils.getEventsDatabase();
 
         eventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -690,7 +754,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
     }
 
     public void deleteAllEventsInChain(String chain_key, OnDeleteFinishedCallback onDeleteFinishedCallback){
-        DatabaseReference allEventsDatabase = FirebaseUtils.allEventsDatabase;
+        DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
 
         deletingProgressDialog = new ProgressDialog(requireContext());
 
@@ -716,7 +780,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
             }
         });
 
-        DatabaseReference eventsDatabaseReference = FirebaseUtils.eventsDatabase;
+        DatabaseReference eventsDatabaseReference = FirebaseUtils.getEventsDatabase();
 
         eventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -777,7 +841,7 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
     }
 
     public void copySingleEvent(@NonNull CalendarEvent event){
-        String private_key = "Event" + FirebaseUtils.allEventsDatabase.push().getKey();
+        String private_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
 
         event.setPrivateId(private_key);
         event.setChainId(private_key);
@@ -795,8 +859,8 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
     }
 
     public void copyAllEventsInChain(@NonNull CalendarEvent event){
-        String private_key = "Event" + FirebaseUtils.allEventsDatabase.push().getKey();
-        String chain_key = "Event" + FirebaseUtils.allEventsDatabase.push().getKey();
+        String private_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
+        String chain_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
 
         getEventData(() -> {
             event.setPrivateId(private_key);
@@ -828,4 +892,6 @@ public class Event_Info_DialogFragment extends DialogFragment implements UsersAd
             vp_trainings.setCurrentItem(0, true);
         }*/
     }
+
+
 }

@@ -3,15 +3,16 @@ package com.example.projectofmurad.training;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -89,13 +90,19 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
 
         int textColor = Utils.getContrastColor(color);
 
-        int gradientColor = (textColor == Color.WHITE) ? Color.LTGRAY : Color.DKGRAY;
+        int gradientColor = Utils.getContrastBackgroundColor(textColor);
 
         GradientDrawable gd = new GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
                 new int[] {color, color, gradientColor});
 
         gd.setShape(GradientDrawable.RECTANGLE);
+
+        if (FirebaseUtils.isCurrentUID(userAndTrainingArrayList.get(position).getUID())){
+            gd.setStroke(Utils.dpToPx(4, context), context.getColor(R.color.colorAccent));
+        }
+
+        gd.setCornerRadius(Utils.dpToPx(15, context));
 
         holder.constraintLayout.setBackground(gd);
 
@@ -119,7 +126,7 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
 
         String eventPrivateId = userAndTrainingArrayList.get(position).getEventPrivateId();
 
-        FirebaseUtils.trainingsDatabase.child("Events").child(eventPrivateId).child(UID).addValueEventListener(
+        FirebaseUtils.getTrainingsDatabase().child("Events").child(eventPrivateId).child(UID).addValueEventListener(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -354,7 +361,8 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
         return userAndTrainingArrayList.size();
     }
 
-    public static class TrainingsViewHolder extends RecyclerView.ViewHolder {
+    public static class TrainingsViewHolder extends RecyclerView.ViewHolder implements
+            CompoundButton.OnCheckedChangeListener {
 
         private final ConstraintLayout constraintLayout;
 
@@ -362,6 +370,8 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
         private final RecyclerView rv_training;
 
         private final BarChart bc_average_speed;
+
+        private final SwitchCompat switch_visible_to_other_users;
 
         public TrainingsViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -372,9 +382,16 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
             rv_training = itemView.findViewById(R.id.rv_training);
 
             bc_average_speed = itemView.findViewById(R.id.bc_average_speed);
+
+            switch_visible_to_other_users= itemView.findViewById(R.id.switch_visible_to_all_users);
+            switch_visible_to_other_users.setOnCheckedChangeListener(this);
         }
 
 
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+        }
     }
 
     public interface OnTrainingClickListener{

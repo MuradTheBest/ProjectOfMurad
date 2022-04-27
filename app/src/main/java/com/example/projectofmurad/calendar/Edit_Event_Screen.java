@@ -184,7 +184,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         event.setFrequencyType(DAY_BY_END);
         event.setFrequency(1);
 
-        eventsDatabase = FirebaseUtils.eventsDatabase;
+        eventsDatabase = FirebaseUtils.getEventsDatabase();
 
         selectedColor = getColor(R.color.colorAccent);
 
@@ -256,7 +256,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
         }
 
-        eventsDatabase = FirebaseUtils.eventsDatabase;
+        eventsDatabase = FirebaseUtils.getEventsDatabase();
 
         start_day = startDateTime.getDayOfMonth();
         start_month = startDateTime.getMonthValue();
@@ -739,8 +739,8 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
     }
 
     public void copyAllEventsInChain(@NonNull CalendarEvent event, MenuItem item){
-        String private_key = "Event" + FirebaseUtils.allEventsDatabase.push().getKey();
-        String chain_key = "Event" + FirebaseUtils.allEventsDatabase.push().getKey();
+        String private_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
+        String chain_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
 
         Log.d(Utils.EVENT_TAG, "event before copying data " + event);
 
@@ -756,7 +756,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
     private void getEventData(OnGetEventDataListener onGetEventDataListener){
 
-        FirebaseUtils.allEventsDatabase.child(event.getChainId()).get().addOnCompleteListener(
+        FirebaseUtils.getAllEventsDatabase().child(event.getChainId()).get().addOnCompleteListener(
                 new OnCompleteListener<DataSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DataSnapshot> task) {
@@ -878,7 +878,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
     }
 
     public void absoluteDeleteSingleEvent(String private_key, OnDeleteFinishedCallback onDeleteFinishedCallback){
-        DatabaseReference allEventsDatabase = FirebaseUtils.allEventsDatabase;
+        DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
 
         CircularProgressIndicator circularProgressIndicator = new CircularProgressIndicator(this);
         circularProgressIndicator.setIndicatorDirection(CircularProgressIndicator.INDICATOR_DIRECTION_CLOCKWISE);
@@ -906,7 +906,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             }
         });
 
-        DatabaseReference eventsDatabaseReference = FirebaseUtils.eventsDatabase;
+        DatabaseReference eventsDatabaseReference = FirebaseUtils.getEventsDatabase();
 
         eventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -943,7 +943,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
     }
 
     public void absoluteDeleteAllEventsInChain(String chain_key, long start, OnDeleteFinishedCallback onDeleteFinishedCallback){
-        DatabaseReference allEventsDatabase = FirebaseUtils.allEventsDatabase;
+        DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
 
         CircularProgressIndicator circularProgressIndicator = new CircularProgressIndicator(this);
         circularProgressIndicator.setIndicatorDirection(CircularProgressIndicator.INDICATOR_DIRECTION_CLOCKWISE);
@@ -972,7 +972,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             }
         });
 
-        DatabaseReference eventsDatabaseReference = FirebaseUtils.eventsDatabase;
+        DatabaseReference eventsDatabaseReference = FirebaseUtils.getEventsDatabase();
 
         eventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

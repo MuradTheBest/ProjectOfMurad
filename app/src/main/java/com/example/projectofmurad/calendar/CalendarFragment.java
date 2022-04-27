@@ -216,7 +216,7 @@ public class CalendarFragment extends Fragment implements
     private void showEvent(String event_private_id){
         if (event_private_id != null){
             new Handler().postDelayed(() -> createDayDialog(selectedDate, event_private_id), 500);
-            mainViewModel.setEventPrivateId(null);
+            mainViewModel.resetEventPrivateId();
             Log.d(Utils.LOG_TAG, "event_private_id is null");
         }
     }
@@ -237,10 +237,10 @@ public class CalendarFragment extends Fragment implements
         Log.d("murad", calendarEvent.toString());
 
         AlarmManagerForToday.addAlarm(requireContext(), calendarEvent, 0);
-        FirebaseUtils.eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(calendarEvent.receiveStart_date()))
+        FirebaseUtils.getEventsDatabase().child(UtilsCalendar.DateToTextForFirebase(calendarEvent.receiveStart_date()))
                 .child(calendarEvent.getPrivateId()).setValue(calendarEvent);
 
-        FirebaseUtils.allEventsDatabase.child(calendarEvent.getPrivateId()).setValue(calendarEvent);
+        FirebaseUtils.getAllEventsDatabase().child(calendarEvent.getPrivateId()).setValue(calendarEvent);
 
         FCMSend.sendNotificationsToAllUsersWithTopic(requireContext(), calendarEvent, Utils.ADD_EVENT_NOTIFICATION_CODE);
 

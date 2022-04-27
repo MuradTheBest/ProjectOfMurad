@@ -9,7 +9,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,7 +24,10 @@ import com.example.projectofmurad.calendar.AlarmDialog;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -101,10 +106,17 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
     private CardView cv_profile_data;
 
     private CircleImageView iv_profile_picture;
+    private ImageView iv_go_to_profile;
 
     private TextView tv_username;
     private TextView tv_email;
     private TextView tv_phone;
+
+    private SwitchCompat switch_visible_to_no_one;
+    private SwitchCompat switch_visible_to_madrich;
+    private SwitchCompat switch_visible_to_all;
+
+    private OnFailureListener onFailureListener = e -> Toast.makeText(requireContext(), "Failed", Toast.LENGTH_SHORT).show();
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -139,13 +151,24 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
         tv_email = view.findViewById(R.id.tv_email);
         tv_phone = view.findViewById(R.id.tv_phone);
 
+        switch_visible_to_no_one = view.findViewById(R.id.switch_visible_to_no_one);
+        switch_visible_to_no_one.setOnClickListener(this);
+        switch_visible_to_madrich = view.findViewById(R.id.switch_visible_to_madrich);
+        switch_visible_to_madrich.setOnClickListener(this);
+        switch_visible_to_all = view.findViewById(R.id.switch_visible_to_all);
+        switch_visible_to_all.setOnClickListener(this);
+
         cv_profile_data = view.findViewById(R.id.cv_profile_data);
         cv_profile_data.setOnClickListener(v -> startActivity(new Intent(requireContext(), Profile_Screen.class)));
+
+        iv_go_to_profile = view.findViewById(R.id.iv_go_to_profile);
+        iv_go_to_profile.setOnClickListener(v -> startActivity(new Intent(requireContext(), Profile_Screen.class)));
 
         sp = requireActivity().getSharedPreferences("savedData", Context.MODE_PRIVATE);
         editor = sp.edit();
 
-        FirebaseUtils.getCurrentUserData(this::getData);
+//        FirebaseUtils.getCurrentUserData(this::getData);
+        FirebaseUtils.getCurrentUserData().observe(getViewLifecycleOwner(), this::getData);
     }
 
     public void getData(@NonNull UserData userData){
@@ -161,7 +184,6 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
         switch_edit_event.setEnabled(switch_notifications.isChecked());
         switch_delete_event.setEnabled(switch_notifications.isChecked());
 
-
         Glide.with(this).load(userData.getProfile_picture()).centerCrop().into(iv_profile_picture);
 
         tv_username.setText(userData.getUsername());
@@ -170,7 +192,7 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
 
         if (userData.isMadrich()){
             iv_profile_picture.setBorderColor(requireActivity().getColor(R.color.colorAccent));
-            iv_profile_picture.setBorderWidth(7);
+            iv_profile_picture.setBorderWidth(Utils.dpToPx(4, requireContext()));
         }
 
         boolean autoAlarmSet = sp.getBoolean(UserData.KEY_SUBSCRIBED_TO_AUTO_ALARM_SET, false);
@@ -182,6 +204,21 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
 
         switch_auto_alarm_set.setChecked(autoAlarmSet);
         switch_auto_alarm_move.setChecked(autoAlarmMove);
+
+        switch (userData.getShow()){
+            case 2:
+                switch_visible_to_all.setChecked(true);
+                switch_visible_to_all.setEnabled(false);
+                break;
+            case 1:
+                switch_visible_to_madrich.setChecked(true);
+                switch_visible_to_madrich.setEnabled(false);
+                break;
+            case 0:
+                switch_visible_to_no_one.setChecked(true);
+                switch_visible_to_no_one.setEnabled(false);
+                break;
+        }
     }
 
     @Override
@@ -316,6 +353,8 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
         }*/
 
         if (v instanceof SwitchCompat){
+            boolean isChecked = ((SwitchCompat) v).isChecked();
+
             if (v == switch_notifications){
                 switch_add_event.setChecked(switch_notifications.isChecked());
                 switch_edit_event.setChecked(switch_notifications.isChecked());
@@ -328,6 +367,57 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                 switch_add_event.callOnClick();
                 switch_edit_event.callOnClick();
                 switch_delete_event.callOnClick();
+            }
+            else if(v == switch_visible_to_no_one){
+                FirebaseUtils.getCurrentUserDataRef().child("show").setValue(Show.NoOne.getValue()).addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                switch_visible_to_no_one.setEnabled(false);
+
+                                switch_visible_to_all.setChecked(false);
+                                switch_visible_to_madrich.setEnabled(true);
+
+                                switch_visible_to_madrich.setChecked(false);
+                                switch_visible_to_all.setEnabled(true);
+
+                                Snackbar.make(requireActivity().findViewById(android.R.id.content), "From now your results will be visible to no one", Snackbar.LENGTH_SHORT).show();
+                            }
+                        }).addOnFailureListener(onFailureListener);
+            }
+            else if(v == switch_visible_to_madrich){
+                FirebaseUtils.getCurrentUserDataRef().child("show").setValue(Show.Madrich.getValue()).addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                switch_visible_to_madrich.setEnabled(false);
+
+                                switch_visible_to_no_one.setChecked(false);
+                                switch_visible_to_all.setChecked(false);
+
+                                switch_visible_to_no_one.setEnabled(true);
+                                switch_visible_to_all.setEnabled(true);
+
+                                Snackbar.make(requireActivity().findViewById(android.R.id.content), "From now your results will be visible to madrichs only", Snackbar.LENGTH_SHORT).show();
+                            }
+                        }).addOnFailureListener(onFailureListener);
+            }
+            else if(v == switch_visible_to_all){
+                FirebaseUtils.getCurrentUserDataRef().child("show").setValue(Show.All.getValue()).addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                switch_visible_to_all.setEnabled(false);
+
+                                switch_visible_to_no_one.setChecked(false);
+                                switch_visible_to_madrich.setChecked(false);
+
+                                switch_visible_to_no_one.setEnabled(true);
+                                switch_visible_to_madrich.setEnabled(true);
+
+                                Snackbar.make(requireActivity().findViewById(android.R.id.content), "From now your results will be visible to everyone", Snackbar.LENGTH_SHORT).show();
+                            }
+                        }).addOnFailureListener(onFailureListener);
             }
             else if (v == switch_auto_alarm_set){
                 if (switch_auto_alarm_set.isChecked()){

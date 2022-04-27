@@ -3,7 +3,6 @@ package com.example.projectofmurad.calendar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.transition.AutoTransition;
@@ -103,7 +102,12 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData, U
             tv_user_phone = itemView.findViewById(R.id.tv_user_phone);
 
             checkbox_attendance = itemView.findViewById(R.id.checkbox_attendance);
-            checkbox_attendance.setOnCheckedChangeListener(this);
+//            checkbox_attendance.setOnCheckedChangeListener(this);
+            checkbox_attendance.setOnClickListener(v -> {
+                Log.d("home", "attendance checked " + checkbox_attendance.isChecked());
+                FirebaseUtils.getAttendanceDatabase().child(event_private_id).child(FirebaseUtils.getCurrentUID())
+                        .child("attend").setValue(checkbox_attendance.isChecked());
+            });
 
             iv_phone = itemView.findViewById(R.id.iv_phone);
             iv_phone.setOnClickListener(this);
@@ -118,7 +122,10 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData, U
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (buttonView == checkbox_attendance){
-                FirebaseUtils.attendanceDatabase.child(event_private_id).child(FirebaseUtils.getCurrentUID()).child("attend").setValue(isChecked);
+                Log.d("home", "attendance checked " + isChecked);
+                FirebaseUtils.getAttendanceDatabase().child(event_private_id).child(FirebaseUtils.getCurrentUID()).child("attend").setValue(isChecked);
+                FirebaseUtils.getAttendanceDatabase().child(event_private_id).child(FirebaseUtils.getCurrentUID()).child("username").setValue(getItem(getBindingAdapterPosition()).getUsername());
+                FirebaseUtils.getAttendanceDatabase().child(event_private_id).child(FirebaseUtils.getCurrentUID()).child("profile_picture").setValue(getItem(getBindingAdapterPosition()).getProfile_picture());
             }
         }
 
@@ -230,15 +237,19 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData, U
 
         int textColor = Utils.getContrastColor(color);
 
-        int gradientColor = (textColor == Color.WHITE) ? Color.LTGRAY : Color.DKGRAY;
+        int gradientColor = Utils.getContrastBackgroundColor(textColor);
 
         GradientDrawable gd = new GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
                 new int[] {color, color, gradientColor});
 
-//        gd.setCornerRadius(10);
-
         gd.setShape(GradientDrawable.RECTANGLE);
+
+        if (FirebaseUtils.isCurrentUID(model.getUID())){
+            gd.setStroke(Utils.dpToPx(2, context), context.getColor(R.color.colorAccent));
+        }
+
+        gd.setCornerRadius(Utils.dpToPx(10, context));
 
         holder.constraintLayout.setBackground(gd);
 
@@ -260,16 +271,16 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData, U
 
         if (model.isMadrich()){
             Log.d("murad", model.getUID() + " is madrich" + true);
-            holder.iv_profile_picture.getLayoutParams().height = 100;
-            holder.iv_profile_picture.getLayoutParams().width = 100;
+            holder.iv_profile_picture.getLayoutParams().height = Utils.dpToPx(60, context);
+            holder.iv_profile_picture.getLayoutParams().width = Utils.dpToPx(60, context);
 
             holder.iv_profile_picture.setBorderColor(context.getColor(R.color.colorAccent));
-            holder.iv_profile_picture.setBorderWidth(4);
+            holder.iv_profile_picture.setBorderWidth(Utils.dpToPx(2, context));
         }
 
         if (event_private_id != null){
 
-            DatabaseReference ref = FirebaseUtils.attendanceDatabase.child(event_private_id).child(model.getUID()).child("attend");
+            DatabaseReference ref = FirebaseUtils.getAttendanceDatabase().child(event_private_id).child(model.getUID()).child("attend");
 
             ref.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                 @Override
@@ -288,8 +299,7 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData, U
             holder.checkbox_attendance.setVisibility(View.GONE);
         }
 
-        FirebaseUtils.getProfilePictureFromFB(model.getUID(), context, holder.iv_profile_picture, /*holder.shimmer_profile_picture*/ null);
-
+        FirebaseUtils.getProfilePictureFromFB(model.getUID(), context, holder.iv_profile_picture);
     }
 
     @NonNull

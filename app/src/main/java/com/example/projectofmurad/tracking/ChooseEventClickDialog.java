@@ -67,7 +67,7 @@ public class ChooseEventClickDialog extends Dialog implements EventsAdapterForFi
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.day_dialog);
-        setCancelable(false);
+        setCancelable(true);
 
         progressDialog = new ProgressDialog(getContext());
         Utils.createCustomDialog(progressDialog);
@@ -89,7 +89,7 @@ public class ChooseEventClickDialog extends Dialog implements EventsAdapterForFi
 
         rv_events = this.findViewById(R.id.rv_events);
 
-        DatabaseReference eventsDatabase = FirebaseUtils.eventsDatabase;
+        DatabaseReference eventsDatabase = FirebaseUtils.getEventsDatabase();
 
         eventsDatabase = eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(passingDate));
 //        Query query = eventsDatabase.orderByChild("start");

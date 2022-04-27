@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:text="Repeats once in"
-            android:textSize="16sp"
+            android:textSize="16dp"
             android:layout_weight="1"
             />
 
@@ -56,7 +56,7 @@
                     android:inputType="number"
                     android:maxLength="2"
                     android:text="1"
-                    android:textSize="16sp" />
+                    android:textSize="16dp" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -130,96 +130,96 @@
 
     <LinearLayout
         android:id="@+id/choose_day_of_week_layout"
-        android:layout_width="238sp"
-        android:layout_height="38sp"
+        android:layout_width="238dp"
+        android:layout_height="38dp"
         android:orientation="horizontal"
         android:gravity="center"
         android:layout_gravity="center"
         android:weightSum="7"
-        android:layout_marginHorizontal="10sp"
+        android:layout_marginHorizontal="10dp"
         android:clipToPadding="false"
         >
 
         <ToggleButton
             android:id="@+id/tb_Sunday"
-            android:layout_width="30sp"
-            android:layout_height="30sp"
-            android:layout_marginHorizontal="2sp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginHorizontal="2dp"
             android:textOff="S"
             android:textOn="S"
-            android:textSize="14sp"
+            android:textSize="14dp"
             style="@style/toggleButton"
             android:background="@drawable/toggle_bg"
             android:checked="true"/>
 
         <ToggleButton
             android:id="@+id/tb_Monday"
-            android:layout_width="30sp"
-            android:layout_height="30sp"
-            android:layout_marginHorizontal="2sp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginHorizontal="2dp"
             android:textOff="M"
             android:textOn="M"
-            android:textSize="14sp"
+            android:textSize="14dp"
             style="@style/toggleButton"
             android:background="@drawable/toggle_bg"
             android:checked="true"/>
 
         <ToggleButton
             android:id="@+id/tb_Tuesday"
-            android:layout_width="30sp"
-            android:layout_height="30sp"
-            android:layout_marginHorizontal="2sp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginHorizontal="2dp"
             android:textOff="T"
             android:textOn="T"
-            android:textSize="14sp"
+            android:textSize="14dp"
             style="@style/toggleButton"
             android:background="@drawable/toggle_bg"
             android:checked="true"/>
 
         <ToggleButton
             android:id="@+id/tb_Wednesday"
-            android:layout_width="30sp"
-            android:layout_height="30sp"
-            android:layout_marginHorizontal="2sp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginHorizontal="2dp"
             android:textOff="W"
             android:textOn="W"
-            android:textSize="14sp"
+            android:textSize="14dp"
             style="@style/toggleButton"
             android:background="@drawable/toggle_bg"
             android:checked="true"/>
 
         <ToggleButton
             android:id="@+id/tb_Thursday"
-            android:layout_width="30sp"
-            android:layout_height="30sp"
-            android:layout_marginHorizontal="2sp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginHorizontal="2dp"
             android:textOff="T"
             android:textOn="T"
-            android:textSize="14sp"
+            android:textSize="14dp"
             style="@style/toggleButton"
             android:background="@drawable/toggle_bg"
             android:checked="true"/>
 
         <ToggleButton
             android:id="@+id/tb_Friday"
-            android:layout_width="30sp"
-            android:layout_height="30sp"
-            android:layout_marginHorizontal="2sp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginHorizontal="2dp"
             android:textOff="F"
             android:textOn="F"
-            android:textSize="14sp"
+            android:textSize="14dp"
             style="@style/toggleButton"
             android:background="@drawable/toggle_bg"
             android:checked="true"/>
 
         <ToggleButton
             android:id="@+id/tb_Saturday"
-            android:layout_width="30sp"
-            android:layout_height="30sp"
-            android:layout_marginHorizontal="2sp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginHorizontal="2dp"
             android:textOff="S"
             android:textOn="S"
-            android:textSize="14sp"
+            android:textSize="14dp"
             style="@style/toggleButton"
             android:background="@drawable/toggle_bg"
             android:checked="true"/>
@@ -237,7 +237,7 @@
             android:layout_gravity="start"
             android:layout_marginBottom="5dp"
             android:text="Duration"
-            android:textSize="16sp" />
+            android:textSize="16dp" />
 
         <RadioGroup
             android:id="@+id/rg_duration"
@@ -269,7 +269,7 @@
                     android:inputType="number"
                     android:maxLength="2"
                     android:text="1"
-                    android:textSize="16sp" />
+                    android:textSize="16dp" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -281,7 +281,7 @@
                 android:inputType="number"
                 android:maxLength="2"
                 android:text="1"
-                android:textSize="16sp" />-->
+                android:textSize="16dp" />-->
 
             <RadioButton
                 style="@style/radioButton"
@@ -322,7 +322,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="50dp"
-            android:textSize="10sp"
+            android:textSize="10dp"
             android:text="Ok" />
 
         <Button
@@ -330,7 +330,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
-            android:textSize="10sp"
+            android:textSize="10dp"
             android:text="Cancel" />
 
     </LinearLayout>-->

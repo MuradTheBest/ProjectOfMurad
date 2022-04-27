@@ -1,10 +1,16 @@
 package com.example.projectofmurad.tracking;
 
-public class SpeedAndLocation {
+import androidx.annotation.NonNull;
+
+import java.io.Serializable;
+
+public class SpeedAndLocation implements Serializable {
 
     private double speed;
     private double latitude;
     private double longitude;
+
+    public SpeedAndLocation() {}
 
     public SpeedAndLocation(double speed, double latitude, double longitude) {
         this.speed = speed;
@@ -34,5 +40,24 @@ public class SpeedAndLocation {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public Location getLocation(){
+        return new Location(latitude, longitude);
+    }
+
+    public void setLocation(@NonNull Location location){
+        this.latitude = location.getLatitude();
+        this.longitude = location.getLongitude();
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "SpeedAndLocation{" +
+                "speed=" + speed +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                '}';
     }
 }

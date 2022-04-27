@@ -2,32 +2,47 @@ package com.example.projectofmurad.training;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
+import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.tracking.Location;
+import com.example.projectofmurad.tracking.SpeedAndLocation;
+import com.example.projectofmurad.tracking.TrackingService;
+import com.example.projectofmurad.tracking.Tracking_Fragment;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.MPPointF;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.imageview.ShapeableImageView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -89,7 +104,7 @@ public class Training_Info_DialogFragment extends DialogFragment {
     }
 
     private LineChart lineChart_speed;
-    private HashMap<String, Double> speeds;
+    private HashMap<String, SpeedAndLocation> speeds;
 
 
     private TextView tv_name;
@@ -108,6 +123,12 @@ public class Training_Info_DialogFragment extends DialogFragment {
     private TextView tv_training_average_pace;
     private TextView tv_training_max_pace;
 
+    private ShapeableImageView siv_picture;
+
+    private List<Location> locations;
+
+    private MaterialToolbar materialToolbar;
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -115,6 +136,23 @@ public class Training_Info_DialogFragment extends DialogFragment {
         lineChart_speed = view.findViewById(R.id.lineChart_speed);
         speeds = training.getSpeeds();
 
+        materialToolbar = view.findViewById(R.id.materialToolbar);
+        materialToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.showTrack:
+                        if (training.getLocations() != null){
+                            Intent intent = new Intent(requireContext(), MainActivity.class);
+                            intent.setAction(Tracking_Fragment.ACTION_MOVE_TO_TRACKING_FRAGMENT_TO_SHOW_TRACK);
+                            intent.putParcelableArrayListExtra("locations", training.getLocations());
+                            startActivity(intent);
+                        }
+                        break;
+                }
+                return false;
+            }
+        });
 
         tv_name = view.findViewById(R.id.tv_name);
         tv_start_date = view.findViewById(R.id.tv_start_date);
@@ -149,14 +187,28 @@ public class Training_Info_DialogFragment extends DialogFragment {
         tv_training_average_pace.setText("" + training.getAvgPace());
         tv_training_max_pace.setText("" + training.getMaxPace());
 
+        siv_picture = view.findViewById(R.id.siv_picture);
+
+        if (training.getPicture() != null && !training.getPicture().isEmpty()){
+            Glide.with(this).load(training.getPicture())/*.centerCrop()*/.into(siv_picture);
+        }
+        else {
+//            siv_picture.setVisibility(View.GONE);
+        }
+
+
 //        Log.d("murad", speedsData.toString());
+
+        locations = training.getLocations();
 
         setUpGraph(speeds);
     }
 
-    public void setUpGraph(HashMap<String, Double> speeds){
+    public void setUpGraph(HashMap<String, SpeedAndLocation> speeds){
         ArrayList<Entry> speedEntries = new ArrayList<>();
         ArrayList<Entry> paceEntries = new ArrayList<>();
+
+        ArrayList<LatLng> latLngs = new ArrayList<>();
 
         float maxX = 0;
         float maxY = 0;
@@ -166,15 +218,25 @@ public class Training_Info_DialogFragment extends DialogFragment {
         paceEntries.add(entry_zero);
 
         if (speeds != null){
+
+//            latLngs.ensureCapacity(speeds.size());
+
             for (String key : speeds.keySet()){
-                double speed = speeds.get(key);
+                double speed = speeds.get(key).getSpeed();
                 double pace = Utils.convertSpeedToMinPerKm(speed);
                 float time = Float.parseFloat(key.replace(" sec", ""));
+
+                Location location = speeds.get(key).getLocation();
+
+                Log.d(Utils.LOG_TAG, "time is " + time);
+                Log.d(Utils.LOG_TAG, "location is " + location.toString());
 
                 maxX = Math.max(maxX, time);
                 maxY = (float) Math.max(maxY, speed);
 
                 Entry speedEntry = new Entry(time, (float) speed);
+                speedEntry.setData(location);
+
                 Entry paceEntry = new Entry(time, (float) pace);
 
                 if (speed == 0){
@@ -188,8 +250,14 @@ public class Training_Info_DialogFragment extends DialogFragment {
 
                 speedEntries.add(speedEntry);
                 paceEntries.add(paceEntry);
+
+/*                latLngs.set((int) time, location.toLatLng());
+
+                latLngs.trimToSize();
+                Log.d(Utils.LOG_TAG, latLngs.toString());*/
             }
 
+//            Log.d(Utils.LOG_TAG, latLngs.toString());
         }
 
 /*        speedEntries.sort(new Comparator<Entry>() {
@@ -244,6 +312,39 @@ public class Training_Info_DialogFragment extends DialogFragment {
         lineChart_speed.getDescription().setEnabled(false);
 
         lineChart_speed.setExtraBottomOffset(35);
+
+        lineChart_speed.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry e, Highlight h) {
+
+                Location location = (Location) e.getData();
+
+                if (location == null){
+                    return;
+                }
+
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+
+/*                Uri gmmIntentUri = Uri.parse("geo:" + latitude + "," + longitude + "-122.4194");
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);*/
+
+                Intent intent = new Intent(requireContext(), MainActivity.class);
+                intent.setAction(TrackingService.ACTION_MOVE_TO_TRACKING_FRAGMENT);
+                intent.putExtra("latitude", latitude);
+                intent.putExtra("longitude", longitude);
+
+                startActivity(intent);
+            }
+
+            @Override
+            public void onNothingSelected() {
+
+            }
+        });
+
     }
 
 }

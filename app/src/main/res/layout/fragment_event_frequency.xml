@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-
     android:id="@+id/scrollview_frequency"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -35,7 +33,7 @@
                             android:layout_height="match_parent"
                             android:layout_weight="1"
                             android:text="Cancel"
-                            android:textSize="16sp"
+                            android:textSize="16dp"
                             style="?android:attr/buttonBarButtonStyle"
                             />
 
@@ -45,7 +43,7 @@
                             android:layout_height="match_parent"
                             android:layout_weight="1"
                             android:text="Ok"
-                            android:textSize="16sp"
+                            android:textSize="16dp"
                             style="?android:attr/buttonBarButtonStyle" />-->
 
             <Button
@@ -194,7 +192,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="Oon 8 day"
-                                android:textSize="16sp" />
+                                android:textSize="16dp" />
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/rb_with_last_day_and_month"
@@ -203,7 +201,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="Oon last day"
-                                android:textSize="16sp" />
+                                android:textSize="16dp" />
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/rb_with_dayOfWeek_and_month"
@@ -212,7 +210,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="Oon 2 Tuesday"
-                                android:textSize="16sp" />
+                                android:textSize="16dp" />
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/rb_with_last_dayOfWeek_and_month"
@@ -221,7 +219,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="Oon last Tuesday"
-                                android:textSize="16sp" />
+                                android:textSize="16dp" />
 
                         </com.google.android.material.chip.ChipGroup>
                 -->
@@ -332,20 +330,20 @@
             <LinearLayout
                 android:id="@+id/choose_day_of_week_layout"
                 android:layout_width="match_parent"
-                android:layout_height="46sp"
+                android:layout_height="46dp"
                 android:orientation="horizontal"
                 android:gravity="center"
                 android:layout_gravity="center"
                 android:weightSum="7"
                 android:clipToPadding="false"
-                android:layout_marginVertical="5sp"
+                android:layout_marginVertical="5dp"
                 >
 
                 <ToggleButton
                     android:id="@+id/tb_Sunday"
-                    android:layout_width="34sp"
-                    android:layout_height="34sp"
-                    android:layout_marginHorizontal="8sp"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_marginHorizontal="8dp"
                     android:textSize="16sp"
                     android:textOff="S"
                     android:textOn="S"
@@ -355,9 +353,9 @@
 
                 <ToggleButton
                     android:id="@+id/tb_Monday"
-                    android:layout_width="34sp"
-                    android:layout_height="34sp"
-                    android:layout_marginHorizontal="8sp"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_marginHorizontal="8dp"
                     android:textSize="16sp"
                     android:textOff="M"
                     android:textOn="M"
@@ -367,9 +365,9 @@
 
                 <ToggleButton
                     android:id="@+id/tb_Tuesday"
-                    android:layout_width="34sp"
-                    android:layout_height="34sp"
-                    android:layout_marginHorizontal="8sp"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_marginHorizontal="8dp"
                     android:textSize="16sp"
                     android:textOff="T"
                     android:textOn="T"
@@ -379,9 +377,9 @@
 
                 <ToggleButton
                     android:id="@+id/tb_Wednesday"
-                    android:layout_width="34sp"
-                    android:layout_height="34sp"
-                    android:layout_marginHorizontal="8sp"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_marginHorizontal="8dp"
                     android:textSize="16sp"
                     android:textOff="W"
                     android:textOn="W"
@@ -391,9 +389,9 @@
 
                 <ToggleButton
                     android:id="@+id/tb_Thursday"
-                    android:layout_width="34sp"
-                    android:layout_height="34sp"
-                    android:layout_marginHorizontal="8sp"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_marginHorizontal="8dp"
                     android:textSize="16sp"
                     android:textOff="T"
                     android:textOn="T"
@@ -403,9 +401,9 @@
 
                 <ToggleButton
                     android:id="@+id/tb_Friday"
-                    android:layout_width="34sp"
-                    android:layout_height="34sp"
-                    android:layout_marginHorizontal="8sp"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_marginHorizontal="8dp"
                     android:textSize="16sp"
                     android:textOff="F"
                     android:textOn="F"
@@ -416,9 +414,9 @@
 
                 <ToggleButton
                     android:id="@+id/tb_Saturday"
-                    android:layout_width="34sp"
-                    android:layout_height="34sp"
-                    android:layout_marginHorizontal="8sp"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_marginHorizontal="8dp"
                     android:textSize="16sp"
                     android:textOff="S"
                     android:textOn="S"
@@ -473,7 +471,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
-                        android:layout_marginStart="50sp"
+                        android:layout_marginStart="50dp"
                         android:gravity="center">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -497,7 +495,7 @@
                         android:inputType="number"
                         android:maxLength="2"
                         android:text="1"
-                        android:textSize="16sp" />-->
+                        android:textSize="16dp" />-->
 
                     <RadioButton
                         style="@style/radioButton"
@@ -547,7 +545,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="50dp"
-                    android:textSize="10sp"
+                    android:textSize="10dp"
                     android:text="Ok" />
 
                 <Button
@@ -555,7 +553,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="50dp"
-                    android:textSize="10sp"
+                    android:textSize="10dp"
                     android:text="Cancel" />
 
             </LinearLayout>-->

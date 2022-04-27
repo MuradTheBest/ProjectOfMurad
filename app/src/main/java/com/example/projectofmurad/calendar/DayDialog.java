@@ -108,7 +108,7 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
         TextView tv_no_events = this.findViewById(R.id.tv_no_events);
         tv_no_events.setVisibility(View.GONE);
 
-        DatabaseReference eventsDatabase = FirebaseUtils.eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(passingDate));
+        DatabaseReference eventsDatabase = FirebaseUtils.getEventsDatabase().child(UtilsCalendar.DateToTextForFirebase(passingDate));
 
         Query query = eventsDatabase.orderByChild("start");
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -228,7 +228,7 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
 
         btn_clear_all = this.findViewById(R.id.btn_clear_all);
         btn_clear_all.setOnClickListener(v -> {
-            FirebaseUtils.eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(passingDate)).setValue(null);
+            FirebaseUtils.getEventsDatabase().child(UtilsCalendar.DateToTextForFirebase(passingDate)).setValue(null);
 
             rv_events.setVisibility(View.INVISIBLE);
             Log.d("murad", "Visibility set to " + rv_events.getVisibility());

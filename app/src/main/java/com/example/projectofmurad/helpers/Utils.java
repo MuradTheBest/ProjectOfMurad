@@ -1,6 +1,5 @@
 package com.example.projectofmurad.helpers;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -19,6 +18,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
 
@@ -27,9 +27,9 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
 
-import com.example.projectofmurad.BuildConfig;
-import com.example.projectofmurad.MyApplication;
 import com.example.projectofmurad.R;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import org.jetbrains.annotations.Contract;
@@ -39,6 +39,7 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
@@ -53,14 +54,10 @@ public class Utils {
     public static final int EDIT_EVENT_NOTIFICATION_CODE = 300;
     public static final int DELETE_EVENT_NOTIFICATION_CODE = 400;
 
-    public final static String APPLICATION_ID = BuildConfig.APPLICATION_ID;
+    public final static String APPLICATION_ID = "com.example.projectofmurad";
 
 //    public static boolean madrich = FirebaseUtils.getCurrentUserData().isMadrich();
     public static boolean madrich;
-
-    private static Context getContext(){
-        return MyApplication.getContext();
-    }
 
     public final static String DATABASE_NAME = "db3";
 
@@ -271,15 +268,6 @@ public class Utils {
     }
 
     @NonNull
-    public static AlertDialog.Builder createSimpleAlertDialog(Context context, String title, String message){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setCancelable(false);
-        builder.setTitle(title);
-        builder.setMessage(message);
-        return builder;
-    }
-
-    @NonNull
     @Contract("_ -> param1")
     public static Dialog createCustomDialog(@NonNull Dialog dialog){
         dialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
@@ -432,15 +420,20 @@ public class Utils {
         return (whiteContrast > blackContrast) ? Color.WHITE : Color.BLACK;
     }
 
+    @ColorInt
+    public static int getContrastBackgroundColor(@ColorInt int color) {
+        return !(color == Color.WHITE) ? Color.LTGRAY : Color.DKGRAY;
+    }
+
     @NonNull
     public static GradientDrawable getGradientBackground(@ColorInt int color) {
         int textColor = Utils.getContrastColor(color);
 
-        int gradientColor = (textColor == Color.WHITE) ? Color.LTGRAY : Color.DKGRAY;
+        int gradientColor = Utils.getContrastBackgroundColor(textColor);
 
         GradientDrawable gd = new GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
-                new int[] {color, gradientColor});
+                new int[] {color, color, gradientColor});
 
         gd.setShape(GradientDrawable.RECTANGLE);
 
@@ -461,5 +454,19 @@ public class Utils {
                 Resources.getSystem().getDisplayMetrics().heightPixels);
 
         return isGlobalVisible && actualPosition.intersect(screen);
+    }
+
+    @NonNull
+    public static LatLngBounds getLatLngBounds(@NonNull List<LatLng> latLngs){
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (LatLng latLng : latLngs){
+            builder.include(latLng);
+        }
+
+        return builder.build();
+    }
+
+    public static int dpToPx(float dp, @NonNull Context context) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
     }
 }

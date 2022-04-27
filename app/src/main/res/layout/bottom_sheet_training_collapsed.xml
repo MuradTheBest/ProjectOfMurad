@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout android:id="@+id/rl_training"
     android:layout_width="match_parent"
-    android:layout_height="110sp"
+    android:layout_height="110dp"
     android:background="@drawable/bottom_sheet_training_background"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
@@ -15,20 +15,20 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_distance"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="20sp"
-        android:layout_marginTop="20sp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
         android:text="00:00:00"
-        android:textSize="18sp" />
+        android:textSize="18dp" />
 
     <TextView
         android:id="@+id/tv_distance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="20sp"
-        android:layout_marginTop="20sp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
         android:text="0.00 km"
-        android:textSize="18sp" />
+        android:textSize="18dp" />
 
     <TextView
         android:id="@+id/tv_speed"
@@ -36,20 +36,20 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_max_speed"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="20sp"
-        android:layout_marginEnd="20sp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
         android:text="0.00 km/h"
-        android:textSize="18sp" />
+        android:textSize="18dp" />
 
     <TextView
         android:id="@+id/tv_max_speed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="20sp"
-        android:layout_marginEnd="20sp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
         android:text="0.00 km/h"
-        android:textSize="18sp" />
+        android:textSize="18dp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_start_tracking"
@@ -69,14 +69,14 @@
             android:id="@+id/btn_stop_tracking"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="5sp"
+            android:layout_marginHorizontal="5dp"
             android:text="Stop" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_finish_tracking"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="5sp"
+            android:layout_marginHorizontal="5dp"
             android:text="Finish" />
 
     </LinearLayout>

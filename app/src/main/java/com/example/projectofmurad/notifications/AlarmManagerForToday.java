@@ -13,10 +13,9 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.projectofmurad.FirebaseUtils;
-import com.example.projectofmurad.MyApplication;
-import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.helpers.Utils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -37,10 +36,6 @@ public class AlarmManagerForToday {
 
     public static String getTodayText(){
         return UtilsCalendar.DateToTextOnline(getToday());
-    }
-
-    private static Context getContext(){
-        return MyApplication.getContext();
     }
 
     public static SharedPreferences sp;
@@ -65,7 +60,7 @@ public class AlarmManagerForToday {
         SQLiteDatabase db = context.openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
         Utils.createAllTables(db);
 
-//        DatabaseReference todayEvents = FirebaseUtils.eventsDatabase.child(today);
+//        DatabaseReference todayEvents = FirebaseUtils.getEventsDatabase().child(today);
 
 //        Query query_alarm_true = todayEvents.orderByChild("alarm").equalTo(true);
         /*Query query_alarm_true = todayEvents.orderByChild("alarm_UIDs/" + FirebaseUtils.getCurrentUID()).equalTo(true);
@@ -266,7 +261,7 @@ public class AlarmManagerForToday {
     public static CalendarEvent findCalendarEventById(String event_private_id){
         final CalendarEvent[] event = {new CalendarEvent()};
 
-        FirebaseUtils.eventsDatabase.child(UtilsCalendar.DateToTextForFirebase(getToday())).child(event_private_id).addListenerForSingleValueEvent(
+        FirebaseUtils.getEventsDatabase().child(UtilsCalendar.DateToTextForFirebase(getToday())).child(event_private_id).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {

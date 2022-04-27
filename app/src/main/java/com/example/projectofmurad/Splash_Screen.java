@@ -5,7 +5,6 @@ import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,11 +16,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
 
 import com.example.projectofmurad.helpers.Utils;
 
-public class Splash_Screen extends Activity {
+public class Splash_Screen extends AppCompatActivity {
 
     private View ellipse_3;
     private ImageView vector_ek2;
@@ -66,13 +67,29 @@ public class Splash_Screen extends Activity {
         SQLiteDatabase db = openOrCreateDatabase(Utils.DATABASE_NAME, MODE_PRIVATE, null);
 //        Utils.createAllTables(db);
 
-        group_1.setOnClickListener(view -> {
-            Intent nextScreen = new Intent(Splash_Screen.this,
-                    FirebaseUtils.isUserLoggedIn() ? MainActivity.class : Log_In_Screen.class);
 
-            startActivity(nextScreen);
-        });
 
+        group_1.setOnClickListener(this::checkGroup);
+
+        FirebaseUtils.checkCurrentGroup(this);
+    }
+
+    public void checkGroup(View view){
+        FirebaseUtils.getCurrentGroup().observe(Splash_Screen.this,
+                new Observer<String>() {
+                    @Override
+                    public void onChanged(String s) {
+                        FirebaseUtils.changeGroup(s);
+                        startActivity(new Intent(Splash_Screen.this,
+                                FirebaseUtils.isUserLoggedIn()
+                                        ? MainActivity.class
+                                        : Log_In_Screen.class));
+                    }
+                });
+    }
+
+    public void goToGroupScreen(View view){
+        startActivity(new Intent(this, CreateOrJoinGroupScreen.class));
     }
 
     @Override

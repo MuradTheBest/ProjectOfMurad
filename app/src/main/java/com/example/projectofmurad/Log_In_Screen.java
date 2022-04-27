@@ -24,6 +24,7 @@ import com.example.projectofmurad.calendar.UtilsCalendar;
 import com.example.projectofmurad.helpers.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
@@ -31,6 +32,8 @@ import com.google.firebase.auth.AuthResult;
 
 public class Log_In_Screen extends UserSigningActivity {
 
+	SharedPreferences sp;
+	ProgressDialog loadingBar;
 	private TextView tv_sign_up_now;
 	private View ellipse_4;
 	private TextView tv_log_in;
@@ -41,14 +44,10 @@ public class Log_In_Screen extends UserSigningActivity {
 	private TextView et_password;
 	private TextView tv_don_t_have_an_account;
 	private Button btn_log_in;
-
 	private MaterialButton btn_log_in_with_google;
 	private MaterialButton btn_log_in_with_facebook;
 	private MaterialButton btn_log_in_with_phone;
-
 	private TextView tv_forgot_password;
-
-	SharedPreferences sp;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -75,69 +74,7 @@ public class Log_In_Screen extends UserSigningActivity {
 
 		et_password.getTransformationMethod();
 
-		btn_log_in.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				String email = et_email_address.getText().toString();
-				String password = et_password.getText().toString();
-				String msg = "";
-				boolean editTextsFilled = true;
-
-				if(email.isEmpty()){
-					et_email_address.setError("E-mail invalid");
-					msg += "E-mail and ";
-					editTextsFilled = false;
-					//Toast.makeText(getApplicationContext(), "Please enter e-mail address", Toast.LENGTH_SHORT).show();
-				}
-				else if(!UtilsCalendar.isEmailValid(email)){
-					et_email_address.setError("E-mail invalid");
-					msg += "valid E-mail and ";
-					editTextsFilled = false;
-					//Toast.makeText(getApplicationContext(), "Please enter valid e-mail address", Toast.LENGTH_SHORT).show();
-				}
-
-				if(password.isEmpty()){
-					et_password.setError("Password invalid");
-					msg += "password";
-					editTextsFilled = false;
-					//Toast.makeText(getApplicationContext(), "Please enter password address", Toast.LENGTH_SHORT).show();
-				}
-				else {
-					msg = msg.replace(" and ", " ");
-				}
-
-				if(editTextsFilled){
-
-					progressDialog.setMessage("Registering, please wait...");
-					progressDialog.show();
-
-					FirebaseUtils.getFirebaseAuth().signInWithEmailAndPassword(email, password).addOnCompleteListener(
-							new OnCompleteListener<AuthResult>() {
-								@Override
-								public void onComplete(@NonNull Task<AuthResult> task) {
-									if (task.isSuccessful()){
-										progressDialog.dismiss();
-										startActivity(new Intent(Log_In_Screen.this, MainActivity.class));
-									}
-									else {
-
-									}
-								}
-							})
-							.addOnFailureListener(new OnFailureListener() {
-								@Override
-								public void onFailure(@NonNull Exception e) {
-									progressDialog.dismiss();
-									Toast.makeText(Log_In_Screen.this, e.getMessage(),
-											Toast.LENGTH_SHORT).show();
-								}
-							});
-				}
-				else {
-					Toast.makeText(getApplicationContext(), "Please enter " + msg, Toast.LENGTH_SHORT).show();
-				}
-			}
-		});
+		btn_log_in.setOnClickListener(view -> checkFields());
 
 		tv_sign_up_now.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -162,7 +99,42 @@ public class Log_In_Screen extends UserSigningActivity {
 
 	}
 
-	ProgressDialog loadingBar;
+	private void checkFields() {
+		String email = et_email_address.getText().toString();
+		String password = et_password.getText().toString();
+		String msg = "";
+		boolean editTextsFilled = true;
+
+		if(email.isEmpty()){
+			et_email_address.setError("E-mail invalid");
+			msg += "E-mail and ";
+			editTextsFilled = false;
+			//Toast.makeText(getApplicationContext(), "Please enter e-mail address", Toast.LENGTH_SHORT).show();
+		}
+		else if(!UtilsCalendar.isEmailValid(email)){
+			et_email_address.setError("E-mail invalid");
+			msg += "valid E-mail and ";
+			editTextsFilled = false;
+			//Toast.makeText(getApplicationContext(), "Please enter valid e-mail address", Toast.LENGTH_SHORT).show();
+		}
+
+		if(password.isEmpty()){
+			et_password.setError("Password invalid");
+			msg += "password";
+			editTextsFilled = false;
+			//Toast.makeText(getApplicationContext(), "Please enter password address", Toast.LENGTH_SHORT).show();
+		}
+		else {
+			msg = msg.replace(" and ", " ");
+		}
+
+		if(editTextsFilled){
+			login(email, password);
+		}
+		else {
+			Toast.makeText(getApplicationContext(), "Please enter " + msg, Toast.LENGTH_SHORT).show();
+		}
+	}
 
 	private void createPasswordResetDialog() {
 		LayoutInflater inflater = LayoutInflater.from(this);
@@ -192,6 +164,29 @@ public class Log_In_Screen extends UserSigningActivity {
 		Utils.createCustomDialog(alertDialog);
 
 		alertDialog.show();
+	}
+
+	public void login(String email, String password){
+
+		progressDialog.setMessage("Registering, please wait...");
+		progressDialog.show();
+
+		FirebaseUtils.getFirebaseAuth().signInWithEmailAndPassword(email, password).addOnSuccessListener(
+				new OnSuccessListener<AuthResult>() {
+					@Override
+					public void onSuccess(AuthResult authResult) {
+						progressDialog.dismiss();
+						subscribeToTopics();
+					}
+				})
+				.addOnFailureListener(new OnFailureListener() {
+					@Override
+					public void onFailure(@NonNull Exception e) {
+						progressDialog.dismiss();
+						Toast.makeText(Log_In_Screen.this, "Logging in failed",
+								Toast.LENGTH_SHORT).show();
+					}
+				});
 	}
 
 	private void beginRecovery(String email) {

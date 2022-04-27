@@ -3,6 +3,7 @@ package com.example.projectofmurad;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class UserData {
 
@@ -27,12 +28,26 @@ public class UserData {
     private boolean subscribedToEditEvent;
     private boolean subscribedToDeleteEvent;
 
+    private int show;
+    private boolean autoShowResultsToMadrich;
+
+    private HashMap<String, Boolean> groups;
+    private String currentGroup;
+
     private boolean subscribedToAutoAlarmSet;
     private boolean subscribedToAutoAlarmMove;
 
     private long totalTime;
     private long totalDistance;
     private long totalSpeed;
+
+    private long groupTotalTime;
+    private long groupTotalDistance;
+    private long groupTotalSpeed;
+
+    private long privateTotalTime;
+    private long privateTotalDistance;
+    private long privateTotalSpeed;
 
     public final static String KEY_UID = "key_user_UID";
     public final static String KEY_email = "key_user_email";
@@ -64,6 +79,7 @@ public class UserData {
         this.madrich = false;
         this.notMadrich = true;
         this.phone = phone;
+        this.show = Show.Madrich.getValue();
     }
 
     public UserData(String UID, String email, String username, String phone, String profile_picture) {
@@ -74,6 +90,7 @@ public class UserData {
         this.notMadrich = true;
         this.phone = phone;
         this.profile_picture = profile_picture;
+        this.show = Show.Madrich.getValue();
     }
 
     public UserData(String UID, String email, String username) {
@@ -84,6 +101,7 @@ public class UserData {
         this.notMadrich = true;
         this.online = true;
         this.offline = false;
+        this.show = Show.Madrich.getValue();
     }
 
     public UserData(String UID, String email, String username, String phone, boolean madrich, String token) {
@@ -160,6 +178,7 @@ public class UserData {
     }
 
     public boolean isMadrich() {
+
         return madrich;
     }
 
@@ -240,5 +259,37 @@ public class UserData {
 
     public void setSubscribedToDeleteEvent(boolean subscribedToDeleteEvent) {
         this.subscribedToDeleteEvent = subscribedToDeleteEvent;
+    }
+
+    public boolean isAutoShowResultsToMadrich() {
+        return autoShowResultsToMadrich;
+    }
+
+    public void setAutoShowResultsToMadrich(boolean autoShowResultsToMadrich) {
+        this.autoShowResultsToMadrich = autoShowResultsToMadrich;
+    }
+
+    public int getShow() {
+        return show;
+    }
+
+    public void setShow(int show) {
+        this.show = show;
+    }
+
+    public String getCurrentGroup() {
+        return currentGroup;
+    }
+
+    public void setCurrentGroup(String currentGroup) {
+        this.currentGroup = currentGroup;
+    }
+
+    public HashMap<String, Boolean> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(HashMap<String, Boolean> groups) {
+        this.groups = groups;
     }
 }

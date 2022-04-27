@@ -36,9 +36,9 @@
                 android:layout_height="match_parent"
                 android:autofillHints="name"
                 android:hint="@string/name"
-                android:paddingEnd="44sp"
+                android:paddingEnd="44dp"
                 android:singleLine="false"
-                android:textSize="20sp"
+                android:textSize="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -91,7 +91,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_weight="1"
                 android:text="@string/all_day"
-                android:textSize="18sp"
+                android:textSize="18dp"
                 android:drawableStart="@drawable/ic_baseline_access_time_24"
                 android:drawablePadding="3dp"
                 android:gravity="center_vertical"
@@ -123,7 +123,7 @@
                                         android:layout_marginHorizontal="5dp"
                                         android:text="Choose start date"
                                         android:textColor="@drawable/button_onclick"
-                                        android:textSize="12sp" />
+                                        android:textSize="12dp" />
 
                                     <Button
                                         android:id="@+id/btn_choose_end_date"
@@ -131,7 +131,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginHorizontal="5dp"
                                         android:text="Choose end date"
-                                        android:textSize="12sp" />&ndash;&gt;
+                                        android:textSize="12dp" />&ndash;&gt;
 
 
             &lt;!&ndash;            <ToggleButton
@@ -141,7 +141,7 @@
                             android:layout_marginHorizontal="5dp"
                             android:text="Choose start date"
                             style="@style/Widget.Button.ToggleButtonForDateTime"
-                            android:textSize="16sp" />&ndash;&gt;
+                            android:textSize="16dp" />&ndash;&gt;
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/btn_choose_start_date"
@@ -151,7 +151,7 @@
                             android:text="Choose start date"
                             app:chipBackgroundColor="@color/colorAccent"
                             android:checked="true"
-                            android:textSize="18sp" />
+                            android:textSize="18dp" />
 
                         <Button
                             android:id="@+id/btn_choose_end_date"
@@ -159,7 +159,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="5dp"
                             android:text="Choose end date"
-                            android:textSize="12sp" />
+                            android:textSize="12dp" />
 
 
 
@@ -181,7 +181,7 @@
                     android:layout_alignParentTop="true"
                     android:checked="true"
                     android:text="Thu, 31.05.2022"
-                    android:textSize="16sp"
+                    android:textSize="16dp"
                     app:chipBackgroundColor="@color/colorAccent" />
 
                 <Button
@@ -191,7 +191,7 @@
                     android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
                     android:text="Thu, 31.05.2022"
-                    android:textSize="12sp" />
+                    android:textSize="12dp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -208,7 +208,7 @@
                     android:layout_alignEnd="@+id/btn_choose_start_date"
                     android:layout_alignParentBottom="true"
                     android:text="08:00"
-                    android:textSize="14sp" />
+                    android:textSize="14dp" />
 
                 <Button
                     android:id="@+id/btn_choose_end_time"
@@ -220,7 +220,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentBottom="true"
                     android:text="09:00"
-                    android:textSize="14sp" />
+                    android:textSize="14dp" />
 
             </RelativeLayout>
 
@@ -244,7 +244,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="5dp"
                             android:text="Choose start timeData"
-                            android:textSize="12sp" />
+                            android:textSize="12dp" />
 
                         <Button
                             android:id="@+id/btn_choose_end_time"
@@ -252,7 +252,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="5dp"
                             android:text="Choose end timeData"
-                            android:textSize="12sp" />
+                            android:textSize="12dp" />
 
                     </LinearLayout>
             -->
@@ -321,7 +321,7 @@
             android:drawablePadding="3dp"
             android:hint="@string/does_not_repeat"
             android:textColor="@color/colorAccent"
-            android:textSize="18sp"
+            android:textSize="18dp"
             app:layout_constraintEnd_toEndOf="@+id/ll_end"
             app:layout_constraintStart_toStartOf="@+id/ll_end"
             app:layout_constraintTop_toBottomOf="@+id/ll_end" />
@@ -334,7 +334,7 @@
             app:layout_constraintStart_toStartOf="parent"
             android:layout_weight="1"
             android:text="Set Alarm"
-            android:textSize="18sp"
+            android:textSize="18dp"
             android:drawableStart="@drawable/alarm_icon"
             android:drawableTint="@drawable/checked_text_view_text_color"
             android:drawablePadding="3dp"
@@ -355,7 +355,7 @@
             android:drawableStart="@drawable/ic_baseline_subject_24"
             android:drawableTint="@color/black"
             android:singleLine="false"
-            android:textSize="18sp"
+            android:textSize="18dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -369,7 +369,7 @@
             android:layout_weight="1"
             android:hint="@string/place"
             android:importantForAutofill="no"
-            android:textSize="18sp"
+            android:textSize="18dp"
             android:drawableStart="@drawable/ic_baseline_location_on_24"
             android:drawableTint="@color/black"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -399,7 +399,7 @@
                 android:layout_marginHorizontal="10dp"
                 android:layout_weight="1"
                 android:text="Delete event"
-                android:textSize="14sp" />
+                android:textSize="14dp" />
 
 
         </LinearLayout>

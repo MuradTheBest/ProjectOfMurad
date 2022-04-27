@@ -4,17 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingVertical="10sp">
+    android:paddingVertical="10dp">
 
     <TextView
         android:id="@+id/tv_bottom_sheet_dialog_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Title"
-        android:textSize="16sp"
+        android:textSize="16dp"
         android:textStyle="bold"
-        android:paddingHorizontal="15sp"
-        android:paddingVertical="5sp"
+        android:paddingHorizontal="15dp"
+        android:paddingVertical="5dp"
         />
 
     <TextView
@@ -22,8 +22,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Only this event"
-        android:textSize="16sp"
-        android:padding="15sp"
+        android:textSize="16dp"
+        android:padding="15dp"
         />
 
     <TextView
@@ -31,8 +31,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="This and future event"
-        android:textSize="16sp"
-        android:padding="15sp"
+        android:textSize="16dp"
+        android:padding="15dp"
         />
 
     <TextView
@@ -40,8 +40,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="All events in chain"
-        android:textSize="16sp"
-        android:padding="15sp"
+        android:textSize="16dp"
+        android:padding="15dp"
         />
 
 </LinearLayout>

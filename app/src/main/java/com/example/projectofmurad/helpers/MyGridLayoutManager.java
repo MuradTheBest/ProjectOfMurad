@@ -20,8 +20,8 @@ public class MyGridLayoutManager extends GridLayoutManager {
     public MyGridLayoutManager(Context context, int spanCount, int orientation, boolean reverseLayout) {
         super(context, spanCount, orientation, reverseLayout);
     }
-/*
-    @Override
+
+/*    @Override
     public boolean supportsPredictiveItemAnimations() {
         return false;
     }*/

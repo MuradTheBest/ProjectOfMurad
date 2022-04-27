@@ -85,8 +85,8 @@ public class GroupTrainingsFragment extends Fragment implements EventsAndTrainin
 
         progressViewModel = new ViewModelProvider(requireActivity()).get(ProgressViewModel.class);
 
-        DatabaseReference eventKeys = FirebaseUtils.trainingsDatabase.child("Events");
-        DatabaseReference events = FirebaseUtils.allEventsDatabase;
+        DatabaseReference eventKeys = FirebaseUtils.getTrainingsDatabase().child("Events");
+        DatabaseReference events = FirebaseUtils.getAllEventsDatabase();
 
         FirebaseRecyclerOptions<CalendarEvent> options = new FirebaseRecyclerOptions.Builder<CalendarEvent>()
                 .setLifecycleOwner(this)

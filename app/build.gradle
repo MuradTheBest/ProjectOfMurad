@@ -146,4 +146,7 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "com.android.support:multidex:1.0.3"
+
+    implementation 'nl.bryanderidder:themed-toggle-button-group:1.4.1'
+
 }

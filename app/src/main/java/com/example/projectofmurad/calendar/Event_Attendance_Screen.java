@@ -62,7 +62,7 @@ public class Event_Attendance_Screen extends AppCompatActivity implements
 
         event_private_id = gotten_intent.getStringExtra("event_private_id");
 
-        DatabaseReference allEvents = FirebaseUtils.allEventsDatabase.child(event_private_id);
+        DatabaseReference allEvents = FirebaseUtils.getAllEventsDatabase().child(event_private_id);
 
 
         tv_event_name = findViewById(R.id.tv_event_name);

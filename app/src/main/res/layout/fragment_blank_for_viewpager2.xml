@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
+    android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
@@ -31,10 +32,10 @@
             app:contentScrim="@color/colorAccent"
             android:minHeight="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:scrimVisibleHeightTrigger="121sp"
+            app:scrimVisibleHeightTrigger="121dp"
             app:titleMargin="0dp"
             app:contentInsetEnd="0dp"
-            app:contentInsetEndWithActions="0sp"
+            app:contentInsetEndWithActions="0dp"
             app:contentInsetStartWithNavigation="0dp"
             app:contentInsetStart="0dp">
 
@@ -58,8 +59,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:padding="5sp"
-                android:layout_marginTop="235sp"
+                android:padding="5dp"
+                android:layout_marginTop="235dp"
                 android:background="@drawable/bottom_sheet_training_background"
                 android:backgroundTint="@color/white"
                 app:layout_collapseMode="parallax"
@@ -86,7 +87,7 @@
                 app:layout_collapseMode="pin"
                 app:titleMargin="0dp"
                 app:contentInsetEnd="0dp"
-                app:contentInsetEndWithActions="0sp"
+                app:contentInsetEndWithActions="0dp"
                 app:contentInsetStartWithNavigation="0dp"
                 app:contentInsetStart="0dp"/>
 
@@ -112,7 +113,6 @@
         app:layout_constraintTop_toTopOf="parent"/>-->
 
     <androidx.viewpager2.widget.ViewPager2
-
         android:id="@+id/vp_event"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -124,12 +124,13 @@
         app:layout_constraintTop_toBottomOf="@+id/app_bar_layout" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        app:elevation="0dp"
         android:id="@+id/fab_add_training"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_anchor="@id/tabLayout"
         app:layout_anchorGravity="end"
-        android:layout_marginEnd="10sp"
+        android:layout_marginEnd="10dp"
         app:srcCompat="@android:drawable/ic_input_add" />
 
 
@@ -152,10 +153,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="10sp"
-        android:layout_marginEnd="10sp">
+        android:layout_margin="10dp"
+        android:layout_marginEnd="10dp">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            app:elevation="0dp"
             android:id="@+id/fab_add_training2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -166,10 +168,11 @@
             app:srcCompat="@android:drawable/ic_input_add" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            app:elevation="0dp"
             android:id="@+id/fab_add_private_training2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10sp"
+            android:layout_marginBottom="10dp"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@id/fab_add_training2"
             app:layout_constraintStart_toStartOf="@id/fab_add_training2"
@@ -177,19 +180,20 @@
             android:layout_above="@id/fab_add_training2"
             android:layout_toStartOf="@id/fab_add_training2"
             app:srcCompat="@drawable/biking_alone"
-            app:maxImageSize="30sp"/>
+            app:maxImageSize="30dp"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            app:elevation="0dp"
             android:id="@+id/fab_add_group_training2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10sp"
+            android:layout_marginEnd="10dp"
             android:visibility="gone"
             app:layout_constraintTop_toTopOf="@id/fab_add_training2"
             app:layout_constraintBottom_toBottomOf="@id/fab_add_training2"
             app:layout_constraintEnd_toStartOf="@id/fab_add_training2"
             app:srcCompat="@drawable/biking_in_group"
-            app:maxImageSize="40sp"/>
+            app:maxImageSize="40dp"/>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

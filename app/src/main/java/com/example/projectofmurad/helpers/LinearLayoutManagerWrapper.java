@@ -20,8 +20,8 @@ public class LinearLayoutManagerWrapper extends LinearLayoutManager {
     public LinearLayoutManagerWrapper(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
-/*
-    @Override
+
+/*    @Override
     public boolean supportsPredictiveItemAnimations() {
         return false;
     }*/

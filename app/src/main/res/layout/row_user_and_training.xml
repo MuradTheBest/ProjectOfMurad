@@ -15,8 +15,8 @@
         style="@style/ThemeOverlay.AppCompat.Dark"
         android:background="@drawable/event_background"
         app:cardUseCompatPadding="true"
-        app:cardCornerRadius="10sp"
-        app:cardElevation="10sp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="10dp"
         android:gravity="start"
         >
 
@@ -25,13 +25,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/user_background"
-            android:padding="10sp"
+            android:padding="10dp"
             >
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/iv_profile_picture"
-                android:layout_width="50sp"
-                android:layout_height="50sp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:scaleType="centerCrop"
@@ -41,8 +41,8 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_training"
                 android:layout_width="match_parent"
-                android:layout_height="225sp"
-                android:layout_marginTop="20sp"
+                android:layout_height="225dp"
+                android:layout_marginTop="20dp"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -51,12 +51,57 @@
             <com.github.mikephil.charting.charts.BarChart
                 android:id="@+id/bc_average_speed"
                 android:layout_width="match_parent"
-                android:layout_height="200sp"
-                android:layout_marginTop="20sp"
+                android:layout_height="200dp"
+                android:layout_marginTop="20dp"
 
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rv_training" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_choose_visibility"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Visible to all users"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:textSize="14sp"
+                app:switchPadding="10dp"
+                android:scaleX="1"
+                android:scaleY="1" />
+
+            <!--<com.google.android.material.chip.ChipGroup
+                android:id="@+id/tbg_show"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:selectionRequired="true"
+                app:singleSelection="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/tb_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="All"
+                    app:chipBackgroundColor="@drawable/chip_background" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/tb_madrich"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Madrichs only"
+                    app:chipBackgroundColor="@drawable/chip_background"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/tb_none"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No one"
+                    app:chipBackgroundColor="@drawable/chip_background" />
+
+            </com.google.android.material.chip.ChipGroup>-->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

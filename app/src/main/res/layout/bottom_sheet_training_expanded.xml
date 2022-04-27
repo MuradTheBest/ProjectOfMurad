@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginTop="40sp"
+    android:layout_marginTop="40dp"
     android:columnCount="2"
     android:columnOrderPreserved="true"
     android:rowCount="5"
@@ -23,8 +23,8 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="10sp"
-        android:paddingVertical="10sp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="10dp"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
         android:gravity="center">
@@ -33,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Workout duration"
-            android:textSize="14sp" />
+            android:textSize="14dp" />
 
         <TextView
             android:id="@+id/tv_training_duration"
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:text="00:10:53"
             android:textStyle="bold"
-            android:textSize="16sp"/>
+            android:textSize="16dp"/>
 
     </LinearLayout>
 
@@ -49,8 +49,8 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="10sp"
-        android:paddingVertical="10sp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="10dp"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
         android:gravity="center">
@@ -59,7 +59,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Total duration"
-            android:textSize="14sp" />
+            android:textSize="14dp" />
 
         <TextView
             android:id="@+id/tv_training_total_duration"
@@ -67,7 +67,7 @@
             android:layout_height="wrap_content"
             android:text="02:54:53"
             android:textStyle="bold"
-            android:textSize="16sp"/>
+            android:textSize="16dp"/>
 
     </LinearLayout>
 
@@ -75,8 +75,8 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="10sp"
-        android:paddingVertical="10sp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="10dp"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
         android:gravity="center">
@@ -85,7 +85,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Distance"
-            android:textSize="14sp" />
+            android:textSize="14dp" />
 
         <TextView
             android:id="@+id/tv_training_distance"
@@ -93,7 +93,7 @@
             android:layout_height="wrap_content"
             android:text="100 km"
             android:textStyle="bold"
-            android:textSize="16sp"/>
+            android:textSize="16dp"/>
 
     </LinearLayout>
 
@@ -102,7 +102,7 @@
         android:layout_height="wrap_content"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
-        android:padding="15sp"
+        android:padding="15dp"
         android:layout_gravity="center"
         android:src="@drawable/ic_baseline_directions_bike_24"/>
 
@@ -110,8 +110,8 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="10sp"
-        android:paddingVertical="10sp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="10dp"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
         android:gravity="center">
@@ -120,7 +120,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Average speed"
-            android:textSize="14sp" />
+            android:textSize="14dp" />
 
         <TextView
             android:id="@+id/tv_training_average_speed"
@@ -128,7 +128,7 @@
             android:layout_height="wrap_content"
             android:text="100 km/h"
             android:textStyle="bold"
-            android:textSize="16sp"/>
+            android:textSize="16dp"/>
 
     </LinearLayout>
 
@@ -136,8 +136,8 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="10sp"
-        android:paddingVertical="10sp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="10dp"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
         android:gravity="center">
@@ -146,7 +146,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Max. speed"
-            android:textSize="14sp" />
+            android:textSize="14dp" />
 
         <TextView
             android:id="@+id/tv_training_max_speed"
@@ -154,7 +154,7 @@
             android:layout_height="wrap_content"
             android:text="1000 km/h"
             android:textStyle="bold"
-            android:textSize="16sp"/>
+            android:textSize="16dp"/>
 
     </LinearLayout>
 
@@ -162,8 +162,8 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="10sp"
-        android:paddingVertical="10sp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="10dp"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
         android:gravity="center">
@@ -172,7 +172,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Average pace"
-            android:textSize="14sp" />
+            android:textSize="14dp" />
 
         <TextView
             android:id="@+id/tv_training_average_pace"
@@ -180,7 +180,7 @@
             android:layout_height="wrap_content"
             android:text="11'59' /km"
             android:textStyle="bold"
-            android:textSize="16sp"/>
+            android:textSize="16dp"/>
 
     </LinearLayout>
 
@@ -188,8 +188,8 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="10sp"
-        android:paddingVertical="10sp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="10dp"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
         android:gravity="center">
@@ -198,7 +198,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Max. pace"
-            android:textSize="14sp" />
+            android:textSize="14dp" />
 
         <TextView
             android:id="@+id/tv_training_max_pace"
@@ -206,7 +206,7 @@
             android:layout_height="wrap_content"
             android:text="06'23' /km"
             android:textStyle="bold"
-            android:textSize="16sp"/>
+            android:textSize="16dp"/>
 
     </LinearLayout>
 

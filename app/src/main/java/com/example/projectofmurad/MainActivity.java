@@ -35,10 +35,13 @@ import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.home.HomeFragment;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
 import com.example.projectofmurad.notifications.AlarmReceiver;
+import com.example.projectofmurad.tracking.Location;
 import com.example.projectofmurad.tracking.TrackingService;
+import com.example.projectofmurad.tracking.Tracking_Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -56,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
         setContentView(R.layout.activity_main);
 //        getSupportActionBar().setShowHideAnimationEnabled(true);
 
+        Log.d(LOG_TAG, FirebaseUtils.CURRENT_GROUP_KEY[0]);
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
@@ -81,25 +85,7 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
         Intent gotten_intent = getIntent();
 
         if (gotten_intent.getAction() != null){
-
-            switch (gotten_intent.getAction()) {
-                case TrackingService.ACTION_MOVE_TO_TRACKING_FRAGMENT:
-                    Log.d("murad", "Going to Tracking_Fragment");
-                    moveToTrackingFragment();
-                    break;
-                case CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT:
-
-                    Log.d("murad", "Going to CalendarFragment");
-
-                    mainViewModel.setEventDate(LocalDate.now());
-
-                    bottomNavigationView.setSelectedItemId(R.id.calendar_Fragment);
-
-                    break;
-                case DayDialog.ACTION_TO_SHOW_EVENT:
-                    showEvent(gotten_intent);
-                    break;
-            }
+            checkIntent(gotten_intent);
         }
 
     }
@@ -110,12 +96,59 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
 
     @Override
     public void onNewIntent(Intent intent) {
-
         super.onNewIntent(intent);
 
         Log.d(LOG_TAG, "MainActivity got NewIntent");
 
-        showEvent(intent);
+        checkIntent(intent);
+    }
+
+    public void checkIntent(@NonNull Intent gotten_intent){
+        switch (gotten_intent.getAction()) {
+            case TrackingService.ACTION_MOVE_TO_TRACKING_FRAGMENT:
+                Log.d("murad", "Going to Tracking_Fragment");
+
+                if (gotten_intent.getExtras() != null){
+                    double latitude = gotten_intent.getDoubleExtra("latitude", 0);
+                    double longitude = gotten_intent.getDoubleExtra("longitude", 0);
+
+                    Location location = new Location(latitude, longitude);
+
+                    mainViewModel.setLocation(location);
+
+/*                        List<Location> locations = new ArrayList<>();
+                        locations.add(new Location(36.1452, 48.63320));
+                        locations.add(new Location(50.1452, 20.63320));
+
+                        mainViewModel.setLocations(locations);*/
+                }
+
+                moveToTrackingFragment();
+                break;
+            case Tracking_Fragment.ACTION_MOVE_TO_TRACKING_FRAGMENT_TO_SHOW_TRACK:
+                Log.d("murad", "Going to Tracking_Fragment");
+
+                if (gotten_intent.getExtras() != null){
+                    ArrayList<Location> locations = gotten_intent.getParcelableArrayListExtra("locations");
+
+                    mainViewModel.setLocations(locations);
+                }
+
+                moveToTrackingFragment();
+                break;
+            case CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT:
+
+                Log.d("murad", "Going to CalendarFragment");
+
+                mainViewModel.setEventDate(LocalDate.now());
+
+                bottomNavigationView.setSelectedItemId(R.id.calendar_Fragment);
+
+                break;
+            case DayDialog.ACTION_TO_SHOW_EVENT:
+                showEvent(gotten_intent);
+                break;
+        }
     }
 
     private void showEvent(@NonNull Intent intent){
@@ -192,6 +225,9 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
             animate(bottomNavigationView, Gravity.TOP, 300);
 //            animate((ViewGroup) containerView, Gravity.TOP, 300);
         }
+        else if (bottomNavigationView.getSelectedItemId() == R.id.blankFragment){
+            mainViewModel.setScrollUp(true);
+        }
         else{
             super.onBackPressed();
         }
@@ -244,10 +280,10 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
 
         Handler handler = new Handler();
 
-        getSupportActionBar().show();
+//        getSupportActionBar().show();
 
         if(navDestination.getId() == R.id.tracking_Fragment){
-            getSupportActionBar().hide();
+//            getSupportActionBar().hide();
             bottomNavigationView.setVisibility(View.GONE);
 
             animate(bottomNavigationView, Gravity.BOTTOM, 300);
