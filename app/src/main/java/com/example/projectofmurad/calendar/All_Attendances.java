@@ -5,10 +5,10 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.MyActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -17,7 +17,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-public class All_Attendances extends AppCompatActivity implements EventsAdapterForFirebase.OnEventClickListener {
+public class All_Attendances extends MyActivity implements EventsAdapterForFirebase.OnEventClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

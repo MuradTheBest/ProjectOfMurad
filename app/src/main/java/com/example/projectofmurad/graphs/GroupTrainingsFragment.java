@@ -1,9 +1,11 @@
 package com.example.projectofmurad.graphs;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -76,12 +78,14 @@ public class GroupTrainingsFragment extends Fragment implements EventsAndTrainin
 
     RecyclerView rv_group_training;
     ProgressViewModel progressViewModel;
+    ProgressBar progressBar;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         rv_group_training = view.findViewById(R.id.rv_group_training);
+        progressBar = view.findViewById(R.id.progressBar);
 
         progressViewModel = new ViewModelProvider(requireActivity()).get(ProgressViewModel.class);
 
@@ -96,7 +100,13 @@ public class GroupTrainingsFragment extends Fragment implements EventsAndTrainin
         EventsAndTrainingsAdapterForFirebase eventsAdapterForFirebase = new EventsAndTrainingsAdapterForFirebase(options, FirebaseUtils.getCurrentUID(), requireContext(), this);
 
         rv_group_training.setAdapter(eventsAdapterForFirebase);
-        rv_group_training.setLayoutManager(new LinearLayoutManagerWrapper(requireContext()));
+        rv_group_training.setLayoutManager(new LinearLayoutManagerWrapper(requireContext()).addOnLayoutCompleteListener(
+                () -> {
+                    new Handler().postDelayed(() -> {
+                        progressBar.setVisibility(View.GONE);
+                        rv_group_training.setVisibility(View.VISIBLE);
+                    }, 500);
+                }));
     }
 
     @Override

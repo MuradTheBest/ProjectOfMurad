@@ -176,7 +176,7 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_main.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_my_super_touch.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_profile_screen.xml" value="0.26500337154416725" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_show_groups.xml" value="0.16794871794871793" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_show_groups.xml" value="0.18" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_user_signing.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/alarm_dialog_layout.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/botom_sheet_training.xml" value="0.16794871794871793" />
@@ -231,6 +231,7 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_event_and_trainings.xml" value="0.15" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_event_info.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_fragment_list.xml" value="0.1675213675213675" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_group.xml" value="0.33" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_training.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_user_and_training.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/save_event_bottom_sheet_dialog.xml" value="0.16794871794871793" />
@@ -240,7 +241,7 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/table_cell.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/training_shimmer_layout.xml" value="0.2971938775510204" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/user_and_training_shimmer_layout.xml" value="0.22" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/user_info_expanded_with_card_view.xml" value="0.44550669216061184" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/user_info_expanded_with_card_view.xml" value="0.4270386266094421" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/user_shimmer_layout.xml" value="1.0" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/blank_fragment_menu.xml" value="0.22" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/bottom_menu.xml" value="0.1675213675213675" />

@@ -160,10 +160,7 @@ public class Log_In_Screen extends UserSigningActivity {
 
 		builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
-		AlertDialog alertDialog = builder.create();
-		Utils.createCustomDialog(alertDialog);
-
-		alertDialog.show();
+		Utils.createCustomDialog(builder.create()).show();
 	}
 
 	public void login(String email, String password){

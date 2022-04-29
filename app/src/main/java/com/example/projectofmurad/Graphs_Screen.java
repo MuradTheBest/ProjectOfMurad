@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class Graphs_Screen extends AppCompatActivity {
+public class Graphs_Screen extends MyActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

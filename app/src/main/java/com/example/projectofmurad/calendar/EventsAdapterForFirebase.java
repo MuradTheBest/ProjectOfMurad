@@ -56,15 +56,10 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
     private LocalDate selectedDate;
     private final OnEventClickListener onEventClickListener;
-    private OnEventChooseListener onEventChooseListener;
     private final Context context;
     private String selected_UID;
 
-    private boolean isChooseEventDialog;
-
     private final SQLiteDatabase db;
-
-    private int oldPosition = -1;
 
     public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, LocalDate selectedDate,
                                     @NonNull Context context, OnEventClickListener onEventClickListener) {
@@ -72,18 +67,6 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         super(options);
         this.selectedDate = selectedDate;
         this.onEventClickListener = onEventClickListener;
-        this.context = context;
-        this.db = context.openOrCreateDatabase(Utils.DATABASE_NAME, MODE_PRIVATE, null);
-    }
-
-    public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, LocalDate selectedDate,
-                                    @NonNull Context context, OnEventClickListener onEventClickListener,
-                                    OnEventChooseListener onEventChooseListener) {
-
-        super(options);
-        this.selectedDate = selectedDate;
-        this.onEventClickListener = onEventClickListener;
-        this.onEventChooseListener = onEventChooseListener;
         this.context = context;
         this.db = context.openOrCreateDatabase(Utils.DATABASE_NAME, MODE_PRIVATE, null);
     }
@@ -147,17 +130,8 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             checkbox_all_attendances.setOnCheckedChangeListener(this);
 
 //            itemView.setOnClickListener(this);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onEventClickListener.onEventClick(getBindingAdapterPosition(), getItem(getBindingAdapterPosition()));
-                    if (onEventChooseListener != null && getAbsoluteAdapterPosition() != oldPosition && oldPosition > -1){
-                        onEventChooseListener.onEventChoose(oldPosition, getBindingAdapterPosition(), getItem(getBindingAdapterPosition()).getPrivateId());
-                        oldPosition = getAbsoluteAdapterPosition();
-                        checkbox_all_attendances.setChecked(true);
-                    }
-                }
-            });
+            itemView.setOnClickListener(
+                    v -> onEventClickListener.onEventClick(getBindingAdapterPosition(), getItem(getBindingAdapterPosition())));
         }
 
         @Override
@@ -338,24 +312,15 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             holder.checkbox_all_attendances.setVisibility(View.GONE);
         }
 
-        if (onEventChooseListener != null){
-            holder.checkbox_all_attendances.setVisibility(View.VISIBLE);
-        }
-
         if (selected_UID != null){
             DatabaseReference ref = FirebaseUtils.getAttendanceDatabase().child(event_private_id).child(selected_UID).child("attend");
-
-            final boolean[] attend = {false};
 
             ref.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()){
-                        attend[0] = snapshot.getValue(boolean.class);
-                    }
-                    holder.checkbox_all_attendances.setChecked(attend[0]);
+                    boolean attend = snapshot.exists() ? snapshot.getValue(boolean.class) : false;
+                    holder.checkbox_all_attendances.setChecked(attend);
                     holder.checkbox_all_attendances.setVisibility(View.GONE);
-
                 }
 
                 @Override
@@ -392,9 +357,6 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
         holder.itemView.setTag(model.getPrivateId());
 
-        if (onEventChooseListener != null){
-            holder.checkbox_all_attendances.setVisibility(View.VISIBLE);
-        }
     }
 
     @NonNull
@@ -408,10 +370,6 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
     public interface OnEventClickListener {
         void onEventClick(int position, CalendarEvent calendarEvent);
-    }
-
-    public interface OnEventChooseListener {
-        void onEventChoose(int oldPosition, int newPosition, String eventPrivateId);
     }
 
     @Override

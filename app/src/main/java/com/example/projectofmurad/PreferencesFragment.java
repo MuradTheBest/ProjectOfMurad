@@ -21,12 +21,14 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.example.projectofmurad.calendar.AlarmDialog;
+import com.example.projectofmurad.groups.ShowGroupsScreen;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -89,7 +91,7 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
     }
 
 
-    private TextView tv_go_graphs;
+    private MaterialButton btn_change_group;
     private SwitchCompat switch_notifications;
     private SwitchCompat switch_add_event;
     private SwitchCompat switch_edit_event;
@@ -116,14 +118,14 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
     private SwitchCompat switch_visible_to_madrich;
     private SwitchCompat switch_visible_to_all;
 
-    private OnFailureListener onFailureListener = e -> Toast.makeText(requireContext(), "Failed", Toast.LENGTH_SHORT).show();
+    private final OnFailureListener onFailureListener = e -> Toast.makeText(requireContext(), "Failed", Toast.LENGTH_SHORT).show();
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tv_go_graphs = view.findViewById(R.id.tv_go_graphs);
-        tv_go_graphs.setOnClickListener(v -> startActivity(new Intent(requireContext(), Graphs_Screen.class)));
+        btn_change_group = view.findViewById(R.id.btn_change_group);
+        btn_change_group.setOnClickListener(v -> startActivity(new Intent(requireContext(), ShowGroupsScreen.class)));
 
         switch_notifications = view.findViewById(R.id.switch_notifications);
         switch_notifications.setOnClickListener(this);
@@ -349,7 +351,7 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                 editor.putBoolean(UserData.KEY_SUBSCRIBED_TO_AUTO_ALARM_SET, false);
             }
 
-            editor.commit();
+            editor.apply();
         }*/
 
         if (v instanceof SwitchCompat){
@@ -427,13 +429,13 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                 else {
                     editor.putBoolean(UserData.KEY_SUBSCRIBED_TO_AUTO_ALARM_SET, false);
                     tv_alarm_before.setTextColor(Color.LTGRAY);
-                    editor.commit();
+                    editor.apply();
                 }
 
             }
             else if (v == switch_auto_alarm_move){
                 editor.putBoolean(UserData.KEY_SUBSCRIBED_TO_AUTO_ALARM_MOVE, switch_auto_alarm_move.isChecked());
-                editor.commit();
+                editor.apply();
             }
             else {
 
@@ -530,6 +532,6 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
         tv_alarm_before.setText(String.format("Alarms will work %s before event's start", prior));
         tv_alarm_before.setTextColor(Color.BLACK);
 
-        editor.commit();
+        editor.apply();
     }
 }

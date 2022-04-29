@@ -1,6 +1,10 @@
 package com.example.projectofmurad;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
+
+import com.example.projectofmurad.groups.MadrichAndShow;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,9 +19,6 @@ public class UserData {
 
     private ArrayList<String> tokens;
 
-    private boolean madrich;
-    private boolean notMadrich = true;
-
     private String profile_picture;
     private boolean emailVerified;
 
@@ -31,7 +32,7 @@ public class UserData {
     private int show;
     private boolean autoShowResultsToMadrich;
 
-    private HashMap<String, Boolean> groups;
+    private HashMap<String, MadrichAndShow> groups;
     private String currentGroup;
 
     private boolean subscribedToAutoAlarmSet;
@@ -76,8 +77,6 @@ public class UserData {
         this.UID = UID;
         this.email = email;
         this.username = username;
-        this.madrich = false;
-        this.notMadrich = true;
         this.phone = phone;
         this.show = Show.Madrich.getValue();
     }
@@ -86,8 +85,6 @@ public class UserData {
         this.UID = UID;
         this.email = email;
         this.username = username;
-        this.madrich = false;
-        this.notMadrich = true;
         this.phone = phone;
         this.profile_picture = profile_picture;
         this.show = Show.Madrich.getValue();
@@ -97,8 +94,6 @@ public class UserData {
         this.UID = UID;
         this.email = email;
         this.username = username;
-        this.madrich = false;
-        this.notMadrich = true;
         this.online = true;
         this.offline = false;
         this.show = Show.Madrich.getValue();
@@ -109,8 +104,6 @@ public class UserData {
         this.email = email;
         this.username = username;
         this.phone = phone;
-        this.madrich = madrich;
-        this.notMadrich = !madrich;
     }
 
     public String getUsername() {
@@ -149,24 +142,35 @@ public class UserData {
     @Override
     public String toString() {
         return "UserData{" +
-                " \nUID = '" + UID + '\'' +
-                ",\nemail = '" + email + '\'' +
-                ",\nusername = '" + username + '\'' +
-                ",\nphone = '" + phone + '\'' +
-                ",\ntoken = '" + token + '\'' +
-                ",\ntokens = " + tokens +
-                ",\nmadrich = " + madrich +
-                ",\nnotMadrich = " + notMadrich +
-                ",\nprofile_picture = '" + profile_picture + '\'' +
-                ",\nemailVerified = " + emailVerified +
-                ",\nonline = " + online +
-                ",\noffline = " + offline +
-                ",\nsubscribedToAddEvent = " + subscribedToAddEvent +
-                ",\nsubscribedToEditEvent = " + subscribedToEditEvent +
-                ",\nsubscribedToDeleteEvent = " + subscribedToDeleteEvent +
-                ",\nsubscribedToAutoAlarmSet = " + subscribedToAutoAlarmSet +
-                ",\nsubscribedToAutoAlarmMove = " + subscribedToAutoAlarmMove +
-                "\n}";
+                "UID='" + UID + '\'' +
+                ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
+                ", phone='" + phone + '\'' +
+                ", token='" + token + '\'' +
+                ", tokens=" + tokens +
+                ", profile_picture='" + profile_picture + '\'' +
+                ", emailVerified=" + emailVerified +
+                ", online=" + online +
+                ", offline=" + offline +
+                ", subscribedToAddEvent=" + subscribedToAddEvent +
+                ", subscribedToEditEvent=" + subscribedToEditEvent +
+                ", subscribedToDeleteEvent=" + subscribedToDeleteEvent +
+                ", show=" + show +
+                ", autoShowResultsToMadrich=" + autoShowResultsToMadrich +
+                ", groups=" + groups +
+                ", currentGroup='" + currentGroup + '\'' +
+                ", subscribedToAutoAlarmSet=" + subscribedToAutoAlarmSet +
+                ", subscribedToAutoAlarmMove=" + subscribedToAutoAlarmMove +
+                ", totalTime=" + totalTime +
+                ", totalDistance=" + totalDistance +
+                ", totalSpeed=" + totalSpeed +
+                ", groupTotalTime=" + groupTotalTime +
+                ", groupTotalDistance=" + groupTotalDistance +
+                ", groupTotalSpeed=" + groupTotalSpeed +
+                ", privateTotalTime=" + privateTotalTime +
+                ", privateTotalDistance=" + privateTotalDistance +
+                ", privateTotalSpeed=" + privateTotalSpeed +
+                '}';
     }
 
     public String getProfile_picture() {
@@ -175,24 +179,6 @@ public class UserData {
 
     public void setProfile_picture(String profile_picture) {
         this.profile_picture = profile_picture;
-    }
-
-    public boolean isMadrich() {
-
-        return madrich;
-    }
-
-    public void setMadrich(boolean madrich) {
-        this.madrich = madrich;
-        this.notMadrich = !madrich;
-    }
-
-    public boolean isNotMadrich() {
-        return notMadrich;
-    }
-
-    public void setNotMadrich(boolean notMadrich) {
-        this.notMadrich = notMadrich;
     }
 
     public String getToken() {
@@ -270,11 +256,7 @@ public class UserData {
     }
 
     public int getShow() {
-        return show;
-    }
-
-    public void setShow(int show) {
-        this.show = show;
+        return groups.get(FirebaseUtils.CURRENT_GROUP_KEY).getShow();
     }
 
     public String getCurrentGroup() {
@@ -285,11 +267,16 @@ public class UserData {
         this.currentGroup = currentGroup;
     }
 
-    public HashMap<String, Boolean> getGroups() {
+    public HashMap<String, MadrichAndShow> getGroups() {
         return groups;
     }
 
-    public void setGroups(HashMap<String, Boolean> groups) {
+    public void setGroups(HashMap<String, MadrichAndShow> groups) {
         this.groups = groups;
+    }
+
+    public boolean isMadrich() {
+        Log.d("snapshot", groups.toString());
+        return groups.get(FirebaseUtils.CURRENT_GROUP_KEY).isMadrich();
     }
 }

@@ -9,10 +9,10 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.MyActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
@@ -24,7 +24,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
-public class Event_Attendance_Screen extends AppCompatActivity implements
+public class Event_Attendance_Screen extends MyActivity implements
         UsersAdapterForFirebase.OnUserClickListener,
         UsersAdapterForFirebase.OnUserExpandListener {
 

@@ -1,16 +1,8 @@
 <resources>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment" translatable="false">Hello blank calendarFragment</string>
-    <string name="app_name" translatable="false">CalendarAppExample</string>
+    <string name="app_name" translatable="false">BikeRiders</string>
     <string name="calendar_back" translatable="false"><![CDATA[<-]]></string>
     <string name="calendar_forward" translatable="false"><![CDATA[->]]></string>
-    <string name="title_activity_my_super" translatable="false">MySuperActivity</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label" translatable="false">First Fragment</string>
-    <string name="second_fragment_label" translatable="false">Second Fragment</string>
-    <string name="next" translatable="false">Next</string>
-    <string name="previous" translatable="false">Previous</string>
-
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel_id</string>
     <!--
         This is the name that users will see when interacting with this channel.
@@ -181,4 +173,7 @@
         "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
         "when a user tries to pick up one of cards.\n\n"
     </string>
+    <string name="these_are_your_groups">These are your groups, %s</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

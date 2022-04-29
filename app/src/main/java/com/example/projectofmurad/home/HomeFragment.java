@@ -159,6 +159,8 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
 
     private CoordinatorLayout coordinatorLayout;
 
+    private int selectedTab = 1;
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -173,6 +175,8 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
                 coordinatorLayout.scrollTo(0, coordinatorLayout.getTop());
             }
         });
+
+        mainViewModel.getSelectedTab().observe(getViewLifecycleOwner(), position -> selectedTab = position);
 
         AppBarLayout appBarLayout = view.findViewById(R.id.app_bar_layout);
 
@@ -441,6 +445,8 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                mainViewModel.setSelectedTab(tab.getPosition());
+
                 if (tab.getPosition() == 0){
                     Log.d(Utils.LOG_TAG, "on last event tab");
 
@@ -482,8 +488,7 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
             }
         });
 
-        vp_event.setCurrentItem(1, false);
-        tabLayout.selectTab(tabLayout.getTabAt(1));
+        vp_event.setCurrentItem(selectedTab, false);
     }
 
 }

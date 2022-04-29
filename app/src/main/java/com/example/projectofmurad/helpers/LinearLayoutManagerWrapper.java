@@ -21,10 +21,10 @@ public class LinearLayoutManagerWrapper extends LinearLayoutManager {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-/*    @Override
+    @Override
     public boolean supportsPredictiveItemAnimations() {
         return false;
-    }*/
+    }
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {

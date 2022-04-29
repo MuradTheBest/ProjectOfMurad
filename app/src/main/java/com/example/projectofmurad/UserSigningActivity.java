@@ -20,7 +20,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.FCMSend;
@@ -50,7 +49,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class UserSigningActivity extends AppCompatActivity {
+public class UserSigningActivity extends MyActivity {
 
     protected MaterialButton btn_log_in_with_google;
     protected MaterialButton btn_log_in_with_facebook;

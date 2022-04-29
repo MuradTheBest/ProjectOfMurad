@@ -1046,17 +1046,9 @@ public class Tracking_Fragment extends Fragment implements
         builder.setTitle("Stop tracking");
         builder.setMessage("You can now turn on back power saving mode");
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
 
-        AlertDialog alertDialog = builder.create();
-        Utils.createCustomDialog(alertDialog);
-
-        alertDialog.show();
+        Utils.createCustomDialog(builder.create()).show();
     }
 
     public void createTurnOffPowerSavingDialog(){

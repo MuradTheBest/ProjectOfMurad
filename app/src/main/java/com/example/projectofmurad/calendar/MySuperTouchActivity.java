@@ -20,11 +20,11 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 
 import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.MainActivity;
+import com.example.projectofmurad.MyActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
@@ -46,7 +46,7 @@ import java.util.List;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
-public class MySuperTouchActivity extends AppCompatActivity implements
+public class MySuperTouchActivity extends MyActivity implements
         ChooseEventFrequencyDialogCustomWithExposedDropdown.OnNeverFrequencyListener,
         ChooseEventFrequencyDialogCustomWithExposedDropdown.OnSendMessageListener,
         ChooseEventFrequencyDialogCustomWithExposedDropdown.OnDayFrequencyListener,

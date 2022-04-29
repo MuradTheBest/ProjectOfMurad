@@ -30,8 +30,7 @@ import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.helpers.ViewAnimationUtils;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 
@@ -282,13 +281,14 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData, U
 
             DatabaseReference ref = FirebaseUtils.getAttendanceDatabase().child(event_private_id).child(model.getUID()).child("attend");
 
-            ref.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            ref.get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
                 @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if(task.getResult().exists()){
-                        boolean attend = task.getResult().getValue(boolean.class);
-                        holder.checkbox_attendance.setChecked(attend);
+                public void onSuccess(DataSnapshot dataSnapshot) {
+                    boolean attend = false;
+                    if (dataSnapshot.exists()){
+                        attend = dataSnapshot.getValue(boolean.class);
                     }
+                    holder.checkbox_attendance.setChecked(attend);
                 }
             });
 

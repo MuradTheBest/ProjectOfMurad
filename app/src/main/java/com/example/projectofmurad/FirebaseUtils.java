@@ -3,6 +3,7 @@ package com.example.projectofmurad;
 import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -31,6 +32,7 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class FirebaseUtils {
 
@@ -59,7 +61,7 @@ public class FirebaseUtils {
     }
 
     public static long getCurrentUserLastSignIn(){
-        return getCurrentFirebaseUser().getMetadata().getLastSignInTimestamp();
+        return Objects.requireNonNull(getCurrentFirebaseUser().getMetadata()).getLastSignInTimestamp();
     }
 
     @NonNull
@@ -83,33 +85,59 @@ public class FirebaseUtils {
     }
 
     public static final DatabaseReference groupsDatabase = getDatabase().getReference("Groups").getRef();
-    public static final String[] CURRENT_GROUP_KEY = new String[]{""};
+//    public static String CURRENT_GROUP_KEY = "";
+    public static String CURRENT_GROUP_KEY = MyApplication.getContext()
+            .getSharedPreferences("savedData", Context.MODE_PRIVATE)
+            .getString("currentGroup", "");
 
     @NonNull
     public static DatabaseReference getCurrentGroupRef() {
-        Log.d(LOG_TAG, getDatabase().getReference(CURRENT_GROUP_KEY[0]).toString());
+        Log.d(LOG_TAG, getDatabase().getReference(CURRENT_GROUP_KEY).toString());
 
-        return getDatabase().getReference(CURRENT_GROUP_KEY[0]).getRef();
+        return getDatabase().getReference(CURRENT_GROUP_KEY).getRef();
     }
 
-    public static void changeGroup(String key){
-        CURRENT_GROUP_KEY[0] = key;
+    public static void changeGroup(@NonNull Context context, String key){
+        SharedPreferences sp = context.getSharedPreferences("savedData", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("currentGroup", key);
+        editor.apply();
+        CURRENT_GROUP_KEY = key;
     }
+
+    public static void
 
     @NonNull
     public static LiveData<String> getCurrentGroup(){
         MutableLiveData<String> currentGroup = new MutableLiveData<>();
 
-        getCurrentUserDataRef().child("currentGroup").get().addOnCompleteListener(
-                new OnCompleteListener<DataSnapshot>() {
+        getCurrentUserDataRef().child("currentGroup").addListenerForSingleValueEvent(
+                new ValueEventListener() {
                     @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (!task.isSuccessful() || !task.getResult().exists()) {
-                            return;
-                        }
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String groupKey = snapshot.getValue(String.class);
+                        currentGroup.setValue(groupKey);
+                    }
 
-                        String groupKey = task.getResult().getValue(String.class);
-                        CURRENT_GROUP_KEY[0] = groupKey;
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+        return currentGroup;
+    }
+
+    @NonNull
+    public static LiveData<String> getCurrentGroupName(){
+        MutableLiveData<String> currentGroup = new MutableLiveData<>();
+
+        getCurrentUserDataRef().child("currentGroup").get().addOnSuccessListener(
+                new OnSuccessListener<DataSnapshot>() {
+                    @Override
+                    public void onSuccess(DataSnapshot dataSnapshot) {
+                        String groupKey = dataSnapshot.getValue(String.class);
+                        CURRENT_GROUP_KEY = groupKey;
                         currentGroup.setValue(groupKey);
                     }
                 });
@@ -130,7 +158,7 @@ public class FirebaseUtils {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if(snapshot.exists()) {
                             String groupKey = snapshot.getValue(String.class);
-                            CURRENT_GROUP_KEY[0] = groupKey;
+                            CURRENT_GROUP_KEY = groupKey;
                             Log.d(LOG_TAG, "GROUP CHANGED");
                             Log.d(LOG_TAG, groupKey);
                         }
@@ -150,7 +178,11 @@ public class FirebaseUtils {
                     @Override
                     public void onSuccess(DataSnapshot dataSnapshot) {
 
-                        List<String> groups = dataSnapshot.getValue(List.class);
+                        List<String> groups = new ArrayList<>();
+                        if (dataSnapshot.exists()){
+                            groups = dataSnapshot.getValue(List.class);
+                        }
+
                         groups.add(key);
 
                         HashMap<String, Object> map = new HashMap<>();
@@ -166,13 +198,57 @@ public class FirebaseUtils {
                                 new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void unused) {
-                                        changeGroup(key);
+//                                        changeGroup(key);
                                         firebaseCallback.onFirebaseCallback();
                                     }
                                 });
 
                     }
                 });
+    }
+
+    public static void addGroupToCurrentUser2(String key, boolean isMadrich, FirebaseCallback firebaseCallback, FirebaseFailureCallback firebaseFailureCallback){
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("madrich", isMadrich);
+        map.put("show", Show.All.getValue());
+
+        getCurrentUserDataRef().child("groups").child(key).updateChildren(map)
+                .addOnSuccessListener(unused -> getCurrentUserDataRef().child("currentGroup").setValue(key)
+                                        .addOnSuccessListener(unused1 -> firebaseCallback.onFirebaseCallback())
+                                        .addOnFailureListener(e -> firebaseFailureCallback.onFirebaseFailure()))
+                .addOnFailureListener(e -> firebaseFailureCallback.onFirebaseFailure());
+
+        groupsDatabase.child(key).child("usersNumber").
+    }
+
+    @NonNull
+    public static LiveData<List<String>> getCurrentUserGroups(){
+        MutableLiveData<List<String>> groups = new MutableLiveData<>();
+
+        getCurrentUserDataRef().child("groups").addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        ArrayList<String> keys = new ArrayList<>();
+                        if (!snapshot.exists() && !snapshot.hasChildren()){
+                            return;
+                        }
+
+                        for (DataSnapshot group : snapshot.getChildren()){
+                            keys.add(group.getKey());
+                        }
+
+                        groups.setValue(keys);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+        return groups;
     }
 
     public static final DatabaseReference eventsDatabase = getCurrentGroupRef().child("Events").getRef();
@@ -224,11 +300,11 @@ public class FirebaseUtils {
 
     @NonNull
     public static Task<Void> addTrainingForEvent(String eventPrivateId, @NonNull Training training){
-        getCurrentUserDataRef().child("show").get().addOnCompleteListener(
+        getCurrentUserDataRef().child("groups").child(CURRENT_GROUP_KEY).child("show").get().addOnCompleteListener(
                 new OnCompleteListener<DataSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        int show = task.getResult().getValue(int.class);
+                        int show = task.getResult().exists() ? task.getResult().getValue(int.class) : Show.All.getValue();
                         getCurrentUserTrainingsRefForEvent(eventPrivateId).getParent().child("show").setValue(show);
                     }
                 });
@@ -271,6 +347,10 @@ public class FirebaseUtils {
 
     public interface FirebaseCallback {
         void onFirebaseCallback();
+    }
+
+    public interface FirebaseFailureCallback {
+        void onFirebaseFailure();
     }
 
     public interface GroupCallback {
@@ -340,9 +420,7 @@ public class FirebaseUtils {
                     }
 
                     @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
+                    public void onCancelled(@NonNull DatabaseError error) {}
                 });
 
         return username;
@@ -352,14 +430,12 @@ public class FirebaseUtils {
     public static LiveData<Boolean> isMadrich(){
         MutableLiveData<Boolean> isMadrich = new MutableLiveData<>();
 
-        getCurrentUserDataRef().child("madrich").addListenerForSingleValueEvent(
+        getCurrentUserDataRef().child("groups").child(CURRENT_GROUP_KEY).child("madrich").addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()) {
-                            boolean madrich = snapshot.getValue(boolean.class);
-                            isMadrich.setValue(madrich);
-                        }
+                        boolean madrich = snapshot.exists() ? snapshot.getValue(boolean.class) : false;
+                        isMadrich.setValue(madrich);
                     }
 
                     @Override

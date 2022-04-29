@@ -108,15 +108,21 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
         FirebaseUtils.getProfilePictureFromFB(UID, context, holder.iv_profile_picture);
 
 
-        FirebaseUtils.getCurrentUserTrainingsRefForEvent(event_private_id).getParent().child("show").get()
-                .addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
-                    @Override
-                    public void onSuccess(DataSnapshot dataSnapshot) {
-                        int toWho = dataSnapshot.getValue(int.class);
-                        holder.switch_choose_visibility.setChecked(toWho > Show.Madrich.getValue());
-                        holder.switch_choose_visibility.setTag(toWho);
-                    }
-                });
+        FirebaseUtils.isMadrich().observe((LifecycleOwner) context, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isMadrich) {
+                FirebaseUtils.getCurrentUserTrainingsRefForEvent(event_private_id).getParent().child("show").get()
+                        .addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+                            @Override
+                            public void onSuccess(DataSnapshot dataSnapshot) {
+                                int toWho = dataSnapshot.getValue(int.class);
+                                holder.switch_choose_visibility.setChecked(toWho > (isMadrich ? Show.NoOne.getValue() : Show.Madrich.getValue()));
+                                holder.switch_choose_visibility.setText("Visible to " + Show.values()[toWho].toString());
+                                holder.switch_choose_visibility.setTag(toWho);
+                            }
+                        });
+            }
+        });
 
         holder.switch_choose_visibility.setVisibility(FirebaseUtils.isCurrentUID(UID) ? View.VISIBLE : View.GONE);
 

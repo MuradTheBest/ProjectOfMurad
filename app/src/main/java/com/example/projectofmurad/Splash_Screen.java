@@ -9,36 +9,26 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Observer;
 
+import com.example.projectofmurad.groups.ShowGroupsScreen;
 import com.example.projectofmurad.helpers.Utils;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
 
-public class Splash_Screen extends AppCompatActivity {
+import pl.droidsonroids.gif.GifImageView;
 
-    private View ellipse_3;
-    private ImageView vector_ek2;
-    private TextView tv_welcome;
-    private View rectangle_1_ek6;
-    private TextView g;
-    private TextView e_1;
-    private TextView t_1;
-    private TextView __;
-    private TextView s;
-    private TextView t_2;
-    private TextView a;
-    private TextView r;
-    private TextView t_3;
-    private TextView e_2;
-    private TextView d;
+public class Splash_Screen extends MyActivity {
+
+    private ConstraintLayout constraintLayout;
+    private GifImageView iv_intro;
     private RelativeLayout group_1;
 
     @Override
@@ -46,50 +36,57 @@ public class Splash_Screen extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_page);
+        getSupportActionBar().hide();
 
-        ellipse_3 = (View) findViewById(R.id.ellipse_3);
-        vector_ek2 = (ImageView) findViewById(R.id.vector_ek2);
-        tv_welcome = (TextView) findViewById(R.id.tv_welcome);
-        rectangle_1_ek6 = (View) findViewById(R.id.rectangle_1_ek6);
-        g = (TextView) findViewById(R.id.g);
-        e_1 = (TextView) findViewById(R.id.e_1);
-        t_1 = (TextView) findViewById(R.id.t_1);
-        __ = (TextView) findViewById(R.id.__);
-        s = (TextView) findViewById(R.id.s);
-        t_2 = (TextView) findViewById(R.id.t_2);
-        a = (TextView) findViewById(R.id.a);
-        r = (TextView) findViewById(R.id.r);
-        t_3 = (TextView) findViewById(R.id.t_3);
-        e_2 = (TextView) findViewById(R.id.e_2);
-        d = (TextView) findViewById(R.id.d);
+        constraintLayout = findViewById(R.id.constraintLayout);
+        iv_intro = findViewById(R.id.iv_intro);
+
         group_1 = findViewById(R.id.group_1);
 
         SQLiteDatabase db = openOrCreateDatabase(Utils.DATABASE_NAME, MODE_PRIVATE, null);
-//        Utils.createAllTables(db);
-
-
+        Utils.createAllTables(db);
 
         group_1.setOnClickListener(this::checkGroup);
 
-        FirebaseUtils.checkCurrentGroup(this);
     }
 
     public void checkGroup(View view){
-        FirebaseUtils.getCurrentGroup().observe(Splash_Screen.this,
-                new Observer<String>() {
-                    @Override
-                    public void onChanged(String s) {
-                        FirebaseUtils.changeGroup(s);
-                        startActivity(new Intent(Splash_Screen.this,
-                                FirebaseUtils.isUserLoggedIn()
-                                        ? MainActivity.class
-                                        : Log_In_Screen.class));
-                    }
-                });
+        /*FirebaseUtils.getCurrentUserDataRef().child("groups").child("Ndhsjfbhdjgfhjdghfsj")
+                .child("madrich").setValue(true);
+
+        FirebaseUtils.getCurrentUserDataRef().child("groups").child("Ndhsjfbhdjgfhjdghfsj")
+                .child("show").setValue(2);*/
+        iv_intro.setVisibility(View.VISIBLE);
+        constraintLayout.setVisibility(View.GONE);
+
+        if(FirebaseUtils.isUserLoggedIn()){
+            FirebaseUtils.checkCurrentGroup()
+                    .addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+                        @Override
+                        public void onSuccess(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                String key = dataSnapshot.getValue(String.class);
+                                FirebaseUtils.changeGroup(Splash_Screen.this, key);
+                                goToAnotherScreen(new Intent(Splash_Screen.this, MainActivity.class));
+                            }
+                            else {
+                                goToAnotherScreen(new Intent(Splash_Screen.this, ShowGroupsScreen.class));
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> goToAnotherScreen(new Intent(Splash_Screen.this, Log_In_Screen.class)));
+        }
+        else {
+            goToAnotherScreen(new Intent(Splash_Screen.this, Log_In_Screen.class));
+        }
+
     }
 
-    public void goToGroupScreen(View view){
-        startActivity(new Intent(this, CreateOrJoinGroupScreen.class));
+    public void goToAnotherScreen(Intent intent){
+        new Handler().postDelayed(() -> {
+            finish();
+            startActivity(intent);
+        }, 500);
     }
 
     @Override

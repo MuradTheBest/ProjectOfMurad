@@ -22,7 +22,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.projectofmurad.calendar.UtilsCalendar;
@@ -62,7 +61,7 @@ import java.util.concurrent.TimeUnit;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class Profile_Screen extends AppCompatActivity {
+public class Profile_Screen extends MyActivity {
 
     private CircleImageView iv_profile_picture;
     private ShimmerFrameLayout shimmer_profile_picture;
@@ -358,10 +357,7 @@ public class Profile_Screen extends AppCompatActivity {
             }
         });
 
-        AlertDialog alertDialog = builder.create();
-        Utils.createCustomDialog(alertDialog);
-
-        alertDialog.show();
+        Utils.createCustomDialog(builder.create()).show();
     }
 
     public void createMadrichVerificationDialog(){
@@ -738,10 +734,7 @@ public class Profile_Screen extends AppCompatActivity {
 
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
-        AlertDialog alertDialog = builder.create();
-        Utils.createCustomDialog(alertDialog);
-
-        alertDialog.show();
+        Utils.createCustomDialog(builder.create()).show();
     }
 
     protected void signInWithPhoneAuthCredential(PhoneAuthCredential phoneAuthCredential) {

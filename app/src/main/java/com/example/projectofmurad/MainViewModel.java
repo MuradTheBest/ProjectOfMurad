@@ -37,6 +37,8 @@ public class MainViewModel extends AndroidViewModel {
 
     private final MutableLiveData<Boolean> scrollUp;
 
+    private final MutableLiveData<Integer> selectedTab;
+
 
     public MainViewModel(@NonNull Application application) {
         super(application);
@@ -56,6 +58,7 @@ public class MainViewModel extends AndroidViewModel {
 
         ready = new MutableLiveData<>(0);
         scrollUp = new MutableLiveData<>();
+        selectedTab = new MutableLiveData<>(1);
     }
 
     public static MutableLiveData<Boolean> getToSwipeFragments() {
@@ -179,4 +182,11 @@ public class MainViewModel extends AndroidViewModel {
         this.scrollUp.setValue(scrollUp);
     }
 
+    public MutableLiveData<Integer> getSelectedTab() {
+        return selectedTab;
+    }
+
+    public void setSelectedTab(int selectedTab){
+        this.selectedTab.setValue(selectedTab);
+    }
 }

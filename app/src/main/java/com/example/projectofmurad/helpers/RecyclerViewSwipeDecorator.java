@@ -19,7 +19,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectofmurad.calendar.EventsAdapterForFirebase;
+import com.example.projectofmurad.R;
 
 /**
  * A simple utility class to add a background and/or an icon while swiping a RecyclerView item left or right.
@@ -29,7 +29,7 @@ public class RecyclerViewSwipeDecorator {
 
     private Canvas canvas;
     private RecyclerView recyclerView;
-    private EventsAdapterForFirebase.EventViewHolderForFirebase viewHolder;
+    private RecyclerView.ViewHolder viewHolder;
     private float dX;
     private float dY;
     private int actionState;
@@ -80,7 +80,7 @@ public class RecyclerViewSwipeDecorator {
      * @deprecated in RecyclerViewSwipeDecorator 1.2.2
      */
     @Deprecated
-    public RecyclerViewSwipeDecorator(Context context, Canvas canvas, RecyclerView recyclerView, EventsAdapterForFirebase.EventViewHolderForFirebase viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+    public RecyclerViewSwipeDecorator(Context context, Canvas canvas, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
         this(canvas, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
     }
 
@@ -94,7 +94,7 @@ public class RecyclerViewSwipeDecorator {
      * @param actionState The type of interaction on the View. Is either ACTION_STATE_DRAG or ACTION_STATE_SWIPE.
      * @param isCurrentlyActive True if this view is currently being controlled by the user or false it is simply animating back to its original state
      */
-    public RecyclerViewSwipeDecorator(Canvas canvas, @NonNull RecyclerView recyclerView, EventsAdapterForFirebase.EventViewHolderForFirebase viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+    public RecyclerViewSwipeDecorator(Canvas canvas, @NonNull RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
         this();
         this.canvas = canvas;
         this.recyclerView = recyclerView;
@@ -281,12 +281,12 @@ public class RecyclerViewSwipeDecorator {
                 canvas.clipRect(viewHolder.itemView.getLeft(), viewHolder.itemView.getTop(), viewHolder.itemView.getLeft() + (int) dX, viewHolder.itemView.getBottom());
                 if ( swipeRightBackgroundColor != 0 ) {
                     final ColorDrawable background = new ColorDrawable(swipeRightBackgroundColor);
-                    background.setBounds(viewHolder.itemView.getLeft() - viewHolder.constraintLayout.getLeft(), viewHolder.itemView.getTop(), viewHolder.itemView.getLeft() + (int) dX, viewHolder.itemView.getBottom());
+                    background.setBounds(viewHolder.itemView.getLeft() - viewHolder.itemView.findViewById(R.id.constraintLayout).getLeft(), viewHolder.itemView.getTop(), viewHolder.itemView.getLeft() + (int) dX, viewHolder.itemView.getBottom());
 //                    background.draw(canvas);
 
                     GradientDrawable gradientDrawable = new GradientDrawable();
                     gradientDrawable.setColor(swipeRightBackgroundColor);
-                    gradientDrawable.setBounds(viewHolder.itemView.getLeft() - viewHolder.constraintLayout.getLeft(), viewHolder.itemView.getTop(), viewHolder.itemView.getLeft() + (int) dX, viewHolder.itemView.getBottom());
+                    gradientDrawable.setBounds(viewHolder.itemView.getLeft() - viewHolder.itemView.findViewById(R.id.constraintLayout).getLeft(), viewHolder.itemView.getTop(), viewHolder.itemView.getLeft() + (int) dX, viewHolder.itemView.getBottom());
                     gradientDrawable.setCornerRadius(20);
                     gradientDrawable.setShape(GradientDrawable.RECTANGLE);
                     gradientDrawable.draw(canvas);
@@ -424,7 +424,7 @@ public class RecyclerViewSwipeDecorator {
          * @deprecated in RecyclerViewSwipeDecorator 1.2.2
          */
         @Deprecated
-        public Builder(Context context, Canvas canvas, RecyclerView recyclerView, EventsAdapterForFirebase.EventViewHolderForFirebase viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+        public Builder(Context context, Canvas canvas, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
             this(canvas, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
         }
 
@@ -438,7 +438,7 @@ public class RecyclerViewSwipeDecorator {
          * @param actionState The type of interaction on the View. Is either ACTION_STATE_DRAG or ACTION_STATE_SWIPE.
          * @param isCurrentlyActive True if this view is currently being controlled by the user or false it is simply animating back to its original state
          */
-        public Builder(Canvas canvas, RecyclerView recyclerView, EventsAdapterForFirebase.EventViewHolderForFirebase viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+        public Builder(Canvas canvas, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
             mDecorator = new RecyclerViewSwipeDecorator(
                     canvas,
                     recyclerView,

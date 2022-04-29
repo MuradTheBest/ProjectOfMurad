@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 import androidx.annotation.AnyRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.graphics.ColorUtils;
 
 import com.example.projectofmurad.R;
@@ -468,5 +470,16 @@ public class Utils {
 
     public static int dpToPx(float dp, @NonNull Context context) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
+    }
+
+    @NonNull
+    public static Dialog createDialog(Context context, String message, String pBText, DialogInterface.OnClickListener onPBClickListener, String nBText, DialogInterface.OnClickListener onNBClickListener, DialogInterface.OnCancelListener onCancelListener){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(message);
+        builder.setPositiveButton(pBText, onPBClickListener);
+        builder.setNegativeButton(nBText, onNBClickListener);
+        builder.setOnCancelListener(onCancelListener);
+
+        return createCustomDialog(builder.create());
     }
 }

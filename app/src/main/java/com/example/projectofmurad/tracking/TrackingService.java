@@ -57,7 +57,7 @@ public class TrackingService extends LifecycleService {
     public static final String ACTION_MOVE_TO_TRACKING_FRAGMENT = Utils.APPLICATION_ID + "action_move_to_tracking_fragment";
     public static final int CODE_FOR_RESULT = 5000;
 
-    public static final int TRACKING_NOTIFICATION_ID = 0;
+    public static final int TRACKING_NOTIFICATION_ID = 1423430;
 
     public static final String TAG = "tracking";
 
@@ -67,7 +67,7 @@ public class TrackingService extends LifecycleService {
     private static long time;
     private static long totalTime;
 
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
 
     private NotificationManager notificationManager;
 
@@ -313,9 +313,7 @@ public class TrackingService extends LifecycleService {
         });
 
         AlertDialog alertDialog = builder.create();
-        Utils.createCustomDialog(alertDialog);
-
-        alertDialog.show();
+        Utils.createCustomDialog(alertDialog).show();
     }
 
     @Override

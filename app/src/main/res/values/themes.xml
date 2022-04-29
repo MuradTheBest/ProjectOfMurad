@@ -22,7 +22,7 @@
 <!--        <item name="switchStyle">@style/Widget.App.Switch</item>-->
 
         <item name="bottomSheetDialogTheme">@style/MyBottomSheetDialogTheme</item>
-        <item name="dialogTheme"></item>
+        <item name="android:indeterminateDrawable">@drawable/ic_baseline_person_24</item>
 
     </style>
 

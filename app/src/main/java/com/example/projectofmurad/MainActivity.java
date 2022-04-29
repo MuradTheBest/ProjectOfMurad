@@ -19,7 +19,6 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
@@ -45,7 +44,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity implements NavController.OnDestinationChangedListener {
+public class MainActivity extends MyActivity implements NavController.OnDestinationChangedListener {
 
     private View containerView;
 
@@ -59,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
         setContentView(R.layout.activity_main);
 //        getSupportActionBar().setShowHideAnimationEnabled(true);
 
-        Log.d(LOG_TAG, FirebaseUtils.CURRENT_GROUP_KEY[0]);
+        Log.d(LOG_TAG, FirebaseUtils.CURRENT_GROUP_KEY);
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 

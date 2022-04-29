@@ -2,7 +2,6 @@ package com.example.projectofmurad.calendar;
 
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,8 +19,6 @@ import com.example.projectofmurad.R;
 import java.time.LocalDate;
 
 public class ChooseEventFrequency_Screen extends DialogFragment {
-
-    private Context context;
 
     private static final String YEAR = "year";
     private static final String MONTH = "month";
@@ -56,8 +53,6 @@ public class ChooseEventFrequency_Screen extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(STYLE_NORMAL, R.style.FullScreenDialogTheme);
-
-        this.context = requireContext();
 
         if(getArguments() != null) {
             year = getArguments().getInt(YEAR);
