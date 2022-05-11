@@ -5,14 +5,13 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.UtilsCalendar;
 import com.example.projectofmurad.helpers.Utils;
@@ -36,92 +35,6 @@ public class AlarmManagerForToday {
 
     public static String getTodayText(){
         return UtilsCalendar.DateToTextOnline(getToday());
-    }
-
-    public static SharedPreferences sp;
-
-    private final static String KEY_TODAY = "key_today";
-
-//    private static final SQLiteDatabase db = getContext().openOrCreateDatabase(Utils.DATABASE_NAME, MODE_PRIVATE, null);
-
-    public static void check(Context context){
-        Log.d(TAG, "-------------------------------------------------------------------------------------------");
-
-        if (context == null){
-            Log.d(TAG, "Context is null");
-            Log.d(TAG, "-------------------------------------------------------------------------------------------");
-            return;
-        }
-
-        Log.d(TAG, "Context is not null");
-
-        String today = getTodayText();
-
-        SQLiteDatabase db = context.openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
-        Utils.createAllTables(db);
-
-//        DatabaseReference todayEvents = FirebaseUtils.getEventsDatabase().child(today);
-
-//        Query query_alarm_true = todayEvents.orderByChild("alarm").equalTo(true);
-        /*Query query_alarm_true = todayEvents.orderByChild("alarm_UIDs/" + FirebaseUtils.getCurrentUID()).equalTo(true);
-        DatabaseReference ref = query_alarm_true.getRef();
-        Query query_alarmAlreadySet_false = ref.orderByChild("alarmAlreadySet").equalTo(false);
-
-        query_alarmAlreadySet_false.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot data : snapshot.getChildren()) {
-
-                    CalendarEvent event = data.getValue(CalendarEvent.class);
-
-                    Log.d(LOG_TAG, "Is alarm already set? " + event.isAlarmAlreadySet());
-
-                    LocalTime timeData = UtilsCalendar.TextToTime(data.child("start_time").getValue(String.class));
-                    LocalDate date = UtilsCalendar.TextToDateForFirebase(data.child("start_date").getValue(String.class));
-
-                    String text_date = UtilsCalendar.DateToTextOnline(date);
-                    Log.d(LOG_TAG, "Date is " + text_date);
-
-                    String text_time = UtilsCalendar.TimeToText(timeData);
-                    Log.d(LOG_TAG, "Time is " + text_time);
-
-//                    createAlarm(context, timeData, event);
-                    startAlarm(context, timeData, event);
-//                    startAlarm(context, timeData);
-
-                    data.child("alarmAlreadySet").getRef().setValue(true);
-                    Log.d(LOG_TAG, "-------------------------------------------------------------------------------------------");
-
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });*/
-
-        sp = context.getSharedPreferences("savedData", Context.MODE_PRIVATE);
-        today = sp.getString(KEY_TODAY, null);
-
-        Log.d(TAG, "today's text is " + getTodayText());
-        Log.d(TAG, "sp's text is " + today);
-
-        if (today == null){
-            SharedPreferences.Editor editor = sp.edit();
-            editor.putString(KEY_TODAY, getTodayText());
-            editor.apply();
-        }
-        else if(!today.equals(getTodayText())){
-
-            SharedPreferences.Editor editor = sp.edit();
-            editor.putString(KEY_TODAY, getTodayText());
-            editor.apply();
-
-//            addAllAlarmsForToday(context, db);
-        }
-
-
     }
 
     public static boolean checkIfAlarmSet(@NonNull Context context, String eventPrivateId){
@@ -190,7 +103,6 @@ public class AlarmManagerForToday {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getDefault());
         calendar.set(year, month-1, day, hour, minute);
-//        calendar.roll(Calendar.MINUTE, -10);
 
         calendar.set(Calendar.SECOND, 0);
 
@@ -198,32 +110,11 @@ public class AlarmManagerForToday {
 
         Date date = new Date(alarm);
 
-        Log.d(TAG, "Current alarm in millis = " + System.currentTimeMillis());
-        Log.d(TAG, "Time in millis = " + alarm);
-        Log.d(TAG, "Time = " + event.getStartDateTime());
-        Log.d(TAG, "Time = " + date);
-
-        Log.d(TAG, "===============================================================================================");
-
-
-/*        if (c.before(Calendar.getInstance())) {
-            c.add(Calendar.DATE, 1);
-        }*/
-
-        //Todo create cancel chosen alarm method
-        /*
-          How? Cancel all alarms with same intent using cancel() method
-          save in local database all set alarms
-          recreate them
-         */
-
 //        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
         alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
         if (alarm > System.currentTimeMillis()){
         }
 //        alarmManager.set(AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
-
-
     }
 
     public static void cancelAlarm(@NonNull Context context, @NonNull CalendarEvent event){
@@ -233,7 +124,7 @@ public class AlarmManagerForToday {
 
 //        CalendarEvent event = findCalendarEventById(event_private_id);
 
-        intent.putExtra("notification_body", "The event " + event.getName() + " started. \n" +
+        intent.putExtra("notification_body", "The event " + event.getName() + " started. " +
                 "It will finish on " + event.getEndDateTime());
         intent.putExtra("notification_color", event.getColor());
         intent.putExtra("event", event);

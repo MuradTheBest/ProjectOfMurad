@@ -1,19 +1,19 @@
 package com.example.projectofmurad.calendar;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.icu.text.SimpleDateFormat;
 import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.google.firebase.database.DatabaseReference;
 
 import java.time.DayOfWeek;
@@ -24,7 +24,6 @@ import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Locale;
 
 public class UtilsCalendar {
@@ -96,8 +95,6 @@ public class UtilsCalendar {
     public static DatabaseReference getEventByPrivate_Id(String private_id){
         return FirebaseUtils.getAllEventsDatabase().child(private_id).getRef();
     }
-
-    public static HashMap<LocalDate, ArrayList<CalendarEvent>> map = new HashMap<>();
 
     public static void setLocale(){
         FirebaseUtils.getFirebaseAuth().setLanguageCode(Locale.getDefault().getLanguage());
@@ -299,53 +296,6 @@ public class UtilsCalendar {
         return DateToTextOnline(date);
     }*/
 
-    public static void printHashMap(@NonNull HashMap<LocalDate, ArrayList<CalendarEvent>> map){
-        for (LocalDate date : map.keySet()) {
-            ArrayList<CalendarEvent> eventArrayList = map.get(date);
-            if(eventArrayList != null){
-                for(CalendarEvent e : eventArrayList){
-                    Log.d("murad",  "------------------------------------------------------------------------------------------------------------------------------------");
-
-                    Log.d("murad", "key: " + UtilsCalendar.DateToTextOnline(date) + " value: " + e.getName() + " | " + e.getPlace() + " | " + e.getDescription());
-                    Log.d("murad",  e.getStartDate() + " | " + e.getStartTime());
-                    Log.d("murad",  e.getEndDate() + " | " + e.getEndTime());
-
-                    Log.d("murad",  "------------------------------------------------------------------------------------------------------------------------------------");
-                }
-            }
-        }
-    }
-
-    public static void addEvent(@NonNull CalendarEvent event){
-        LocalDate start_date = event.receiveStart_date();
-        LocalDate end_date = event.receiveStart_date();
-        addOrCreateObjectInHashMap(start_date, event);
-
-        if(!start_date.equals(end_date)){
-            addOrCreateObjectInHashMap(end_date, event);
-        }
-    }
-
-    private static void addOrCreateObjectInHashMap(LocalDate date, CalendarEvent event){
-        if(UtilsCalendar.map.containsKey(date)){
-            if(UtilsCalendar.map.get(date) == null){
-                ArrayList<CalendarEvent> eventArrayList = new ArrayList<>();
-                eventArrayList.add(event);
-                UtilsCalendar.map.put(date, eventArrayList);
-                Log.d("murad", "eventArrayList on this key is null");
-            }
-            else {
-                UtilsCalendar.map.get(date).add(event);
-                Log.d("murad", "event added to eventArrayList on this key ");
-            }
-        }
-        else {
-            ArrayList<CalendarEvent> eventArrayList = new ArrayList<>();
-            eventArrayList.add(event);
-            UtilsCalendar.map.put(date, eventArrayList);
-        }
-    }
-
     public static boolean areEventDetailsValid(Context context, @NonNull String name, String description, String place){
         String msg = "";
 
@@ -388,69 +338,12 @@ public class UtilsCalendar {
         return editTextsFilled;
     }
 
-    public static boolean areObjectDetailsValid(Context context, String object, @NonNull HashMap<String, String> list){
-        StringBuilder msg = new StringBuilder();
-
-        boolean editTextsFilled = true;
-
-        for (String key : list.keySet()){
-            String input = list.get(key);
-
-            if (input != null && input.isEmpty()) {
-    /*                if(!editTextsFilled) {
-                        msg += ", ";
-                    }*/
-                msg.append(editTextsFilled ? "" : ", ");
-
-                msg.append(key);
-                editTextsFilled = false;
-            }
-        }
-
-        if(!editTextsFilled){
-            Toast.makeText(context, "Please enter " + object + "'s " + msg, Toast.LENGTH_LONG).show();
-        }
-
-        return editTextsFilled;
-    }
-
     public static boolean isEmailValid(String email){
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     public static boolean isPhoneValid(String phone){
-        return android.util.Patterns.PHONE.matcher(phone).matches();
-    }
-
-    public static int lighten(int color, double fraction) {
-        int red = Color.red(color);
-        int green = Color.green(color);
-        int blue = Color.blue(color);
-        red = lightenColor(red, fraction);
-        green = lightenColor(green, fraction);
-        blue = lightenColor(blue, fraction);
-        int alpha = Color.alpha(color);
-        return Color.argb(alpha, red, green, blue);
-    }
-
-    public static int darken(int color, double fraction) {
-        int red = Color.red(color);
-        int green = Color.green(color);
-        int blue = Color.blue(color);
-        red = darkenColor(red, fraction);
-        green = darkenColor(green, fraction);
-        blue = darkenColor(blue, fraction);
-        int alpha = Color.alpha(color);
-
-        return Color.argb(alpha, red, green, blue);
-    }
-
-    private static int darkenColor(int color, double fraction) {
-        return (int)Math.max(color - (color * fraction), 0);
-    }
-
-    private static int lightenColor(int color, double fraction) {
-        return (int) Math.min(color + (color * fraction), 255);
+        return Patterns.PHONE.matcher(phone).matches();
     }
 
     public static void animate(ViewGroup viewGroup){
@@ -466,7 +359,5 @@ public class UtilsCalendar {
 
 //        TransitionManager.beginDelayedTransition(viewGroup, trans);
         TransitionManager.beginDelayedTransition(viewGroup, changeBounds);
-
-
     }
 }

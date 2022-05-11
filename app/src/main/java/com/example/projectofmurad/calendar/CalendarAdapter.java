@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder> {
+
     private final ArrayList<LocalDate> daysOfMonth;
     private final LocalDate selectedDate;
     private final OnCalendarCellClickListener onCalendarCellClickListener;
@@ -34,6 +35,27 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     private String name;
 
     private int oldPosition;
+
+    public CalendarAdapter(@NonNull ArrayList<LocalDate> daysOfMonth, Context context,
+                           OnCalendarCellClickListener onCalendarCellClickListener,
+                           LocalDate selectedDate) {
+
+        inflater = LayoutInflater.from(context);
+        this.daysOfMonth = daysOfMonth;
+        this.selectedDate = selectedDate;
+        this.onCalendarCellClickListener = onCalendarCellClickListener;
+        this.rows = daysOfMonth.size()/7;
+    }
+
+    @NonNull
+    @Override
+    public CalendarViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = inflater.inflate(R.layout.calendar_cell, parent, false);
+        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+        layoutParams.height = parent.getHeight()/rows;
+
+        return new CalendarViewHolder(view);
+    }
 
     public class CalendarViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -49,6 +71,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
         public CalendarViewHolder(@NonNull View itemView) {
             super(itemView);
+
             dayOfMonth = itemView.findViewById(R.id.cellDayText);
 
             tv_event_1 = itemView.findViewById(R.id.tv_event_1);
@@ -72,27 +95,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         }
     }
 
-    public CalendarAdapter(@NonNull ArrayList<LocalDate> daysOfMonth, Context context,
-                           OnCalendarCellClickListener onCalendarCellClickListener,
-                           LocalDate selectedDate) {
-
-        inflater = LayoutInflater.from(context);
-        this.daysOfMonth = daysOfMonth;
-        this.selectedDate = selectedDate;
-        this.onCalendarCellClickListener = onCalendarCellClickListener;
-        this.rows = daysOfMonth.size()/7;
-    }
-
-    @NonNull
-    @Override
-    public CalendarViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.calendar_cell, parent, false);
-        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-        layoutParams.height = (int) (parent.getHeight()/rows);
-
-        return new CalendarViewHolder(view);
-    }
-
     @Override
     public void onBindViewHolder(@NonNull CalendarViewHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.dayOfMonth.setText(" " + daysOfMonth.get(position).getDayOfMonth() + " ");
@@ -104,11 +106,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             if (daysOfMonth.get(position).getDayOfWeek().getValue() == 6) {
                 holder.dayOfMonth.setTextColor(Color.RED);
             }
-            /*if (daysOfMonth.get(position).equals(selectedDate)){
-                holder.itemView.setBackgroundResource(R.drawable.calendar_cell_selected_background);
-
-                oldPosition = position;
-            }*/
             if (daysOfMonth.get(position).equals(LocalDate.now())){
 
                 holder.dayOfMonth.setBackgroundResource(R.drawable.calendar_cell_text_today_background);

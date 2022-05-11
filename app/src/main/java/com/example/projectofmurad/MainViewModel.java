@@ -1,12 +1,14 @@
 package com.example.projectofmurad;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.projectofmurad.calendar.CalendarEvent;
+import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.tracking.Location;
 import com.example.projectofmurad.training.MyRepository;
 import com.example.projectofmurad.training.Training;
@@ -15,10 +17,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class MainViewModel extends AndroidViewModel {
-
-    private static MutableLiveData<Boolean> toSwipeFragments = new MutableLiveData<>();
-
-    private static MutableLiveData<Boolean> toSwipeViewModelForTrainings = new MutableLiveData<>();
 
     private final MutableLiveData<CalendarEvent> last_event;
     private final MutableLiveData<CalendarEvent> next_event;
@@ -39,7 +37,6 @@ public class MainViewModel extends AndroidViewModel {
 
     private final MutableLiveData<Integer> selectedTab;
 
-
     public MainViewModel(@NonNull Application application) {
         super(application);
 
@@ -59,23 +56,6 @@ public class MainViewModel extends AndroidViewModel {
         ready = new MutableLiveData<>(0);
         scrollUp = new MutableLiveData<>();
         selectedTab = new MutableLiveData<>(1);
-    }
-
-    public static MutableLiveData<Boolean> getToSwipeFragments() {
-        return toSwipeFragments;
-    }
-
-    public static void setToSwipeFragments(
-            MutableLiveData<Boolean> toSwipeFragments) {
-        MainViewModel.toSwipeFragments = toSwipeFragments;
-    }
-
-    public static MutableLiveData<Boolean> getToSwipeViewModelForTrainings() {
-        return toSwipeViewModelForTrainings;
-    }
-
-    public static void setToSwipeViewModelForTrainings(boolean toSwipeViewModelForTrainings) {
-        MainViewModel.toSwipeViewModelForTrainings.setValue(toSwipeViewModelForTrainings);
     }
 
     public MutableLiveData<CalendarEvent> getLastEvent() {
@@ -183,10 +163,12 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public MutableLiveData<Integer> getSelectedTab() {
+        Log.d(Utils.LOG_TAG, "getSelectedTab = " + selectedTab.getValue());
         return selectedTab;
     }
 
     public void setSelectedTab(int selectedTab){
+        Log.d(Utils.LOG_TAG, "setSelectedTab = " + selectedTab);
         this.selectedTab.setValue(selectedTab);
     }
 }

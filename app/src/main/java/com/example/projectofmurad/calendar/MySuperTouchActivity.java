@@ -22,7 +22,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageButton;
 
-import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.MyActivity;
 import com.example.projectofmurad.R;
@@ -325,10 +325,9 @@ public class MySuperTouchActivity extends MyActivity implements
             if (switch_alarm.isChecked()){
                 AlarmManagerForToday.addAlarm(this, event, 0);
             }
-            if (Utils.madrich){
-                FirebaseUtils.getAttendanceDatabase().child(event.getPrivateId())
-                        .child(FirebaseUtils.getCurrentUID()).child("attend").setValue(true);
-            }
+            FirebaseUtils.isMadrich().observe(this,
+                    aBoolean -> FirebaseUtils.getAttendanceDatabase().child(event.getPrivateId())
+                    .child(FirebaseUtils.getCurrentUID()).child("attend").setValue(aBoolean));
         }
 
         Intent toCalendar_Screen = new Intent(getApplicationContext(), MainActivity.class);
@@ -344,8 +343,6 @@ public class MySuperTouchActivity extends MyActivity implements
 
         if (success) {
             startActivity(toCalendar_Screen);
-
-//                sendNotificationToOneUser();
         }
         else {
             createBottomSheetDialog();
@@ -1971,7 +1968,7 @@ public class MySuperTouchActivity extends MyActivity implements
 
         event.setFrequencyType(DAY_AND_MONTH_BY_AMOUNT);
 
-        event.setFrequency(selected_frequency);;
+        event.setFrequency(selected_frequency);
         event.setAmount(selected_amount);
 
         event.setDay(selected_day);
@@ -2075,7 +2072,7 @@ public class MySuperTouchActivity extends MyActivity implements
 
         event.setFrequencyType(DAY_AND_YEAR_BY_AMOUNT);
 
-        event.setFrequency(selected_frequency);;
+        event.setFrequency(selected_frequency);
         event.setAmount(selected_amount);
 
         event.setDay(selected_day);
@@ -2141,11 +2138,11 @@ public class MySuperTouchActivity extends MyActivity implements
 
         event.setFrequencyType(DAY_OF_WEEK_AND_YEAR_BY_AMOUNT);
 
-        event.setFrequency(selected_frequency);;
+        event.setFrequency(selected_frequency);
         event.setAmount(selected_amount);
 
         event.setDayOfWeekPosition(selected_dayOfWeekPosition);
-        event.setWeekNumber(selected_weekNumber);;
+        event.setWeekNumber(selected_weekNumber);
         event.setMonth(selected_month);
 
         String msg = "Every " + selected_frequency + " years on " + selected_weekNumber + " " + DayOfWeek.of(selected_dayOfWeekPosition+1).getDisplayName(TextStyle.FULL, UtilsCalendar.locale) +
@@ -2167,13 +2164,13 @@ public class MySuperTouchActivity extends MyActivity implements
 
         event.setFrequencyType(DAY_OF_WEEK_AND_YEAR_BY_END);
 
-        event.setFrequency(selected_frequency);;
+        event.setFrequency(selected_frequency);
         event.updateFrequency_end(selected_end);
 
         Log.d("murad", event.getFrequency_end());
 
         event.setDayOfWeekPosition( selected_dayOfWeekPosition);
-        event.setWeekNumber(selected_weekNumber);;
+        event.setWeekNumber(selected_weekNumber);
         event.setMonth(selected_month);
 
         String msg = "Every " + selected_frequency + " years on " + selected_weekNumber + " " + DayOfWeek.of(selected_dayOfWeekPosition+1).getDisplayName(TextStyle.FULL, UtilsCalendar.locale) +

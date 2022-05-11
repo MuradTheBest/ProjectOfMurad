@@ -2,7 +2,6 @@ package com.example.projectofmurad;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
@@ -12,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentActivity;
@@ -21,12 +19,15 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.groups.UserGroupData;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
-import com.example.projectofmurad.helpers.RVOnItemTouchListenerForVP2;
+import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.training.Training;
 import com.example.projectofmurad.training.TrainingAdapter;
-import com.example.projectofmurad.training.Training_Info_DialogFragment;
+import com.example.projectofmurad.training.TrainingInfoDialogFragment;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -80,22 +81,13 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
 
     @Override
     public void onBindViewHolder(@NonNull TrainingsViewHolder holder, @SuppressLint("RecyclerView") int position) {
-/*        String[] keys = (String[]) trainings.keySet().toArray();
-
-        Log.d("murad", "size = " + trainings.get(keys[position]).size());
-        Log.d("murad", trainings.get(keys[position]).toString());*/
+        String UID = UIDs.get(position);
 
         int textColor = Utils.getContrastColor(color);
 
-        int gradientColor = Utils.getContrastBackgroundColor(textColor);
+        GradientDrawable gd = Utils.getGradientBackground(color);
 
-        GradientDrawable gd = new GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                new int[] {color, color, gradientColor});
-
-        gd.setShape(GradientDrawable.RECTANGLE);
-
-        if (FirebaseUtils.isCurrentUID(UIDs.get(position))){
+        if (FirebaseUtils.isCurrentUID(UID)){
             gd.setStroke(Utils.dpToPx(4, context), context.getColor(R.color.colorAccent));
         }
 
@@ -103,28 +95,14 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
 
         holder.constraintLayout.setBackground(gd);
 
-        String UID = UIDs.get(position);
-
         FirebaseUtils.getProfilePictureFromFB(UID, context, holder.iv_profile_picture);
 
-
-        FirebaseUtils.isMadrich().observe((LifecycleOwner) context, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isMadrich) {
-                FirebaseUtils.getCurrentUserTrainingsRefForEvent(event_private_id).getParent().child("show").get()
-                        .addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
-                            @Override
-                            public void onSuccess(DataSnapshot dataSnapshot) {
-                                int toWho = dataSnapshot.getValue(int.class);
-                                holder.switch_choose_visibility.setChecked(toWho > (isMadrich ? Show.NoOne.getValue() : Show.Madrich.getValue()));
-                                holder.switch_choose_visibility.setText("Visible to " + Show.values()[toWho].toString());
-                                holder.switch_choose_visibility.setTag(toWho);
-                            }
-                        });
-            }
-        });
-
         holder.switch_choose_visibility.setVisibility(FirebaseUtils.isCurrentUID(UID) ? View.VISIBLE : View.GONE);
+
+        if (FirebaseUtils.isCurrentUID(UID)){
+            FirebaseUtils.getCurrentUserGroupDataRef().child("show").get().addOnSuccessListener(ds ->
+                    holder.switch_choose_visibility.setTag(ds.getValue(int.class)));
+        }
 
         FirebaseUtils.getUserTrainingsForEvent(UID, event_private_id).observe(
                 (LifecycleOwner) context,
@@ -134,13 +112,26 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
                         TrainingAdapter trainingAdapter = new TrainingAdapter(context, color, trainings);
                         holder.rv_training.setAdapter(trainingAdapter);
                         holder.rv_training.setLayoutManager(new LinearLayoutManagerWrapper(context));
-                        holder.rv_training.addOnItemTouchListener(new RVOnItemTouchListenerForVP2(holder.rv_training, MainViewModel.getToSwipeViewModelForTrainings()));
-
                         setupGraph(trainings, holder.bc_average_speed);
                     }
                 });
 
+        FirebaseUtils.getCurrentGroupUsers().child(UID).child(UserGroupData.KEY_MADRICH).get().addOnSuccessListener(
+                new OnSuccessListener<DataSnapshot>() {
+                    @Override
+                    public void onSuccess(DataSnapshot snapshot) {
+                        if (snapshot.exists() && snapshot.getValue(boolean.class)) {
 
+                            holder.iv_profile_picture.getLayoutParams().height = Utils.dpToPx(55, context);
+                            holder.iv_profile_picture.getLayoutParams().width = Utils.dpToPx(55, context);
+
+                            holder.iv_profile_picture.setBorderColor(context.getColor(R.color.colorAccent));
+                            holder.iv_profile_picture.setBorderWidth(Utils.dpToPx(2, context));
+
+                            UtilsCalendar.animate(holder.constraintLayout);
+                        }
+                    }
+                });
 
 /*
         holder.bc_average_speed.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
@@ -150,14 +141,14 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
                 if (holder.bc_average_speed.isPressed()){
                 }
 
-                    Training_Info_DialogFragment training_info_dialogFragment = new Training_Info_DialogFragment();
+                    TrainingInfoDialogFragment training_info_dialogFragment = new TrainingInfoDialogFragment();
                     Bundle bundle = new Bundle();
                     bundle.putSerializable(Training.KEY_TRAINING, (Training) e.getData());
                     training_info_dialogFragment.setArguments(bundle);
 
                     FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
 
-                    training_info_dialogFragment.show(fm, Training_Info_DialogFragment.TAG);
+                    training_info_dialogFragment.show(fm, TrainingInfoDialogFragment.TAG);
 
             }
 
@@ -201,10 +192,9 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
 
                     FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
 
-                    if (fm.findFragmentByTag(Training_Info_DialogFragment.TAG) == null){
-                        Training_Info_DialogFragment training_info_dialogFragment = Training_Info_DialogFragment.newInstance((Training) e.getData());
-                        training_info_dialogFragment.show(fm, Training_Info_DialogFragment.TAG);
-
+                    if (fm.findFragmentByTag(TrainingInfoDialogFragment.TAG) == null){
+                        TrainingInfoDialogFragment training_info_dialogFragment = TrainingInfoDialogFragment.newInstance((Training) e.getData());
+                        training_info_dialogFragment.show(fm, TrainingInfoDialogFragment.TAG);
                     }
 
                 }
@@ -235,8 +225,6 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
         ArrayList<BarEntry> speedEntries = new ArrayList<>();
         ArrayList<BarEntry> paceEntries = new ArrayList<>();
         ArrayList<String> paceText = new ArrayList<>();
-
-//                        String[] dates = new String[(int) snapshot.getChildrenCount()];
 
         ArrayList<String> dates = new ArrayList<>();
 
@@ -387,24 +375,23 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
         }
 
         public void createChooseVisibilityDialog(){
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setCancelable(false);
+            MyAlertDialogBuilder builder = new MyAlertDialogBuilder(context);
+            builder.setCancelable(true);
 
             builder.setSingleChoiceItems(new CharSequence[]{"No one", "Everyone", "Madrichs only"},
                     (int) switch_choose_visibility.getTag(),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch_choose_visibility.setChecked(which > Show.NoOne.getValue());
-                            switch_choose_visibility.setText("Visible to " + Show.values()[which].toString());
-                            onShowToOthersListener.onShowToOthers(which);
-                            dialog.dismiss();
-                        }
+                    (dialog, which) -> {
+                        switch_choose_visibility.setTag(which);
+                        switch_choose_visibility.setText("Visible to " + Show.values()[which].toString());
+                        onShowToOthersListener.onShowToOthers(which);
+                        dialog.dismiss();
                     });
 
-            builder.setTitle("Make your results visible to");
+            builder.setOnDismissListener(dialog ->
+                    switch_choose_visibility.setChecked((int) switch_choose_visibility.getTag() > Show.NoOne.getValue()));
 
-            Utils.createCustomDialog(builder.create()).show();
+            builder.setTitle("Make your results visible to");
+            builder.show();
         }
     }
 

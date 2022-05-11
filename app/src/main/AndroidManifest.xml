@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.projectofmurad">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -18,15 +17,11 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
-    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.ACTION_GET_CONTENT" />
 
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
-        android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
@@ -36,21 +31,26 @@
         android:theme="@style/Theme.ProjectOfMurad"
         tools:replace="android:label">
         <activity
+            android:name=".groups.GroupInfoScreen"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.ProjectOfMurad.NoActionBar" />
+        <activity
+            android:name=".groups.GroupInfoScreenMadrich"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.ProjectOfMurad.NoActionBar" />
+        <activity
             android:name=".MyActivity"
             android:exported="false" />
         <activity
             android:name=".groups.CreateOrJoinGroupScreen"
-            android:exported="false" />
+            android:exported="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Graphs_Screen"
             android:exported="false"
             android:screenOrientation="portrait" />
-
-        <receiver
-            android:name=".tracking.ActivityBroadcastReceiver"
-            android:enabled="true"
-            android:exported="false" />
-
         <activity
             android:name=".UserSigningActivity"
             android:exported="false"
@@ -128,11 +128,25 @@
         <activity
             android:name=".Splash_Screen"
             android:exported="true"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="@string/host"
+                    android:scheme="http" />
+                <data
+                    android:host="@string/host"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
         <activity

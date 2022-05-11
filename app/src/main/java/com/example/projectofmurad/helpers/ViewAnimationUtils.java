@@ -8,7 +8,20 @@ import androidx.annotation.NonNull;
 
 public class ViewAnimationUtils {
 
+    public static void expandOrCollapse(@NonNull final View v, boolean expandOrCollapse) {
+        if (expandOrCollapse){
+            expand(v);
+        }
+        else {
+            collapse(v);
+        }
+    }
+
     public static void expand(@NonNull final View v) {
+        if (v.getVisibility() == View.VISIBLE) {
+            return;
+        }
+
         v.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
 
@@ -37,6 +50,10 @@ public class ViewAnimationUtils {
     }
 
     public static void collapse(@NonNull final View v) {
+        if (v.getVisibility() == View.GONE){
+            return;
+        }
+
         final int initialHeight = v.getMeasuredHeight();
 
         Animation a = new Animation() {
@@ -46,7 +63,7 @@ public class ViewAnimationUtils {
                     v.setVisibility(View.GONE);
                 }
                 else{
-                    v.getLayoutParams().height = initialHeight - (int)(initialHeight * interpolatedTime);
+                    v.getLayoutParams().height = initialHeight - (int) (initialHeight * interpolatedTime);
                     v.requestLayout();
                 }
             }

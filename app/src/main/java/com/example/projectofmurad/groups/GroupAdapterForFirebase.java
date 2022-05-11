@@ -1,30 +1,27 @@
 package com.example.projectofmurad.groups;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.GradientDrawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.widget.TextViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.calendar.CalendarEvent;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.Utils;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 
 
 /** FirebaseRecyclerAdapter is a class provided by
@@ -33,29 +30,33 @@ import com.google.firebase.database.ValueEventListener;
 public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, GroupAdapterForFirebase.GroupViewHolderForFirebase> {
 
 
+    private final Context context;
+    private final OnGroupLongClickListener onGroupLongClickListener;
+
     /**
      * Initialize a {@link RecyclerView.Adapter} that listens to a Firebase query. See
      * {@link FirebaseRecyclerOptions} for configuration options.
      *
      * @param options
+     * @param context
+     * @param onGroupLongClickListener
      */
-
-    private final Context context;
-
-    public GroupAdapterForFirebase(@NonNull FirebaseRecyclerOptions<Group> options, @NonNull Context context) {
+    public GroupAdapterForFirebase(@NonNull FirebaseRecyclerOptions<Group> options, @NonNull Context context,
+                                   OnGroupLongClickListener onGroupLongClickListener) {
 
         super(options);
         this.context = context;
+        this.onGroupLongClickListener = onGroupLongClickListener;
     }
 
-    public static class GroupViewHolderForFirebase extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class GroupViewHolderForFirebase extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ConstraintLayout constraintLayout;
 
         TextView tv_group_name;
         TextView tv_group_description;
-        ImageView iv_edit;
         TextView tv_users;
+        private boolean isMadrich;
 
         public GroupViewHolderForFirebase(@NonNull View itemView) {
             super(itemView);
@@ -64,35 +65,36 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
 
             tv_group_name = itemView.findViewById(R.id.tv_group_name);
             tv_group_description = itemView.findViewById(R.id.tv_group_description);
-            iv_edit = itemView.findViewById(R.id.iv_edit);
             tv_users = itemView.findViewById(R.id.tv_users);
 
-            iv_edit.setOnClickListener(this);
+            itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(v -> onGroupLongClickListener.onGroupLongClick(getItem(getAbsoluteAdapterPosition())));
         }
 
         @Override
         public void onClick(View view) {
+            Intent intent = new Intent(context, isMadrich() ? GroupInfoScreenMadrich.class : GroupInfoScreen.class);
+            intent.putExtra(Group.KEY_GROUP, getItem(getAbsoluteAdapterPosition()));
+            context.startActivity(intent);
+        }
 
+        public boolean isMadrich() {
+            return isMadrich;
+        }
+
+        public void setMadrich(boolean madrich) {
+            isMadrich = madrich;
         }
     }
 
-    @SuppressLint("UseCompatTextViewDrawableApis")
     @Override
     protected void onBindViewHolder(@NonNull GroupViewHolderForFirebase holder, int position, @NonNull Group model) {
-        Log.d("murad", "RECYCLING STARTED");
-
         int textColor = Utils.getContrastColor(model.getColor());
 
-        int gradientColor = Utils.getContrastBackgroundColor(textColor);
-
-        GradientDrawable gd = new GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                new int[] {model.getColor(), model.getColor(), gradientColor});
-
-        gd.setShape(GradientDrawable.RECTANGLE);
+        GradientDrawable gd = Utils.getGradientBackground(model.getColor());
 
         if (model.getKey().equals(FirebaseUtils.CURRENT_GROUP_KEY)){
-            gd.setStroke(Utils.dpToPx(4, context), context.getColor(R.color.colorAccent));
+            gd.setStroke(Utils.dpToPx(5, context), context.getColor(R.color.colorAccent));
         }
 
         gd.setCornerRadius(Utils.dpToPx(10, context));
@@ -105,45 +107,40 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
 
         holder.tv_users.setText(model.getUsersNumber() + "/" + model.getLimit());
 
-        FirebaseUtils.getCurrentUserDataRef().child("groups").child(model.getKey()).child("madrich").addListenerForSingleValueEvent(
-                new ValueEventListener() {
+        FirebaseUtils.groupDatabases.child(model.getKey()).child("Users").child(FirebaseUtils.getCurrentUID()).child("madrich").get()
+                .addOnSuccessListener(
+                new OnSuccessListener<DataSnapshot>() {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists() && snapshot.getValue(boolean.class)){
+                    public void onSuccess(DataSnapshot snapshot) {
+                        holder.setMadrich(snapshot.exists() && snapshot.getValue(boolean.class));
+                        if (holder.isMadrich()){
                             holder.tv_group_name.setCompoundDrawablesRelative(
                                     AppCompatResources.getDrawable(context, R.drawable.ic_baseline_person_24), null, null, null);
                         }
                     }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
                 });
 
         holder.tv_group_name.setTextColor(textColor);
-        holder.tv_group_name.setCompoundDrawableTintList(ColorStateList.valueOf(textColor));
+        TextViewCompat.setCompoundDrawableTintList(holder.tv_group_name, ColorStateList.valueOf(textColor));
         holder.tv_group_description.setTextColor(textColor);
-        holder.iv_edit.setImageTintList(ColorStateList.valueOf(textColor));
         holder.tv_users.setTextColor(textColor);
-        holder.tv_users.setCompoundDrawableTintList(ColorStateList.valueOf(textColor));
+        TextViewCompat.setCompoundDrawableTintList(holder.tv_users, ColorStateList.valueOf(textColor));
+
+        if (model.getLimit() == 0){
+            holder.tv_users.setText(model.getUsersNumber() + "/" + context.getString(R.string.no_user_limit));
+        }
     }
 
     @NonNull
     @Override
     public GroupViewHolderForFirebase onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.row_group, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_group, parent, false);
 
         return new GroupViewHolderForFirebase(view);
     }
 
-    public interface OnEventClickListener {
-        void onEventClick(int position, CalendarEvent calendarEvent);
-    }
-
-    public interface OnEventChooseListener {
-        void onEventChoose(int oldPosition, int newPosition, String eventPrivateId);
+    public interface OnGroupLongClickListener{
+        boolean onGroupLongClick(Group group);
     }
 
     @Override

@@ -1,15 +1,16 @@
 package com.example.projectofmurad.groups;
 
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.transition.AutoTransition;
+import android.transition.ChangeBounds;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
+import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,13 +18,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.Observer;
 
-import com.example.projectofmurad.FirebaseUtils;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.MyActivity;
 import com.example.projectofmurad.R;
+import com.example.projectofmurad.helpers.Constants;
+import com.example.projectofmurad.helpers.FirebaseUtils;
+import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.helpers.Utils;
-import com.example.projectofmurad.helpers.ViewAnimationUtils;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
@@ -33,54 +34,61 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
 public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickListener {
 
-    TextView tv_choose_color;
+    private TextView tv_choose_color;
     private TextView tv_username;
     private TextView tv_create_new_group;
+
     private LinearLayout ll_create_group;
-    private EditText et_new_group_name;
-    private EditText et_new_group_key;
-    private EditText et_new_trainer_code;
-    private EditText et_new_group_limit;
+
+    private TextInputLayout et_new_group_name;
+    private TextInputLayout et_new_group_key;
+    private TextInputLayout et_new_trainer_code;
+    private TextInputLayout et_new_group_limit;
+
     private MaterialButton btn_generate_group_key;
-    private MaterialButton btn_create_group;
+
     private TextView tv_join_group;
+
     private LinearLayout ll_join_group;
-    private EditText et_group_key;
-    private MaterialButton btn_join_group;
-    private ProgressDialog progressDialog;
-    private Dialog dialog;
+
+    private TextInputLayout et_group_key;
+    private TextInputLayout et_trainer_code;
+
+    private LoadingDialog loadingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_choose_or_create_group_screen);
+        setContentView(R.layout.activity_create_or_join_group_screen);
         getSupportActionBar().hide();
 
-        progressDialog = new ProgressDialog(this);
-        Utils.createCustomDialog(progressDialog);
-
-        dialog = new Dialog(this);
-        Utils.createCustomDialog(dialog);
+        loadingDialog = new LoadingDialog(this);
 
         tv_username = findViewById(R.id.tv_username);
 
-        FirebaseUtils.getCurrentUsername().observe(this, username -> tv_username.setText("Hi, " + username));
+        FirebaseUtils.getCurrentUsername().observe(this, username -> tv_username.setText(String.format(getString(R.string.hi), username)));
 
         tv_create_new_group = findViewById(R.id.tv_create_new_group);
         tv_create_new_group.setOnClickListener(this);
         ll_create_group = findViewById(R.id.ll_create_group);
 
-        et_new_group_name = ((TextInputLayout) findViewById(R.id.et_new_group_name)).getEditText();
-        et_new_group_key = ((TextInputLayout) findViewById(R.id.et_new_group_key)).getEditText();
-        et_new_trainer_code = ((TextInputLayout) findViewById(R.id.et_new_trainer_code)).getEditText();
-        et_new_group_limit = ((TextInputLayout) findViewById(R.id.et_new_group_limit)).getEditText();
+        et_new_group_name = findViewById(R.id.et_new_group_name);
+        et_new_group_key = findViewById(R.id.et_new_group_key);
+        et_new_trainer_code = findViewById(R.id.et_new_trainer_code);
+        et_new_group_limit = findViewById(R.id.et_new_group_limit);
 
-        et_new_group_key.addTextChangedListener(new TextWatcher() {
+        et_new_group_name.getEditText().addTextChangedListener(Utils.getDefaultTextChangedListener(et_new_group_name));
+        et_new_group_key.getEditText().addTextChangedListener(Utils.getDefaultTextChangedListener(et_new_group_key));
+        et_new_trainer_code.getEditText().addTextChangedListener(Utils.getDefaultTextChangedListener(et_new_trainer_code));
+        et_new_group_limit.getEditText().addTextChangedListener(Utils.getDefaultTextChangedListener(et_new_group_limit));
+
+        et_new_group_key.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -97,48 +105,60 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
         tv_choose_color.setOnClickListener(v -> createColorPickerDialog());
 
         btn_generate_group_key = findViewById(R.id.btn_generate_group_key);
-        btn_generate_group_key.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String randomKey = FirebaseUtils.groupsDatabase.push().getKey();
-                et_new_group_key.setText(randomKey);
-                et_new_group_key.setSelection(randomKey.length());
-            }
+        btn_generate_group_key.setOnClickListener(v -> {
+            String randomKey = FirebaseUtils.groups.push().getKey().replace("-", "");
+            et_new_group_key.getEditText().setText(randomKey);
+            et_new_group_key.getEditText().setSelection(randomKey.length());
         });
 
-        btn_create_group = findViewById(R.id.btn_create_group);
+        MaterialButton btn_create_group = findViewById(R.id.btn_create_group);
         btn_create_group.setOnClickListener(this::createGroup);
 
         tv_join_group = findViewById(R.id.tv_join_group);
         tv_join_group.setOnClickListener(this);
+
         ll_join_group = findViewById(R.id.ll_join_group);
 
-        et_group_key = ((TextInputLayout) findViewById(R.id.et_group_key)).getEditText();
-//        et_trainer_code = ((TextInputLayout) findViewById(R.id.et_trainer_code)).getEditText();
+        et_group_key = findViewById(R.id.et_group_key);
+        et_group_key.getEditText().addTextChangedListener(Utils.getDefaultTextChangedListener(et_group_key));
 
-        btn_join_group = findViewById(R.id.btn_join_group);
+        et_trainer_code = findViewById(R.id.et_trainer_code);
+        et_trainer_code.getEditText().addTextChangedListener(Utils.getDefaultTextChangedListener(et_trainer_code));
+
+        MaterialButton btn_join_group = findViewById(R.id.btn_join_group);
         btn_join_group.setOnClickListener(this::joinGroup);
 
         tv_create_new_group.callOnClick();
 
-        Log.d(Utils.LOG_TAG, FirebaseUtils.getCurrentGroupRef().toString());
-//        FirebaseUtils.changeGroup("uhwefdsjiufkdvm");
-        Log.d(Utils.LOG_TAG, FirebaseUtils.getCurrentGroupRef().toString());
+        checkIntent();
     }
 
-    protected void createColorPickerDialog() {
-        ColorPicker colorPicker = new ColorPicker(this);
+    private void checkIntent() {
 
-        colorPicker.setDefaultColorButton(R.color.colorAccent);
-        colorPicker.setRoundColorButton(true);
-        colorPicker.setColorButtonSize(30, 30);
-        colorPicker.setColorButtonTickColor(Color.BLACK);
-        colorPicker.setDismissOnButtonListenerClick(true);
+        Intent intent = getIntent();
 
-        colorPicker.getPositiveButton().setVisibility(View.GONE);
-        colorPicker.getNegativeButton().setVisibility(View.GONE);
+        if (!intent.hasExtra(Constants.KEY_LINK)){
+            return;
+        }
 
-        colorPicker.setOnFastChooseColorListener(new ColorPicker.OnFastChooseColorListener() {
+        String link = intent.getStringExtra(Constants.KEY_LINK);
+
+        Log.d(Utils.LOG_TAG, "uri is " + link);
+
+        Pattern groupJoinPattern = Pattern.compile("www.bikeriders.com/group-join-link/[a-zA-Z0-9-._]");
+
+        if (groupJoinPattern.matcher(link).find()){
+            tv_join_group.callOnClick();
+            String groupKey = link.substring(link.lastIndexOf("/") + 1);
+            Log.d(Utils.LOG_TAG, "key is " + groupKey);
+            et_group_key.getEditText().setText(groupKey);
+        }
+
+    }
+
+    private void createColorPickerDialog() {
+        ColorPicker colorPicker = Utils.createColorPickerDialog(this, new ColorPicker.OnFastChooseColorListener() {
+
             @Override
             public void setOnFastChooseColorListener(int position, int color) {
                 tv_choose_color.setTextColor(color);
@@ -148,39 +168,37 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
             public void onCancel() {}
         });
 
-        colorPicker.addListenerButton("Generate",
+        colorPicker.addListenerButton(getString(R.string.generate),
                 (v, position, color) -> {
                     tv_choose_color.setTextColor(Utils.generateRandomColor());
                     colorPicker.dismissDialog();
                 });
 
-        colorPicker.getDialogViewLayout().findViewById(R.id.buttons_layout).setVisibility(View.VISIBLE);
-
         colorPicker.show();
     }
 
     public void createGroup(View view){
-        String name = et_new_group_name.getText().toString();
-        String key = et_new_group_key.getText().toString();
-        String trainerCode = et_new_trainer_code.getText().toString();
-        String limit = et_new_group_limit.getText().toString();
+        String name = et_new_group_name.getEditText().getText().toString();
+        String key = et_new_group_key.getEditText().getText().toString();
+        String trainerCode = et_new_trainer_code.getEditText().getText().toString();
+        String limit = et_new_group_limit.getEditText().getText().toString();
 
         boolean filled = true;
 
         if (name.isEmpty()) {
-            ((TextInputLayout) et_new_group_name.getParent().getParent()).setError("Name required");
+            et_new_group_name.setError("Name required");
             filled = false;
         }
         if (key.isEmpty()) {
-            ((TextInputLayout) et_new_group_key.getParent().getParent()).setError("Key required");
+            et_new_group_key.setError("Key required");
             filled = false;
         }
         if (trainerCode.isEmpty()) {
-            ((TextInputLayout) et_new_trainer_code.getParent().getParent()).setError("Trainer code required");
+            et_new_trainer_code.setError("Trainer code required");
             filled = false;
         }
-        if (Integer.parseInt(limit) == 0) {
-            ((TextInputLayout) et_new_group_limit.getParent().getParent()).setError("User's limit can't be 0");
+        if (!limit.isEmpty() && Integer.parseInt(limit) < 1) {
+            et_new_group_limit.setError("User's limit can't be less than 1");
         }
 
         if (filled){
@@ -189,7 +207,7 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
     }
 
     public void joinGroup(View view){
-        String key = et_group_key.getText().toString();
+        String key = et_group_key.getEditText().getText().toString();
 
         if (key.isEmpty()){
             ((TextInputLayout) et_group_key.getParent().getParent()).setError("Key required");
@@ -200,10 +218,10 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
     }
 
     private void checkKeyToCreateGroup(String key) {
-        progressDialog.setMessage("Creating the group");
-        progressDialog.show();
+        loadingDialog.setMessage(R.string.creating_the_group);
+        loadingDialog.show();
 
-        FirebaseUtils.groupsDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseUtils.groups.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!snapshot.exists() && !snapshot.hasChildren()){
@@ -211,7 +229,7 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
                 }
 
                 for (DataSnapshot group : snapshot.getChildren()){
-                    if (Objects.equals(group.child("key").getValue(String.class), key)){
+                    if (Objects.equals(group.child(Group.KEY_GROUP_KEY).getValue(String.class), key)){
                         createGroupExistsDialog(true);
                         return;
                     }
@@ -228,20 +246,20 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
     }
 
     private void checkKeyToJoinGroup(String key) {
-        progressDialog.setMessage("Checking the key...");
-        progressDialog.show();
+        loadingDialog.setMessage(R.string.checking_entered_group_key);
+        loadingDialog.show();
 
         FirebaseUtils.getCurrentUserGroups().observe(this, new Observer<List<String>>() {
             @Override
             public void onChanged(List<String> keys) {
                 for (String groupKey : keys){
-                    if (groupKey.equals(key)){
-                        progressDialog.dismiss();
+                    if (groupKey.equals(key)) {
+                        loadingDialog.dismiss();
                         
-                        Utils.createDialog(CreateOrJoinGroupScreen.this, 
-                                "You are already in group with this key",
-                                "Ok", (dialog, which) -> dialog.dismiss(),
-                                "", null,
+                        Utils.createAlertDialog(CreateOrJoinGroupScreen.this,
+                                null, "You are already in group with this key",
+                                getString(R.string.ok), (dialog, which) -> dialog.dismiss(),
+                                null, null,
                                 null).show();
                         return;
                     }
@@ -252,7 +270,7 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
     }
 
     private void checkGroupMatch(String key) {
-        FirebaseUtils.groupsDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseUtils.groups.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!snapshot.exists()){
@@ -263,9 +281,30 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
                     Group g = group.getValue(Group.class);
                     Log.d(Utils.LOG_TAG, g.toString());
 
-                    if (Objects.equals(g.getKey(), key) && (g.getUsersNumber() + 1 <= g.getLimit())){
-                        Log.d(Utils.LOG_TAG, "found group with same key");
-                        joinGroup(key, g.getUsersNumber());
+                    if (Objects.equals(g.getKey(), key)){
+                        if(g.getLimit() > 0 && (g.getUsersNumber() + 1 > g.getLimit())){
+                            loadingDialog.dismiss();
+
+                            Utils.createAlertDialog(CreateOrJoinGroupScreen.this, null,
+                                    "This group is full",
+                                    getString(R.string.ok), (dialog, which) -> dialog.dismiss(),
+                                    null, null,
+                                    null).show();
+                            return;
+                        }
+
+                        String code = et_trainer_code.getEditText().getText().toString();
+
+                        if (!code.isEmpty() && g.getMadrichCode() != Integer.parseInt(code)) {
+                            et_trainer_code.setError(getString(R.string.madrcih_code_invalid));
+                            loadingDialog.dismiss();
+                            return;
+                        }
+
+                        if (code.isEmpty()) code = "0";
+
+                        joinGroup(key, g.getUsersNumber(), g.getMadrichCode() == Integer.parseInt(code));
+                        return;
                     }
                 }
 
@@ -280,77 +319,67 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
     }
 
     public void createGroupExistsDialog(boolean exists){
-        progressDialog.dismiss();
-
-        Utils.createDialog(this,
+        loadingDialog.dismiss();
+        Utils.createAlertDialog(this, null,
                 "Group with this key " + (exists ? "already exists" : "doesn't exist"),
-                "Ok", (dialog, which) -> dialog.dismiss(),
-                "", null,
+                getString(R.string.ok), (dialog, which) -> dialog.dismiss(),
+                null, null,
                 null).show();
     }
 
     public void createGroup(){
-        String name = et_new_group_name.getText().toString();
-        String key = et_new_group_key.getText().toString();
-        String trainerCode = et_new_trainer_code.getText().toString();
-        String limit = et_new_group_limit.getText().toString();
+        String name = et_new_group_name.getEditText().getText().toString();
+        String key = et_new_group_key.getEditText().getText().toString();
+        String trainerCode = et_new_trainer_code.getEditText().getText().toString();
+        String limit = et_new_group_limit.getEditText().getText().toString();
         limit = limit.isEmpty() ? "0" : limit;
         int color = tv_choose_color.getCurrentTextColor();
 
         Group group = new Group(name, key, "", Integer.parseInt(trainerCode), color, 1, Integer.parseInt(limit));
-        FirebaseUtils.groupsDatabase.child(key).setValue(group).addOnSuccessListener(
+        FirebaseUtils.groups.child(key).setValue(group).addOnSuccessListener(
                 new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        FirebaseUtils.addGroupToCurrentUser2(key, true,
-                                new FirebaseUtils.FirebaseCallback() {
-                                    @Override
-                                    public void onFirebaseCallback() {
-                                        FirebaseUtils.changeGroup(CreateOrJoinGroupScreen.this, key);
-                                        startActivity(new Intent(CreateOrJoinGroupScreen.this,
-                                                MainActivity.class));
-                                    }
+                        FirebaseUtils.addGroupToCurrentUser(key, true,
+                                () -> {
+                                    loadingDialog.dismiss();
+                                    FirebaseUtils.changeGroup(CreateOrJoinGroupScreen.this, key);
+                                    startActivity(new Intent(CreateOrJoinGroupScreen.this, MainActivity.class));
                                 },
-                                new FirebaseUtils.FirebaseFailureCallback() {
-                                    @Override
-                                    public void onFirebaseFailure() {
-                                        Toast.makeText(CreateOrJoinGroupScreen.this,
-                                                "Your group was created but joining to it failed" +
-                                                        "\nPlease try again",
-                                                Toast.LENGTH_SHORT).show();
-                                    }
+                                e -> {
+                                    loadingDialog.dismiss();
+                                    Toast.makeText(CreateOrJoinGroupScreen.this,
+                                            "Your group was created but joining to it failed" +
+                                                    "\nPlease try again", Toast.LENGTH_SHORT).show();
                                 });
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(CreateOrJoinGroupScreen.this,
-                                "Creating new group failed" +
-                                        "\nPlease try again",
-                                Toast.LENGTH_SHORT).show();
-                    }
-        });
+                .addOnFailureListener(e -> {
+                    loadingDialog.dismiss();
+                    Toast.makeText(CreateOrJoinGroupScreen.this,
+                            "Creating new group  failed" + "\nPlease try again", Toast.LENGTH_SHORT).show();
+                });
 
     }
 
-    public void joinGroup(String key, int usersNumber){
-        FirebaseUtils.addGroupToCurrentUser2(key, false,
+    public void joinGroup(String key, int usersNumber, boolean isMadrich){
+
+        FirebaseUtils.addGroupToCurrentUser(key, isMadrich,
                 new FirebaseUtils.FirebaseCallback() {
                     @Override
                     public void onFirebaseCallback() {
-                        FirebaseUtils.groupsDatabase.child(key).child("usersNumber").setValue(usersNumber+1);
+                        loadingDialog.dismiss();
+                        FirebaseUtils.groups.child(key).child(Group.KEY_USERS_NUMBER).setValue(usersNumber+1);
                         FirebaseUtils.changeGroup(CreateOrJoinGroupScreen.this, key);
-                        progressDialog.dismiss();
                         startActivity(new Intent(CreateOrJoinGroupScreen.this, MainActivity.class));
                     }
                 },
                 new FirebaseUtils.FirebaseFailureCallback() {
                     @Override
-                    public void onFirebaseFailure() {
-                        progressDialog.dismiss();
+                    public void onFirebaseFailure(Exception e) {
+                        loadingDialog.dismiss();
                         Toast.makeText(CreateOrJoinGroupScreen.this,
-                                "Upps... Something went wrong\nPlease try again",
+                                R.string.upps_something_went_wrong,
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -358,13 +387,31 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
-//        ll_create_group.setVisibility(v == tv_create_new_group ? View.VISIBLE : View.GONE);
-//        ll_join_group.setVisibility(v == tv_join_group ? View.VISIBLE : View.GONE);
-
         tv_create_new_group.setTextColor(getColor(v == tv_create_new_group ? R.color.colorAccent : R.color.gray));
         tv_join_group.setTextColor(getColor(v == tv_join_group ? R.color.colorAccent : R.color.gray));
 
-        ViewAnimationUtils.expand(v == tv_create_new_group ? ll_create_group : ll_join_group);
-        ViewAnimationUtils.collapse(v == tv_create_new_group ? ll_join_group : ll_create_group);
+//        ViewAnimationUtils.expand(v == tv_create_new_group ? ll_create_group : ll_join_group);
+//        ViewAnimationUtils.collapse(v == tv_join_group ? ll_create_group : ll_join_group);
+
+//        animate(v == tv_create_new_group ? ll_create_group : ll_join_group);
+        ll_create_group.setVisibility(v == tv_create_new_group ? View.VISIBLE : View.GONE);
+        ll_join_group.setVisibility(v == tv_join_group ? View.VISIBLE : View.GONE);
+    }
+
+    public static void animate(ViewGroup viewGroup){
+        AutoTransition trans = new AutoTransition();
+        trans.setDuration(300);
+        trans.setInterpolator(new AccelerateDecelerateInterpolator());
+        //trans.setInterpolator(new DecelerateInterpolator());
+        //trans.setInterpolator(new FastOutSlowInInterpolator());
+
+        ChangeBounds changeBounds = new ChangeBounds();
+        changeBounds.setDuration(300);
+        changeBounds.setInterpolator(new AccelerateDecelerateInterpolator());
+
+//        TransitionManager.beginDelayedTransition(viewGroup, trans);
+        TransitionManager.beginDelayedTransition(viewGroup, changeBounds);
+
+
     }
 }

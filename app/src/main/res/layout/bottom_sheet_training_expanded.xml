@@ -33,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Workout duration"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tv_training_duration"
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:text="00:10:53"
             android:textStyle="bold"
-            android:textSize="16dp"/>
+            android:textSize="16sp"/>
 
     </LinearLayout>
 
@@ -59,7 +59,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Total duration"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tv_training_total_duration"
@@ -67,7 +67,7 @@
             android:layout_height="wrap_content"
             android:text="02:54:53"
             android:textStyle="bold"
-            android:textSize="16dp"/>
+            android:textSize="16sp"/>
 
     </LinearLayout>
 
@@ -85,7 +85,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Distance"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tv_training_distance"
@@ -93,7 +93,7 @@
             android:layout_height="wrap_content"
             android:text="100 km"
             android:textStyle="bold"
-            android:textSize="16dp"/>
+            android:textSize="16sp"/>
 
     </LinearLayout>
 
@@ -120,7 +120,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Average speed"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tv_training_average_speed"
@@ -128,7 +128,7 @@
             android:layout_height="wrap_content"
             android:text="100 km/h"
             android:textStyle="bold"
-            android:textSize="16dp"/>
+            android:textSize="16sp"/>
 
     </LinearLayout>
 
@@ -146,7 +146,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Max. speed"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tv_training_max_speed"
@@ -154,7 +154,7 @@
             android:layout_height="wrap_content"
             android:text="1000 km/h"
             android:textStyle="bold"
-            android:textSize="16dp"/>
+            android:textSize="16sp"/>
 
     </LinearLayout>
 
@@ -172,7 +172,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Average pace"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tv_training_average_pace"
@@ -180,7 +180,7 @@
             android:layout_height="wrap_content"
             android:text="11'59' /km"
             android:textStyle="bold"
-            android:textSize="16dp"/>
+            android:textSize="16sp"/>
 
     </LinearLayout>
 
@@ -198,7 +198,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Max. pace"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tv_training_max_pace"
@@ -206,7 +206,7 @@
             android:layout_height="wrap_content"
             android:text="06'23' /km"
             android:textStyle="bold"
-            android:textSize="16dp"/>
+            android:textSize="16sp"/>
 
     </LinearLayout>
 

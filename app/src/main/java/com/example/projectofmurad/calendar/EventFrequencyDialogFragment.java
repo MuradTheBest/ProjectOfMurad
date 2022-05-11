@@ -79,6 +79,5 @@ public class EventFrequencyDialogFragment extends DialogFragment {
 
         eventFrequencyViewModel = new ViewModelProvider(this).get(EventFrequencyViewModel.class);
 
-
     }
 }

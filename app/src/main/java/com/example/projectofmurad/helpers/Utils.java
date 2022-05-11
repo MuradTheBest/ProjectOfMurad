@@ -1,5 +1,6 @@
 package com.example.projectofmurad.helpers;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -18,6 +19,8 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -26,13 +29,18 @@ import android.widget.Toast;
 import androidx.annotation.AnyRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDialog;
 import androidx.core.graphics.ColorUtils;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.projectofmurad.BuildConfig;
 import com.example.projectofmurad.R;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.jetbrains.annotations.Contract;
 
@@ -45,21 +53,20 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
+import petrov.kristiyan.colorpicker.ColorPicker;
+
 public class Utils {
 
     public final static String LOG_TAG = "murad";
-    public final static String EVENT_TAG = "CalendarEvent";
-
-    public static final int ALARM_FOR_EVENT_NOTIFICATION_CODE = 100;
+    public final static String EVENT_TAG = "event";
 
     public static final int ADD_EVENT_NOTIFICATION_CODE = 200;
     public static final int EDIT_EVENT_NOTIFICATION_CODE = 300;
     public static final int DELETE_EVENT_NOTIFICATION_CODE = 400;
 
-    public final static String APPLICATION_ID = "com.example.projectofmurad";
+    public static final int GROUP_NOTIFICATION_CODE = 2000;
 
-//    public static boolean madrich = FirebaseUtils.getCurrentUserData().isMadrich();
-    public static boolean madrich;
+    public final static String APPLICATION_ID = BuildConfig.APPLICATION_ID;
 
     public final static String DATABASE_NAME = "db3";
 
@@ -70,12 +77,7 @@ public class Utils {
     public final static String TABLE_AlARM_COL_EVENT_DATE_TIME = "event_date_time";
     public final static String TABLE_AlARM_COL_ALARM_ALREADY_SET = "alarmAlreadySet";
 
-    public final static String TABLE_NOTIFICATION_NAME = "tbl_notification";
     public final static String TABLE_AlARM_COL_NOTIFICATION_ID = "notification_id";
-
-    public final static String TABLE_TODAY_NAME = "tbl_today";
-
-    public final static String TABLE_TODAY_COL_TODAY = "today";
 
 
     public static SQLiteDatabase openOrCreateDatabase(@NonNull Context context){
@@ -83,47 +85,12 @@ public class Utils {
     }
 
     public static void createAllTables(@NonNull SQLiteDatabase db){
-        /*db.execSQL("create table if not exists " +
-                " tbl_alarm(event_private_id text, event_date text, alarmAlreadySet numeric)");*/
-
         db.execSQL("create table if not exists " +
                 " tbl_alarm(alarm_id integer primary key autoincrement, event_private_id text, event_date_time text)");
-
-        db.execSQL("create table if not exists " +
-                " tbl_today(today text)");
-
-        db.execSQL("create table if not exists " +
-                " tbl_notification(notification_id integer primary key autoincrement)");
-
-        /*if (FirebaseUtils.isUserLoggedIn()){
-            FirebaseUtils.getCurrentUserDataRef().child("madrich").get().addOnCompleteListener(
-                    new OnCompleteListener<DataSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task< DataSnapshot > task) {
-                            if (task.isSuccessful()){
-                             madrich = task.getResult().getValue(boolean.class);
-                            }
-                        }
-                    });
-        }*/
-
-
-    }
-
-    public static int getNotificationId(@NonNull SQLiteDatabase db){
-        ContentValues contentValues = new ContentValues();
-        db.insert(TABLE_NOTIFICATION_NAME, "notification_id", contentValues);
-        Cursor cursor = db.rawQuery("select * from tbl_notification",null);
-        cursor.moveToLast();
-        int count = cursor.getInt(0);
-        cursor.close();
-        return count;
     }
 
     public static void deleteAllTables(@NonNull SQLiteDatabase db) {
         db.execSQL("drop table if exists tbl_alarm");
-
-        db.execSQL("drop table if exists tbl_today");
     }
 
     public static int addAlarm(@NonNull String event_private_id, String event_dateTime, @NonNull SQLiteDatabase db){
@@ -142,11 +109,6 @@ public class Utils {
 
     public static int deleteAlarm(@NonNull String event_private_id, @NonNull SQLiteDatabase db){
         System.out.println(event_private_id);
-
-//        cv.put(Utils.TABLE_AlARM_COL_ALARM_ALREADY_SET, false);
-
-//        db.insert("tbl_student", null, cv);
-//            db.execSQL("insert into "+Utils.TABLE_AlARM_NAME+" values('"+event_private_id+"', "+true+")");
 
         int alarm_id = alarmIdByEvent(event_private_id, db);
 
@@ -174,7 +136,6 @@ public class Utils {
         Cursor cursor = db.rawQuery("select * from " + TABLE_AlARM_NAME, null);
         while (cursor.moveToNext()){
             int alarm_id = cursor.getInt(0);
-
         }
 
         cursor.close();
@@ -271,6 +232,22 @@ public class Utils {
 
     @NonNull
     @Contract("_ -> param1")
+    public static AppCompatDialog createCustomDialog(@NonNull AppCompatDialog dialog){
+        dialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.round_picker_dialog_background);
+        return dialog;
+    }
+
+    @NonNull
+    @Contract("_ -> param1")
+    public static AlertDialog createCustomDialog(@NonNull AlertDialog dialog){
+        dialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.round_picker_dialog_background);
+        return dialog;
+    }
+
+    @NonNull
+    @Contract("_ -> param1")
     public static Dialog createCustomDialog(@NonNull Dialog dialog){
         dialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.round_picker_dialog_background);
@@ -282,22 +259,6 @@ public class Utils {
     public static BottomSheetDialog createCustomBottomSheetDialog(@NonNull BottomSheetDialog bottomSheetDialog){
         bottomSheetDialog.setDismissWithAnimation(true);
         return bottomSheetDialog;
-    }
-
-    public static void log(String msg){
-//        Log.d("murad", "I'm in line #" + new Exception().getStackTrace()[0].getLineNumber());
-
-        StackTraceElement l = new Exception().getStackTrace()[0];
-        Log.d("murad", l.getClassName() + "/" + l.getMethodName() + ":" + l.getLineNumber()
-                + " | " + msg);
-    }
-
-    public static void log(String tag, String msg){
-//        Log.d("murad", "I'm in line #" + new Exception().getStackTrace()[0].getLineNumber());
-
-        StackTraceElement l = new Exception().getStackTrace()[0];
-        Log.d(tag, l.getClassName() + "/" + l.getMethodName() + ":" + l.getLineNumber()
-                + " | " + msg);
     }
 
     public static double round(double value, int places) {
@@ -367,11 +328,11 @@ public class Utils {
 
         Log.d(LOG_TAG, new Date(before).toString());
 
-        Log.d(Utils.LOG_TAG, String.valueOf(before));
+        Log.d(LOG_TAG, String.valueOf(before));
 
         before = before/60/1000;
 
-        Log.d(Utils.LOG_TAG, String.valueOf(before));
+        Log.d(LOG_TAG, String.valueOf(before));
 
         int beforeHour = (int) (before/60);
         int beforeMinute = (int) (before%60);
@@ -380,9 +341,6 @@ public class Utils {
         Log.d(LOG_TAG, "beforeMinute = " + beforeMinute);
 
         String beforeText = "";
-
-/*            int beforeHour = timeBefore.getHour();
-            int beforeMinute = timeBefore.getMinute();*/
 
         if (beforeHour == 1){
             beforeText = beforeText + beforeHour + " hour and " ;
@@ -414,6 +372,11 @@ public class Utils {
         }
     }
 
+    /**
+     *
+     * @param color
+     * @return
+     */
     @ColorInt
     public static int getContrastColor(@ColorInt int color) {
         double whiteContrast = ColorUtils.calculateContrast(Color.WHITE, color);
@@ -422,16 +385,28 @@ public class Utils {
         return (whiteContrast > blackContrast) ? Color.WHITE : Color.BLACK;
     }
 
+    /**
+     *
+     * @param color
+     * @return
+     */
     @ColorInt
     public static int getContrastBackgroundColor(@ColorInt int color) {
-        return !(color == Color.WHITE) ? Color.LTGRAY : Color.DKGRAY;
+        return (color != Color.WHITE) ? Color.LTGRAY : Color.DKGRAY;
     }
 
+    /**
+     * Creates {@link GradientDrawable} from received background color a
+     * nd the color opposite to contrast text color for such a background.
+     * It will be used as background for {@link RecyclerView} items.
+     * @param color Background color of {@link RecyclerView} item.
+     * @return
+     */
     @NonNull
     public static GradientDrawable getGradientBackground(@ColorInt int color) {
-        int textColor = Utils.getContrastColor(color);
+        int textColor = getContrastColor(color);
 
-        int gradientColor = Utils.getContrastBackgroundColor(textColor);
+        int gradientColor = getContrastBackgroundColor(textColor);
 
         GradientDrawable gd = new GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
@@ -446,9 +421,11 @@ public class Utils {
         if (view == null) {
             return false;
         }
+
         if (!view.isShown()) {
             return false;
         }
+
         final Rect actualPosition = new Rect();
         boolean isGlobalVisible = view.getGlobalVisibleRect(actualPosition);
         final Rect screen = new Rect(0, 0,
@@ -472,14 +449,89 @@ public class Utils {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
     }
 
+    /**
+     * Creates custom {@link AlertDialog} based on provided parameters
+     * @param context Context in which the dialog will be created
+     * @param title Title of the dialog
+     * @param message Message that will be shown in dialog box
+     * @param pBText Text for positive button
+     * @param onPBClickListener {@link DialogInterface.OnClickListener} for positive button
+     * @param nBText Text for negative button
+     * @param onNBClickListener {@link DialogInterface.OnClickListener} for negative button
+     * @param onCancelListener {@link DialogInterface.OnCancelListener}
+     * @return Dialog created from supplied data that will be shown
+     */
     @NonNull
-    public static Dialog createDialog(Context context, String message, String pBText, DialogInterface.OnClickListener onPBClickListener, String nBText, DialogInterface.OnClickListener onNBClickListener, DialogInterface.OnCancelListener onCancelListener){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    public static AlertDialog createAlertDialog(Context context, String title, String message,
+                                                String pBText, DialogInterface.OnClickListener onPBClickListener,
+                                                String nBText, DialogInterface.OnClickListener onNBClickListener,
+                                                DialogInterface.OnCancelListener onCancelListener) {
+
+        MyAlertDialogBuilder builder = new MyAlertDialogBuilder(context);
+        builder.setTitle(title);
         builder.setMessage(message);
         builder.setPositiveButton(pBText, onPBClickListener);
         builder.setNegativeButton(nBText, onNBClickListener);
         builder.setOnCancelListener(onCancelListener);
 
-        return createCustomDialog(builder.create());
+        return builder.create();
     }
+
+    @NonNull
+    public static AlertDialog createAlertDialog(Context context, String title, String message,
+                                                @StringRes int pBTextInt, DialogInterface.OnClickListener onPBClickListener,
+                                                @StringRes int nBTextInt, DialogInterface.OnClickListener onNBClickListener,
+                                                DialogInterface.OnCancelListener onCancelListener){
+
+        return createAlertDialog(context, title, message,
+                context.getString(pBTextInt), onPBClickListener,
+                context.getString(nBTextInt), onNBClickListener,
+                onCancelListener);
+    }
+
+    @NonNull
+    public static ColorPicker createColorPickerDialog(Activity activity,
+                                                      ColorPicker.OnFastChooseColorListener onFastChooseColorListener) {
+
+        ColorPicker colorPicker = new ColorPicker(activity);
+
+        colorPicker.setDefaultColorButton(R.color.colorAccent);
+        colorPicker.setRoundColorButton(true);
+        colorPicker.setColorButtonSize(30, 30);
+        colorPicker.setColorButtonTickColor(Color.BLACK);
+        colorPicker.setDismissOnButtonListenerClick(true);
+
+        colorPicker.getPositiveButton().setVisibility(View.GONE);
+        colorPicker.getNegativeButton().setVisibility(View.GONE);
+
+        colorPicker.setOnFastChooseColorListener(onFastChooseColorListener);
+
+        colorPicker.getDialogViewLayout().findViewById(R.id.buttons_layout).setVisibility(View.VISIBLE);
+
+        return colorPicker;
+    }
+
+    @NonNull
+    @Contract("_ -> new")
+    public static TextWatcher getDefaultTextChangedListener(TextInputLayout textInputLayout){
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                textInputLayout.setError(null);
+            }
+        };
+    }
+
+    public static Intent getIntentClearTop(@NonNull Intent intent){
+        return intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    }
+
 }

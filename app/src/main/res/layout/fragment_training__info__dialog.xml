@@ -9,7 +9,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".training.Training_Info_DialogFragment">
+        tools:context=".training.TrainingInfoDialogFragment">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/materialToolbar"
@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Name"
-            android:textSize="24dp"
+            android:textSize="24sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text="Wed, 16 Mar"
-            android:textSize="16dp"
+            android:textSize="16sp"
             android:layout_marginTop="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/materialToolbar" />
@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="12:44 - 15:39"
-            android:textSize="16dp"
+            android:textSize="16sp"
             app:layout_constraintStart_toStartOf="@+id/tv_start_date"
             app:layout_constraintTop_toBottomOf="@+id/tv_start_date" />
 
@@ -81,7 +81,7 @@
                     android:layout_height="wrap_content"
                     android:text="00:10:53"
                     android:textStyle="bold"
-                    android:textSize="20dp"/>
+                    android:textSize="20sp"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -94,7 +94,7 @@
                         android:layout_height="wrap_content"
                         android:text="0.9 m"
                         android:textStyle="bold"
-                        android:textSize="14dp"
+                        android:textSize="14sp"
                         />
 
                     <TextView
@@ -109,7 +109,7 @@
                         android:layout_height="wrap_content"
                         android:text="11'59' /km"
                         android:textStyle="bold"
-                        android:textSize="14dp"
+                        android:textSize="14sp"
                         />
 
                 </LinearLayout>
@@ -118,26 +118,16 @@
 
         </androidx.cardview.widget.CardView>
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/siv_picture"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:layout_marginHorizontal="70dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardView"
-            app:layout_constraintStart_toStartOf="parent" />
-
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/lineChart_speed"
             android:layout_width="300dp"
             android:layout_height="300dp"
+            android:layout_marginHorizontal="70dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/siv_picture" />
+            app:layout_constraintTop_toBottomOf="@+id/cardView"
+            app:layout_constraintStart_toStartOf="parent"  />
 
         <androidx.cardview.widget.CardView
-            xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.CardView"
@@ -151,9 +141,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Workout details"
+                android:text="@string/workout_details"
                 android:layout_margin="10dp"
-                android:textSize="18dp"
+                android:textSize="18sp"
                 android:textStyle="bold"/>
 
             <GridLayout
@@ -186,8 +176,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Workout duration"
-                        android:textSize="14dp" />
+                        android:text="@string/workout_duration"
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/tv_training_duration"
@@ -195,7 +185,7 @@
                         android:layout_height="wrap_content"
                         android:text="00:10:53"
                         android:textStyle="bold"
-                        android:textSize="16dp"/>
+                        android:textSize="16sp"/>
 
                 </LinearLayout>
 
@@ -212,8 +202,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Total duration"
-                        android:textSize="14dp" />
+                        android:text="@string/total_duration"
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/tv_training_total_duration"
@@ -221,7 +211,7 @@
                         android:layout_height="wrap_content"
                         android:text="02:54:53"
                         android:textStyle="bold"
-                        android:textSize="16dp"/>
+                        android:textSize="16sp"/>
 
                 </LinearLayout>
 
@@ -238,8 +228,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Distance"
-                        android:textSize="14dp" />
+                        android:text="@string/distance"
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/tv_training_distance"
@@ -247,7 +237,7 @@
                         android:layout_height="wrap_content"
                         android:text="100 km"
                         android:textStyle="bold"
-                        android:textSize="16dp"/>
+                        android:textSize="16sp"/>
 
                 </LinearLayout>
 
@@ -273,8 +263,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Average speed"
-                        android:textSize="14dp" />
+                        android:text="@string/average_speed"
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/tv_training_average_speed"
@@ -282,7 +272,7 @@
                         android:layout_height="wrap_content"
                         android:text="100 km/h"
                         android:textStyle="bold"
-                        android:textSize="16dp"/>
+                        android:textSize="16sp"/>
 
                 </LinearLayout>
 
@@ -299,8 +289,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Max. speed"
-                        android:textSize="14dp" />
+                        android:text="@string/max_speed"
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/tv_training_max_speed"
@@ -308,7 +298,7 @@
                         android:layout_height="wrap_content"
                         android:text="1000 km/h"
                         android:textStyle="bold"
-                        android:textSize="16dp"/>
+                        android:textSize="16sp"/>
 
                 </LinearLayout>
 
@@ -325,8 +315,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Average pace"
-                        android:textSize="14dp" />
+                        android:text="@string/average_pace"
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/tv_training_average_pace"
@@ -334,7 +324,7 @@
                         android:layout_height="wrap_content"
                         android:text="11'59' /km"
                         android:textStyle="bold"
-                        android:textSize="16dp"/>
+                        android:textSize="16sp"/>
 
                 </LinearLayout>
 
@@ -351,8 +341,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Max. pace"
-                        android:textSize="14dp" />
+                        android:text="@string/max_pace"
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/tv_training_max_pace"
@@ -360,14 +350,13 @@
                         android:layout_height="wrap_content"
                         android:text="06'23' /km"
                         android:textStyle="bold"
-                        android:textSize="16dp"/>
+                        android:textSize="16sp"/>
 
                 </LinearLayout>
 
             </GridLayout>
 
         </androidx.cardview.widget.CardView>
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

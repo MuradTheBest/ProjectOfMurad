@@ -1,6 +1,5 @@
 package com.example.projectofmurad.helpers;
 
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -31,9 +30,7 @@ public class RecyclerViewSwipeDecorator {
     private RecyclerView recyclerView;
     private RecyclerView.ViewHolder viewHolder;
     private float dX;
-    private float dY;
     private int actionState;
-    private boolean isCurrentlyActive;
 
     private int swipeLeftBackgroundColor;
     private int swipeLeftActionIconId;
@@ -68,24 +65,6 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Create a @RecyclerViewSwipeDecorator
-     * @param context A valid Context object for the RecyclerView
-     * @param canvas The canvas which RecyclerView is drawing its children
-     * @param recyclerView The RecyclerView to which ItemTouchHelper is attached to
-     * @param viewHolder The ViewHolder which is being interacted by the User or it was interacted and simply animating to its original position
-     * @param dX The amount of horizontal displacement caused by user's action
-     * @param dY The amount of vertical displacement caused by user's action
-     * @param actionState The type of interaction on the View. Is either ACTION_STATE_DRAG or ACTION_STATE_SWIPE.
-     * @param isCurrentlyActive True if this view is currently being controlled by the user or false it is simply animating back to its original state
-     *
-     * @deprecated in RecyclerViewSwipeDecorator 1.2.2
-     */
-    @Deprecated
-    public RecyclerViewSwipeDecorator(Context context, Canvas canvas, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-        this(canvas, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-    }
-
-    /**
-     * Create a @RecyclerViewSwipeDecorator
      * @param canvas The canvas which RecyclerView is drawing its children
      * @param recyclerView The RecyclerView to which ItemTouchHelper is attached to
      * @param viewHolder The ViewHolder which is being interacted by the User or it was interacted and simply animating to its original position
@@ -100,9 +79,7 @@ public class RecyclerViewSwipeDecorator {
         this.recyclerView = recyclerView;
         this.viewHolder = viewHolder;
         this.dX = dX;
-        this.dY = dY;
         this.actionState = actionState;
-        this.isCurrentlyActive = isCurrentlyActive;
         this.iconHorizontalMargin = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, recyclerView.getContext().getResources().getDisplayMetrics());
     }
 
@@ -408,25 +385,7 @@ public class RecyclerViewSwipeDecorator {
      * A Builder for the RecyclerViewSwipeDecorator class
      */
     public static class Builder {
-        private RecyclerViewSwipeDecorator mDecorator;
-
-        /**
-         * Create a builder for a RecyclerViewsSwipeDecorator
-         * @param context A valid Context object for the RecyclerView
-         * @param canvas The canvas which RecyclerView is drawing its children
-         * @param recyclerView The RecyclerView to which ItemTouchHelper is attached to
-         * @param viewHolder The ViewHolder which is being interacted by the User or it was interacted and simply animating to its original position
-         * @param dX The amount of horizontal displacement caused by user's action
-         * @param dY The amount of vertical displacement caused by user's action
-         * @param actionState The type of interaction on the View. Is either ACTION_STATE_DRAG or ACTION_STATE_SWIPE.
-         * @param isCurrentlyActive True if this view is currently being controlled by the user or false it is simply animating back to its original state
-         *
-         * @deprecated in RecyclerViewSwipeDecorator 1.2.2
-         */
-        @Deprecated
-        public Builder(Context context, Canvas canvas, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-            this(canvas, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-        }
+        private final RecyclerViewSwipeDecorator mDecorator;
 
         /**
          * Create a builder for a RecyclerViewsSwipeDecorator

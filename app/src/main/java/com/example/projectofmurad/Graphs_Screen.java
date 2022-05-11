@@ -2,8 +2,6 @@ package com.example.projectofmurad;
 
 import android.os.Bundle;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 public class Graphs_Screen extends MyActivity {
 
     @Override

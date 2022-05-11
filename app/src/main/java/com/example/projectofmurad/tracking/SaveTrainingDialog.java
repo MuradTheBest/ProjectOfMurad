@@ -1,6 +1,5 @@
 package com.example.projectofmurad.tracking;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,6 +10,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDialog;
 
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.Utils;
@@ -18,7 +18,7 @@ import com.example.projectofmurad.training.Training;
 
 import java.time.LocalDate;
 
-public class SaveTrainingDialog extends Dialog implements CompoundButton.OnCheckedChangeListener,
+public class SaveTrainingDialog extends AppCompatDialog implements CompoundButton.OnCheckedChangeListener,
         View.OnClickListener {
 
     private RadioButton rb_private_training;

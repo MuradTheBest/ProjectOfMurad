@@ -1,5 +1,7 @@
 package com.example.projectofmurad.groups;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 
 public class Group implements Serializable {
@@ -11,6 +13,17 @@ public class Group implements Serializable {
     private int madrichCode;
     private int limit;
     private int usersNumber;
+    private String picture;
+
+    public static final String KEY_GROUP = "key_group";
+    public static final String KEY_NAME = "name";
+    public static final String KEY_GROUP_KEY = "key";
+    public static final String KEY_DESCRIPTION = "description";
+    public static final String KEY_COLOR = "color";
+    public static final String KEY_MADRICH_CODE = "madrichCode";
+    public static final String KEY_LIMIT = "limit";
+    public static final String KEY_USERS_NUMBER = "usersNumber";
+    public static final String KEY_PICTURE = "picture";
 
     public Group() {}
 
@@ -81,6 +94,7 @@ public class Group implements Serializable {
         this.usersNumber = usersNumber;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Group{" +
@@ -99,5 +113,13 @@ public class Group implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 }

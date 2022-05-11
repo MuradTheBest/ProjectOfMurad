@@ -5,21 +5,22 @@ import android.os.StrictMode;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.projectofmurad.FirebaseUtils;
-import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.groups.Group;
+import com.example.projectofmurad.helpers.FirebaseUtils;
+import com.example.projectofmurad.helpers.Utils;
 import com.google.gson.Gson;
 
-import org.json.JSONArray;
+import org.jetbrains.annotations.Contract;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,114 +34,20 @@ public class FCMSend {
 
     public static final String FCM_TAG = "fcm";
 
-    public final static String EVENT_TOPIC = "event_topic";
-
     public final static String ADD_EVENT_TOPIC = "add_event_topic";
     public final static String EDIT_EVENT_TOPIC = "edit_event_topic";
     public final static String DELETE_EVENT_TOPIC = "delete_event_topic";
 
-    public final static String KEY_SENDER_UID = "senderUID";
+    public final static String KEY_SENDER_UID = "sender_uid";
+    public final static String KEY_RECEIVER_UID = "receiver_uid";
 
-    private static void sendNotificationToOneUser(@NonNull Context context, @NonNull CalendarEvent event, int type, String token) {
-
-        Log.d(FCM_TAG, "******************************************************************************************");
-        Log.d(FCM_TAG, "sending notification to server");
-        Log.d(FCM_TAG, "******************************************************************************************");
-
-
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-
-//        SERVER_KEY = context.getString(R.string.server_key);
-
-        String title = "";
-        String body = "";
-        String msg = "";
-
-
-        RequestQueue queue = Volley.newRequestQueue(context);
-        try {
-            JSONObject json = new JSONObject();
-            json.put("to", token);
-            JSONObject notification = new JSONObject();
-
-            title = "New event added";
-
-            if(event.getFrequencyType().endsWith("amount")){
-                msg = "chain ";
-            }
-            if(event.getFrequencyType().endsWith("end")){
-                msg = "chain ";
-            }
-
-            String type_text = "";
-
-            switch (type) {
-                case Utils.ADD_EVENT_NOTIFICATION_CODE:
-                    type_text = " has been added." + "\nI";
-                    break;
-                case Utils.EDIT_EVENT_NOTIFICATION_CODE:
-                    type_text = " has been edited." + "\nNow i";
-                    break;
-            }
-
-            body = "Event " + msg + event.getName() + type_text
-                    + "t will start at " + event.getStartDateTime() + " and"
-                    + "\nend at " + event.getEndDateTime();
-
-            notification.put("tag", event.getPrivateId());
-
-            notification.put("title", title);
-            notification.put("body", body);
-
-            json.put("notification", notification);
-
-            JSONObject data = new JSONObject();
-            data.put("type", Utils.ADD_EVENT_NOTIFICATION_CODE);
-            data.put(UtilsCalendar.KEY_EVENT, new Gson().toJson(event));
-            data.put(KEY_SENDER_UID, FirebaseUtils.getCurrentUID());
-
-            json.put("data", data);
-
-            Log.d(FCM_TAG, json.toString());
-            Log.d(FCM_TAG, new Gson().toJson(event));
-            Log.d(FCM_TAG, event.toString());
-
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, BASE_URL, json,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            Log.d(FCM_TAG, "FCM " + response);
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.d(FCM_TAG, error.getMessage());
-                            Log.d(FCM_TAG, error.getNetworkTimeMs() + "");
-                            error.printStackTrace();
-                            error.getCause();
-                        }
-            })
-            {
-                @NonNull
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<>();
-                    params.put("Content-Type", "application/json");
-                    params.put("Authorization", SERVER_KEY);
-                    return params;
-                }
-            };
-
-            queue.add(jsonObjectRequest);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    @NonNull
+    @Contract(pure = true)
+    public static String getTopic(String type) {
+        return FirebaseUtils.CURRENT_GROUP_KEY + "-" + type;
     }
 
-    private static void sendNotificationMulticast(@NonNull Context context, @NonNull CalendarEvent event, int type, String[] tokens) {
-
+    private static void sendNotificationToTopic(@NonNull Context context, @NonNull CalendarEvent event, String title, int type){
         Log.d(FCM_TAG, "******************************************************************************************");
         Log.d(FCM_TAG, "sending notification to server");
         Log.d(FCM_TAG, "******************************************************************************************");
@@ -149,135 +56,30 @@ public class FCMSend {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-//        SERVER_KEY = context.getString(R.string.server_key);
-
-        String title = "";
         String body = "";
         String msg = "";
-
-
-        RequestQueue queue = Volley.newRequestQueue(context);
-        try {
-            JSONObject remoteMessage = new JSONObject();
-
-            JSONArray TOKENS = new JSONArray(tokens);
-
-//            remoteMessage.put("registration_ids", TOKENS);
-            remoteMessage.put("multicast_id", TOKENS);
-//            remoteMessage.put("multicast_id", new Gson().toJson(tokens));
-//            remoteMessage.put("registration_ids", "");
-            JSONObject notification = new JSONObject();
-
-            title = "New event added";
-
-            if(event.getFrequencyType().endsWith("amount")){
-                msg = "chain ";
-            }
-            if(event.getFrequencyType().endsWith("end")){
-                msg = "chain ";
-            }
-
-            String type_text = "";
-
-            switch (type) {
-                case Utils.ADD_EVENT_NOTIFICATION_CODE:
-                    type_text = " has been added" + "\n I";
-                    break;
-                case Utils.EDIT_EVENT_NOTIFICATION_CODE:
-                    type_text = " has been edited" + "\n Now i";
-                    break;
-            }
-
-            body = "Event " + msg + event.getName() + type_text
-                    + "t will start at " + event.getStartDateTime() + " and "
-                    + " end at " + event.getEndDateTime();
-
-            notification.put("tag", event.getPrivateId());
-
-            notification.put("title", title);
-            notification.put("body", body);
-
-            remoteMessage.put("notification", notification);
-
-            JSONObject data = new JSONObject();
-            data.put("type", Utils.ADD_EVENT_NOTIFICATION_CODE);
-            data.put("color", event.getColor());
-            data.put("event", new Gson().toJson(event));
-//            data.put("event", event);
-
-
-
-            remoteMessage.put("data", data);
-
-            Log.d(FCM_TAG, remoteMessage.toString());
-            Log.d(FCM_TAG, new Gson().toJson(event));
-            Log.d(FCM_TAG, event.toString());
-
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, BASE_URL, remoteMessage,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            Log.d(FCM_TAG, "FCM " + response);
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.d(FCM_TAG, error.getMessage());
-                            error.printStackTrace();
-                            error.getCause();
-                        }
-                    })
-            {
-                @NonNull
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<>();
-                    params.put("Content-Type", "application/remoteMessage");
-//                    params.put("Accept", "application/remoteMessage");
-                    params.put("Authorization", SERVER_KEY);
-                    return params;
-                }
-            };
-
-            queue.add(jsonObjectRequest);
-
-            Log.d(FCM_TAG, jsonObjectRequest.toString());
-            Log.d(FCM_TAG, jsonObjectRequest.getUrl());
-            Log.d(FCM_TAG, jsonObjectRequest.getHeaders().toString());
-        } catch (JSONException | AuthFailureError e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void sendNotificationToTopic(@NonNull Context context, @NonNull CalendarEvent event, int type){
-        Log.d(FCM_TAG, "******************************************************************************************");
-        Log.d(FCM_TAG, "sending notification to server");
-        Log.d(FCM_TAG, "******************************************************************************************");
-
-
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-
-//        SERVER_KEY = context.getString(R.string.server_key);
-
-        String title = "Event ";
-        String body = "";
-        String msg = "";
+        String text = "";
 
         String topic = "";
 
-        if (type == Utils.ADD_EVENT_NOTIFICATION_CODE){
-            topic = ADD_EVENT_TOPIC;
-            title += "added";
-        }
-        else if (type == Utils.EDIT_EVENT_NOTIFICATION_CODE){
-            topic = EDIT_EVENT_TOPIC;
-            title += "edited";
-        }
-        else if (type == Utils.DELETE_EVENT_NOTIFICATION_CODE){
-            topic = DELETE_EVENT_TOPIC;
-            title += "deleted";
+        switch (type) {
+            case Utils.ADD_EVENT_NOTIFICATION_CODE:
+                topic = ADD_EVENT_TOPIC;
+                text = " was added";
+                body = "It will start at " + event.getStartDateTime()
+                        + " and end at " + event.getEndDateTime();
+                break;
+            case Utils.EDIT_EVENT_NOTIFICATION_CODE:
+                topic = EDIT_EVENT_TOPIC;
+                text = " was edited";
+                body = "Now It will start at " + event.getStartDateTime()
+                        + " and end at " + event.getEndDateTime()
+                        + ". If you have set alarm for this event, cancel it and set new one.";
+                break;
+            case Utils.DELETE_EVENT_NOTIFICATION_CODE:
+                topic = DELETE_EVENT_TOPIC;
+                text = " was deleted";
+                break;
         }
 
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -286,33 +88,13 @@ public class FCMSend {
             json.put("to", "/topics/" + topic);
             JSONObject notification = new JSONObject();
 
-            if(event.getFrequencyType().endsWith("amount")){
-                msg = "chain ";
-            }
-            if(event.getFrequencyType().endsWith("end")){
+            if(event.getFrequency() != 1 && event.getFrequencyType().equals("end")){
                 msg = "chain ";
             }
 
-            String type_text = "";
-
-            switch (type) {
-                case Utils.ADD_EVENT_NOTIFICATION_CODE:
-                    type_text = " has been added." + "\nIt will start at " + event.getStartDateTime() + " and"
-                            + "\nend at " + event.getEndDateTime();
-                    break;
-                case Utils.EDIT_EVENT_NOTIFICATION_CODE:
-                    type_text = " has been edited." + "\nNow It will start at " + event.getStartDateTime() + " and"
-                            + "\nend at " + event.getEndDateTime();
-                    break;
-                case Utils.DELETE_EVENT_NOTIFICATION_CODE:
-                    type_text = " has been deleted." ;
-                    break;
-            }
-
-            body = "Event " + msg + event.getName() + type_text;
+            text = "Event " + msg + event.getName() + text;
 
             notification.put("tag", event.getPrivateId());
-
             notification.put("title", title);
             notification.put("body", body);
 
@@ -320,14 +102,13 @@ public class FCMSend {
 
             JSONObject data = new JSONObject();
             data.put("type", type);
+            data.put("text", text);
+            data.put("color", new Gson().toJson(event.getColor()));
+            data.put("group", FirebaseUtils.CURRENT_GROUP_KEY);
             data.put(UtilsCalendar.KEY_EVENT, event.toJson());
             data.put(KEY_SENDER_UID, FirebaseUtils.getCurrentUID());
 
             json.put("data", data);
-
-            Log.d(FCM_TAG, json.toString());
-            Log.d(FCM_TAG, event.toJson());
-            Log.d(FCM_TAG, event.toString());
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, BASE_URL, json,
                     new Response.Listener<JSONObject>() {
@@ -348,7 +129,7 @@ public class FCMSend {
             {
                 @NonNull
                 @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
+                public Map<String, String> getHeaders() {
                     Map<String, String> params = new HashMap<>();
                     params.put("Content-Type", "application/json");
                     params.put("Authorization", SERVER_KEY);
@@ -357,12 +138,147 @@ public class FCMSend {
             };
 
             queue.add(jsonObjectRequest);
-        } catch (JSONException e) {
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void sendNotificationAboutGroup(Context context, @NonNull Group group){
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        Log.d(FCM_TAG, "sending notification about group");
+
+        String body = "";
+        String text = "Group " + group.getName() + " was deleted by trainer";
+        String title = "Group deleted";
+
+        String topic = group.getKey();
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+        try {
+            JSONObject json = new JSONObject();
+            json.put("to", "/topics/" + topic);
+
+            JSONObject notification = new JSONObject();
+            notification.put("tag", group.getKey());
+            notification.put("title", title);
+            notification.put("body", body);
+
+            json.put("notification", notification);
+
+            JSONObject data = new JSONObject();
+            data.put("type", Utils.GROUP_NOTIFICATION_CODE);
+            data.put("text", text);
+            data.put("color", new Gson().toJson(group.getColor()));
+            data.put("group", group.getKey());
+            data.put(KEY_SENDER_UID, FirebaseUtils.getCurrentUID());
+
+            json.put("data", data);
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, BASE_URL, json,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.d(FCM_TAG, "FCM " + response);
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d(FCM_TAG, error.getMessage());
+                            Log.d(FCM_TAG, error.getNetworkTimeMs() + "");
+                            error.printStackTrace();
+                            error.getCause();
+                        }
+                    })
+            {
+                @NonNull
+                @Override
+                public Map<String, String> getHeaders() {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("Content-Type", "application/json");
+                    params.put("Authorization", SERVER_KEY);
+                    return params;
+                }
+            };
+
+            queue.add(jsonObjectRequest);
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void sendNotificationAboutUser(Context context, @NonNull Group group, String UID){
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        String body = "You were removed from group " + group.getName() +
+                " by madrich. All your data in this group was deleted";
+        String text = "";
+        String title = "Removed from group";
+
+        String topic = group.getKey();
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+        try {
+            JSONObject json = new JSONObject();
+            json.put("to", "/topics/" + topic);
+
+            JSONObject notification = new JSONObject();
+            notification.put("tag", group.getKey());
+            notification.put("title", title);
+            notification.put("body", body);
+
+            json.put("notification", notification);
+
+            JSONObject data = new JSONObject();
+            data.put("type", Utils.GROUP_NOTIFICATION_CODE);
+            data.put("text", text);
+            data.put(KEY_RECEIVER_UID, UID);
+            data.put("group", group.getKey());
+            data.put("color", new Gson().toJson(group.getColor()));
+            data.put(KEY_SENDER_UID, FirebaseUtils.getCurrentUID());
+
+            json.put("data", data);
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, BASE_URL, json,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.d(FCM_TAG, "FCM " + response);
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d(FCM_TAG, error.getMessage());
+                            Log.d(FCM_TAG, error.getNetworkTimeMs() + "");
+                            error.printStackTrace();
+                            error.getCause();
+                        }
+                    })
+            {
+                @NonNull
+                @Override
+                public Map<String, String> getHeaders() {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("Content-Type", "application/json");
+                    params.put("Authorization", SERVER_KEY);
+                    return params;
+                }
+            };
+
+            queue.add(jsonObjectRequest);
+        }
+        catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
     public static void sendNotificationsToAllUsersWithTopic(Context context, CalendarEvent event, int notificationType){
-        sendNotificationToTopic(context, event, notificationType);
+        FirebaseUtils.getCurrentGroupName().observe((LifecycleOwner) context, groupName -> sendNotificationToTopic(context, event, groupName, notificationType));
     }
 }

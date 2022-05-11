@@ -22,8 +22,6 @@
 <!--        <item name="switchStyle">@style/Widget.App.Switch</item>-->
 
         <item name="bottomSheetDialogTheme">@style/MyBottomSheetDialogTheme</item>
-        <item name="android:indeterminateDrawable">@drawable/ic_baseline_person_24</item>
-
     </style>
 
 
@@ -39,23 +37,6 @@
     <style name="Theme.ProjectOfMurad.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="Theme.ProjectOfMurad.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="Theme.ProjectOfMurad.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
-    <style name="RoundedCornersDialog" parent="Theme.MaterialComponents.Light.Dialog">
-<!--        <item name="dialogCornerRadius">16dp</item>-->
-<!--        <item name="android:windowAnimationStyle">@style/MyAnimation.Window</item>-->
-<!--        <item name="android:windowAnimationStyle">@style/Animation.WindowSlideUpDown</item>-->
-        <item name="android:windowAnimationStyle">@style/MyAnimationWindow</item>
-<!--        <item name="android:background">@drawable/round_dialog_background</item>-->
-    </style>
-
-    <style name="Animation.WindowSlideUpDown" parent="@android:style/Animation.Activity">
-        <item name="android:windowEnterAnimation">@anim/slide_up</item>
-        <item name="android:windowExitAnimation">@anim/slide_down</item>
     </style>
 
     <style name="MyAnimationWindow" parent="@android:style/Animation.Activity">

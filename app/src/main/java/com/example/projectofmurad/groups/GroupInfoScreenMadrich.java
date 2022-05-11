@@ -1,0 +1,398 @@
+package com.example.projectofmurad.groups;
+
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
+
+import com.bumptech.glide.Glide;
+import com.example.projectofmurad.R;
+import com.example.projectofmurad.UserData;
+import com.example.projectofmurad.calendar.UsersAdapterForFirebase;
+import com.example.projectofmurad.helpers.FirebaseUtils;
+import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.ViewAnimationUtils;
+import com.example.projectofmurad.notifications.FCMSend;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.StorageReference;
+
+import java.util.HashMap;
+
+import petrov.kristiyan.colorpicker.ColorPicker;
+
+public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLongClickListener,
+        UsersAdapterForFirebase.OnUserExpandListener,
+        UsersAdapterForFirebase.OnUserLongClickListener {
+
+    private Menu menu;
+
+    // constant to compare
+    // the activity result code
+    public final static int SELECT_PICTURE = 200;
+    private Uri selectedImageUri;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        et_group_name.setOnLongClickListener(this);
+        et_group_description.setOnLongClickListener(this);
+        et_group_key.setOnLongClickListener(this);
+        et_trainer_code.setOnLongClickListener(this);
+        et_group_limit.setOnLongClickListener(this);
+
+        Log.d(Utils.LOG_TAG, "et_group_name.isLongClickable() is " + et_group_name.isLongClickable());
+        Log.d(Utils.LOG_TAG, "et_group_description.isLongClickable() is " + et_group_description.isLongClickable());
+        Log.d(Utils.LOG_TAG, "et_group_key.isLongClickable() is " + et_group_key.isLongClickable());
+        Log.d(Utils.LOG_TAG, "et_trainer_code.isLongClickable() is " + et_trainer_code.isLongClickable());
+        Log.d(Utils.LOG_TAG, "et_group_limit.isLongClickable() is " + et_group_limit.isLongClickable());
+
+        tv_choose_color.setOnLongClickListener(v -> createColorPickerDialog());
+        iv_group_picture.setOnLongClickListener(v -> chooseGroupPicture());
+    }
+
+    private boolean createColorPickerDialog() {
+        edit(true);
+
+        ColorPicker colorPicker = Utils.createColorPickerDialog(this,
+                new ColorPicker.OnFastChooseColorListener() {
+                    @Override
+                    public void setOnFastChooseColorListener(int position, int color) {
+                        tv_choose_color.setTextColor(color);
+                    }
+
+                    @Override
+                    public void onCancel() {}
+                });
+
+        colorPicker.addListenerButton(getString(R.string.generate),
+                (v, position, color) -> {
+                    tv_choose_color.setTextColor(Utils.generateRandomColor());
+                    colorPicker.dismissDialog();
+                });
+
+        colorPicker.show();
+
+        return false;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
+        menu.findItem(R.id.save_group).setVisible(false);
+        menu.findItem(R.id.delete_group).setVisible(true);
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    // methods to control the operations that will happen when user clicks on the action buttons
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        switch (item.getItemId()){
+            case android.R.id.home:
+                if (et_group_name.getVisibility() == View.VISIBLE){
+                    getGroupData();
+                }
+                else {
+                    onBackPressed();
+                }
+                break;
+            case R.id.save_group:
+                saveGroup();
+                break;
+            case R.id.delete_group:
+                FirebaseUtils.createReAuthenticateDialog(this, this::deleteGroup);
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void deleteGroup() {
+        DatabaseReference startRef = FirebaseUtils.getDatabase().getReference().getRef();
+
+        FirebaseUtils.getGroupTrainingsDatabase().addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        HashMap<String, Object> map = new HashMap<>();
+
+                        for (DataSnapshot event : snapshot.getChildren()){
+                            for (DataSnapshot userDS : event.getChildren()){
+                                DataSnapshot trainingsDS = userDS.child("Trainings");
+                                HashMap<String, Object> trainings = (HashMap<String, Object>) trainingsDS.getValue();
+                                HashMap<String, Object> userTrainings = (HashMap<String, Object>) map.getOrDefault(userDS.getKey(), new HashMap<>());
+                                userTrainings.putAll(trainings);
+                                map.put(userDS.getKey(), userTrainings);
+                            }
+                        }
+
+                        Log.d("snapshot", "Trying to delete");
+
+                        FirebaseUtils.groups.child(group.getKey()).removeValue();
+                        FirebaseUtils.getDatabase().getReference(group.getKey()).removeValue();
+
+                        FirebaseUtils.getPrivateTrainingsDatabase().updateChildren(map).addOnSuccessListener(
+                                new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+
+                                        FirebaseUtils.groupDatabases.child(group.getKey()).removeValue();
+                                        FirebaseUtils.groups.child(group.getKey()).removeValue();
+
+                                        FirebaseUtils.deleteAll(FirebaseUtils.usersDatabase, group.getKey(), new FirebaseUtils.FirebaseCallback() {
+                                            @Override
+                                            public void onFirebaseCallback() {
+                                                Toast.makeText(GroupInfoScreenMadrich.this,
+                                                        String.format(getString(R.string.group_was_deleted_successfully), group.getName()),
+                                                        Toast.LENGTH_SHORT).show();
+
+                                                FCMSend.sendNotificationAboutGroup(GroupInfoScreenMadrich.this, group);
+
+                                                startActivity(Utils.getIntentClearTop(new Intent(GroupInfoScreenMadrich.this,
+                                                        ShowGroupsScreen.class)));
+                                                finish();
+                                            }
+                                        });
+                                    }
+                                })
+                        .addOnFailureListener(e -> Log.d("snapshot", e.getMessage()));
+
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+    }
+
+    private void saveGroup() {
+        String name = et_group_name.getEditText().getText().toString();
+        String description = et_group_description.getEditText().getText().toString();
+        String groupKey = et_group_key.getEditText().getText().toString();
+        String trainerCode = et_trainer_code.getEditText().getText().toString();
+        String limit = et_group_limit.getEditText().getText().toString();
+
+        boolean editTextsFilled = true;
+
+        if(name.isEmpty()){
+            et_group_name.setError("Name invalid");
+            editTextsFilled = false;
+        }
+
+        if(trainerCode.isEmpty()){
+            et_trainer_code.setError("Trainer code invalid");
+            editTextsFilled = false;
+        }
+
+        if(!limit.isEmpty() || Integer.parseInt(limit) > 0 && Integer.parseInt(limit) < group.getUsersNumber()){
+            et_group_limit.setError("Limit invalid");
+            editTextsFilled = false;
+        }
+
+        int color = tv_choose_color.getCurrentTextColor();
+
+        if(!editTextsFilled){
+            return;
+        }
+
+        Group newGroup = new Group(name, groupKey, description, Integer.parseInt(trainerCode),
+                color, group.getUsersNumber(), Integer.parseInt(limit));
+
+        FirebaseUtils.createReAuthenticateDialog(this, new FirebaseUtils.FirebaseCallback() {
+            @Override
+            public void onFirebaseCallback() {
+                if (selectedImageUri == null){
+                    newGroup.setPicture(group.getPicture());
+                    uploadGroup(newGroup);
+                }
+                else {
+                    uploadGroupPictureToFirebase(newGroup, selectedImageUri);
+                }
+            }
+        });
+    }
+
+    private void uploadGroupPictureToFirebase(@NonNull Group newGroup, Uri selectedImageUri) {
+        StorageReference ref = FirebaseUtils.getFirebaseStorage().child("Groups").child(newGroup.getKey());
+        ref.putFile(selectedImageUri)
+                .addOnSuccessListener(taskSnapshot -> taskSnapshot.getStorage().getDownloadUrl()
+                        .addOnSuccessListener(uri -> {
+                            newGroup.setPicture(uri.toString());
+                            uploadGroup(newGroup);
+                        })
+                        .addOnFailureListener(e -> Toast.makeText(getApplicationContext(),
+                                "Updating the picture failed.\nPlease try again", Toast.LENGTH_SHORT).show()))
+                .addOnFailureListener(e -> Toast.makeText(getApplicationContext(),
+                        "Uploaded picture is invalid.\nPlease try again", Toast.LENGTH_SHORT).show());
+    }
+
+    private void uploadGroup(@NonNull Group newGroup) {
+        DatabaseReference ref = FirebaseUtils.groups.child(newGroup.getKey());
+        ref.setValue(newGroup).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                String msg;
+
+                Intent intent = new Intent(GroupInfoScreenMadrich.this, GroupInfoScreenMadrich.class);
+
+                if (task.isSuccessful()){
+                    msg = String.format(getString(R.string.data_of_group_name_was_successfully_updated), newGroup.getName());
+                    intent.putExtra(Group.KEY_GROUP, newGroup);
+                }
+                else {
+                    msg = getString(R.string.upps_something_went_wrong);
+                    intent.putExtra(Group.KEY_GROUP, group);
+                }
+
+                Toast.makeText(GroupInfoScreenMadrich.this, msg, Toast.LENGTH_SHORT).show();
+                startActivity(intent);
+                finish();
+            }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.group_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void getGroupData() {
+        toolbar.inflateMenu(R.menu.group_menu);
+        menu = toolbar.getMenu();
+
+        setSupportActionBar(toolbar);
+
+        Drawable homeIcon = AppCompatResources.getDrawable(this, R.drawable.ic_baseline_close_24);
+        Drawable saveIcon = AppCompatResources.getDrawable(this, R.drawable.ic_baseline_done_24);
+        Drawable deleteIcon = AppCompatResources.getDrawable(this, R.drawable.ic_baseline_delete_24);
+
+        int contrastColor = Utils.getContrastColor(group.getColor());
+
+        homeIcon.setTint(contrastColor);
+        saveIcon.setTint(contrastColor);
+        deleteIcon.setTint(contrastColor);
+
+        menu.findItem(R.id.save_group).setIcon(saveIcon);
+        getSupportActionBar().setHomeAsUpIndicator(homeIcon);
+        menu.findItem(R.id.delete_group).setIcon(deleteIcon);
+
+        super.getGroupData();
+
+        enableEverything(true);
+        edit(false);
+    }
+
+    // this function is triggered when
+    // the Select Image Button is clicked
+    private boolean chooseGroupPicture() {
+
+        // create an instance of the  intent of the type image
+        Intent i = new Intent();
+        i.setType("image/*");
+        i.setAction(Intent.ACTION_GET_CONTENT);
+
+        // pass the constant to compare it  with the returned requestCode
+        startActivityForResult(Intent.createChooser(i, getString(R.string.select_group_picture)), SELECT_PICTURE);
+
+        return false;
+    }
+
+    // this function is triggered when user
+    // selects the image from the imageChooser
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            // compare the resultCode with the
+            // SELECT_PICTURE constant
+            if (requestCode == SELECT_PICTURE) {
+                // Get the url of the image from data
+                if (data.getData() != null) {
+                    selectedImageUri = data.getData();
+                    edit(true);
+                    Glide.with(this).load(selectedImageUri).centerInside().into(iv_group_picture);
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean onLongClick(@NonNull View v) {
+        Log.d(Utils.LOG_TAG, "onLongClick");
+        edit(true);
+        return false;
+    }
+
+    public void edit(boolean edit) {
+        Log.d(Utils.LOG_TAG, "edit is " + edit);
+
+        ViewAnimationUtils.expandOrCollapse(et_group_name, edit);
+
+        et_group_name.getEditText().setInputType(edit ? EditorInfo.TYPE_CLASS_TEXT : EditorInfo.TYPE_NULL);
+        et_group_description.getEditText().setInputType(edit
+                ? (EditorInfo.TYPE_CLASS_TEXT | EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE)
+                : (EditorInfo.TYPE_CLASS_TEXT | EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE));
+        et_group_key.getEditText().setInputType(edit ? EditorInfo.TYPE_CLASS_TEXT : EditorInfo.TYPE_NULL);
+        et_trainer_code.getEditText().setInputType(edit ? EditorInfo.TYPE_NUMBER_VARIATION_PASSWORD : EditorInfo.TYPE_NULL);
+        et_group_limit.getEditText().setInputType(edit ? EditorInfo.TYPE_CLASS_NUMBER : EditorInfo.TYPE_NULL);
+
+        et_group_name.setEndIconVisible(edit);
+        et_group_description.setEndIconVisible(edit);
+        et_group_key.setEndIconVisible(edit);
+        et_trainer_code.setEndIconVisible(edit);
+        et_group_limit.setEndIconVisible(edit);
+
+        menu.findItem(R.id.save_group).setVisible(edit);
+        getSupportActionBar().setHomeAsUpIndicator(edit ? R.drawable.ic_baseline_close_24 : R.drawable.ic_baseline_arrow_back_24);
+        menu.findItem(R.id.delete_group).setVisible(!edit);
+    }
+
+    @Override
+    public boolean onUserLongClick(int position, @NonNull UserData userData) {
+        Utils.createAlertDialog(this,
+                "Are you sure that you want to remove user " + userData.getUsername() + " from this group?",
+                "All data in this group for user " + userData.getUsername() + " will be deleted",
+                R.string.yes, (dialog, which) -> FirebaseUtils.createReAuthenticateDialog(
+                        GroupInfoScreenMadrich.this, () -> removeUser(userData)),
+                R.string.no, (dialog, which) -> dialog.dismiss(),
+                null).show();
+
+        return false;
+    }
+
+    private void removeUser(@NonNull UserData userData) {
+        DatabaseReference startRef = FirebaseUtils.groupDatabases.child(group.getKey());
+
+        FirebaseUtils.deleteAll(startRef, userData.getUID(),
+                () -> Toast.makeText(GroupInfoScreenMadrich.this,
+                        "User was successfully removed from this group",
+                        Toast.LENGTH_SHORT).show());
+
+        FCMSend.sendNotificationAboutUser(this, group, userData.getUID());
+
+        FirebaseUtils.getUserDataByUIDRef(userData.getUID()).child("currentGroup").child(group.getKey()).removeValue();
+    }
+}

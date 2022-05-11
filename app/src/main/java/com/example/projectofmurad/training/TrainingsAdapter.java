@@ -19,12 +19,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.projectofmurad.FirebaseUtils;
-import com.example.projectofmurad.MainViewModel;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserAndTraining;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
-import com.example.projectofmurad.helpers.RVOnItemTouchListenerForVP2;
 import com.example.projectofmurad.helpers.Utils;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -92,11 +90,7 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
 
         int gradientColor = Utils.getContrastBackgroundColor(textColor);
 
-        GradientDrawable gd = new GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                new int[] {color, color, gradientColor});
-
-        gd.setShape(GradientDrawable.RECTANGLE);
+        GradientDrawable gd = Utils.getGradientBackground(color);
 
         if (FirebaseUtils.isCurrentUID(userAndTrainingArrayList.get(position).getUID())){
             gd.setStroke(Utils.dpToPx(4, context), context.getColor(R.color.colorAccent));
@@ -120,13 +114,12 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
         TrainingAdapter trainingAdapter = new TrainingAdapter(context, color, trainings);
         holder.rv_training.setAdapter(trainingAdapter);
         holder.rv_training.setLayoutManager(new LinearLayoutManagerWrapper(context));
-        holder.rv_training.addOnItemTouchListener(new RVOnItemTouchListenerForVP2(holder.rv_training, MainViewModel.getToSwipeViewModelForTrainings()));
 
         String UID = userAndTrainingArrayList.get(position).getUID();
 
         String eventPrivateId = userAndTrainingArrayList.get(position).getEventPrivateId();
 
-        FirebaseUtils.getTrainingsDatabase().child("Events").child(eventPrivateId).child(UID).addValueEventListener(
+        FirebaseUtils.getGroupTrainingsDatabase().child(eventPrivateId).child(UID).addValueEventListener(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -250,14 +243,14 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
                 if (holder.bc_average_speed.isPressed()){
                 }
 
-                    Training_Info_DialogFragment training_info_dialogFragment = new Training_Info_DialogFragment();
+                    TrainingInfoDialogFragment training_info_dialogFragment = new TrainingInfoDialogFragment();
                     Bundle bundle = new Bundle();
                     bundle.putSerializable(Training.KEY_TRAINING, (Training) e.getData());
                     training_info_dialogFragment.setArguments(bundle);
 
                     FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
 
-                    training_info_dialogFragment.show(fm, Training_Info_DialogFragment.TAG);
+                    training_info_dialogFragment.show(fm, TrainingInfoDialogFragment.TAG);
 
             }
 
@@ -301,9 +294,9 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
 
                     FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
 
-                    if (fm.findFragmentByTag(Training_Info_DialogFragment.TAG) == null){
-                        Training_Info_DialogFragment training_info_dialogFragment = Training_Info_DialogFragment.newInstance((Training) e.getData());
-                        training_info_dialogFragment.show(fm, Training_Info_DialogFragment.TAG);
+                    if (fm.findFragmentByTag(TrainingInfoDialogFragment.TAG) == null){
+                        TrainingInfoDialogFragment training_info_dialogFragment = TrainingInfoDialogFragment.newInstance((Training) e.getData());
+                        training_info_dialogFragment.show(fm, TrainingInfoDialogFragment.TAG);
 
                     }
 

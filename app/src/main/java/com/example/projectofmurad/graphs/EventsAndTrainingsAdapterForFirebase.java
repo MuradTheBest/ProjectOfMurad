@@ -24,7 +24,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.calendar.AlarmDialog;
 import com.example.projectofmurad.calendar.CalendarEvent;
@@ -63,8 +63,6 @@ public class EventsAndTrainingsAdapterForFirebase extends FirebaseRecyclerAdapte
 
     private final SQLiteDatabase db;
 
-    private int oldPosition = -1;
-
     public EventsAndTrainingsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, String selected_UID,
                                                 @NonNull Context context, OnEventClickListener onEventClickListener) {
 
@@ -93,8 +91,6 @@ public class EventsAndTrainingsAdapterForFirebase extends FirebaseRecyclerAdapte
         public CheckBox checkbox_all_attendances;
 
         private RecyclerView rv_trainings;
-
-        public boolean expanded = false;
 
         public EventAndTrainingsViewHolderForFirebase(@NonNull View itemView, OnEventClickListener onEventClickListener) {
             super(itemView);
@@ -178,31 +174,21 @@ public class EventsAndTrainingsAdapterForFirebase extends FirebaseRecyclerAdapte
     @Override
     protected void onBindViewHolder(@NonNull EventAndTrainingsViewHolderForFirebase holder, int position, @NonNull CalendarEvent model) {
         Log.d("murad", "RECYCLING STARTED");
-        String info = "";
 
         int textColor = Utils.getContrastColor(model.getColor());
 
-        int gradientColor = Utils.getContrastBackgroundColor(textColor);
-
-        GradientDrawable gd = new GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                new int[] {model.getColor(), model.getColor(), gradientColor});
-
-        gd.setShape(GradientDrawable.RECTANGLE);
+        GradientDrawable gd = Utils.getGradientBackground(model.getColor());
 
         holder.constraintLayout.setBackground(gd);
 
         holder.tv_event_name.setText(model.getName());
         Log.d("murad","name: " + model.getName());
-        info += model.getName();
 
         holder.tv_event_place.setText(model.getPlace());
         Log.d("murad","place: " +  model.getPlace());
-        info += " | " + model.getPlace();
 
         holder.tv_event_description.setText(model.getDescription());
         Log.d("murad", "description " + model.getDescription());
-        info += " | " + model.getDescription() + "\n";
 
         Log.d("murad", "position = " + position);
 
@@ -219,7 +205,6 @@ public class EventsAndTrainingsAdapterForFirebase extends FirebaseRecyclerAdapte
         String event_private_id = model.getPrivateId();
 
         if (selected_UID != null){
-
             holder.checkbox_all_attendances.setVisibility(View.VISIBLE);
         }
         else {

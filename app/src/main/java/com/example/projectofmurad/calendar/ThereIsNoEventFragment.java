@@ -14,7 +14,7 @@ import com.example.projectofmurad.R;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link ThereIsNoEventFragment#newInstance} factory method to
+ * Use the {@link ThereIsNoEventFragment#newInstance(String)} factory method to
  * create an instance of this fragment.
  */
 public class ThereIsNoEventFragment extends Fragment {

@@ -22,6 +22,9 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.example.projectofmurad.calendar.AlarmDialog;
 import com.example.projectofmurad.groups.ShowGroupsScreen;
+import com.example.projectofmurad.groups.UserGroupData;
+import com.example.projectofmurad.helpers.Constants;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -35,52 +38,18 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link PreferencesFragment#newInstance} factory method to
- * create an instance of this fragment.
  */
 public class PreferencesFragment extends Fragment implements View.OnClickListener,
         AlarmDialog.OnAutoAlarmSetListener {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     public PreferencesFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     *
-     * @return A new instance of fragment PreferencesFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    @NonNull
-    public static PreferencesFragment newInstance(String param1, String param2) {
-        PreferencesFragment fragment = new PreferencesFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -89,7 +58,6 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_preferences, container, false);
     }
-
 
     private MaterialButton btn_change_group;
     private SwitchCompat switch_notifications;
@@ -113,6 +81,7 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
     private TextView tv_username;
     private TextView tv_email;
     private TextView tv_phone;
+    private TextView tv_madrich;
 
     private SwitchCompat switch_visible_to_no_one;
     private SwitchCompat switch_visible_to_madrich;
@@ -152,6 +121,7 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
         tv_username = view.findViewById(R.id.tv_username);
         tv_email = view.findViewById(R.id.tv_email);
         tv_phone = view.findViewById(R.id.tv_phone);
+        tv_madrich = view.findViewById(R.id.tv_madrich);
 
         switch_visible_to_no_one = view.findViewById(R.id.switch_visible_to_no_one);
         switch_visible_to_no_one.setOnClickListener(this);
@@ -166,48 +136,27 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
         iv_go_to_profile = view.findViewById(R.id.iv_go_to_profile);
         iv_go_to_profile.setOnClickListener(v -> startActivity(new Intent(requireContext(), Profile_Screen.class)));
 
-        sp = requireActivity().getSharedPreferences("savedData", Context.MODE_PRIVATE);
+        sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE);
         editor = sp.edit();
 
-//        FirebaseUtils.getCurrentUserData(this::getData);
-        FirebaseUtils.getCurrentUserData().observe(getViewLifecycleOwner(), this::getData);
+        FirebaseUtils.getCurrentUserData().observe(getViewLifecycleOwner(), this::getUserData);
+        FirebaseUtils.getCurrentUserGroupData().observe(getViewLifecycleOwner(), this::getUserGroupData);
     }
 
-    public void getData(@NonNull UserData userData){
-        Log.d(Utils.LOG_TAG, userData.toString());
+    private void getUserGroupData(@NonNull UserGroupData userGroupData) {
+        Log.d(Utils.LOG_TAG, userGroupData.toString());
 
-        switch_add_event.setChecked(userData.isSubscribedToAddEvent());
-        switch_edit_event.setChecked(userData.isSubscribedToEditEvent());
-        switch_delete_event.setChecked(userData.isSubscribedToDeleteEvent());
+        tv_madrich.setVisibility(userGroupData.isMadrich() ? View.VISIBLE : View.GONE);
 
-        switch_notifications.setChecked(userData.isSubscribedToAddEvent() || userData.isSubscribedToEditEvent() || userData.isSubscribedToDeleteEvent());
+        switch_add_event.setChecked(userGroupData.isSubscribedToAddEvent());
+        switch_edit_event.setChecked(userGroupData.isSubscribedToEditEvent());
+        switch_delete_event.setChecked(userGroupData.isSubscribedToDeleteEvent());
 
-        switch_add_event.setEnabled(switch_notifications.isChecked());
-        switch_edit_event.setEnabled(switch_notifications.isChecked());
-        switch_delete_event.setEnabled(switch_notifications.isChecked());
+        switch_notifications.setChecked(userGroupData.isSubscribedToAddEvent()
+                || userGroupData.isSubscribedToEditEvent()
+                || userGroupData.isSubscribedToDeleteEvent());
 
-        Glide.with(this).load(userData.getProfile_picture()).centerCrop().into(iv_profile_picture);
-
-        tv_username.setText(userData.getUsername());
-        tv_email.setText(userData.getEmail());
-        tv_phone.setText(userData.getPhone());
-
-        if (userData.isMadrich()){
-            iv_profile_picture.setBorderColor(requireActivity().getColor(R.color.colorAccent));
-            iv_profile_picture.setBorderWidth(Utils.dpToPx(4, requireContext()));
-        }
-
-        boolean autoAlarmSet = sp.getBoolean(UserData.KEY_SUBSCRIBED_TO_AUTO_ALARM_SET, false);
-        boolean autoAlarmMove = sp.getBoolean(UserData.KEY_SUBSCRIBED_TO_AUTO_ALARM_MOVE, false);
-        String prior = sp.getString("prior", "");
-        tv_alarm_before.setText(String.format("Alarms will work %s before event's start", prior));
-
-        tv_alarm_before.setTextColor(autoAlarmSet ? Color.BLACK : Color.LTGRAY);
-
-        switch_auto_alarm_set.setChecked(autoAlarmSet);
-        switch_auto_alarm_move.setChecked(autoAlarmMove);
-
-        switch (userData.getShow()){
+        switch (userGroupData.getShow()){
             case 2:
                 switch_visible_to_all.setChecked(true);
                 switch_visible_to_all.setEnabled(false);
@@ -221,6 +170,30 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                 switch_visible_to_no_one.setEnabled(false);
                 break;
         }
+    }
+
+    public void getUserData(@NonNull UserData userData){
+
+        switch_add_event.setEnabled(switch_notifications.isChecked());
+        switch_edit_event.setEnabled(switch_notifications.isChecked());
+        switch_delete_event.setEnabled(switch_notifications.isChecked());
+
+        Glide.with(this).load(userData.getPicture() != null ? userData.getPicture() : R.drawable.images)
+                .centerCrop().into(iv_profile_picture);
+
+        tv_username.setText(userData.getUsername());
+        tv_email.setText(userData.getEmail());
+        tv_phone.setText(userData.getPhone());
+
+        boolean autoAlarmSet = sp.getBoolean(UserData.KEY_SUBSCRIBED_TO_AUTO_ALARM_SET, false);
+        boolean autoAlarmMove = sp.getBoolean(UserData.KEY_SUBSCRIBED_TO_AUTO_ALARM_MOVE, false);
+        String prior = sp.getString("prior", "");
+        tv_alarm_before.setText(String.format("Alarms will work %s before event's start", prior));
+
+        tv_alarm_before.setTextColor(autoAlarmSet ? Color.BLACK : Color.LTGRAY);
+
+        switch_auto_alarm_set.setChecked(autoAlarmSet);
+        switch_auto_alarm_move.setChecked(autoAlarmMove);
     }
 
     @Override
@@ -371,7 +344,7 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                 switch_delete_event.callOnClick();
             }
             else if(v == switch_visible_to_no_one){
-                FirebaseUtils.getCurrentUserDataRef().child("show").setValue(Show.NoOne.getValue()).addOnSuccessListener(
+                FirebaseUtils.getCurrentUserGroupDataRef().child("show").setValue(Show.NoOne.getValue()).addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
@@ -383,12 +356,13 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                                 switch_visible_to_madrich.setChecked(false);
                                 switch_visible_to_all.setEnabled(true);
 
-                                Snackbar.make(requireActivity().findViewById(android.R.id.content), "From now your results will be visible to no one", Snackbar.LENGTH_SHORT).show();
+                                Snackbar.make(requireActivity().findViewById(android.R.id.content),
+                                        "From now your results will be visible to no one", Snackbar.LENGTH_SHORT).show();
                             }
                         }).addOnFailureListener(onFailureListener);
             }
             else if(v == switch_visible_to_madrich){
-                FirebaseUtils.getCurrentUserDataRef().child("show").setValue(Show.Madrich.getValue()).addOnSuccessListener(
+                FirebaseUtils.getCurrentUserGroupDataRef().child("show").setValue(Show.Madrich.getValue()).addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
@@ -400,12 +374,13 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                                 switch_visible_to_no_one.setEnabled(true);
                                 switch_visible_to_all.setEnabled(true);
 
-                                Snackbar.make(requireActivity().findViewById(android.R.id.content), "From now your results will be visible to madrichs only", Snackbar.LENGTH_SHORT).show();
+                                Snackbar.make(requireActivity().findViewById(android.R.id.content),
+                                        "From now your results will be visible to madrichs only", Snackbar.LENGTH_SHORT).show();
                             }
                         }).addOnFailureListener(onFailureListener);
             }
             else if(v == switch_visible_to_all){
-                FirebaseUtils.getCurrentUserDataRef().child("show").setValue(Show.All.getValue()).addOnSuccessListener(
+                FirebaseUtils.getCurrentUserGroupDataRef().child("show").setValue(Show.All.getValue()).addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
@@ -417,7 +392,8 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                                 switch_visible_to_no_one.setEnabled(true);
                                 switch_visible_to_madrich.setEnabled(true);
 
-                                Snackbar.make(requireActivity().findViewById(android.R.id.content), "From now your results will be visible to everyone", Snackbar.LENGTH_SHORT).show();
+                                Snackbar.make(requireActivity().findViewById(android.R.id.content),
+                                        "From now your results will be visible to everyone", Snackbar.LENGTH_SHORT).show();
                             }
                         }).addOnFailureListener(onFailureListener);
             }
@@ -441,7 +417,9 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
 
                 SwitchCompat switchCompat = (SwitchCompat) v;
 
-                String topic = (v == switch_add_event ? FCMSend.ADD_EVENT_TOPIC : (v == switch_edit_event) ? FCMSend.EDIT_EVENT_TOPIC : FCMSend.DELETE_EVENT_TOPIC);
+                String topic = (v == switch_add_event ? FCMSend.getTopic(FCMSend.ADD_EVENT_TOPIC)
+                        : (v == switch_edit_event) ? FCMSend.getTopic(FCMSend.EDIT_EVENT_TOPIC)
+                        : FCMSend.getTopic(FCMSend.DELETE_EVENT_TOPIC));
 
                 String subscription = (v == switch_add_event ? "subscribedToAddEvent" : (v == switch_edit_event) ? "subscribedToEditEvent" : "subscribedToDeleteEvent");
 
@@ -454,13 +432,13 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                         : "You will stop being notified when any event will be deleted");
 
 
-                if (switchCompat.isChecked()){
+                if (switchCompat.isChecked()) {
                     FirebaseUtils.getFirebaseMessaging().subscribeToTopic(topic).addOnCompleteListener(
                             new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()){
-                                        FirebaseUtils.getCurrentUserDataRef().child(subscription).setValue(true);
+                                        FirebaseUtils.getCurrentUserGroupDataRef().child(subscription).setValue(true);
 //                                        Toast.makeText(getContext(), subscribedMsg, Toast.LENGTH_SHORT).show();
                                         Utils.showToast(getContext(), subscribedMsg);
                                     }
@@ -478,7 +456,7 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()){
-                                        FirebaseUtils.getCurrentUserDataRef().child(subscription).setValue(false);
+                                        FirebaseUtils.getCurrentUserGroupDataRef().child(subscription).setValue(false);
 //                                        Toast.makeText(getContext(), unsubscribedMsg, Toast.LENGTH_SHORT).show();
                                         Utils.showToast(getContext(), unsubscribedMsg);
                                     }

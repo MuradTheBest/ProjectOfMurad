@@ -1,6 +1,5 @@
 package com.example.projectofmurad.calendar;
 
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -27,11 +26,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.MainViewModel;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.MyGridLayoutManager;
@@ -46,12 +44,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 /**
- * A simple {@link androidx.fragment.app.Fragment} subclass.
- * Use the {@link CalendarFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * A simple {@link Fragment} subclass.
  */
-public class CalendarFragment extends Fragment implements
-        CalendarAdapter.OnCalendarCellClickListener {
+public class CalendarFragment extends Fragment implements CalendarAdapter.OnCalendarCellClickListener {
 
     public static final String SELECTED_DATE_DAY = "selected_date_day";
     public static final String SELECTED_DATE_MONTH = "selected_date_month";
@@ -76,44 +71,8 @@ public class CalendarFragment extends Fragment implements
 
     private final String[] days = UtilsCalendar.getShortDaysOfWeek();
 
-    private MaterialToolbar materialToolbar;
-
     public CalendarFragment() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param selectedDate Selected date.
-     *
-     * @return A new instance of fragment CalendarFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    @NonNull
-    public static CalendarFragment newInstance(@NonNull LocalDate selectedDate) {
-        CalendarFragment calendarFragment = new CalendarFragment();
-        Bundle args = new Bundle();
-        args.putInt(SELECTED_DATE_DAY, selectedDate.getDayOfMonth());
-        args.putInt(SELECTED_DATE_MONTH, selectedDate.getMonthValue());
-        args.putInt(SELECTED_DATE_YEAR, selectedDate.getYear());
-
-        calendarFragment.setArguments(args);
-        return calendarFragment;
-    }
-
-    @NonNull
-    public static CalendarFragment newInstance(@NonNull LocalDate selectedDate, String event_private_id) {
-        CalendarFragment calendarFragment = new CalendarFragment();
-        Bundle args = new Bundle();
-        args.putInt(SELECTED_DATE_DAY, selectedDate.getDayOfMonth());
-        args.putInt(SELECTED_DATE_MONTH, selectedDate.getMonthValue());
-        args.putInt(SELECTED_DATE_YEAR, selectedDate.getYear());
-
-        args.putString(EVENT_TO_SHOW_PRIVATE_ID, event_private_id);
-        calendarFragment.setArguments(args);
-        return calendarFragment;
     }
 
     @Override
@@ -129,8 +88,7 @@ public class CalendarFragment extends Fragment implements
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_calendar, container, false);
     }
@@ -150,7 +108,7 @@ public class CalendarFragment extends Fragment implements
             @Override
             public void onClick(View view) {
                 DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
-                        AlertDialog.THEME_HOLO_LIGHT);
+                        android.app.AlertDialog.THEME_HOLO_LIGHT);
 
                 datePickerDialog.getDatePicker().setBackgroundColor(Color.TRANSPARENT);
                 datePickerDialog.updateDate(selectedDate.getYear(), selectedDate.getMonthValue(),
@@ -186,27 +144,18 @@ public class CalendarFragment extends Fragment implements
         Toast.makeText(requireContext(), day, Toast.LENGTH_SHORT).show();
         initAllDaysOfWeek(view);
 
-        mainViewModel.getEventDate().observe(getViewLifecycleOwner(), new Observer<LocalDate>() {
-            @Override
-            public void onChanged(LocalDate localDate) {
-                selectedDate = localDate;
-
-                Log.d(Utils.LOG_TAG, "mainViewModel selectedDate changed!");
-                Log.d(Utils.LOG_TAG, "mainViewModel selectedDate is " + UtilsCalendar.DateToTextOnline(selectedDate));
-
-                setMonthView();
-            }
+        mainViewModel.getEventDate().observe(getViewLifecycleOwner(), localDate -> {
+            selectedDate = localDate;
+            setMonthView();
         });
 
-        materialToolbar = view.findViewById(R.id.materialToolbar);
+        MaterialToolbar materialToolbar = view.findViewById(R.id.materialToolbar);
         materialToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()){
-                    case R.id.calendar_app_bar_today:
-                        selectedDate = LocalDate.now();
-                        setMonthView();
-                        break;
+                if (item.getItemId() == R.id.calendar_app_bar_today) {
+                    selectedDate = LocalDate.now();
+                    setMonthView();
                 }
                 return false;
             }
@@ -273,8 +222,6 @@ public class CalendarFragment extends Fragment implements
         AutoTransition trans = new AutoTransition();
         trans.setDuration(100);
         trans.setInterpolator(new AccelerateDecelerateInterpolator());
-        //trans.setInterpolator(new DecelerateInterpolator());
-        //trans.setInterpolator(new FastOutSlowInInterpolator());
 
         ChangeBounds changeBounds = new ChangeBounds();
         changeBounds.setDuration(300);
@@ -384,14 +331,13 @@ public class CalendarFragment extends Fragment implements
     }
 
     /**
-     * Method cleans up days from previous or next month in current month view
+     * Cleans up days from previous or next month in current month view
      * if amount any of them is bigger than 7.
      * <p>
      * @param prevDays <b>days in current month view from previous month</b>
      * @param nextDays <b>days in current month view from next month</b>
      * @param daysInMonthArray <b>days in current month</b>
      * <p>
-     * @return ArrayList<LocalDate> for current month view
      */
     private void cleanupCalendar(int prevDays, int nextDays, @NonNull ArrayList<LocalDate> daysInMonthArray) {
         int length = daysInMonthArray.size();
@@ -407,13 +353,12 @@ public class CalendarFragment extends Fragment implements
         Log.d("murad", "length after cleaning prev " + length);
 
         if(nextDays >= 7){
-            for(int i = length -1; i >= length -7; i--){
+            for(int i = length-1; i >= length-7; i--){
                 daysInMonthArray.remove(i);
             }
             next -= 7;
         }
         length = daysInMonthArray.size();
-        Log.d("murad", "new length " + length);
     }
 
     private String monthYearFromDate(@NonNull LocalDate date) {
@@ -457,9 +402,7 @@ public class CalendarFragment extends Fragment implements
                     bringToFront();
         }
 
-        Handler handler = new Handler();
-        handler.postDelayed(() -> createDayDialog(passingDate, null), duration);
-
+        new Handler().postDelayed(() -> createDayDialog(passingDate, null), duration);
     }
 
     private DayDialog dayDialogFragment;
@@ -505,16 +448,9 @@ public class CalendarFragment extends Fragment implements
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         super.onOptionsItemSelected(item);
 
-        int selectedId = item.getItemId();
-
-        switch (selectedId) {
-            case R.id.app_bar_search:
-
-                break;
-            case R.id.calendar_app_bar_today:
-                selectedDate = LocalDate.now();
-                setMonthView();
-                break;
+        if (item.getItemId() == R.id.calendar_app_bar_today) {
+            selectedDate = LocalDate.now();
+            setMonthView();
         }
 
         return true;

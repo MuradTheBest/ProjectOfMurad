@@ -85,7 +85,6 @@ public class PrivateTrainingsFragment extends Fragment {
         rv_private_training = view.findViewById(R.id.rv_private_training);
 
         progressViewModel = new ViewModelProvider(requireActivity()).get(ProgressViewModel.class);
-
         progressViewModel.getPrivateTrainings().observe(getViewLifecycleOwner(), this::setUpRV);
     }
 

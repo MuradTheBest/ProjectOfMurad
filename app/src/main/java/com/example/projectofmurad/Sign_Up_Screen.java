@@ -6,142 +6,105 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.groups.CreateOrJoinGroupScreen;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
 
-    private TextView tv_sign_in;
-    private TextView tv_already_have_an_account;
-    private ImageView vector;
-    private View rectangle_1;
-    private EditText et_username;
-    private View rectangle_2;
-    private EditText et_email_address;
-    private View rectangle_3;
-    private EditText et_password;
-    private View rectangle_4;
-    private EditText et_confirm_password;
-    private View ellipse_5;
-    private TextView sign_up;
+    private TextInputLayout et_username;
+    private TextInputLayout et_email_address;
+    private TextInputLayout et_password;
+    private TextInputLayout et_confirm_password;
 
-    private Button btn_sign_up;
     private TextView tv_match;
-
-    FirebaseAuth firebaseAuth;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_up_page);
-
         getSupportActionBar().hide();
 
-        tv_sign_in = (TextView) findViewById(R.id.tv_sign_in);
-        tv_already_have_an_account = (TextView) findViewById(R.id.tv_already_have_an_account);
-        vector = (ImageView) findViewById(R.id.vector);
-        ellipse_5 = (View) findViewById(R.id.ellipse_5);
-        sign_up = (TextView) findViewById(R.id.tv_sign_up);
-
-
-        et_username = ((TextInputLayout) findViewById(R.id.et_username)).getEditText();
-        et_email_address = ((TextInputLayout) findViewById(R.id.et_email_address)).getEditText();
-        et_password = ((TextInputLayout) findViewById(R.id.et_password)).getEditText();
-        et_confirm_password = ((TextInputLayout) findViewById(R.id.et_confirm_password)).getEditText();
-
-        tv_match = findViewById(R.id.tv_match);
-        tv_match.setVisibility(View.INVISIBLE);
-
-        btn_sign_up = findViewById(R.id.btn_sign_up);
-        btn_sign_up.setOnClickListener(view -> checkFields());
-
-        et_password.addTextChangedListener(this);
-        et_confirm_password.addTextChangedListener(this);
-
+        TextView tv_sign_in = findViewById(R.id.tv_sign_in);
         tv_sign_in.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), Log_In_Screen.class)));
 
-        btn_log_in_with_google = findViewById(R.id.sign_up_with_google);
-        btn_log_in_with_google.setOnClickListener(v -> showGoogleSignIn());
+        et_username = findViewById(R.id.et_username);
+        et_email_address = findViewById(R.id.et_email_address);
+        et_password = findViewById(R.id.et_password);
+        et_confirm_password = findViewById(R.id.et_confirm_password);
 
-        btn_log_in_with_facebook = findViewById(R.id.sign_up_with_facebook);
+        tv_match = findViewById(R.id.tv_match);
 
-        btn_log_in_with_phone = findViewById(R.id.sign_up_with_phone);
-        btn_log_in_with_phone.setOnClickListener(v -> createPhoneAuthenticationDialog());
+        Button btn_sign_up = findViewById(R.id.btn_sign_up);
+        btn_sign_up.setOnClickListener(view -> checkFields());
+
+        et_password.getEditText().addTextChangedListener(this);
+        et_confirm_password.getEditText().addTextChangedListener(this);
+
+        btn_google = findViewById(R.id.btn_google);
+        btn_google.setOnClickListener(v -> showGoogleSignIn());
+
+        btn_facebook = findViewById(R.id.btn_facebook);
+
+        btn_phone = findViewById(R.id.btn_phone);
+        btn_phone.setOnClickListener(v -> createPhoneAuthenticationDialog());
 
     }
 
     public void checkFields(){
-        String username = et_username.getText().toString();
-        String email = et_email_address.getText().toString();
-        String password = et_password.getText().toString();
-        String confirm_password = et_confirm_password.getText().toString();
+        String username = et_username.getEditText().getText().toString();
+        String email = et_email_address.getEditText().getText().toString();
+        String password = et_password.getEditText().getText().toString();
+        String confirm_password = et_confirm_password.getEditText().getText().toString();
 
-        String msg = "";
         boolean editTextsFilled = true;
 
         if(username.isEmpty()){
-            et_username.setError("Username invalid");
-            msg += "Username, ";
+            et_username.setError(getString(R.string.username_invalid));
             editTextsFilled = false;
-            //Toast.makeText(getApplicationContext(), "Please enter e-mail address", Toast.LENGTH_SHORT).show();
         }
 
-        if(email.isEmpty()){
-            et_email_address.setError("E-mail invalid");
-            msg += "E-mail, ";
+        if (email.isEmpty() || !UtilsCalendar.isEmailValid(email)) {
+            et_email_address.setError(getString(R.string.invalid_email));
             editTextsFilled = false;
-            //Toast.makeText(getApplicationContext(), "Please enter e-mail address", Toast.LENGTH_SHORT).show();
-        }
-        else if(!UtilsCalendar.isEmailValid(email)){
-            et_email_address.setError("E-mail invalid");
-            msg += "valid E-mail, ";
-            editTextsFilled = false;
-            //Toast.makeText(getApplicationContext(), "Please enter valid e-mail address", Toast.LENGTH_SHORT).show();
         }
 
         if(password.isEmpty()){
-            et_password.setError("Password invalid");
-            msg += "password and ";
+            et_password.setError(getString(R.string.invalid_password));
             editTextsFilled = false;
-            //Toast.makeText(getApplicationContext(), "Please enter password address", Toast.LENGTH_SHORT).show();
         }
 
         if(confirm_password.isEmpty()){
-            et_confirm_password.setError("Password invalid");
-            msg += "confirm password";
+            et_confirm_password.setError(getString(R.string.invalid_password));
             editTextsFilled = false;
-            //Toast.makeText(getApplicationContext(), "Please enter password address", Toast.LENGTH_SHORT).show();
         }
-        else {
-            msg = msg.replace(" and ", "");
+
+        if (!password.equals(confirm_password)){
+            et_password.setError(getString(R.string.passwords_do_not_match));
+            et_confirm_password.setError(getString(R.string.passwords_do_not_match));
+            editTextsFilled = false;
         }
 
         if (editTextsFilled){
             createUser(email, username, password);
         }
-        else {
-            Toast.makeText(getApplicationContext(), "Please enter " + msg, Toast.LENGTH_SHORT).show();
-        }
     }
 
     public void createUser(String email, String username, String password){
-        progressDialog.setMessage("Registering, please wait...");
-        progressDialog.show();
+        loadingDialog.setMessage(R.string.registering_please_wait);
+        loadingDialog.show();
 
-        firebaseAuth.createUserWithEmailAndPassword(email, password)
+        FirebaseUtils.getFirebaseAuth().createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult authResult) {
@@ -150,27 +113,29 @@ public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
                         UserData data = new UserData(firebaseUser.getUid(), email, username);
 
                         FirebaseUtils.usersDatabase.child(firebaseUser.getUid()).setValue(data)
-                                .addOnSuccessListener(unused -> subscribeToTopics())
-                                .addOnFailureListener(e -> Toast.makeText(Sign_Up_Screen.this, "Registration failed",
-                                        Toast.LENGTH_SHORT).show());
+                                .addOnSuccessListener(unused -> {
+                                    loadingDialog.dismiss();
+                                    startActivity(new Intent(getApplicationContext(), CreateOrJoinGroupScreen.class));
+                                })
+                                .addOnFailureListener(e -> {
+                                    loadingDialog.dismiss();
+                                    Toast.makeText(Sign_Up_Screen.this, R.string.registration_failed, Toast.LENGTH_SHORT).show();
+                                });
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        progressDialog.dismiss();
-                        Toast.makeText(Sign_Up_Screen.this, "Registration failed", Toast.LENGTH_SHORT).show();
+                        loadingDialog.dismiss();
+                        Toast.makeText(Sign_Up_Screen.this, R.string.registration_failed, Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    private void uploadToken() {
-
-    }
-
     @Override
     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        if(et_password.getText().toString().isEmpty() && et_confirm_password.getText().toString().isEmpty()){
+        if(et_password.getEditText().getText().toString().isEmpty()
+                && et_confirm_password.getEditText().getText().toString().isEmpty()) {
             tv_match.setVisibility(View.INVISIBLE);
         }
     }
@@ -178,19 +143,20 @@ public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-        String password = et_password.getText().toString();
-        String confirm_password = et_confirm_password.getText().toString();
+        String password = et_password.getEditText().getText().toString();
+        String confirm_password = et_confirm_password.getEditText().getText().toString();
 
-        if(password.equals(confirm_password)){
+        if (password.equals(confirm_password)) {
             tv_match.setVisibility(View.INVISIBLE);
         }
-        else if(password.isEmpty() || confirm_password.isEmpty()){
+        else if (password.isEmpty() || confirm_password.isEmpty()) {
             tv_match.setVisibility(View.INVISIBLE);
         }
-        else if(et_password.getText().toString().isEmpty() && et_confirm_password.getText().toString().isEmpty()){
+        else if (et_password.getEditText().getText().toString().isEmpty()
+                && et_confirm_password.getEditText().getText().toString().isEmpty()) {
             tv_match.setVisibility(View.INVISIBLE);
         }
-        else{
+        else {
             tv_match.setVisibility(View.VISIBLE);
         }
     }

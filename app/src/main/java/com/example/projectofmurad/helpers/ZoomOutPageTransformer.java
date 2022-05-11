@@ -27,9 +27,11 @@ public class ZoomOutPageTransformer implements ViewPager2.PageTransformer {
             float scaleFactor = Math.max(MIN_SCALE, 1 - Math.abs(position));
             float vertMargin = pageHeight * (1 - scaleFactor) / 2;
             float horzMargin = pageWidth * (1 - scaleFactor) / 2;
+
             if (position < 0) {
                 page.setTranslationX(horzMargin - vertMargin / 2);
-            } else {
+            }
+            else {
                 page.setTranslationX(-horzMargin + vertMargin / 2);
             }
 
@@ -40,7 +42,8 @@ public class ZoomOutPageTransformer implements ViewPager2.PageTransformer {
             // Fade the page relative to its size.
             page.setAlpha(MIN_ALPHA + (scaleFactor - MIN_SCALE) / (1 - MIN_SCALE) * (1 - MIN_ALPHA));
 
-        } else { // (1,+Infinity]
+        }
+        else { // (1,+Infinity]
             // This page is way off-screen to the right.
             page.setAlpha(0f);
         }

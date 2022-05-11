@@ -1,18 +1,15 @@
 package com.example.projectofmurad.tracking;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -23,8 +20,9 @@ import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.LifecycleService;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.MainActivity;
+import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.training.Training;
@@ -101,10 +99,6 @@ public class TrackingService extends LifecycleService {
     public static MutableLiveData<Double> totalDistanceData = new MutableLiveData<>(0D);
 
     public static MutableLiveData<Training> trainingData = new MutableLiveData<>();
-
-
-    public static MutableLiveData<Integer> activity_transition_enter = new MutableLiveData<>(0);
-    public static MutableLiveData<Integer> activity_transition_exit = new MutableLiveData<>(0);
 
     public static MutableLiveData<String> trainingType = new MutableLiveData<>(null);
     public static MutableLiveData<String> eventPrivateId = new MutableLiveData<>(null);
@@ -271,12 +265,6 @@ public class TrackingService extends LifecycleService {
             case ACTION_PAUSE_TRACKING_SERVICE:
                 pauseLocationUpdates();
                 break;
-            case ACTION_AUTO_RESUME_TRACKING_SERVICE:
-
-                break;
-            case ACTION_AUTO_PAUSE_TRACKING_SERVICE:
-
-                break;
             case PowerManager.ACTION_POWER_SAVE_MODE_CHANGED:
                 PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
 
@@ -292,28 +280,15 @@ public class TrackingService extends LifecycleService {
     }
 
     public void createTurnOffPowerSavingDialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setCancelable(false);
+        MyAlertDialogBuilder builder = new MyAlertDialogBuilder(this);
+
         builder.setTitle("Start tracking");
         builder.setMessage("In order to continue you have to turn off power saving mode");
 
+        builder.setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss());
+        builder.setNegativeButton(R.string.back, (dialog, which) -> dialog.dismiss());
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        builder.setNegativeButton("Back", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        AlertDialog alertDialog = builder.create();
-        Utils.createCustomDialog(alertDialog).show();
+        builder.show();
     }
 
     @Override
@@ -382,7 +357,7 @@ public class TrackingService extends LifecycleService {
 
         notificationBuilder.setChannelId(channelId);
 
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
 
         start = System.currentTimeMillis()/1000;
         startDateTime = LocalDateTime.now();
@@ -420,8 +395,6 @@ public class TrackingService extends LifecycleService {
     }
 
     private void pauseLocationUpdates() {
-//        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-
         isRunning.setValue(false);
 
         notificationBuilder.setContentText("Tracking stopped");

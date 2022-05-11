@@ -5,14 +5,11 @@ import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -60,17 +57,15 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.MainViewModel;
+import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
 import com.example.projectofmurad.R;
+import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.training.MyRepository;
 import com.example.projectofmurad.training.Training;
-import com.google.android.gms.location.ActivityRecognition;
-import com.google.android.gms.location.ActivityTransition;
-import com.google.android.gms.location.ActivityTransitionRequest;
-import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -88,7 +83,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -108,8 +102,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 @SuppressLint("MissingPermission")
 public class Tracking_Fragment extends Fragment implements
@@ -130,61 +122,12 @@ public class Tracking_Fragment extends Fragment implements
     public final static String ACTION_MOVE_TO_TRACKING_FRAGMENT_TO_SHOW_TRACK = Utils.APPLICATION_ID + "action_show__track";
 
     private boolean mapReady;
-    private boolean selfTraining;
 
     GoogleMapOptions options;
 
     private FusedLocationProviderClient fusedLocationProviderClient;
 
-    private void updateTrack(@NonNull Location location) {
-        LatLng lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
-
-        List<LatLng> points = gpsTrack.getPoints();
-
-        points.add(lastLocation);
-        gpsTrack.setPoints(points);
-
-        int current_position = points.lastIndexOf(lastLocation);
-        int previous_position = current_position-1;
-
-        if (previous_position >= 0){
-            showDistance(points.get(previous_position), points.get(current_position));
-        }
-    }
-
-    double totalDistance = 0;
-
-    public void showDistance(@NonNull LatLng previous, @NonNull LatLng current){
-       /* double lat = Math.abs(previous.latitude - current.latitude);
-        double lng = Math.abs(previous.longitude - current.longitude);
-
-        double d = Math.sqrt(Math.pow(lat, 2) + Math.pow(lng, 2));*/
-        //Location startloc=Location.distanceBetween(previous.latitude, previous.latitude, current.latitude, current.longitude, );
-
-        Location startPoint = new Location("previous");
-        startPoint.setLatitude(previous.latitude);
-        startPoint.setLongitude(previous.longitude);
-
-        Location endPoint = new Location("current");
-        endPoint.setLatitude(current.latitude);
-        endPoint.setLongitude(current.longitude);
-
-        float distance = startPoint.distanceTo(endPoint);
-        totalDistance += distance;
-        Log.d("naumov", "distance = " + distance);
-        Log.d("naumov", "totalDistanceData = " + totalDistance);
-        Log.d("naumov", "----------------------------------");
-
-/*        double speed = (double) totalDistanceData/seconds;
-
-
-//        double distanceToShow = Double.parseDouble(new DecimalFormat("####.##").format(totalDistanceData));
-
-        distanceView.setText(new DecimalFormat("####.##").format(totalDistanceData));
-        speedView.setText(new DecimalFormat("####.##").format(speed));*/
-    }
-
-    private Map<String, Marker> markers;
+    private HashMap<String, Marker> markers;
 
     //    private SwitchCompat switch_last_location;
     private SwitchCompat switch_map_type;
@@ -217,9 +160,6 @@ public class Tracking_Fragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getArguments() != null) {
-
-        }
 
         BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNavigationView);
 
@@ -304,8 +244,7 @@ public class Tracking_Fragment extends Fragment implements
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+                             @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_tracking_, container, false);
     }
 
@@ -341,64 +280,46 @@ public class Tracking_Fragment extends Fragment implements
 
         switch_map_type = view.findViewById(R.id.switch_map_type);
         switch_map_type.setOnCheckedChangeListener(
-                (buttonView, isChecked)
-                        -> map.setMapType(isChecked ? GoogleMap.MAP_TYPE_HYBRID : GoogleMap.MAP_TYPE_NORMAL));
+                (buttonView, isChecked) -> map.setMapType(isChecked ? GoogleMap.MAP_TYPE_HYBRID : GoogleMap.MAP_TYPE_NORMAL));
 
         options = new GoogleMapOptions();
         options.mapType(GoogleMap.MAP_TYPE_NORMAL);
         options.compassEnabled(true);
         options.mapToolbarEnabled(true);
 
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
 
         if (mapFragment != null) {
             mapView = mapFragment.getView();
             mapFragment.getMapAsync(this);
         }
 
-
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext());
-        /*fusedLocationProviderClient.requestLocationUpdates(
-                new LocationRequest().setWaitForAccurateLocation(true).setInterval(2000),
-                locationCallback, Looper.myLooper());*/
 
         materialToolbar = view.findViewById(R.id.materialToolbar);
         materialToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
 
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()){
-                    case R.id.share_my_location:
-                        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(Tracking_Fragment.this::shareMyLocation)
-                                .addOnFailureListener(e -> Toast.makeText(requireContext(),
-                                        "Can;t get your current location",
-                                        Toast.LENGTH_SHORT).show());
-                        break;
+                if (item.getItemId() == R.id.share_my_location) {
+                    fusedLocationProviderClient.getLastLocation().addOnSuccessListener(
+                            Tracking_Fragment.this::shareMyLocation)
+                            .addOnFailureListener(e -> Toast.makeText(requireContext(), "Can't get your current location",
+                                    Toast.LENGTH_SHORT).show());
                 }
                 return false;
             }
         });
 
         iv_share_location = view.findViewById(R.id.iv_share_location);
-        iv_share_location.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fusedLocationProviderClient.getLastLocation()
-                        .addOnSuccessListener(Tracking_Fragment.this::shareMyLocation)
-                        .addOnFailureListener(e -> Toast.makeText(requireContext(),
-                                "Can;t get your current location",
-                                Toast.LENGTH_SHORT).show());
-            }
-        });
+        iv_share_location.setOnClickListener(v -> fusedLocationProviderClient.getLastLocation()
+                .addOnSuccessListener(Tracking_Fragment.this::shareMyLocation)
+                .addOnFailureListener(e -> Toast.makeText(requireContext(),
+                        "Can;t get your current location",
+                        Toast.LENGTH_SHORT).show()));
 
         btn_start_tracking = view.findViewById(R.id.btn_start_tracking);
-        btn_start_tracking.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startTracking();
-            }
-        });
+        btn_start_tracking.setOnClickListener(v -> startTracking());
 
         ll_pause_or_finish_training = view.findViewById(R.id.ll_pause_or_finish_training);
 
@@ -412,18 +333,11 @@ public class Tracking_Fragment extends Fragment implements
                 else {
                     resumeTracking();
                 }
-
             }
         });
 
         btn_finish_tracking = view.findViewById(R.id.btn_finish_tracking);
-        btn_finish_tracking.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finishTracking();
-
-            }
-        });
+        btn_finish_tracking.setOnClickListener(v -> finishTracking());
 
         /*if (TrackingService.isRunning.getValue() && !isTrackingServiceRunning()){
 
@@ -476,8 +390,8 @@ public class Tracking_Fragment extends Fragment implements
         String uri = "http://maps.google.com/maps?q=loc:" + location.getLatitude() + "," + location.getLongitude();
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
-        String ShareSub = "Here is my location";
-        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, ShareSub);
+        String sharesub = "Here is my location";
+        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, sharesub);
         sharingIntent.putExtra(Intent.EXTRA_TEXT, uri);
         startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
@@ -552,10 +466,9 @@ public class Tracking_Fragment extends Fragment implements
 
                         break;
                     case BottomSheetBehavior.STATE_HALF_EXPANDED:
-
-
-                        break;
                     case BottomSheetBehavior.STATE_HIDDEN:
+
+
                         break;
 
                     case BottomSheetBehavior.STATE_COLLAPSED:
@@ -622,7 +535,6 @@ public class Tracking_Fragment extends Fragment implements
     }
 
     private void initializeExpandedBottomSheet(@NonNull View view){
-
         tv_training_duration = view.findViewById(R.id.tv_training_duration);
         tv_training_total_duration = view.findViewById(R.id.tv_training_total_duration);
         tv_training_distance = view.findViewById(R.id.tv_training_distance);
@@ -641,7 +553,7 @@ public class Tracking_Fragment extends Fragment implements
 
         PowerManager powerManager = (PowerManager) requireContext().getSystemService(Context.POWER_SERVICE);
         if (powerManager.isPowerSaveMode()) {
-            createTurnOffPowerSavingDialog();
+            createPowerSavingDialog(false);
             return;
         }
 
@@ -652,11 +564,9 @@ public class Tracking_Fragment extends Fragment implements
             }
         }
 
-
         if (TrackingService.trainingType.getValue() != null && TrackingService.trainingType.getValue().equals(TrackingService.GROUP_TRAINING)){
             String event_private_id = TrackingService.eventPrivateId.getValue();
-            DatabaseReference usersLocations = FirebaseUtils.getAttendanceDatabase().child(
-                    event_private_id);
+            DatabaseReference usersLocations = FirebaseUtils.getAttendanceDatabase().child(event_private_id);
             usersLocations.addValueEventListener(valueEventListener);
         }
 
@@ -670,11 +580,7 @@ public class Tracking_Fragment extends Fragment implements
         // Adding system broadcast actions sent by the system when the power save mode is changed.
         intentFilter.addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED);
 
-        requireContext().registerReceiver(broadcastReceiver, intentFilter);
-
-        initializeActivityBroadcastReceiver();
-
-//        startLocationUpdates();
+        requireActivity().registerReceiver(broadcastReceiver, intentFilter);
 
         if (!TrackingService.isRunning.getValue()){
             Intent intent = new Intent(getContext(), TrackingService.class);
@@ -683,7 +589,6 @@ public class Tracking_Fragment extends Fragment implements
             requireActivity().startService(intent);
 
             startObserving();
-
         }
 
         bottom_sheet.setDraggable(true);
@@ -691,55 +596,19 @@ public class Tracking_Fragment extends Fragment implements
 
     private void startObserving(){
 
-        TrackingService.locationsData.observe(getViewLifecycleOwner(), new Observer<List<LatLng>>() {
-            @Override
-            public void onChanged(List<LatLng> latLngs) {
-                if (mapReady){
-/*                    LatLng lastLocation = latLngs.get(latLngs.size()-1);
-
-                    Log.d("murad", "Latitude: " + lastLocation.latitude
-                            + "\nLongitude: " + lastLocation.longitude);*/
-
-                    gpsTrack.setPoints(latLngs);
-
-//                map.animateCamera(CameraUpdateFactory.newLatLng(lastLocation));
-                }
-
+        TrackingService.locationsData.observe(getViewLifecycleOwner(), latLngs -> {
+            if (mapReady){
+                gpsTrack.setPoints(latLngs);
             }
         });
 
-        TrackingService.timeData.observe(getViewLifecycleOwner(), new Observer<Long>() {
-            @Override
-            public void onChanged(Long seconds) {
-
-                int hours = (int) (seconds / 3600);
-                int minutes = (int) ((seconds % 3600) / 60);
-                int secs = (int) (seconds % 60);
-
-                // Format the timeData into hours, minutes,
-                // and timeData.
-                String duration = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
-
-                tv_time.setText(duration);
-                tv_training_duration.setText(duration);
-            }
+        TrackingService.timeData.observe(getViewLifecycleOwner(), seconds -> {
+            tv_time.setText(Training.getDurationFromTime(seconds));
+            tv_training_duration.setText(Training.getDurationFromTime(seconds));
         });
 
-        TrackingService.totalTimeData.observe(getViewLifecycleOwner(), new Observer<Long>() {
-            @Override
-            public void onChanged(Long seconds) {
-
-                int hours = (int) (seconds / 3600);
-                int minutes = (int) ((seconds % 3600) / 60);
-                int secs = (int) (seconds % 60);
-
-                // Format the timeData into hours, minutes,
-                // and timeData.
-                String totalDuration = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, secs);
-
-                tv_training_total_duration.setText(totalDuration);
-            }
-        });
+        TrackingService.totalTimeData.observe(getViewLifecycleOwner(),
+                seconds -> tv_training_total_duration.setText(Training.getDurationFromTime(seconds)));
 
         TrackingService.totalDistanceData.observe(getViewLifecycleOwner(), new Observer<Double>() {
             @Override
@@ -765,19 +634,9 @@ public class Tracking_Fragment extends Fragment implements
             }
         });
 
-        TrackingService.avgPaceData.observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String avgPace) {
-                tv_training_average_pace.setText(avgPace);
-            }
-        });
+        TrackingService.avgPaceData.observe(getViewLifecycleOwner(), avgPace -> tv_training_average_pace.setText(avgPace));
 
-        TrackingService.maxPaceData.observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String maxPace) {
-                tv_training_max_pace.setText(maxPace);
-            }
-        });
+        TrackingService.maxPaceData.observe(getViewLifecycleOwner(), maxPace -> tv_training_max_pace.setText(maxPace));
     }
 
     public void pauseTracking() {
@@ -791,7 +650,7 @@ public class Tracking_Fragment extends Fragment implements
 
         PowerManager powerManager = (PowerManager) requireContext().getSystemService(Context.POWER_SERVICE);
         if (powerManager.isPowerSaveMode()) {
-            createTurnOffPowerSavingDialog();
+            createPowerSavingDialog(false);
             return;
         }
 
@@ -841,15 +700,14 @@ public class Tracking_Fragment extends Fragment implements
                 }
                 else if (TrackingService.trainingType.getValue().equals(TrackingService.GROUP_TRAINING)){
                     if (TrackingService.eventPrivateId.getValue() != null){
-                        ProgressDialog progressDialog = new ProgressDialog(requireContext());
-                        Utils.createCustomDialog(progressDialog);
-                        progressDialog.setMessage("Adding the trainingData to selected event...");
+                        LoadingDialog LoadingDialog = new LoadingDialog(requireContext());
+                        LoadingDialog.setMessage("Adding the trainingData to selected event...");
 
                         FirebaseUtils.addTrainingForEvent(TrackingService.eventPrivateId.getValue(), t).addOnCompleteListener(
                                 new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
-                                        progressDialog.dismiss();
+                                        LoadingDialog.dismiss();
 
                                         if (!task.isSuccessful()){
                                             Toast.makeText(requireContext(), "Adding the training to this event failed \n" +
@@ -879,8 +737,7 @@ public class Tracking_Fragment extends Fragment implements
 
         createSaveTrainingDialog();
 
-
-        createTurnOnPowerSavingDialog();
+        createPowerSavingDialog(true);
     }
 
     private void removeObservers(){
@@ -909,70 +766,11 @@ public class Tracking_Fragment extends Fragment implements
         if (TrackingService.isRunning.getValue() != null && TrackingService.isRunning.getValue()){
             startTracking();
         }
-
-
     }
-
-    public void initializeActivityBroadcastReceiver(){
-        checkActivityRecognitionPermission();
-        List<ActivityTransition> transitions = new ArrayList<>();;
-
-        /*transitions.add(
-                new ActivityTransition.Builder()
-                        .setActivityType(DetectedActivity.ON_BICYCLE)
-                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                        .build());*/
-
-        transitions.add(
-                new ActivityTransition.Builder()
-                        .setActivityType(DetectedActivity.WALKING)
-                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-                        .build());
-
-        transitions.add(
-                new ActivityTransition.Builder()
-                        .setActivityType(DetectedActivity.WALKING)
-                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                        .build());
-
-        /*transitions.add(
-                new ActivityTransition.Builder()
-                        .setActivityType(DetectedActivity.RUNNING)
-                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                        .build());*/
-
-        ActivityTransitionRequest request = new ActivityTransitionRequest(transitions);
-
-        Intent intent = new Intent(requireContext(), ActivityBroadcastReceiver.class);
-        PendingIntent myPendingIntent = PendingIntent.getBroadcast(requireContext(), 1122, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-
-        // myPendingIntent is the instance of PendingIntent where the app receives callbacks.
-        @SuppressLint("MissingPermission") Task<Void> task = ActivityRecognition.getClient(requireContext())
-                .requestActivityTransitionUpdates(request, myPendingIntent);
-
-        task.addOnSuccessListener(
-                new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void result) {
-                        // Handle success
-                        Log.d(LOG_TAG, "receiving activity recognitions");
-                    }
-                }
-        );
-
-        task.addOnFailureListener(
-                new OnFailureListener() {
-                    @Override
-                    public void onFailure(Exception e) {
-                        Log.d(LOG_TAG, "receiving activity recognitions failed");
-                    }
-                }
-        );
-    }
-
 /*
     public void createSaveTrainingDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+
         builder.setCancelable(false);
         builder.setTitle("Stop tracking");
         builder.setMessage("You can now turn on back power saving mode");
@@ -1040,42 +838,16 @@ public class Tracking_Fragment extends Fragment implements
         }
     }
 
-    public void createTurnOnPowerSavingDialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setCancelable(true);
-        builder.setTitle("Stop tracking");
-        builder.setMessage("You can now turn on back power saving mode");
+    public void createPowerSavingDialog(boolean on){
+        MyAlertDialogBuilder builder = new MyAlertDialogBuilder(requireContext());
+        builder.setTitle(on ? "Stop tracking" : "Start tracking");
+        builder.setMessage(on
+                ? "You can now turn on back power saving mode"
+                : "In order to continue you have to turn off power saving mode");
 
-        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+        builder.setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss());
 
-        Utils.createCustomDialog(builder.create()).show();
-    }
-
-    public void createTurnOffPowerSavingDialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setCancelable(false);
-        builder.setTitle("Start tracking");
-        builder.setMessage("In order to continue you have to turn off power saving mode");
-
-
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        builder.setNegativeButton("Back", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        AlertDialog alertDialog = builder.create();
-        Utils.createCustomDialog(alertDialog);
-
-        alertDialog.show();
+        builder.show();
     }
 
     public boolean isTrackingServiceRunning(){
@@ -1146,7 +918,6 @@ public class Tracking_Fragment extends Fragment implements
 
         map.setOnMarkerClickListener(this);
 
-        Log.d(LOG_TAG, "checking permissions from onMapReady");
         if (checkPermissions()){
             map.setMyLocationEnabled(true);
 
@@ -1211,46 +982,46 @@ public class Tracking_Fragment extends Fragment implements
             if (!snapshot.exists() && !snapshot.hasChildren()){
                 return;
             }
+
             //ToDo to not trigger users' locationsData' markers' reload when current user's location changed
             for (DataSnapshot user : snapshot.getChildren()){
-                if (user.exists() && !FirebaseUtils.isCurrentUID(user.getKey())
-                        && user.hasChild("latitude") && user.hasChild("longitude")
-                        && user.hasChild("profile_picture") && user.hasChild("username")){
+                if (user.exists() && !FirebaseUtils.isCurrentUID(user.getKey()) &&
+                        user.hasChild("latitude") && user.hasChild("longitude")){
 
-                    Log.d("map", "*************************************************************");
                     String UID = user.getKey();
-                    Log.d("map", "tracking id is " + UID);
-
-                    String username = user.child("username").getValue().toString();
-
-                    String profile_picture = user.child("profile_picture").getValue(String.class);
-
                     double latitude = user.child("latitude").getValue(double.class);
                     double longitude = user.child("longitude").getValue(double.class);
 
+                    FirebaseUtils.getUserDataByUIDRef(UID).get().addOnSuccessListener(
+                            new OnSuccessListener<DataSnapshot>() {
+                                @Override
+                                public void onSuccess(DataSnapshot snapshot) {
+                                    String username = snapshot.child("username").getValue(String.class);
+                                    String picture = snapshot.child("picture").getValue(String.class);
 
-                    Log.d("map", "username is " + username);
-                    Log.d("map", "latitude is " + latitude);
-                    Log.d("map", "longitude is " + longitude);
+                                    Log.d("map", "username is " + username);
+                                    Log.d("map", "latitude is " + latitude);
+                                    Log.d("map", "longitude is " + longitude);
 
 
-                    LatLng latLng = new LatLng(latitude, longitude);
-                    MarkerOptions markerOptions = new MarkerOptions()
-                            .position(latLng)
-                            .title(username)
-                            .flat(true)
-                            .zIndex(0)
-                            /*.snippet(username)*/;
+                                    LatLng latLng = new LatLng(latitude, longitude);
+                                    MarkerOptions markerOptions = new MarkerOptions()
+                                            .position(latLng)
+                                            .title(username)
+                                            .flat(true)
+                                            .zIndex(0)
+                                            /*.snippet(username)*/;
 
-                    if (user.hasChild("locationAvailable") && !user.child("locationAvailable").getValue(boolean.class)){
-                        markerOptions.alpha(0.5f);
-                    }
+                                    if (!user.child("locationAvailable").getValue(boolean.class)){
+                                        markerOptions.alpha(0.5f);
+                                    }
 
-                    //to check if the fragment was changed
-                    if (getContext() != null){
-                        getUserBitmap(UID, profile_picture, markerOptions);
-                    }
-
+                                    //to check if the fragment was changed
+                                    if (getContext() != null){
+                                        getUserBitmap(UID, picture, markerOptions);
+                                    }
+                                }
+                            });
                 }
             }
         }
@@ -1262,17 +1033,17 @@ public class Tracking_Fragment extends Fragment implements
     };
 
     //creates bitmap with user's profile picture
-    private void getUserBitmap(String UID, String profile_picture, MarkerOptions markerOptions){
+    private void getUserBitmap(String UID, String picture, MarkerOptions markerOptions){
         Glide.with(this)
                 .asBitmap()
-                .load(profile_picture != null ? profile_picture : R.drawable.images)
+                .load(picture != null ? picture : R.drawable.images)
                 .dontTransform()
                 .into(new SimpleTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource,
                                                 @Nullable Transition<? super Bitmap> transition) {
 
-                        float scale = getContext().getResources().getDisplayMetrics().density;
+                        float scale = getResources().getDisplayMetrics().density;
 
                         int pixels = (int) (40 * scale + 0.5f);
 
@@ -1300,7 +1071,6 @@ public class Tracking_Fragment extends Fragment implements
                         }
 
                     }
-
 
                 });
     }
@@ -1588,7 +1358,6 @@ public class Tracking_Fragment extends Fragment implements
         map.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
         map.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
 
-//        Toast.makeText(requireContext(), "UID: " + marker.getTag().toString(), Toast.LENGTH_SHORT).show();
         return false;
     }
 

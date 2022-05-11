@@ -6,7 +6,6 @@ public class Alarm {
     private String eventPrivateId;
     private String eventDateTime;
 
-
     public Alarm(int alarmId, String eventPrivateId, String eventDateTime) {
         this.alarmId = alarmId;
         this.eventPrivateId = eventPrivateId;

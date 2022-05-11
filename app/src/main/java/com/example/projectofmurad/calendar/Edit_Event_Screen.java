@@ -2,7 +2,6 @@ package com.example.projectofmurad.calendar;
 
 import android.animation.Animator;
 import android.app.DatePickerDialog;
-import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -29,7 +28,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
+import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.Utils;
@@ -554,7 +554,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                     absoluteDeleteSingleEvent(chain_key, new OnDeleteFinishedCallback() {
                         @Override
                         public void onDeleteFinished() {
-                            deletingProgressDialog.dismiss();
+                            deletingLoadingDialog.dismiss();
                             Log.d("murad", "DELETING EVENT HAS BEEN SUCCESSFULLY FINISHED");
                             Toast.makeText(getApplicationContext(), "DELETING EVENT HAS BEEN SUCCESSFULLY FINISHED", Toast.LENGTH_SHORT).show();
 
@@ -856,7 +856,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
     }
 
-    ProgressDialog deletingProgressDialog;
+    LoadingDialog deletingLoadingDialog;
 
     @Override
     public void onAddEventClick(MenuItem item) {
@@ -880,15 +880,10 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
     public void absoluteDeleteSingleEvent(String private_key, OnDeleteFinishedCallback onDeleteFinishedCallback){
         DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
 
-        CircularProgressIndicator circularProgressIndicator = new CircularProgressIndicator(this);
-        circularProgressIndicator.setIndicatorDirection(CircularProgressIndicator.INDICATOR_DIRECTION_CLOCKWISE);
-        circularProgressIndicator.show();
+        deletingLoadingDialog = new LoadingDialog(this);
 
-        deletingProgressDialog = new ProgressDialog(this);
-
-        deletingProgressDialog.setMessage("Editing event");
-        deletingProgressDialog.setIndeterminate(true);
-        deletingProgressDialog.show();
+        deletingLoadingDialog.setMessage("Editing event");
+        deletingLoadingDialog.show();
 
         Query query = allEventsDatabase.orderByKey().equalTo(private_key);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -932,7 +927,6 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                     Log.d("murad", "========================================================");
                 }
                 onDeleteFinishedCallback.onDeleteFinished();
-                circularProgressIndicator.hide();
             }
 
             @Override
@@ -949,10 +943,10 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         circularProgressIndicator.setIndicatorDirection(CircularProgressIndicator.INDICATOR_DIRECTION_CLOCKWISE);
         circularProgressIndicator.show();
 
-        deletingProgressDialog = new ProgressDialog(this);
+        deletingLoadingDialog = new LoadingDialog(this);
 
-        deletingProgressDialog.setMessage("Editing event");
-        deletingProgressDialog.show();
+        deletingLoadingDialog.setMessage("Editing event");
+        deletingLoadingDialog.show();
 
         Query query = allEventsDatabase.orderByChild("chainId").equalTo(chain_key);
         Query q = query.getRef().orderByChild("start").startAt(start);

@@ -2,206 +2,84 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:id="@+id/page_splash_page_ek1"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	tools:context=".Splash_Screen">
 
-	<pl.droidsonroids.gif.GifImageView
-		android:id="@+id/iv_intro"
+	<ImageView
+		android:id="@+id/vector_ek2"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:src="@drawable/intro"
-		android:visibility="invisible"
+		android:layout_height="85dp"
+		android:background="@drawable/vector_ek2"
+		android:backgroundTint="@color/colorAccent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent" />
+
+	<pl.droidsonroids.gif.GifImageView
+        android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:src="@drawable/progress_icon"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
 
-	<androidx.constraintlayout.widget.ConstraintLayout
-		android:id="@+id/constraintLayout"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent" >
+	<View
+		android:id="@+id/ellipse_3"
+		android:layout_width="172dp"
+		android:layout_height="172dp"
+		android:background="@drawable/ellipse_3_shape"
+		android:backgroundTint="@color/colorAccent"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/vector_ek2"
+		app:layout_constraintVertical_bias="0.05" />
 
-		<ImageView
-			android:id="@+id/vector_ek2"
-			android:layout_width="match_parent"
-			android:layout_height="85dp"
-			android:background="@drawable/vector_ek2"
-			android:backgroundTint="@color/colorAccent"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent" />
+	<TextView
+        android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_horizontal|center"
+		android:gravity="center"
+		android:text="Welcome!"
+		android:textColor="@color/sign_up_color"
+		android:textSize="34sp"
+		app:layout_constraintBottom_toBottomOf="@+id/ellipse_3"
+		app:layout_constraintEnd_toEndOf="@+id/ellipse_3"
+		app:layout_constraintStart_toStartOf="@+id/ellipse_3"
+		app:layout_constraintTop_toTopOf="@+id/ellipse_3" />
 
-		<View
-			android:id="@+id/ellipse_3"
-			android:layout_width="172dp"
-			android:layout_height="172dp"
-			android:background="@drawable/ellipse_3_shape"
-			android:backgroundTint="@color/colorAccent"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/vector_ek2"
-			app:layout_constraintVertical_bias="0.05" />
+	<RelativeLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintVertical_bias="0.8"
+		android:background="@drawable/round_dialog_background"
+		android:backgroundTint="@color/colorAccent"
+		app:layout_constraintTop_toBottomOf="@+id/ellipse_3" >
 
-		<TextView
-			android:id="@+id/tv_welcome"
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/btn_get_started"
+			style="?android:attr/buttonBarButtonStyle"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_gravity="center_horizontal|center"
-			android:gravity="center"
-			android:text="Welcome!"
-			android:textColor="@color/sign_up_color"
-			android:textSize="34sp"
-			app:layout_constraintBottom_toBottomOf="@+id/ellipse_3"
-			app:layout_constraintEnd_toEndOf="@+id/ellipse_3"
-			app:layout_constraintStart_toStartOf="@+id/ellipse_3"
-			app:layout_constraintTop_toTopOf="@+id/ellipse_3" />
+			android:text="Get started"
+			android:textColor="@color/white" />
 
-
-		<RelativeLayout
-			android:id="@+id/group_10"
+		<ProgressBar
+			android:id="@+id/progressBar"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/ellipse_3"
-			app:layout_constraintVertical_bias="0.9">
+			android:visibility="gone"
+			android:layout_alignTop="@+id/btn_get_started"
+			android:layout_alignBottom="@+id/btn_get_started"
+			android:layout_marginVertical="5dp"
+			android:layout_toEndOf="@+id/btn_get_started"
+			android:indeterminateTint="@color/white" />
 
-			<View
-				android:id="@+id/rectangle_1_ek6"
-				android:layout_width="183dp"
-				android:layout_height="73dp"
-				android:layout_marginStart="0dp"
-				android:layout_marginTop="0dp"
-				android:alpha="0.48"
-				android:background="@drawable/rectangle_1_ek6_shape" />
-
-
-			<RelativeLayout
-				android:id="@+id/group_1"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginStart="12dp"
-				android:layout_marginTop="20dp">
-
-				<TextView
-					android:id="@+id/g"
-					android:layout_width="30.39dp"
-					android:layout_height="40.14dp"
-					android:layout_marginLeft="2dp"
-					android:layout_marginTop="7dp"
-					android:text="G"
-					android:textColor="@color/username_color"
-					android:textSize="20sp" />
-
-				<TextView
-					android:id="@+id/e_1"
-					android:layout_width="27.3dp"
-					android:layout_height="40.16dp"
-					android:layout_marginLeft="22dp"
-					android:layout_marginTop="4dp"
-					android:text="e"
-					android:textColor="@color/username_color"
-					android:textSize="20sp" />
-
-				<TextView
-					android:id="@+id/t_1"
-					android:layout_width="23.19dp"
-					android:layout_height="40.17dp"
-					android:layout_marginLeft="38dp"
-					android:layout_marginTop="2dp"
-					android:text="t"
-					android:textColor="@color/username_color"
-					android:textSize="20sp" />
-
-				<TextView
-					android:id="@+id/__"
-					android:layout_width="21.13dp"
-					android:layout_height="40.18dp"
-					android:layout_marginLeft="50dp"
-					android:layout_marginTop="1dp"
-					android:text=" "
-					android:textColor="@color/username_color"
-					android:textSize="20sp" />
-
-				<TextView
-					android:id="@+id/s"
-					android:layout_width="28.31dp"
-					android:layout_height="40.18dp"
-					android:layout_marginLeft="61dp"
-					android:layout_marginTop="0dp"
-					android:text="S"
-					android:textColor="@color/username_color"
-					android:textSize="20sp" />
-
-				<TextView
-					android:id="@+id/t_2"
-					android:layout_width="23.18dp"
-					android:layout_height="40.18dp"
-					android:layout_marginLeft="78dp"
-					android:layout_marginTop="0dp"
-					android:text="t"
-					android:textColor="@color/username_color"
-					android:textSize="20sp" />
-
-				<TextView
-					android:id="@+id/a"
-					android:layout_width="27.29dp"
-					android:layout_height="40.18dp"
-					android:layout_marginLeft="91dp"
-					android:layout_marginTop="0dp"
-					android:text="a"
-					android:textColor="@color/username_color"
-					android:textSize="20sp" />
-
-				<TextView
-					android:id="@+id/r"
-					android:layout_width="23.18dp"
-					android:layout_height="40.17dp"
-					android:layout_marginLeft="107dp"
-					android:layout_marginTop="1dp"
-					android:text="r"
-					android:textColor="@color/username_color"
-					android:textSize="20sp" />
-
-				<TextView
-					android:id="@+id/t_3"
-					android:layout_width="23.19dp"
-					android:layout_height="40.17dp"
-					android:layout_marginLeft="120dp"
-					android:layout_marginTop="2dp"
-					android:text="t"
-					android:textColor="@color/username_color"
-					android:textSize="20sp" />
-
-				<TextView
-					android:id="@+id/e_2"
-					android:layout_width="27.3dp"
-					android:layout_height="40.15dp"
-					android:layout_marginLeft="132dp"
-					android:layout_marginTop="4dp"
-					android:text="e"
-					android:textColor="@color/username_color"
-					android:textSize="20sp" />
-
-				<TextView
-					android:id="@+id/d"
-					android:layout_width="28.34dp"
-					android:layout_height="40.14dp"
-					android:layout_marginLeft="148dp"
-					android:layout_marginTop="7dp"
-					android:text="d"
-					android:textColor="@color/username_color"
-					android:textSize="20sp" />
-
-			</RelativeLayout>
-
-		</RelativeLayout>
-
-	</androidx.constraintlayout.widget.ConstraintLayout>
-
+	</RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.textfield.TextInputLayout android:id="@+id/et_verify_phone"
+<com.google.android.material.textfield.TextInputLayout
+    android:id="@+id/et_verify_phone"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-    android:hint="Phone"
+    android:hint="@string/phone"
     android:textColor="@color/colorAccent"
-    android:textSize="20dp"
+    android:textSize="20sp"
     android:paddingVertical="5dp"
     android:paddingHorizontal="20dp"
     app:endIconMode="clear_text"

@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Title"
-        android:textSize="16dp"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:paddingHorizontal="15dp"
         android:paddingVertical="5dp"
@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Only this event"
-        android:textSize="16dp"
+        android:textSize="16sp"
         android:padding="15dp"
         />
 
@@ -31,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="This and future event"
-        android:textSize="16dp"
+        android:textSize="16sp"
         android:padding="15dp"
         />
 
@@ -40,7 +40,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="All events in chain"
-        android:textSize="16dp"
+        android:textSize="16sp"
         android:padding="15dp"
         />
 

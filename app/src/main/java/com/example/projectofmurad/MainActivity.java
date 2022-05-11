@@ -2,7 +2,6 @@ package com.example.projectofmurad;
 
 import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -19,6 +18,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
@@ -30,6 +30,7 @@ import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.CalendarFragment;
 import com.example.projectofmurad.calendar.DayDialog;
 import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.home.HomeFragment;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
@@ -47,16 +48,13 @@ import java.util.Date;
 public class MainActivity extends MyActivity implements NavController.OnDestinationChangedListener {
 
     private View containerView;
-
     private BottomNavigationView bottomNavigationView;
-
     private MainViewModel mainViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        getSupportActionBar().setShowHideAnimationEnabled(true);
 
         Log.d(LOG_TAG, FirebaseUtils.CURRENT_GROUP_KEY);
 
@@ -66,9 +64,7 @@ public class MainActivity extends MyActivity implements NavController.OnDestinat
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
-
-        NavController navController = Navigation.findNavController(this,
-                R.id.fragmentContainerView);
+        NavController navController = Navigation.findNavController(this, R.id.fragmentContainerView);
         navController.addOnDestinationChangedListener(this);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
@@ -152,8 +148,7 @@ public class MainActivity extends MyActivity implements NavController.OnDestinat
 
     private void showEvent(@NonNull Intent intent){
 
-        if (intent.getExtras() == null || intent.getAction() == null || !intent.getAction().equals(
-                DayDialog.ACTION_TO_SHOW_EVENT)){
+        if (intent.getExtras() == null || intent.getAction() == null || !intent.getAction().equals(DayDialog.ACTION_TO_SHOW_EVENT)){
             return;
         }
 
@@ -218,29 +213,27 @@ public class MainActivity extends MyActivity implements NavController.OnDestinat
 
     @Override
     public void onBackPressed() {
-        if (bottomNavigationView.getVisibility() == View.GONE){
+        if (bottomNavigationView.getVisibility() == View.GONE) {
             bottomNavigationView.setVisibility(View.VISIBLE);
 
             animate(bottomNavigationView, Gravity.TOP, 300);
 //            animate((ViewGroup) containerView, Gravity.TOP, 300);
         }
-        else if (bottomNavigationView.getSelectedItemId() == R.id.blankFragment){
+        else if (bottomNavigationView.getSelectedItemId() == R.id.blankFragment) {
             mainViewModel.setScrollUp(true);
         }
-        else{
+        else {
             super.onBackPressed();
         }
-
     }
 
-    @SuppressLint("NonConstantResourceId")
     @Override
     public void onDestinationChanged(@NonNull NavController navController,
                                      @NonNull NavDestination navDestination,
                                      @Nullable Bundle bundle) {
 
 
-        androidx.fragment.app.Fragment newFragment = new HomeFragment();
+        Fragment newFragment = new HomeFragment();
         String TAG = "blankFragment";
 
         switch (navDestination.getId()){
@@ -269,7 +262,7 @@ public class MainActivity extends MyActivity implements NavController.OnDestinat
 
         if (TAG.equals("blankFragment")){
 
-            androidx.fragment.app.Fragment fragment = getSupportFragmentManager().findFragmentByTag(TAG);
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag(TAG);
             if (fragment == null){
                 fragment = newFragment;
             }

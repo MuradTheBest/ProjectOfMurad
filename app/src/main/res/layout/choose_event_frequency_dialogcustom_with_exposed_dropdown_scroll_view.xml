@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
 
     android:id="@+id/scrollview_frequency"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:overScrollMode="never"
-    android:scrollbars="none" >
+    android:scrollbars="none">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:clipToPadding="false"
         android:orientation="vertical"
         android:gravity="center"
@@ -54,7 +52,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:text="@string/cancel"
-                android:textSize="16dp"
+                android:textSize="16sp"
                 android:textColor="@color/black"
                 android:background="@color/colorAccent" />
 
@@ -64,7 +62,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:text="@string/ok"
-                android:textSize="16dp"
+                android:textSize="16sp"
                 android:textColor="@color/black"
                 android:background="@color/colorAccent" />
         </LinearLayout>
@@ -85,7 +83,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/does_not_repeat"
                 android:textColor="@color/black"
-                android:textSize="16dp"
+                android:textSize="16sp"
                 android:singleLine="false"
                 />
 
@@ -104,17 +102,15 @@
                     >
 
                     <TextView
-                        android:id="@+id/tv_repeat"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/every"
                         android:textColor="@color/black"
-                        android:textSize="20dp"
+                        android:textSize="20sp"
                         android:layout_weight="1"
                         />
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/textInputLayout_frequency"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -133,7 +129,7 @@
                             android:maxLength="2"
                             android:text="1"
                             android:selectAllOnFocus="true"
-                            android:textSize="16dp" />
+                            android:textSize="16sp" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -155,7 +151,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:textSize="16dp"
+                            android:textSize="16sp"
                             android:inputType="none"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -241,7 +237,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/on_d_day"
-                        android:textSize="16dp" />
+                        android:textSize="16sp" />
 
                     <RadioButton
                         android:id="@+id/rb_with_last_day_and_month"
@@ -250,7 +246,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/on_the_last_day"
-                        android:textSize="16dp" />
+                        android:textSize="16sp" />
 
                     <RadioButton
                         android:id="@+id/rb_with_dayOfWeek_and_month"
@@ -259,7 +255,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/on_s_d"
-                        android:textSize="16dp" />
+                        android:textSize="16sp" />
 
                     <RadioButton
                         android:id="@+id/rb_with_last_dayOfWeek_and_month"
@@ -268,7 +264,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/on_the_last_s"
-                        android:textSize="16dp" />
+                        android:textSize="16sp" />
 
                 </RadioGroup>
 
@@ -287,7 +283,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:textSize="16dp"
+                        android:textSize="16sp"
                         android:text="@string/on_d_of_s" />
 
                     <RadioButton
@@ -296,7 +292,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:textSize="16dp"
+                        android:textSize="16sp"
                         android:text="@string/on_the_last_day_of_s" />
 
                     <RadioButton
@@ -306,7 +302,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/on_s_d_of_s"
-                        android:textSize="16dp" />
+                        android:textSize="16sp" />
 
                     <RadioButton
                         style="@style/radioButton"
@@ -314,7 +310,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:textSize="16dp"
+                        android:textSize="16sp"
                         android:text="@string/on_the_last_s_of_s" />
 
                     <!--            <RadioButton
@@ -346,7 +342,7 @@
                     android:layout_width="34dp"
                     android:layout_height="34dp"
                     android:layout_marginHorizontal="8dp"
-                    android:textSize="16dp"
+                    android:textSize="16sp"
                     android:textOff="S"
                     android:textOn="S"
                     style="@style/toggleButton"
@@ -358,7 +354,7 @@
                     android:layout_width="34dp"
                     android:layout_height="34dp"
                     android:layout_marginHorizontal="8dp"
-                    android:textSize="16dp"
+                    android:textSize="16sp"
                     android:textOff="M"
                     android:textOn="M"
                     style="@style/toggleButton"
@@ -370,7 +366,7 @@
                     android:layout_width="34dp"
                     android:layout_height="34dp"
                     android:layout_marginHorizontal="8dp"
-                    android:textSize="16dp"
+                    android:textSize="16sp"
                     android:textOff="T"
                     android:textOn="T"
                     style="@style/toggleButton"
@@ -382,7 +378,7 @@
                     android:layout_width="34dp"
                     android:layout_height="34dp"
                     android:layout_marginHorizontal="8dp"
-                    android:textSize="16dp"
+                    android:textSize="16sp"
                     android:textOff="W"
                     android:textOn="W"
                     style="@style/toggleButton"
@@ -394,7 +390,7 @@
                     android:layout_width="34dp"
                     android:layout_height="34dp"
                     android:layout_marginHorizontal="8dp"
-                    android:textSize="16dp"
+                    android:textSize="16sp"
                     android:textOff="T"
                     android:textOn="T"
                     style="@style/toggleButton"
@@ -406,7 +402,7 @@
                     android:layout_width="34dp"
                     android:layout_height="34dp"
                     android:layout_marginHorizontal="8dp"
-                    android:textSize="16dp"
+                    android:textSize="16sp"
                     android:textOff="F"
                     android:textOn="F"
                     android:textColor="@color/toggle_friday_text_color"
@@ -419,7 +415,7 @@
                     android:layout_width="34dp"
                     android:layout_height="34dp"
                     android:layout_marginHorizontal="8dp"
-                    android:textSize="16dp"
+                    android:textSize="16sp"
                     android:textOff="S"
                     android:textOn="S"
                     style="@style/toggleButton"
@@ -440,7 +436,7 @@
                     android:layout_gravity="start"
                     android:text="@string/repeat"
                     android:textColor="@color/black"
-                    android:textSize="20dp" />
+                    android:textSize="20sp" />
 
                 <RadioGroup
                     android:id="@+id/rg_duration"
@@ -455,7 +451,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/never"
-                        android:textSize="16dp"
+                        android:textSize="16sp"
                         android:checked="false"/>
 
                     <RadioButton
@@ -464,7 +460,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/times_in_total"
-                        android:textSize="16dp"
+                        android:textSize="16sp"
                         android:checked="true"/>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -485,7 +481,7 @@
                             android:maxLength="2"
                             android:text="1"
                             android:selectAllOnFocus="true"
-                            android:textSize="16dp" />
+                            android:textSize="16sp" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -505,7 +501,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/until"
-                        android:textSize="16dp"
+                        android:textSize="16sp"
                         />
 
                     <DatePicker

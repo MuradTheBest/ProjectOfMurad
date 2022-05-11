@@ -47,10 +47,6 @@ public class TrainingAdapter extends RecyclerView.Adapter<TrainingAdapter.Traini
 
     @Override
     public void onBindViewHolder(@NonNull TrainingViewHolder holder, int position) {
-/*        String[] keys = (String[]) trainings.keySet().toArray();
-
-        Log.d("murad", "size = " + trainings.get(keys[position]).size());
-        Log.d("murad", trainings.get(keys[position]).toString());*/
 
         int textColor = Utils.getContrastColor(color);
 
@@ -75,11 +71,6 @@ public class TrainingAdapter extends RecyclerView.Adapter<TrainingAdapter.Traini
         holder.tv_time.setTextColor(textColor);
         holder.tv_speed.setTextColor(textColor);
         holder.tv_date.setTextColor(textColor);
-
-        Log.d("murad", "trainingData.getTotalDistance() = " + training.getTotalDistance());
-        Log.d("murad", "trainingData.getTime() = " + training.getTime());
-        Log.d("murad", "trainingData.getAvgSpeed() = " + training.getAvgSpeed());
-//        Log.d("murad", training.getStartDate());
 
     }
 
@@ -119,9 +110,9 @@ public class TrainingAdapter extends RecyclerView.Adapter<TrainingAdapter.Traini
             if (v == itemView){
                 FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
 
-                if (fm.findFragmentByTag(Training_Info_DialogFragment.TAG) == null){
-                    Training_Info_DialogFragment training_info_dialogFragment = Training_Info_DialogFragment.newInstance(trainingArrayList.get(getAbsoluteAdapterPosition()));
-                    training_info_dialogFragment.show(fm, Training_Info_DialogFragment.TAG);
+                if (fm.findFragmentByTag(TrainingInfoDialogFragment.TAG) == null){
+                    TrainingInfoDialogFragment training_info_dialogFragment = TrainingInfoDialogFragment.newInstance(trainingArrayList.get(getAbsoluteAdapterPosition()));
+                    training_info_dialogFragment.show(fm, TrainingInfoDialogFragment.TAG);
                 }
             }
         }

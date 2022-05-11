@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -40,8 +39,7 @@
                 android:id="@+id/constraintLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
-                >
+                android:padding="10dp" >
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/switch_alarm"
@@ -49,17 +47,6 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
-
-                <ImageView
-                    android:id="@+id/iv_edit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:scaleX="1.2"
-                    android:scaleY="1.2"
-                    android:src="@drawable/ic_baseline_edit_24"
-                    app:layout_constraintEnd_toEndOf="@+id/switch_alarm"
-                    app:layout_constraintStart_toStartOf="@+id/switch_alarm"
-                    app:layout_constraintTop_toBottomOf="@+id/switch_alarm" />
 
                 <TextView
                     android:id="@+id/tv_event_name"
@@ -97,7 +84,6 @@
                     android:divider="@color/gray"
                     android:gravity="start"
                     android:orientation="vertical"
-                    app:layout_constraintEnd_toStartOf="@+id/iv_edit"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="@+id/tv_event_description"
                     app:layout_constraintTop_toBottomOf="@+id/tv_event_description">
@@ -109,7 +95,7 @@
                         android:gravity="center"
                         android:text="Starting time: 10.05.2021, 10:45"
                         android:textColor="@color/black"
-                        android:textSize="14dp" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/tv_event_end_date_time"
@@ -118,7 +104,7 @@
                         android:gravity="center"
                         android:text="Ending time: 15.05.2021, 12:00"
                         android:textColor="@color/black"
-                        android:textSize="14dp" />
+                        android:textSize="14sp" />
 
                 </LinearLayout>
 
@@ -128,7 +114,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="Place: "
-                    android:textSize="16dp"
+                    android:textSize="16sp"
                     android:textColor="@color/black"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -154,24 +140,12 @@
 
         </androidx.cardview.widget.CardView>
 
-        <TextView
-            android:id="@+id/tv_there_are_no_upcoming_events"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:text="There are no upcoming events"
-            android:textSize="25dp"
-            />
-
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/switch_only_attend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Only users that attend"
+            android:text="@string/only_users_that_attend"
+            android:textSize="16sp"
             android:layout_margin="5dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -181,7 +155,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_users_home_fragment"
             android:layout_width="match_parent"
-            android:layout_height="500dp"
+            android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
             android:visibility="invisible"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"

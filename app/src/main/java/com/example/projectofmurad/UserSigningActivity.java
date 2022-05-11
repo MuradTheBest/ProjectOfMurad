@@ -1,13 +1,11 @@
 package com.example.projectofmurad;
 
 import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
+import static com.example.projectofmurad.helpers.Utils.getDefaultTextChangedListener;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,13 +14,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.projectofmurad.helpers.Utils;
-import com.example.projectofmurad.notifications.FCMSend;
+import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.groups.ShowGroupsScreen;
+import com.example.projectofmurad.helpers.FirebaseUtils;
+import com.example.projectofmurad.helpers.LoadingDialog;
+import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -31,13 +31,11 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.PhoneAuthCredential;
@@ -47,15 +45,19 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Super class of all activities that require user's interaction with {@link FirebaseAuth}
+ */
 public class UserSigningActivity extends MyActivity {
 
-    protected MaterialButton btn_log_in_with_google;
-    protected MaterialButton btn_log_in_with_facebook;
-    protected MaterialButton btn_log_in_with_phone;
+    protected MaterialButton btn_google;
+    protected MaterialButton btn_facebook;
+    protected MaterialButton btn_phone;
 
-    protected ProgressDialog progressDialog;
+    protected LoadingDialog loadingDialog;
 
     protected int length = 0;
 
@@ -64,25 +66,22 @@ public class UserSigningActivity extends MyActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().hide();
+//        getSupportActionBar().hide();
 
-        progressDialog = new ProgressDialog(this);
-        Utils.createCustomDialog(progressDialog);
+        loadingDialog = new LoadingDialog(this);
     }
 
     protected void createPhoneAuthenticationDialog(){
+        View view = LayoutInflater.from(this).inflate(R.layout.phone_verification_dialog, null);
 
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View view = inflater.inflate(R.layout.phone_verification_dialog, null);
+        MyAlertDialogBuilder builder = new MyAlertDialogBuilder(this);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(view);
-        builder.setCancelable(false);
         builder.setTitle("Phone number verification");
         builder.setMessage("SMS with verification code will be sent to entered number:");
 
-        EditText et_verify_phone = ((TextInputLayout) view.findViewById(R.id.et_verify_phone)).getEditText();
-        et_verify_phone.addTextChangedListener(new TextWatcher() {
+        TextInputLayout et_verify_phone = view.findViewById(R.id.et_verify_phone);
+        et_verify_phone.getEditText().addTextChangedListener(new TextWatcher() {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -96,146 +95,133 @@ public class UserSigningActivity extends MyActivity {
                     s.append("-");
                 }
                 length = s.length();
+                et_verify_phone.setError(null);
             }
         });
 
-        builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.text_continue, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String phone = et_verify_phone.getText().toString();
-                if (!phone.isEmpty()){
+                String phone = et_verify_phone.getEditText().getText().toString();
+                if (phone.isEmpty() || !UtilsCalendar.isPhoneValid(phone)){
+                    et_verify_phone.setError(getString(R.string.invalid_phone_number));
+                }
+                else{
                     phone = phone.replaceAll("-", "");
                     phone = "+972" + phone;
                     dialog.dismiss();
                     phoneAuth(phone);
                 }
-                else{
-                    Toast.makeText(getApplicationContext(), "Please enter phone number", Toast.LENGTH_SHORT).show();
-                }
 
             }
-        });
+        }, false);
 
-        builder.setNegativeButton("Back", (dialog, which) -> dialog.dismiss());
+        builder.setNegativeButton(R.string.back, (dialog, which) -> dialog.dismiss());
 
-        AlertDialog alertDialog = builder.create();
-        Utils.createCustomDialog(alertDialog);
-
-        alertDialog.show();
-
+        builder.show();
     }
 
     protected void phoneAuth(String phone){
 
-        PhoneAuthOptions options =
-                PhoneAuthOptions.newBuilder(FirebaseUtils.getFirebaseAuth())
-                        .setPhoneNumber(phone)
-                        // Phone number to verify
-                        .setTimeout(30L, TimeUnit.SECONDS) // Timeout and unit
-                        .setActivity(this)                 // Activity (for callback binding)
-                        .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-                            @Override
-                            public void onVerificationCompleted(
-                                    @NonNull PhoneAuthCredential phoneAuthCredential) {
+        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(FirebaseUtils.getFirebaseAuth())
+                                    .setPhoneNumber(phone)
+                                    // Phone number to verify
+                                    .setTimeout(30L, TimeUnit.SECONDS) // Timeout and unit
+                                    .setActivity(this)                 // Activity (for callback binding)
+                                    .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                                        @Override
+                                        public void onVerificationCompleted(
+                                                @NonNull PhoneAuthCredential phoneAuthCredential) {
 
-                                /**
-                                 * This callback will be invoked in two situations:
-                                 * 1 - Instant verification. In some cases the phone number can be instantly
-                                 * verified without needing to send or enter a verification code.
-                                 * 2 - Auto-retrieval. On some devices Google Play services can automatically
-                                 * detect the incoming verification SMS and perform verification without
-                                 * user action.
-                                 *
-                                 *
-                                 */
+                                            /**
+                                             * This callback will be invoked in two situations:
+                                             * 1 - Instant verification. In some cases the phone number can be instantly
+                                             * verified without needing to send or enter a verification code.
+                                             * 2 - Auto-retrieval. On some devices Google Play services can automatically
+                                             * detect the incoming verification SMS and perform verification without
+                                             * user action.
+                                             *
+                                             *
+                                             */
 
-                                Log.d("murad", "onVerificationCompleted:" + phoneAuthCredential);
+                                            Log.d("murad", "onVerificationCompleted:" + phoneAuthCredential);
 
-                                signInWithPhoneAuthCredential(phoneAuthCredential);
-                            }
+                                            signInWithPhoneAuthCredential(phoneAuthCredential);
+                                        }
 
-                            @Override
-                            public void onVerificationFailed(@NonNull FirebaseException e) {
-                                Toast.makeText(getApplicationContext(), "Entered phone number is invalid", Toast.LENGTH_SHORT).show();
-                            }
+                                        @Override
+                                        public void onVerificationFailed(@NonNull FirebaseException e) {
+                                            Toast.makeText(getApplicationContext(), "Entered phone number is invalid", Toast.LENGTH_SHORT).show();
+                                        }
 
-                            @Override
-                            public void onCodeSent(@NonNull String verificationId,
-                                                   @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                                        @Override
+                                        public void onCodeSent(@NonNull String verificationId,
+                                                               @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
 
 
-                                Toast.makeText(getApplicationContext(), "The verification code was sent", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getApplicationContext(), "The verification code was sent", Toast.LENGTH_SHORT).show();
 
-                                createSMSVerificationDialog(verificationId, phone);
-                            }
+                                            createSMSVerificationDialog(verificationId, phone);
+                                        }
 
-                            @Override
-                            public void onCodeAutoRetrievalTimeOut(@NonNull String s) {
-                                super.onCodeAutoRetrievalTimeOut(s);
-                            }
-                        })
-                        .build();
+                                        @Override
+                                        public void onCodeAutoRetrievalTimeOut(@NonNull String s) {
+                                            super.onCodeAutoRetrievalTimeOut(s);
+                                        }
+                                    })
+                                    .build();
 
         PhoneAuthProvider.verifyPhoneNumber(options);
     }
 
     protected void createSMSVerificationDialog(String verificationId, String phone){
+        View view = LayoutInflater.from(this).inflate(R.layout.sms_verification_dialog, null);
 
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View view = inflater.inflate(R.layout.sms_verification_dialog, null);
-
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        MyAlertDialogBuilder builder = new MyAlertDialogBuilder(this);
 
         builder.setView(view);
-        builder.setCancelable(false);
         builder.setTitle("Code verification");
         builder.setMessage("Enter verification code that was sent to " + phone + ":");
 
-        EditText et_verify_sms_code = ((TextInputLayout) view.findViewById(R.id.et_verify_sms_code)).getEditText();
+        TextInputLayout et_verify_sms_code = view.findViewById(R.id.et_verify_sms_code);
+        et_verify_sms_code.getEditText().addTextChangedListener(getDefaultTextChangedListener(et_verify_sms_code));
 
-        builder.setPositiveButton("Verify", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.verify, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String code = et_verify_sms_code.getText().toString();
+                String code = et_verify_sms_code.getEditText().getText().toString();
 
                 if (code.isEmpty() || code.length() < 6){
                     et_verify_sms_code.setError("Invalid verification code");
                 }
-                else{
+                else {
                     PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.getCredential(verificationId, code);
                     signInWithPhoneAuthCredential(phoneAuthCredential);
                 }
             }
-        });
+        }, false);
 
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
 
-        androidx.appcompat.app.AlertDialog alertDialog = builder.create();
-        Utils.createCustomDialog(alertDialog);
-
-        alertDialog.show();
+        builder.show();
     }
 
     protected void signInWithPhoneAuthCredential(PhoneAuthCredential phoneAuthCredential) {
-        progressDialog.setMessage("Logging in via phone number, please wait");
-        progressDialog.show();
+        loadingDialog.setMessage(getString(R.string.logging_in_please_wait));
+        loadingDialog.show();
 
-        FirebaseUtils.getFirebaseAuth().signInWithCredential(phoneAuthCredential)
-                .addOnCompleteListener(authCompleteListener);
+        FirebaseUtils.getFirebaseAuth().signInWithCredential(phoneAuthCredential).addOnCompleteListener(authCompleteListener);
     }
 
     protected final OnCompleteListener<AuthResult> authCompleteListener = new OnCompleteListener<AuthResult>() {
         @Override
         public void onComplete(@NonNull Task<AuthResult> task) {
             if (!task.isSuccessful()) {
-                progressDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "Signing in failed", Toast.LENGTH_SHORT).show();
+                loadingDialog.dismiss();
+                Toast.makeText(getApplicationContext(), R.string.signing_failed, Toast.LENGTH_SHORT).show();
                 Log.d("murad", "signInWithCredential:failure", task.getException());
                 // Sign in failed, display a message and update the UI
                 Log.w(LOG_TAG, "signInWithCredential:failure", task.getException());
-                if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                    Toast.makeText(getApplicationContext(), "The entered verification code is invalid", Toast.LENGTH_SHORT).show();
-                }
                 return;
             }
 
@@ -243,23 +229,30 @@ public class UserSigningActivity extends MyActivity {
 
             FirebaseUser user = task.getResult().getUser();
 
-            String UID = user.getUid();
-            String username = user.getDisplayName();
-            String email = user.getEmail();
-            String phone = user.getPhoneNumber();
-            Uri photoUri = user.getPhotoUrl();
+            HashMap<String, Object> userData = new HashMap<>();
+            userData.put("uid", user.getUid());
+            userData.put("username", user.getDisplayName());
+            userData.put("email", user.getEmail());
+            userData.put(UserData.KEY_PHONE, user.getPhoneNumber());
 
-            UserData data = new UserData(UID, email, username, phone);
-
-            if (photoUri != null && !photoUri.toString().contains("/a/")){
-                String profile_picture = user.getPhotoUrl().toString();
-                data.setProfile_picture(profile_picture);
+            if (user.getPhotoUrl() != null && !user.getPhotoUrl().toString().contains("/a/")){
+                userData.put("picture", user.getPhotoUrl().toString());
             }
 
-            FirebaseUtils.usersDatabase.child(UID).setValue(data)
-                    .addOnSuccessListener(unused -> subscribeToTopics())
-                    .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed",
-                                                            Toast.LENGTH_SHORT).show());
+            FirebaseUtils.usersDatabase.child(user.getUid()).updateChildren(userData)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            loadingDialog.dismiss();
+                            if (task.isSuccessful()){
+                                finish();
+                                startActivity(new Intent(getApplicationContext(), Splash_Screen.class));
+                            }
+                            else {
+                                Toast.makeText(getApplicationContext(), R.string.failed, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
         }
     };
 
@@ -267,7 +260,7 @@ public class UserSigningActivity extends MyActivity {
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(String.valueOf(R.string.google_sign_in_api_key))
+                .requestIdToken(getString(R.string.google_sign_in_api_key))
                 .requestEmail()
                 .build();
 
@@ -288,11 +281,8 @@ public class UserSigningActivity extends MyActivity {
             // a listener.
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
 
-            Log.d(LOG_TAG, task.getException().getLocalizedMessage());
-            Log.d(LOG_TAG, task.getException().getMessage());
-
             try {
-                Log.d("murad", "getting account ");
+                Log.d("murad", "getting account");
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 if (account == null){
                     Log.d("murad", "Google account is null ");
@@ -311,14 +301,12 @@ public class UserSigningActivity extends MyActivity {
     }
 
     protected void googleAuth(String idToken) {
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        Log.d("murad", "credential" + credential);
 
-        progressDialog.setMessage("Logging via Google, please wait...");
-        progressDialog.show();
+        loadingDialog.setMessage(getString(R.string.logging_in_please_wait));
+        loadingDialog.show();
 
-        firebaseAuth.signInWithCredential(credential).addOnCompleteListener(authCompleteListener);
+        FirebaseUtils.getFirebaseAuth().signInWithCredential(credential).addOnCompleteListener(authCompleteListener);
     }
 
     protected void getToken(){
@@ -356,9 +344,9 @@ public class UserSigningActivity extends MyActivity {
                                                     public void onComplete(
                                                             @NonNull Task<Void> task) {
                                                         if (task.isSuccessful()){
-                                                            progressDialog.dismiss();
+                                                            loadingDialog.dismiss();
 
-                                                            startActivity(new Intent(getApplicationContext(), Profile_Screen.class));
+                                                            startActivity(new Intent(getApplicationContext(), ShowGroupsScreen.class));
                                                         }
                                                         else {
                                                             Toast.makeText(
@@ -374,24 +362,6 @@ public class UserSigningActivity extends MyActivity {
                     }
                 });
     }
-
-    protected void subscribeToTopics(){
-//        getToken();
-
-        FirebaseMessaging.getInstance().subscribeToTopic(FCMSend.ADD_EVENT_TOPIC).addOnSuccessListener(
-                unused -> FirebaseUtils.getCurrentUserDataRef().child(UserData.KEY_SUBSCRIBED_TO_ADD_EVENT).setValue(true));
-
-        FirebaseMessaging.getInstance().subscribeToTopic(FCMSend.EDIT_EVENT_TOPIC).addOnSuccessListener(
-                unused -> FirebaseUtils.getCurrentUserDataRef().child(UserData.KEY_SUBSCRIBED_TO_EDIT_EVENT).setValue(true));
-
-        FirebaseMessaging.getInstance().subscribeToTopic(FCMSend.DELETE_EVENT_TOPIC).addOnSuccessListener(
-                unused -> FirebaseUtils.getCurrentUserDataRef().child(UserData.KEY_SUBSCRIBED_TO_DELETE_EVENT).setValue(true));
-
-        progressDialog.dismiss();
-
-        startActivity(new Intent(getApplicationContext(), Profile_Screen.class));
-    }
-
     @Override
     protected void onResume() {
         super.onResume();

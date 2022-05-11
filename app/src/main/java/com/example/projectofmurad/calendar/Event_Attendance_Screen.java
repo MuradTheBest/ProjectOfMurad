@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.MyActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
@@ -25,7 +25,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
 public class Event_Attendance_Screen extends MyActivity implements
-        UsersAdapterForFirebase.OnUserClickListener,
+        UsersAdapterForFirebase.OnUserLongClickListener,
         UsersAdapterForFirebase.OnUserExpandListener {
 
     private TextView tv_event_name;
@@ -117,7 +117,7 @@ public class Event_Attendance_Screen extends MyActivity implements
                 .setLifecycleOwner(this)
                 .build();
 
-        UsersAdapterForFirebase userAdapter = new UsersAdapterForFirebase(options, this, event_private_id, event.getColor(),
+        UsersAdapterForFirebase userAdapter = new UsersAdapterForFirebase(options, this, event_private_id, event.getEnd(), event.getColor(),
                 this, this);
 
         rv_users.setAdapter(userAdapter);
@@ -133,7 +133,7 @@ public class Event_Attendance_Screen extends MyActivity implements
     }
 
     @Override
-    public void onUserClick(int position, @NonNull UserData userData) {
+    public boolean onUserLongClick(int position, @NonNull UserData userData) {
         String selected_UID = userData.getUID();
 
         Intent intent = new Intent(this, All_Attendances.class);
@@ -141,6 +141,7 @@ public class Event_Attendance_Screen extends MyActivity implements
         intent.putExtra("event_private_id", event_private_id);
 
         startActivity(intent);
+        return false;
     }
 
     @Override

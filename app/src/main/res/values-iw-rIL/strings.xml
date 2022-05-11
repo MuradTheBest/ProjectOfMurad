@@ -36,7 +36,6 @@
     <string name="this_event_will_repeat_every_d_s_s_s">כל %d %s %s %s</string>
     <string name="_d_times">, בסה"כ %d פעמים</string>
     <string name="one_time">פעם אחת</string>
-    <string name="sample_times">10 פעמים</string>
     <string name="starting_time_s_s">זמן ההתחלה: %s, %s</string>
     <string name="ending_time_s_s">זמן הסיום: %s, %s</string>
     <string name="does_not_repeat">לא חוזר על עצמו</string>

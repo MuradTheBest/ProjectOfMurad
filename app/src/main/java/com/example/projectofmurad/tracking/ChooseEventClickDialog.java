@@ -1,7 +1,5 @@
 package com.example.projectofmurad.tracking;
 
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,16 +9,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDialog;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectofmurad.FirebaseUtils;
-import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.EventsAdapterForFirebase;
 import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
+import com.example.projectofmurad.helpers.LoadingDialog;
+import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.training.Training;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,7 +34,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
 
-public class ChooseEventClickDialog extends Dialog implements EventsAdapterForFirebase.OnEventClickListener{
+public class ChooseEventClickDialog extends AppCompatDialog implements EventsAdapterForFirebase.OnEventClickListener{
 
     private final LocalDate passingDate;
     private final Context context;
@@ -45,7 +45,7 @@ public class ChooseEventClickDialog extends Dialog implements EventsAdapterForFi
 
     private final SaveTrainingDialog.OnAddTrainingListener onAddTrainingListener;
 
-    private ProgressDialog progressDialog;
+    private LoadingDialog LoadingDialog;
 
     public ChooseEventClickDialog(@NonNull Context context, LocalDate passingDate, Training training, SaveTrainingDialog.OnAddTrainingListener onAddTrainingListener) {
         super(context);
@@ -69,8 +69,8 @@ public class ChooseEventClickDialog extends Dialog implements EventsAdapterForFi
         setContentView(R.layout.day_dialog);
         setCancelable(true);
 
-        progressDialog = new ProgressDialog(getContext());
-        Utils.createCustomDialog(progressDialog);
+        LoadingDialog = new LoadingDialog(getContext());
+        Utils.createCustomDialog(LoadingDialog);
 
         TextView tv_day = findViewById(R.id.tv_day);
         tv_day.setVisibility(View.GONE);
@@ -140,52 +140,20 @@ public class ChooseEventClickDialog extends Dialog implements EventsAdapterForFi
 
             }
         });
-
-/*
-        setButton(DialogInterface.BUTTON_POSITIVE, "Select", new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (selectedEventPrivateId.isEmpty()){
-
-                }
-                else {
-                    dismiss();
-                    FirebaseUtils.addTrainingForEvent(selectedEventPrivateId, trainingData).addOnCompleteListener(
-                            new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (!task.isSuccessful()){
-                                        Toast.makeText(context, "Adding the trainingData to this event failed \n" +
-                                                "The trainingData will be added to private trainings", Toast.LENGTH_SHORT).show();
-//                            new MyRepository(getOwnerActivity().getApplication()).insert(trainingData);
-                                        onAddTrainingListener.onAddTraining(trainingData);
-
-                                    }
-
-                                    Toast.makeText(context, "The trainingData was added to this event successfully", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                }
-            }
-        });
-*/
     }
-
-
 
     @Override
     public void onEventClick(int position, @NonNull CalendarEvent calendarEvent) {
         String selectedEventPrivateId = calendarEvent.getPrivateId();
 
-        progressDialog.setMessage("Adding the trainingData to selected event...");
-        progressDialog.show();
+        LoadingDialog.setMessage("Adding the trainingData to selected event...");
+        LoadingDialog.show();
 
         FirebaseUtils.addTrainingForEvent(selectedEventPrivateId, training).addOnCompleteListener(
                 new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        progressDialog.dismiss();
-                        dismiss();
+                        LoadingDialog.dismiss();
                         if (!task.isSuccessful()){
                             Toast.makeText(context, "Adding the training to this event failed \n" +
                                     "The training will be added to private trainings", Toast.LENGTH_SHORT).show();
@@ -193,6 +161,7 @@ public class ChooseEventClickDialog extends Dialog implements EventsAdapterForFi
                         }
 
                         Toast.makeText(context, "The training was added to this event successfully", Toast.LENGTH_SHORT).show();
+                        dismiss();
                     }
                 });
     }

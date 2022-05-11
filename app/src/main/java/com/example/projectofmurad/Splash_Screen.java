@@ -4,60 +4,105 @@ package com.example.projectofmurad;
 import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.widget.RelativeLayout;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
+import com.example.projectofmurad.groups.CreateOrJoinGroupScreen;
 import com.example.projectofmurad.groups.ShowGroupsScreen;
+import com.example.projectofmurad.helpers.Constants;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.database.DataSnapshot;
-
-import pl.droidsonroids.gif.GifImageView;
 
 public class Splash_Screen extends MyActivity {
 
-    private ConstraintLayout constraintLayout;
-    private GifImageView iv_intro;
-    private RelativeLayout group_1;
+    private MaterialButton btn_get_started;
+    private ProgressBar progressBar;
+    public final static int STORAGE_REQUEST_CODE = 10000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_page);
         getSupportActionBar().hide();
 
-        constraintLayout = findViewById(R.id.constraintLayout);
-        iv_intro = findViewById(R.id.iv_intro);
-
-        group_1 = findViewById(R.id.group_1);
+        btn_get_started = findViewById(R.id.btn_get_started);
+        progressBar = findViewById(R.id.progressBar);
 
         SQLiteDatabase db = openOrCreateDatabase(Utils.DATABASE_NAME, MODE_PRIVATE, null);
         Utils.createAllTables(db);
 
-        group_1.setOnClickListener(this::checkGroup);
+        btn_get_started.setOnClickListener(this::checkGroup);
+
+        checkIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        checkIntent(intent);
+    }
+
+    /**
+     * Checks intent that the activity receives.
+     * In case if the user is not logged in, user is navigated to {@link Log_In_Screen} in order to sign in.
+     * <p>
+     * If the intent's action is {@link Intent#ACTION_VIEW} and it has data, new activity is started through intent that passes the link from uri.
+     * </p>
+     */
+    private void checkIntent(Intent intent) {
+        if (intent == null){
+            intent = getIntent();
+        }
+
+        if(intent.getAction() == null || !intent.getAction().equals(Intent.ACTION_VIEW)){
+            return;
+        }
+
+        Uri uri = intent.getData();
+
+        Log.d(Utils.LOG_TAG, "uri is " + uri);
+
+        if (uri == null){
+            return;
+        }
+
+        if (!FirebaseUtils.isUserLoggedIn()){
+            startActivity(new Intent(Splash_Screen.this, Log_In_Screen.class));
+        }
+
+        String link = uri.toString();
+
+        Log.d(Utils.LOG_TAG, "uri is " + link);
+
+        if (link.contains("group-join-link")){
+            Intent i = new Intent(Splash_Screen.this, CreateOrJoinGroupScreen.class);
+            i.putExtra(Constants.KEY_LINK, link);
+            startActivity(i);
+        }
 
     }
 
-    public void checkGroup(View view){
-        /*FirebaseUtils.getCurrentUserDataRef().child("groups").child("Ndhsjfbhdjgfhjdghfsj")
-                .child("madrich").setValue(true);
+    public void startLoading(){
+        progressBar.setVisibility(View.VISIBLE);
+        btn_get_started.setText(R.string.setting_the_data);
+    }
 
-        FirebaseUtils.getCurrentUserDataRef().child("groups").child("Ndhsjfbhdjgfhjdghfsj")
-                .child("show").setValue(2);*/
-        iv_intro.setVisibility(View.VISIBLE);
-        constraintLayout.setVisibility(View.GONE);
+    public void checkGroup(View view){
+
+        startLoading();
 
         if(FirebaseUtils.isUserLoggedIn()){
             FirebaseUtils.checkCurrentGroup()
@@ -84,8 +129,8 @@ public class Splash_Screen extends MyActivity {
 
     public void goToAnotherScreen(Intent intent){
         new Handler().postDelayed(() -> {
-            finish();
             startActivity(intent);
+            finish();
         }, 500);
     }
 
@@ -96,10 +141,13 @@ public class Splash_Screen extends MyActivity {
     }
 
     public void checkPermissions(){
-        for (String permission : new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}){
+        String[] permissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
+
+        for (String permission : permissions){
             if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(LOG_TAG, "Permission " + permission + " is granted");
-            } else {
+            }
+            else {
                 Log.d(LOG_TAG, "Permission " + permission + " is not granted");
                 askPermission(permission);
             }
@@ -113,18 +161,17 @@ public class Splash_Screen extends MyActivity {
                 Log.d(LOG_TAG, "askPermission: you should show an alert dialog...");
             }
 
-            requestPermissions(new String[]{permission}, 10000);
+            requestPermissions(new String[]{permission}, STORAGE_REQUEST_CODE);
 
         }
     }
 
-    @SuppressLint("MissingPermission")
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == 10000) {
+        if (requestCode == STORAGE_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 for (int i = 0; i < grantResults.length; i++) {
@@ -136,8 +183,12 @@ public class Splash_Screen extends MyActivity {
             }
             else {
                 //Permission not granted
+                Utils.createAlertDialog(this, null,
+                        "You have to grant permission. Otherwise you can't use the app",
+                        R.string.ok, (dialog, which) -> checkPermissions(),
+                        R.string.no, (dialog, which) -> System.exit(0),
+                        null).show();
             }
-//            triggerRebirth(requireContext());
         }
     }
 }

@@ -27,7 +27,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
@@ -102,8 +102,6 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         public TextView tv_event_end_date_time;
 
         public CheckBox checkbox_all_attendances;
-
-        public boolean expanded = false;
 
         public EventViewHolderForFirebase(@NonNull View itemView, OnEventClickListener onEventClickListener) {
             super(itemView);
@@ -209,53 +207,25 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
     @Override
     protected void onBindViewHolder(@NonNull EventViewHolderForFirebase holder, int position, @NonNull CalendarEvent model) {
-        Log.d("murad", "RECYCLING STARTED");
-        String info = "";
-
-//        holder.iv_circle.getDrawable().setTint(model.getColor());
 
         holder.tv_event_name.setText(model.getName());
-        Log.d("murad","name: " + model.getName());
-        info += model.getName();
 
         holder.tv_event_place.setText(model.getPlace());
-        Log.d("murad","place: " +  model.getPlace());
-        info += " | " + model.getPlace();
 
         holder.tv_event_description.setText(model.getDescription());
-        Log.d("murad", "description " + model.getDescription());
-        info += " | " + model.getDescription() + "\n";
-
-
-        /*if (selectedDate != null){
-            holder.wrapped_layout.setVisibility(View.VISIBLE);
-            holder.expanded_layout.setVisibility(View.GONE);
-        }
-        else {
-            holder.wrapped_layout.setVisibility(View.GONE);
-            holder.expanded_layout.setVisibility(View.VISIBLE);
-        }*/
 
         holder.expanded_layout.setVisibility(View.GONE);
 
         if (selectedDate != null){
             if(model.getStartDate().equals(model.getEndDate())){
                 holder.tv_event_start_time.setText(model.getStartTime());
-                Log.d("murad","Starting timeData: " + model.getStartTime());
-
                 holder.tv_event_end_time.setText(model.getEndTime());
-                Log.d("murad","Ending timeData: " + model.getEndTime());
-
             }
             else if(model.getStartDate().equals(UtilsCalendar.DateToTextOnline(selectedDate))){
                 holder.tv_event_start_time.setText(model.getStartTime());
-                Log.d("murad","Starting timeData: " + model.getStartTime());
-
             }
             else if(model.getEndDate().equals(UtilsCalendar.DateToTextOnline(selectedDate))){
                 holder.tv_event_end_time.setText(model.getEndTime());
-                Log.d("murad","Ending timeData: " + model.getEndTime());
-
             }
             else{
                 holder.tv_hyphen.setText(R.string.all_day);
@@ -270,21 +240,13 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
         if(model.getStartDate().equals(model.getEndDate())){
             holder.tv_event_start_time.setText(model.getStartTime());
-            Log.d("murad","Starting timeData: " + model.getStartTime());
-
             holder.tv_event_end_time.setText(model.getEndTime());
-            Log.d("murad","Ending timeData: " + model.getEndTime());
-
         }
         else if(model.getStartDate().equals(UtilsCalendar.DateToTextOnline(selectedDate))){
             holder.tv_event_start_time.setText(model.getStartTime());
-            Log.d("murad","Starting timeData: " + model.getStartTime());
-
         }
         else if(model.getEndDate().equals(UtilsCalendar.DateToTextOnline(selectedDate))){
             holder.tv_event_end_time.setText(model.getEndTime());
-            Log.d("murad","Ending timeData: " + model.getEndTime());
-
         }
         else{
             holder.tv_hyphen.setText(R.string.all_day);
@@ -362,8 +324,7 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
     @NonNull
     @Override
     public EventViewHolderForFirebase onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.row_event_info, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_event_info, parent, false);
 
         return new EventViewHolderForFirebase(view, onEventClickListener);
     }

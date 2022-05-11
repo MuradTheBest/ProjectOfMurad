@@ -45,7 +45,7 @@
                 android:layout_weight="1"
                 android:text="Name: "
                 android:textAlignment="textStart"
-                android:textSize="18dp"
+                android:textSize="18sp"
                 app:layout_constraintEnd_toStartOf="@+id/switch_alarm"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -57,7 +57,7 @@
                 android:layout_weight="1"
                 android:gravity="start"
                 android:text="Description: "
-                android:textSize="16dp"
+                android:textSize="16sp"
 
                 app:layout_constraintEnd_toEndOf="@+id/tv_event_name"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -87,7 +87,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:textSize="14dp" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/tv_hyphen"
@@ -95,14 +95,14 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text=" - "
-                        android:textSize="16dp" />
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/tv_event_end_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:textSize="14dp" />
+                        android:textSize="14sp" />
 
                 </LinearLayout>
 
@@ -119,7 +119,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:textSize="14dp"
+                        android:textSize="14sp"
                         android:text="Starting time: 10.05.2021, 10:45"/>
 
                     <TextView
@@ -127,7 +127,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:textSize="14dp"
+                        android:textSize="14sp"
                         android:text="Ending time: 15.05.2021, 12:00"/>
 
                 </LinearLayout>
@@ -140,7 +140,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="Place: "
-                android:textSize="16dp"
+                android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"

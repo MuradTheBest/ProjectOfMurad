@@ -25,13 +25,13 @@ public class EventSlidePageAdapter extends FragmentStateAdapter {
             case 0:
                 return (last_event == null)
                         ? ThereIsNoEventFragment.newInstance("There is no last event that happened")
-                        : Event_Info_DialogFragment.newInstance(last_event, false);
+                        : EventInfoDialogFragment.newInstance(last_event, false);
             case 1:
                 return (next_event == null)
                         ? ThereIsNoEventFragment.newInstance("There is no next event that will happen")
-                        : Event_Info_DialogFragment.newInstance(next_event, false);
+                        : EventInfoDialogFragment.newInstance(next_event, false);
             default:
-                return null;
+                return ThereIsNoEventFragment.newInstance("There is no event");
         }
     }
 

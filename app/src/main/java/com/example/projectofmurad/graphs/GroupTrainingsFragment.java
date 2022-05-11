@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
@@ -89,7 +89,7 @@ public class GroupTrainingsFragment extends Fragment implements EventsAndTrainin
 
         progressViewModel = new ViewModelProvider(requireActivity()).get(ProgressViewModel.class);
 
-        DatabaseReference eventKeys = FirebaseUtils.getTrainingsDatabase().child("Events");
+        DatabaseReference eventKeys = FirebaseUtils.getGroupTrainingsDatabase();
         DatabaseReference events = FirebaseUtils.getAllEventsDatabase();
 
         FirebaseRecyclerOptions<CalendarEvent> options = new FirebaseRecyclerOptions.Builder<CalendarEvent>()
@@ -101,12 +101,10 @@ public class GroupTrainingsFragment extends Fragment implements EventsAndTrainin
 
         rv_group_training.setAdapter(eventsAdapterForFirebase);
         rv_group_training.setLayoutManager(new LinearLayoutManagerWrapper(requireContext()).addOnLayoutCompleteListener(
-                () -> {
-                    new Handler().postDelayed(() -> {
-                        progressBar.setVisibility(View.GONE);
-                        rv_group_training.setVisibility(View.VISIBLE);
-                    }, 500);
-                }));
+                () -> new Handler().postDelayed(() -> {
+                    progressBar.setVisibility(View.GONE);
+                    rv_group_training.setVisibility(View.VISIBLE);
+                }, 500)));
     }
 
     @Override

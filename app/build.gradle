@@ -39,6 +39,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    namespace 'com.example.projectofmurad'
 }
 
 dependencies {
@@ -97,22 +98,15 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.9.0'
 
 // Also declare the dependency for the Google Play services library and specify its version
-    implementation 'com.google.android.gms:play-services-auth:20.1.0'
-
-        // FirebaseUI for Cloud Firestore
-        implementation 'com.firebaseui:firebase-ui-firestore:8.0.0'
+    implementation 'com.google.android.gms:play-services-auth:20.2.0'
 
         // FirebaseUI for Firebase Auth
         implementation 'com.firebaseui:firebase-ui-auth:8.0.0'
 
         // FirebaseUI for Cloud Storage
-/*
         implementation 'com.firebaseui:firebase-ui-storage:8.0.0'
-*/
 
     implementation 'com.google.maps.android:android-maps-utils:2.3.0'
-
-    def room_version = "2.4.2"
 
     implementation 'androidx.room:room-runtime:2.5.0-alpha01'
     annotationProcessor "androidx.room:room-compiler:2.4.2"
@@ -138,17 +132,11 @@ dependencies {
 
     implementation 'de.codecrafters.tableview:tableview:2.8.0'
 
-//    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-//    implementation "org.apache.poi:poi:3.17"
-
-//    implementation files('ibs/poi-3.12-android-a.jar')
-
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "com.android.support:multidex:1.0.3"
 
     implementation 'nl.bryanderidder:themed-toggle-button-group:1.4.1'
 
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.19'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.24'
 
 }

@@ -1,7 +1,6 @@
 package com.example.projectofmurad.calendar;
 
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,13 +12,14 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDialog;
 import androidx.appcompat.widget.SwitchCompat;
 
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
 
-public class AlarmDialog extends Dialog {
+public class AlarmDialog extends AppCompatDialog {
 
     private final Context context;
 
@@ -41,16 +41,11 @@ public class AlarmDialog extends Dialog {
         this.event = event;
         this.alarm_hour = alarm_hour;
         this.alarm_minute = alarm_minute;
-
         this.switch_alarm = switch_alarm;
 
         setCancelable(true);
-
         Utils.createCustomDialog(this);
 
-/*        getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
-
-        getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);*/
     }
 
     public AlarmDialog(@NonNull Context context, SwitchCompat switch_alarm, OnAutoAlarmSetListener onAutoAlarmSetListener) {
@@ -61,12 +56,7 @@ public class AlarmDialog extends Dialog {
         this.onAutoAlarmSetListener = onAutoAlarmSetListener;
 
         setCancelable(true);
-
         Utils.createCustomDialog(this);
-/*
-        getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
-
-        getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);*/
     }
 
     @Override
@@ -115,7 +105,7 @@ public class AlarmDialog extends Dialog {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch_alarm.setChecked(true);
                 long before = 0;
-                String toast = "Alarm was set for timeData of beginning of the event";
+                String toast;
 
                 int delay = 300;
 
@@ -165,12 +155,6 @@ public class AlarmDialog extends Dialog {
         });
 
         setOnCancelListener(dialog -> switch_alarm.setChecked(false));
-    }
-
-    @Override
-    public void dismiss() {
-        super.dismiss();
-//        hide();
     }
 
     public interface OnAutoAlarmSetListener{

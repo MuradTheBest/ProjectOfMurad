@@ -1,7 +1,6 @@
 package com.example.projectofmurad.calendar;
 
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -19,6 +18,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -27,7 +27,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.BuildConfig;
-import com.example.projectofmurad.FirebaseUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.RecyclerViewSwipeDecorator;
@@ -44,7 +44,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEventClickListener{
+public class DayDialog extends AppCompatDialog implements EventsAdapterForFirebase.OnEventClickListener{
 
     public final LocalDate passingDate;
     private final Context context;
@@ -71,14 +71,14 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
 
         this.context = context;
 
-        this.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
-        this.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
+        getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
+        getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
 
         this.fm = ((FragmentActivity) context).getSupportFragmentManager();
 
         this.event_private_id = event_private_id;
 
-        this.vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             vibrationEffect = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK);
         }
@@ -91,21 +91,21 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setContentView(R.layout.day_dialog);
-        this.setCancelable(true);
+        setContentView(R.layout.day_dialog);
+        setCancelable(true);
 
         String day = String.valueOf(passingDate.getDayOfMonth());
         String full_date = passingDate.format(DateTimeFormatter.ofPattern("E, MMMM yyyy", UtilsCalendar.locale));
 
-        TextView tv_day = this.findViewById(R.id.tv_day);
+        TextView tv_day = findViewById(R.id.tv_day);
         tv_day.setText(day);
 
-        TextView tv_full_date = this.findViewById(R.id.tv_full_date);
+        TextView tv_full_date = findViewById(R.id.tv_full_date);
         tv_full_date.setText(full_date);
 
-        rv_events = this.findViewById(R.id.rv_events);
+        rv_events = findViewById(R.id.rv_events);
 
-        TextView tv_no_events = this.findViewById(R.id.tv_no_events);
+        TextView tv_no_events = findViewById(R.id.tv_no_events);
         tv_no_events.setVisibility(View.GONE);
 
         DatabaseReference eventsDatabase = FirebaseUtils.getEventsDatabase().child(UtilsCalendar.DateToTextForFirebase(passingDate));
@@ -143,7 +143,6 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
         LinearLayoutManagerWrapper layoutManager = new LinearLayoutManagerWrapper(getContext());
         layoutManager.setOnLayoutCompleteListener(() -> showEvent(event_private_id));
 
-//        rv_events.setLayoutManager(layoutManager);
         rv_events.setLayoutManager(new LinearLayoutManagerWrapper(getContext())
                 .addOnLayoutCompleteListener(() -> showEvent(event_private_id)));
 
@@ -180,13 +179,11 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
         eventsDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.hasChildren()){
+                if(snapshot.exists()){
                     rv_events.setVisibility(View.VISIBLE);
-                    Log.d("murad", "Visibility set to " + rv_events.getVisibility());
                 }
                 else {
                     rv_events.setVisibility(View.INVISIBLE);
-                    Log.d("murad", "Visibility set to " + rv_events.getVisibility());
                     tv_no_events.setVisibility(View.VISIBLE);
                 }
             }
@@ -197,7 +194,7 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
             }
         });
 
-        fab_add_event = this.findViewById(R.id.fab_add_event);
+        fab_add_event = findViewById(R.id.fab_add_event);
         fab_add_event.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -226,7 +223,7 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
             }
         });
 
-        btn_clear_all = this.findViewById(R.id.btn_clear_all);
+        btn_clear_all = findViewById(R.id.btn_clear_all);
         btn_clear_all.setOnClickListener(v -> {
             FirebaseUtils.getEventsDatabase().child(UtilsCalendar.DateToTextForFirebase(passingDate)).setValue(null);
 
@@ -235,10 +232,7 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
             tv_no_events.setVisibility(View.VISIBLE);
         });
 
-
-//        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(rv_events);
-
     }
 
 /*
@@ -322,14 +316,11 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
 
             Log.d(Utils.LOG_TAG, "mainViewModel pressing event");
 
-            Runnable unPressRunnable = () -> event.setPressed(false);
+            Runnable unpressRunnable = () -> event.setPressed(false);
 
-            Runnable pressRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    event.setPressed(true);
-                    event.postOnAnimationDelayed(unPressRunnable, 1000);
-                }
+            Runnable pressRunnable = () -> {
+                event.setPressed(true);
+                event.postOnAnimationDelayed(unpressRunnable, 1000);
             };
 
             new Handler().postDelayed(pressRunnable, 500);
@@ -402,9 +393,8 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
 
                     break;
             }
-//            rv_events.getAdapter().notifyItemChanged(position);
-            itemTouchHelper.startSwipe(viewHolder);
 
+            itemTouchHelper.startSwipe(viewHolder);
         }
 
         @Override
@@ -418,7 +408,7 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
             alarm = alarmSet ? "Alarm cancelling" : "Alarm setting";
             attendance = approved ? "Attendance disapproving" : "Attendance approving";
 
-            new RecyclerViewSwipeDecorator.Builder(getContext(), c, recyclerView, (EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder, dX, dY, actionState, isCurrentlyActive)
+            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, (EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder, dX, dY, actionState, isCurrentlyActive)
                     .addSwipeLeftBackgroundColor(ContextCompat.getColor(getContext(), alarmSet ? R.color.alarm_off : R.color.colorAccent))
                     .addSwipeLeftActionIcon(alarmSet ? R.drawable.ic_baseline_notifications_off_40 : R.drawable.ic_baseline_notifications_active_40)
                     .addSwipeLeftLabel(alarm)
@@ -447,10 +437,9 @@ public class DayDialog extends Dialog implements EventsAdapterForFirebase.OnEven
 
     @Override
     public void onEventClick(int position, @NonNull CalendarEvent event) {
-        if (fm.findFragmentByTag(Event_Info_DialogFragment.TAG) == null){
-            Event_Info_DialogFragment event_info_dialogFragment = Event_Info_DialogFragment.newInstance(event, true);
-            event_info_dialogFragment.show(fm, Event_Info_DialogFragment.TAG);
+        if (fm.findFragmentByTag(EventInfoDialogFragment.TAG) == null){
+            EventInfoDialogFragment event_info_dialogFragment = EventInfoDialogFragment.newInstance(event, true);
+            event_info_dialogFragment.show(fm, EventInfoDialogFragment.TAG);
         }
-
     }
 }

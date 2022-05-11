@@ -6,6 +6,7 @@ import android.content.Context;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class MyApplication extends Application {
+
     private static Context appContext;
 
     public static Context getContext() {
@@ -15,9 +16,8 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-//        appContext = this;
-        appContext = getApplicationContext();
 
+        appContext = getApplicationContext();
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     }
 }

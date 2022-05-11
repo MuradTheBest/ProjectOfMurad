@@ -2,10 +2,7 @@ package com.example.projectofmurad.home;
 
 import android.animation.Animator;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Rect;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,27 +11,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.lifecycle.Observer;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.projectofmurad.FirebaseUtils;
+import com.bumptech.glide.Glide;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.MainViewModel;
 import com.example.projectofmurad.Profile_Screen;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.EventSlidePageAdapter;
-import com.example.projectofmurad.helpers.Utils;
-import com.example.projectofmurad.helpers.ZoomOutPageTransformer;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.tracking.TrackingService;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -50,39 +45,18 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Calendar;
 
 /**
- * A simple {@link androidx.fragment.app.Fragment} subclass.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * A simple {@link Fragment} subclass.
  */
-public class HomeFragment extends androidx.fragment.app.Fragment {
+public class HomeFragment extends Fragment {
 
     public HomeFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    @NonNull
-    public static HomeFragment newInstance(String param1, String param2) {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((AppCompatActivity) getActivity()).getSupportActionBar();
         setHasOptionsMenu(true);
-
     }
 
     @Override
@@ -130,8 +104,6 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
 
     private CollapsingToolbarLayout collapsingToolbarLayout;
 
-    public ConstraintLayout constraintLayout;
-
     private ViewPager2 vp_event;
 
     private FloatingActionButton fab_add_training;
@@ -143,6 +115,7 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
     private MainViewModel mainViewModel;
 
     private ProgressBar progressBar;
+    private ImageView iv_group_picture;
 
     private Animation rotate_open_anim;
     private Animation rotate_close_anim;
@@ -157,26 +130,11 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
 
     private ActionBar actionBar;
 
-    private CoordinatorLayout coordinatorLayout;
-
-    private int selectedTab = 1;
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-
-        coordinatorLayout = view.findViewById(R.id.coordinatorLayout);
-
-        mainViewModel.getScrollUp().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                coordinatorLayout.scrollTo(0, coordinatorLayout.getTop());
-            }
-        });
-
-        mainViewModel.getSelectedTab().observe(getViewLifecycleOwner(), position -> selectedTab = position);
+        mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
         AppBarLayout appBarLayout = view.findViewById(R.id.app_bar_layout);
 
@@ -184,8 +142,11 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
 
+                boolean isContentHide = collapsingToolbarLayout.getScrimVisibleHeightTrigger()
+                        + Math.abs(verticalOffset) > collapsingToolbarLayout.getHeight();
+
                 if (tabLayout.getSelectedTabPosition() == 1){
-                    if (isVisible(tabLayout)){
+                    if (!isContentHide && mainViewModel.getNextEvent().getValue() != null){
                         fab_add_training.show();
                         fab_add_training2.hide();
                     }
@@ -195,31 +156,15 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
                     }
                 }
 
-//                Log.d(Utils.LOG_TAG, "********************************************************************************************* ");
-//                Log.d(Utils.LOG_TAG, "Math.abs(verticalOffset) + Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() = " + (Math.abs(verticalOffset) + Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange()));
-//                Log.d(Utils.LOG_TAG, "Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() = " + (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange()));
-//                Log.d(Utils.LOG_TAG, "Math.abs(verticalOffset) = " + Math.abs(verticalOffset));
-//                Log.d(Utils.LOG_TAG, "appBarLayout.getTotalScrollRange() = " + appBarLayout.getTotalScrollRange());
-//                Log.d(Utils.LOG_TAG, "tabLayout.getHeight() = " + tabLayout.getHeight());
-//                Log.d(Utils.LOG_TAG, "collapsingToolbarLayout.getScrimVisibleHeightTrigger() = " + collapsingToolbarLayout.getScrimVisibleHeightTrigger());
-//                Log.d(Utils.LOG_TAG, "********************************************************************************************* ");
-
-                if (/*(Math.abs(verticalOffset) + Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange()) > collapsingToolbarLayout.getScrimVisibleHeightTrigger()*/
-                    /*vp_event.getY() == tabLayout.getY()*/
-                        isVisible(tabLayout)) {
-
-                    //Expanded
-                    collapsingToolbarLayout.setTitle("");
-
+                if (!isContentHide) {
+                    collapsingToolbarLayout.setTitle(null);
                 }
                 else {
-//                    Log.d(Utils.LOG_TAG, "show text" + tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText());
+                    TabLayout.Tab tab = tabLayout.getTabAt(tabLayout.getSelectedTabPosition());
 
-//                    toolbar.setTitle(tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText());
-
-
-                    collapsingToolbarLayout.setTitle(tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText());
-//                    toolbar.setTitle(tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText());
+                    if (tab != null){
+                        collapsingToolbarLayout.setTitle(tab.getText());
+                    }
                 }
             }
         });
@@ -227,6 +172,7 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
         toolbar = view.findViewById(R.id.toolbar);
         ((AppCompatActivity) requireActivity()).getSupportActionBar();
 
+        iv_group_picture = view.findViewById(R.id.iv_group_picture);
 
         collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar_layout);
 
@@ -239,12 +185,18 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        FirebaseUtils.getCurrentGroupPicture().observe(getViewLifecycleOwner(),
+                picture -> Glide.with(requireContext()).load(picture != null
+                        ? picture
+                        : R.drawable.sample_group_picture).centerInside().into(iv_group_picture));
+
+
         progressBar = view.findViewById(R.id.progress_bar);
 
         vp_event = view.findViewById(R.id.vp_event);
 
         Query queryLast = FirebaseUtils.getAllEventsDatabase().orderByChild("end").endAt(Calendar.getInstance().getTimeInMillis()).limitToLast(1);
-        Log.d(Utils.LOG_TAG, queryLast.getRef().toString());
+
         Query queryNext = FirebaseUtils.getAllEventsDatabase().orderByChild("end").startAt(Calendar.getInstance().getTimeInMillis()).limitToFirst(1);
 
         queryLast.addValueEventListener(new ValueEventListener() {
@@ -252,12 +204,10 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!snapshot.exists() || !snapshot.hasChildren()){
                     mainViewModel.getLastEvent().setValue(null);
-                    Log.d(Utils.LOG_TAG, "last event is null");
                     return;
                 }
                 for (DataSnapshot data : snapshot.getChildren()){
                     mainViewModel.getLastEvent().setValue(data.getValue(CalendarEvent.class));
-                    Log.d(Utils.LOG_TAG, "last event is" + mainViewModel.getLastEvent().getValue().toString());
                 }
             }
 
@@ -270,12 +220,10 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!snapshot.exists() || !snapshot.hasChildren()){
                     mainViewModel.getNextEvent().setValue(null);
-                    Log.d(Utils.LOG_TAG, "next event is null");
                     return;
                 }
                 for (DataSnapshot data : snapshot.getChildren()){
                     mainViewModel.getNextEvent().setValue(data.getValue(CalendarEvent.class));
-                    Log.d(Utils.LOG_TAG,"next event is" +  mainViewModel.getNextEvent().getValue().toString());
                 }
             }
 
@@ -289,10 +237,7 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
 
         mainViewModel.getReady().observe(getViewLifecycleOwner(),
                 integer -> {
-                    Log.d("home", "getReady = " + integer);
-                    if (integer == 2){
-                        setPagerAdapter();
-                    }
+                    if (integer == 2) setPagerAdapter();
                 });
 
         tabLayout = view.findViewById(R.id.tabLayout);
@@ -314,7 +259,6 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
             @Override
             public void onClick(View v) {
                 expand = !expand;
-                System.out.println(expand);
                 setVisibility(expand);
                 setAnimation(expand);
                 setClickable(expand);
@@ -372,7 +316,6 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
         });*/
 
         initializeAnimations();
-
     }
 
     private void initializeAnimations(){
@@ -384,19 +327,6 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
 
         from_end_anim = AnimationUtils.loadAnimation(requireContext(), R.anim.from_end_anim);
         to_end_anim = AnimationUtils.loadAnimation(requireContext(), R.anim.to_end_anim);
-    }
-
-    public static boolean isVisible(final View view) {
-        if (view == null) {
-            return false;
-        }
-        if (!view.isShown()) {
-            return false;
-        }
-        final Rect actualPosition = new Rect();
-        boolean isGlobalVisible = view.getGlobalVisibleRect(actualPosition);
-        final Rect screen = new Rect(0, 0, Resources.getSystem().getDisplayMetrics().widthPixels, Resources.getSystem().getDisplayMetrics().heightPixels);
-        return isGlobalVisible && actualPosition.intersect(screen);
     }
 
     private void setVisibility(boolean expand){
@@ -424,71 +354,41 @@ public class HomeFragment extends androidx.fragment.app.Fragment {
                 mainViewModel.getNextEvent().getValue(), mainViewModel.getLastEvent().getValue());
 
         vp_event.setAdapter(pagerAdapter);
-        vp_event.setPageTransformer(new ZoomOutPageTransformer());
-
         vp_event.setNestedScrollingEnabled(true);
-
         vp_event.setUserInputEnabled(false);
+
         new TabLayoutMediator(tabLayout, vp_event,
-                new TabLayoutMediator.TabConfigurationStrategy() {
-                    @Override
-                    public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-                        if (position == 0){
-                            tab.setText("Last event");
-                        }
-                        else if (position == 1){
-                            tab.setText("Next event");
-                        }
-                    }
-                }).attach();
+                (tab, position) -> tab.setText(position == 0 ? "Last event" : "Next event")).attach();
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mainViewModel.setSelectedTab(tab.getPosition());
 
-                if (tab.getPosition() == 0){
-                    Log.d(Utils.LOG_TAG, "on last event tab");
+                fab_add_training.setVisibility(tab.getPosition() == 0 ? View.GONE : View.VISIBLE);
+                fab_add_training2.setVisibility(tab.getPosition() == 0 ? View.GONE : View.VISIBLE);
 
-                    fab_add_training.setVisibility(View.GONE);
-                    fab_add_training2.setVisibility(View.GONE);
+                actionBar.setHomeAsUpIndicator(tab.getPosition() == 0
+                        ? R.drawable.ic_baseline_person_24
+                        : R.drawable.ic_baseline_arrow_back_24);
 
-                    actionBar.setHomeAsUpIndicator(R.drawable.ic_baseline_person_24);
-                    if (menu.findItem(R.id.to_next_event) != null){
-                        menu.findItem(R.id.to_next_event).setIcon(R.drawable.ic_baseline_arrow_back_24_180_degrees);
-                    }
+                if (menu != null && menu.findItem(R.id.to_next_event) != null){
+                    menu.findItem(R.id.to_next_event).setIcon(tab.getPosition() == 0
+                            ? R.drawable.ic_baseline_arrow_back_24_180_degrees
+                            : R.drawable.ic_baseline_person_24);
                 }
-                else if (tab.getPosition() == 1){
-
-                    fab_add_training.setVisibility(View.VISIBLE);
-                    fab_add_training2.setVisibility(View.VISIBLE);
-
-                    if (menu != null && menu.findItem(R.id.to_next_event) != null){
-                        menu.findItem(R.id.to_next_event).setIcon(R.drawable.ic_baseline_person_24);
-                    }
-                    actionBar.setHomeAsUpIndicator(R.drawable.ic_baseline_arrow_back_24);
-                }
-
-/*
-
-                actionBar.setDisplayShowHomeEnabled(tab.getPosition() == 1);
-                actionBar.setHomeButtonEnabled(tab.getPosition() == 1);
-                actionBar.setDisplayHomeAsUpEnabled(tab.getPosition() == 1);*/
 
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
+            public void onTabUnselected(TabLayout.Tab tab) {}
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
+            public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        vp_event.setCurrentItem(selectedTab, false);
+        tabLayout.selectTab(tabLayout.getTabAt(mainViewModel.getSelectedTab().getValue()), true);
+        vp_event.setCurrentItem(mainViewModel.getSelectedTab().getValue(), false);
     }
 
 }

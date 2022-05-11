@@ -12,22 +12,10 @@
         android:layout_height="match_parent"
         android:padding="10dp" >
 
-        <!--<ImageView
-            android:id="@+id/iv_profile_picture"
-            android:layout_width="133dp"
-            android:layout_height="133dp"
-            android:src="@drawable/sample_profile"
-            android:background="@drawable/profile_pic_background"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.08" />-->
-
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/iv_profile_picture"
-            android:layout_width="133dp"
-            android:layout_height="133dp"
+            android:layout_width="130dp"
+            android:layout_height="130dp"
             android:layout_centerInParent="true"
             android:src="@drawable/images"
             app:civ_border_color="@color/colorAccent"
@@ -42,8 +30,8 @@
 
         <com.facebook.shimmer.ShimmerFrameLayout
             android:id="@+id/shimmer_profile_picture"
-            android:layout_width="133dp"
-            android:layout_height="133dp"
+            android:layout_width="130dp"
+            android:layout_height="130dp"
             android:layout_centerInParent="true"
             android:animateLayoutChanges="true"
             android:animationCache="true"
@@ -64,7 +52,6 @@
 
         </com.facebook.shimmer.ShimmerFrameLayout>
 
-
         <LinearLayout
             android:id="@+id/ll_user_data"
             android:layout_width="match_parent"
@@ -79,42 +66,16 @@
             app:layout_constraintVertical_bias="0.02"
             android:gravity="center">
 
-            <!--<EditText
-            android:id="@+id/et_username"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Username:"
-            android:textSize="18dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.273" />-->
-
-            <!--<EditText
-                android:id="@+id/et_email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Email:"
-                android:textSize="18dp"
-                android:inputType="textEmailAddress"
-                android:autofillHints="emailAddress"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/et_username"
-                app:layout_constraintVertical_bias="0.02" />-->
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/et_username"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="name"
-                android:hint="Username"
+                android:hint="@string/username"
                 android:inputType="text"
                 android:textColor="@color/colorAccent"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 app:boxBackgroundMode="outline"
                 app:endIconMode="clear_text"
                 app:endIconTint="@color/colorAccent"
@@ -140,12 +101,12 @@
                 app:boxBackgroundMode="outline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="E-mail address"
+                android:hint="@string/e_mail_address"
                 android:autofillHints="emailAddress"
                 android:inputType="textEmailAddress"
                 android:textColor="@color/colorAccent"
                 app:helperTextTextColor="@color/red"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 app:endIconMode="clear_text"
                 app:endIconTint="@color/colorAccent"
                 android:layout_marginVertical="5dp"
@@ -165,15 +126,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <Button
-                android:id="@+id/btn_verify_identity"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Verify"
-                android:visibility="gone"
-                android:textSize="12dp"
-                />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/et_phone"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -181,10 +133,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorAccent"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 app:endIconMode="clear_text"
                 app:endIconTint="@color/colorAccent"
-                android:hint="Phone"
+                android:hint="@string/phone"
                 app:prefixText="+972"
                 android:inputType="phone"
                 android:autofillHints="phone"
@@ -203,63 +155,58 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_change_phone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="5dp"
+                android:visibility="gone"
+                android:text="Change phone"
+                app:cornerRadius="10dp"/>
+
+            <CheckBox
+                android:id="@+id/et_madrich"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/madrich"
+                android:textSize="18sp"
+                android:checked="false"
+                android:textColor="@color/black" />
 
         </LinearLayout>
 
-        <CheckBox
-            android:id="@+id/et_madrich"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Madrich"
-            android:textSize="18dp"
-            android:checked="false"
-            android:textColor="@color/black"
-            android:layout_marginHorizontal="20dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ll_user_data"
-            app:layout_constraintVertical_bias="0.02" />
-
-        <!--<Button
-            android:id="@+id/btn_save_profile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:text="Save"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_madrich"
-            app:layout_constraintVertical_bias="0.112" />-->
-
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_delete_account"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Delete account"
+            android:text="@string/delete_account"
+            app:cornerRadius="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_change_password"
             app:layout_constraintVertical_bias="0.2" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_change_password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Change password"
+            android:text="@string/change_password"
+            app:cornerRadius="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
             app:layout_constraintVertical_bias="0.2" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_sign_out"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sign Out"
+            android:text="@string/sign_out"
+            app:cornerRadius="10dp"
+            android:drawableEnd="@drawable/ic_baseline_exit_to_app_24"
+            android:drawableTint="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -272,24 +219,25 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/et_madrich"
-            app:layout_constraintStart_toStartOf="@+id/et_madrich"
-            app:layout_constraintTop_toBottomOf="@+id/et_madrich"
+            app:layout_constraintEnd_toEndOf="@+id/ll_user_data"
+            app:layout_constraintStart_toStartOf="@+id/ll_user_data"
+            app:layout_constraintTop_toBottomOf="@+id/ll_user_data"
             app:layout_constraintVertical_bias="0.11">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/sign_up_with_google"
+                android:id="@+id/btn_google"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
                 android:layout_marginHorizontal="20dp"
                 android:checkable="true"
                 android:padding="10dp"
-                android:text="Link with Google"
+                android:text="@string/link_with_google"
                 android:textColor="@color/black"
-                android:textSize="14dp"
+                android:textSize="14sp"
                 app:backgroundTint="@color/white"
                 app:cornerRadius="10dp"
                 app:elevation="5dp"
@@ -298,55 +246,13 @@
                 app:iconSize="30dp"
                 app:iconTintMode="multiply" />
 
-
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/google_checked"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignTop="@id/sign_up_with_google"
-                android:layout_alignEnd="@id/sign_up_with_google"
-                android:layout_alignBottom="@id/sign_up_with_google"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:backgroundTint="@android:color/transparent"
-                android:visibility="gone"
-                app:icon="@drawable/ic_baseline_done_24"
-                app:iconGravity="textStart"
-                app:iconSize="26dp"
-                app:iconTint="@color/black"
-                app:iconTintMode="multiply" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/sign_up_with_facebook"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/sign_up_with_google"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginHorizontal="20dp"
-                android:checkable="true"
-                android:padding="10dp"
-                android:text="Link with Facebook"
-                android:textAlignment="center"
-                android:textColor="@color/black"
-                android:textSize="14dp"
-                app:backgroundTint="@color/white"
-                app:cornerRadius="10dp"
-                app:elevation="5dp"
-                app:icon="@drawable/facebook_icon_transparent"
-                app:iconGravity="textStart"
-                app:iconSize="36dp"
-                app:iconTintMode="multiply" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/facebook_checked"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignTop="@id/sign_up_with_facebook"
-                android:layout_alignEnd="@id/sign_up_with_facebook"
-                android:layout_alignBottom="@id/sign_up_with_facebook"
+                android:layout_alignTop="@id/btn_google"
+                android:layout_alignEnd="@id/btn_google"
+                android:layout_alignBottom="@id/btn_google"
                 android:layout_marginStart="5dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
@@ -359,6 +265,8 @@
                 app:iconTintMode="multiply" />
 
         </RelativeLayout>
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
