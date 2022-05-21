@@ -17,7 +17,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link Graph_Fragment#newInstance} factory method to
+ * Use the {@link Graph_Fragment#newInstance(String, String)} factory method to
  * create an instance of this fragment.
  */
 public class Graph_Fragment extends Fragment {
@@ -64,8 +64,7 @@ public class Graph_Fragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_graph_, container, false);
     }
@@ -90,17 +89,7 @@ public class Graph_Fragment extends Fragment {
         vp_trainings.setUserInputEnabled(false);
 
         new TabLayoutMediator(tabLayout_trainings, vp_trainings,
-                new TabLayoutMediator.TabConfigurationStrategy() {
-                    @Override
-                    public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-                        if (position == 0){
-                            tab.setText("Group trainings");
-                        }
-                        else if (position == 1){
-                            tab.setText("Private trainings");
-                        }
-                    }
-                }).attach();
+                (tab, position) -> tab.setText(position == 0 ? "Group trainings" : "Private trainings")).attach();
 
         tabLayout_trainings.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override

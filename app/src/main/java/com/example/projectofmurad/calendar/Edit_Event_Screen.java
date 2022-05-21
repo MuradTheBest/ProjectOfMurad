@@ -1,9 +1,11 @@
 package com.example.projectofmurad.calendar;
 
 import android.animation.Animator;
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.transition.AutoTransition;
@@ -13,101 +15,97 @@ import android.transition.TransitionManager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.core.widget.ImageViewCompat;
+import androidx.lifecycle.ViewModelProvider;
 
+import com.example.projectofmurad.MainActivity;
+import com.example.projectofmurad.MyActivity;
+import com.example.projectofmurad.R;
+import com.example.projectofmurad.helpers.CalendarUtils;
+import com.example.projectofmurad.helpers.ColorPickerDialog;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LoadingDialog;
-import com.example.projectofmurad.MainActivity;
-import com.example.projectofmurad.R;
+import com.example.projectofmurad.helpers.MyTextInputLayout;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.example.projectofmurad.notifications.FCMSend;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.progressindicator.CircularProgressIndicator;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.Period;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Calendar;
 import java.util.List;
 
-public class Edit_Event_Screen extends MySuperTouchActivity {
+import petrov.kristiyan.colorpicker.ColorPicker;
 
-/*    private Button btn_choose_start_time;
-    private Button btn_choose_start_date;
-    private Button btn_choose_end_time;
-    private Button btn_choose_end_date;*/
+public class Edit_Event_Screen extends MyActivity {
 
-    private String chain_key;
-    private String private_key;
+    protected MyTextInputLayout et_name;
+    protected MyTextInputLayout et_place;
+    protected MyTextInputLayout et_description;
 
-    private String name;
-    private String description;
-    private String place;
+    protected AppCompatImageView ib_color;
+    protected SwitchMaterial switch_all_day;
+    protected SwitchMaterial switch_alarm;
 
+    protected MaterialButton btn_choose_start_time;
+    protected MaterialButton btn_choose_start_date;
 
-    private LocalDate chain_start_date;
+    protected RelativeLayout rl_event_setup;
+    protected ScrollView sv_add_event_screen;
 
-   /* private int start_day;
-    private int start_month;
-    private int start_year;*/
+    protected MaterialButton btn_choose_end_time;
+    protected MaterialButton btn_choose_end_date;
 
+    protected MaterialTextView btn_repeat;
 
-/*    private int start_hour;
-    private int start_min;*/
+    protected CalendarEvent event = new CalendarEvent();
 
-    private LocalDate chain_end_date;
+    protected LocalDateTime startDateTime;
 
-/*    private int end_day;
-    private int end_month;
-    private int end_year;*/
+    protected LocalDateTime endDateTime;
 
+    protected boolean row_event = true;
 
-/*    private int end_hour;
-    private int end_min;*/
+    protected EventFrequencyViewModel eventFrequencyViewModel;
 
+    protected boolean editMode = false;
 
-    private FirebaseDatabase firebase;
-    private DatabaseReference eventsDatabase;
-    private DatabaseReference eventsDatabaseForText;
+    protected LoadingDialog loadingDialog;
 
     private DatePickerDialog startDatePickerDialog;
     private DatePickerDialog endDatePickerDialog;
 
     private TimePickerDialog startTimePickerDialog;
     private TimePickerDialog endTimePickerDialog;
-
-    private Intent gotten_intent;
-    private Intent intentToChooseEventFrequencyDialogCustom;
-
-    private final String[] days = UtilsCalendar.getNarrowDaysOfWeek();
-
-    private int day;
-    private int dayOfWeekPosition;
-    private List<Boolean> array_frequencyDayOfWeek;
-    private int weekNumber;
-    private int month;
-
-    private boolean initial = true;
 
     int x;
     int y;
@@ -118,7 +116,18 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
         overridePendingTransition(R.anim.anim_do_not_move, R.anim.anim_do_not_move);
         setContentView(R.layout.activity_add_event_screen_linear_layout);
 
-        gotten_intent = getIntent();
+        loadingDialog = new LoadingDialog(this);
+
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_close_24);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().hide();
+
+        eventFrequencyViewModel = new ViewModelProvider(this).get(EventFrequencyViewModel.class);
+
+        startObserving();
+
+        Intent gotten_intent = getIntent();
 
         x = gotten_intent.getIntExtra("cx", 0);
         y = gotten_intent.getIntExtra("cy", 0);
@@ -165,144 +174,43 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        //                    event.setTimestamp(isChecked ? 0 : event.receiveStart_time().toSecondOfDay());
-                        timestamp = isChecked ? 0 : ((start_hour * 60 + start_min) * 60);
-
                         event.setAllDay(isChecked);
-
-                        btn_choose_start_time.setVisibility(
-                                isChecked ? View.GONE : View.VISIBLE);
-                        btn_choose_end_time.setVisibility(
-                                isChecked ? View.GONE : View.VISIBLE);
-                        //                    animate(ll_add_event_screen);
-                        Edit_Event_Screen.this.animate(
-                                rl_event_setup);
+                        btn_choose_start_time.setVisibility(isChecked ? View.GONE : View.VISIBLE);
+                        btn_choose_end_time.setVisibility(isChecked ? View.GONE : View.VISIBLE);
+                        animate(rl_event_setup);
                     }
-                }
-        );
+                });
 
-        event.setFrequencyType(DAY_BY_END);
-        event.setFrequency(1);
+        int start_day = gotten_intent.getIntExtra("day", LocalDate.now().getDayOfMonth());
+        int start_month = gotten_intent.getIntExtra("month", LocalDate.now().getMonthValue());
+        int start_year = gotten_intent.getIntExtra("year", LocalDate.now().getYear());
 
-        eventsDatabase = FirebaseUtils.getEventsDatabase();
+        startDateTime = LocalDateTime.of(start_year, start_month, start_day, 8, 0);
+        endDateTime = LocalDateTime.of(start_year, start_month, start_day, 9, 0);
 
-        selectedColor = getColor(R.color.colorAccent);
-
-        start_hour = 8;
-        start_min = 0;
-
-//        startTime = LocalTime.of(start_hour, start_min);
-
-        end_hour = 9;
-        end_min = 0;
-
-//        endTime = LocalTime.of(end_hour, end_min);
-
-        start_day = end_day = gotten_intent.getIntExtra("day", LocalDate.now().getDayOfMonth());
-        start_month = end_month = gotten_intent.getIntExtra("month", LocalDate.now().getMonthValue());
-        start_year = end_year = gotten_intent.getIntExtra("year", LocalDate.now().getYear());
-
-//        startDate = endDate = LocalDate.of(start_year, start_month, start_day);
-
-//        startDateTime = LocalDateTime.of(startDate, startTime);
-//        endDateTime = LocalDateTime.of(endDate, endTime);
-
-        startDateTime = LocalDateTime.of(start_year, start_month, start_day, start_hour, start_min);
-        endDateTime = LocalDateTime.of(end_year, end_month, end_day, end_hour, end_min);
-
-        Log.d("murad", "startDateTime is " + UtilsCalendar.DateTimeToTextOnline(startDateTime));
-        Log.d("murad", "endDateTime is " + UtilsCalendar.DateTimeToTextOnline(endDateTime));
-
-        Log.d("murad", "Receiving selectedDate " + start_day + " " + start_month + " " + start_year);
-
-        if (gotten_intent.hasExtra(UtilsCalendar.KEY_EVENT)){
+        if (gotten_intent.hasExtra(CalendarEvent.KEY_EVENT)){
             editMode = true;
             Log.d("murad", "event is not null => Edit_Event_Screen");
 
-            event = (CalendarEvent) gotten_intent.getSerializableExtra("event");
+            event = (CalendarEvent) gotten_intent.getSerializableExtra(CalendarEvent.KEY_EVENT);
 
-            chain_key = event.getChainId();
-            private_key = event.getPrivateId();
-
-            name = event.getName();
-            description = event.getDescription();
-            place = event.getPlace();
-
-            selectedColor = event.getColor();
             boolean allDay = event.isAllDay();
-
-//            startDate = event.receiveStartDateTime().toLocalDate();
-//            endDate = event.receiveEndDateTime().toLocalDate();
-
-//            chain_start_date = event.receiveFrequency_start();
-//            chain_end_date = event.receiveFrequency_end();
-
-//            startTime = event.receiveStart_time();
-//            endTime = event.receiveEnd_time();
 
             startDateTime = event.receiveStartDateTime();
             endDateTime = event.receiveEndDateTime();
 
+            et_name.setText(event.getName());
+            et_description.setText(event.getDescription());
+            et_place.setText(event.getPlace());
 
-            et_name.setText(name);
-            et_description.setText(description);
-            et_place.setText(place);
-
-            ib_color.getDrawable().setTint(selectedColor);
+            ImageViewCompat.setImageTintList(ib_color, ColorStateList.valueOf(event.getColor()));
 
             switch_all_day.setChecked(allDay);
 
-            switch_alarm.setChecked(AlarmManagerForToday.checkIfAlarmSet(this, private_key));
-
+            switch_alarm.setChecked(AlarmManagerForToday.checkIfAlarmSet(this, event.getPrivateId()));
         }
 
-        eventsDatabase = FirebaseUtils.getEventsDatabase();
-
-        start_day = startDateTime.getDayOfMonth();
-        start_month = startDateTime.getMonthValue();
-        start_year = startDateTime.getYear();
-
-        end_day = endDateTime.getDayOfMonth();
-        end_month = endDateTime.getMonthValue();
-        end_year = endDateTime.getYear();
-
-        start_hour = startDateTime.getHour();
-        start_min = startDateTime.getMinute();
-
-        end_hour = endDateTime.getHour();
-        end_min = endDateTime.getMinute();
-
-/*        btn_choose_start_date = findViewById(R.id.btn_choose_start_date);
-        btn_choose_start_date.setText(UtilsCalendar.DateToTextLocal(startDate));
-        btn_choose_start_date.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startDatePickerDialog = new DatePickerDialog(Edit_Event_Screen.this,
-                        android.R.style.Theme_Holo_Light_Dialog_NoActionBar_MinWidth, new SetDate("start"), start_year, start_month, start_day);
-                startDatePickerDialog.updateDate(start_year, start_month-1, start_day);
-                //startDatePickerDialog.getDatePicker().setMinDate(LocalDate.now().);
-
-                startDatePickerDialog.show();
-            }
-        });*/
-
-        event_time_picker = findViewById(R.id.event_time_picker);
-        event_time_picker.setIs24HourView(true);
-        event_time_picker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
-            @Override
-            public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-                start_hour = hourOfDay;
-                start_min = minute;
-//                startTime = LocalTime.of(hourOfDay, minute);
-
-                startDateTime = startDateTime.withHour(hourOfDay);
-                startDateTime = startDateTime.withMinute(minute);
-
-                btn_choose_start_time.setText(UtilsCalendar.TimeToText(startDateTime.toLocalTime()));
-            }
-        });
-
-        btn_choose_start_date.setText(UtilsCalendar.DateToTextLocal(startDateTime.toLocalDate()));
+        btn_choose_start_date.setText(CalendarUtils.DateToTextLocal(startDateTime.toLocalDate()));
         btn_choose_start_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -311,29 +219,22 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                         /*AlertDialog.THEME_HOLO_LIGHT,*/
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
-                            public void onDateSet(DatePicker view, int year, int month,
-                                                  int dayOfMonth) {
-                                month = month+1;
-
-                                start_year = year;
-                                start_month = month;
-                                start_day = dayOfMonth;
-
-                                /*startDate = LocalDate.of(start_year, start_month, start_day);*/
+                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                                month = month + 1;
 
                                 startDateTime = startDateTime.withYear(year);
                                 startDateTime = startDateTime.withMonth(month);
                                 startDateTime = startDateTime.withDayOfMonth(dayOfMonth);
 
-                                String date_text = UtilsCalendar.DateToTextLocal(startDateTime.toLocalDate());
+                                String date_text = CalendarUtils.DateToTextLocal(startDateTime.toLocalDate());
                                 btn_choose_start_date.setText(date_text);
 
                                 if (startDateTime.isAfter(endDateTime)) {
 
                                     endDateTime = startDateTime.plusDays(1);
 
-                                    btn_choose_end_date.setText(UtilsCalendar.DateToTextLocal(endDateTime.toLocalDate()));
-                                    btn_choose_end_time.setText(UtilsCalendar.TimeToText(endDateTime.toLocalTime()));
+                                    btn_choose_end_date.setText(CalendarUtils.DateToTextLocal(endDateTime.toLocalDate()));
+                                    btn_choose_end_time.setText(CalendarUtils.TimeToText(endDateTime.toLocalTime()));
                                 }
 
                                 event.updateStartDateTime(startDateTime);
@@ -343,7 +244,9 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                         startDateTime.getYear(), startDateTime.getMonthValue() - 1, startDateTime.getDayOfMonth());
 
                 startDatePickerDialog.getDatePicker().setFirstDayOfWeek(Calendar.SUNDAY);
-                startDatePickerDialog.updateDate(start_year, start_month - 1, start_day);
+                startDatePickerDialog.updateDate(startDateTime.getYear(),
+                        startDateTime.getMonthValue() - 1,
+                        startDateTime.getDayOfMonth());
                 Calendar calendar = Calendar.getInstance();
                 calendar.set(Calendar.HOUR_OF_DAY, 0);
                 calendar.set(Calendar.MINUTE, 0);
@@ -355,49 +258,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             }
         });
 
-/*
-        btn_choose_start_date.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked){
-                    startDatePickerDialog = new DatePickerDialog(getApplicationContext(),
-                            AlertDialog.THEME_HOLO_LIGHT,
-                            new DatePickerDialog.OnDateSetListener() {
-                                @Override
-                                public void onDateSet(DatePicker view, int year, int month,
-                                                      int dayOfMonth) {
-                                    month = month + 1;
-
-                                    start_year = year;
-                                    start_month = month;
-                                    start_day = dayOfMonth;
-
-//                                    startDate = LocalDate.of(start_year, start_month, start_day);
-
-                                    startDateTime = startDateTime.withYear(start_year);
-                                    startDateTime = startDateTime.withMonth(start_month);
-                                    startDateTime = startDateTime.withDayOfMonth(start_day);
-
-
-                                    String date_text = UtilsCalendar.DateToTextLocal(startDateTime.toLocalDate());
-                                    btn_choose_start_date.setText(date_text);
-                                }
-                            },
-                            start_year, start_month-1, start_day);
-
-                    startDatePickerDialog.updateDate(start_year, start_month-1, start_day);
-                    startDatePickerDialog.getDatePicker().setMinDate(Calendar.getInstance().getTimeInMillis());
-
-                    startDatePickerDialog.show();
-                }
-                else{
-                    startDatePickerDialog.dismiss();
-                }
-            }
-        });
-*/
-
-        btn_choose_end_date.setText(UtilsCalendar.DateToTextLocal(endDateTime.toLocalDate()));
+        btn_choose_end_date.setText(CalendarUtils.DateToTextLocal(endDateTime.toLocalDate()));
         btn_choose_end_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -406,29 +267,22 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                         /*android.R.style.ThemeOverlay_Material_Dialog,*/
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
-                            public void onDateSet(DatePicker view1, int year, int month,
-                                                  int dayOfMonth) {
+                            public void onDateSet(DatePicker view1, int year, int month, int dayOfMonth) {
                                 month = month + 1;
 
-                                end_year = year;
-                                end_month = month;
-                                end_day = dayOfMonth;
+                                endDateTime = endDateTime.withYear(year);
+                                endDateTime = endDateTime.withMonth(month);
+                                endDateTime = endDateTime.withDayOfMonth(dayOfMonth);
 
-//                                endDate = LocalDate.of(end_year, end_month, end_day);
-
-                                endDateTime = endDateTime.withYear(end_year);
-                                endDateTime = endDateTime.withMonth(end_month);
-                                endDateTime = endDateTime.withDayOfMonth(end_day);
-
-                                String date_text = UtilsCalendar.DateToTextLocal(endDateTime.toLocalDate());
+                                String date_text = CalendarUtils.DateToTextLocal(endDateTime.toLocalDate());
                                 btn_choose_end_date.setText(date_text);
 
                                 if (endDateTime.isBefore(startDateTime)) {
 
                                     startDateTime = endDateTime.minusHours(1);
 
-                                    btn_choose_start_date.setText(UtilsCalendar.DateToTextLocal(startDateTime.toLocalDate()));
-                                    btn_choose_start_time.setText(UtilsCalendar.TimeToText(startDateTime.toLocalTime()));
+                                    btn_choose_start_date.setText(CalendarUtils.DateToTextLocal(startDateTime.toLocalDate()));
+                                    btn_choose_start_time.setText(CalendarUtils.TimeToText(startDateTime.toLocalTime()));
 
                                 }
 
@@ -439,7 +293,9 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                         endDateTime.getYear(), endDateTime.getMonthValue() - 1, endDateTime.getDayOfMonth());
 
                 endDatePickerDialog.getDatePicker().setFirstDayOfWeek(Calendar.SUNDAY);
-                endDatePickerDialog.updateDate(end_year, end_month - 1, end_day);
+                endDatePickerDialog.updateDate(endDateTime.getYear(),
+                        endDateTime.getMonthValue() - 1,
+                        endDateTime.getDayOfMonth());
                 Calendar calendar = Calendar.getInstance();
                 calendar.set(Calendar.HOUR_OF_DAY, 0);
                 calendar.set(Calendar.MINUTE, 0);
@@ -451,25 +307,20 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
             }
         });
 
-        btn_choose_start_time.setText(UtilsCalendar.TimeToText(startDateTime.toLocalTime()));
+        btn_choose_start_time.setText(CalendarUtils.TimeToText(startDateTime.toLocalTime()));
         btn_choose_start_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Initialize timeData picker dialog
                 startTimePickerDialog = new TimePickerDialog(Edit_Event_Screen.this,
                         /*AlertDialog.THEME_HOLO_LIGHT,*/
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                                start_hour = hourOfDay;
-                                start_min = minute;
 
-//                                LocalTime startTime = LocalTime.of(start_hour, start_min);
+                                startDateTime = startDateTime.withHour(hourOfDay);
+                                startDateTime = startDateTime.withMinute(minute);
 
-                                startDateTime = startDateTime.withHour(start_hour);
-                                startDateTime = startDateTime.withMinute(start_min);
-
-                                String time_text = UtilsCalendar.TimeToText(startDateTime.toLocalTime());
+                                String time_text = CalendarUtils.TimeToText(startDateTime.toLocalTime());
 
                                 Log.d("murad", "hour: " + hourOfDay);
                                 Log.d("murad", "minute: " + minute);
@@ -481,9 +332,9 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
                                     endDateTime = startDateTime.plusHours(1);
 
-                                    btn_choose_end_date.setText(UtilsCalendar.DateToTextLocal(endDateTime.toLocalDate()));
+                                    btn_choose_end_date.setText(CalendarUtils.DateToTextLocal(endDateTime.toLocalDate()));
 
-                                    btn_choose_end_time.setText(UtilsCalendar.TimeToText(endDateTime.toLocalTime()));
+                                    btn_choose_end_time.setText(CalendarUtils.TimeToText(endDateTime.toLocalTime()));
                                 }
 
                                 event.updateStartDateTime(startDateTime);
@@ -496,38 +347,32 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
                 Utils.createCustomDialog(startTimePickerDialog);
 
-                startTimePickerDialog.updateTime(start_hour, start_min);
+                startTimePickerDialog.updateTime(startDateTime.getHour(), startDateTime.getMinute());
                 startTimePickerDialog.show();
             }
         });
 
-        btn_choose_end_time.setText(UtilsCalendar.TimeToText(endDateTime.toLocalTime()));
+        btn_choose_end_time.setText(CalendarUtils.TimeToText(endDateTime.toLocalTime()));
         btn_choose_end_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Initialize timeData picker dialog
                 endTimePickerDialog = new TimePickerDialog(Edit_Event_Screen.this,
                         /*android.R.style.ThemeOverlay_Material_Dialog,*/
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                                end_hour = hourOfDay;
-                                end_min = minute;
+                                endDateTime = endDateTime.withHour(hourOfDay);
+                                endDateTime = endDateTime.withMinute(minute);
 
-//                            LocalTime endTime = LocalTime.of(end_hour, end_min);
-
-                                endDateTime = endDateTime.withHour(end_hour);
-                                endDateTime = endDateTime.withMinute(end_min);
-
-                                String time_text = UtilsCalendar.TimeToText(endDateTime.toLocalTime());
+                                String time_text = CalendarUtils.TimeToText(endDateTime.toLocalTime());
                                 btn_choose_end_time.setText(time_text);
 
                                 if (endDateTime.isBefore(startDateTime)) {
 
                                     startDateTime = endDateTime.minusHours(1);
 
-                                    btn_choose_start_date.setText(UtilsCalendar.DateToTextLocal(startDateTime.toLocalDate()));
-                                    btn_choose_start_time.setText(UtilsCalendar.TimeToText(startDateTime.toLocalTime()));
+                                    btn_choose_start_date.setText(CalendarUtils.DateToTextLocal(startDateTime.toLocalDate()));
+                                    btn_choose_start_time.setText(CalendarUtils.TimeToText(startDateTime.toLocalTime()));
                                 }
 
                                 event.updateStartDateTime(startDateTime);
@@ -538,109 +383,50 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
                 Utils.createCustomDialog(endTimePickerDialog);
 
-                endTimePickerDialog.updateTime(end_hour, end_min);
+                endTimePickerDialog.updateTime(endDateTime.getHour(), endDateTime.getMinute());
                 endTimePickerDialog.show();
             }
         });
-
-        chooseEventFrequencyDialog = new ChooseEventFrequencyDialogCustomWithExposedDropdown(this);
-
-        btn_delete_event = findViewById(R.id.btn_delete_event);
-        btn_delete_event.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-
-                    absoluteDeleteSingleEvent(chain_key, new OnDeleteFinishedCallback() {
-                        @Override
-                        public void onDeleteFinished() {
-                            deletingLoadingDialog.dismiss();
-                            Log.d("murad", "DELETING EVENT HAS BEEN SUCCESSFULLY FINISHED");
-                            Toast.makeText(getApplicationContext(), "DELETING EVENT HAS BEEN SUCCESSFULLY FINISHED", Toast.LENGTH_SHORT).show();
-
-                            startActivity(new Intent(Edit_Event_Screen.this, MainActivity.class));
-                        }
-                    });
-                }
-                catch(Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Ups... Deleting failed", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
         btn_repeat = findViewById(R.id.btn_repeat);
         btn_repeat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LocalDate startDate = LocalDate.of(start_year, start_month, start_day);
-                String start_date = UtilsCalendar.DateToTextLocal(startDate);
+                String TAG = EventFrequencyDialogFragment.TAG + startDateTime.toLocalDate().toString();
 
+                if (getSupportFragmentManager().findFragmentByTag(TAG) == null){
+                    EventFrequencyDialogFragment chooseEventFrequency_dialogFragment
+                            = EventFrequencyDialogFragment.newInstance(startDateTime.toLocalDate());
 
-/*                if (initial){
-                    Toast.makeText(getApplicationContext(), "Initial open", Toast.LENGTH_SHORT).show();
-                    chooseEventFrequencyDialog.setStartDateForRepeatInitial(startDate);
+                    chooseEventFrequency_dialogFragment.show(getSupportFragmentManager(), TAG);
                 }
-                else {
-                    Toast.makeText(getApplicationContext(), "Open", Toast.LENGTH_SHORT).show();
-                    chooseEventFrequencyDialog.setStartDateForRepeat(startDate);
-                }
-                initial = false;*/
-
-                chooseEventFrequencyDialog.setStartDateForRepeatInitial(startDate);
-
-                intentToChooseEventFrequencyDialogCustom = new Intent(getApplicationContext(),
-                        ChooseEventFrequencyDialogCustomWithExposedDropdown.class);
-                intentToChooseEventFrequencyDialogCustom.putExtra("end_year", start_year);
-                intentToChooseEventFrequencyDialogCustom.putExtra("end_month", start_month);
-                intentToChooseEventFrequencyDialogCustom.putExtra("end_day", start_day);
-
-                chooseEventFrequencyDialog.show();
-
-                Bundle bundle = new Bundle();
-                bundle.putInt("year", start_year);
-                bundle.putInt("month", start_month);
-                bundle.putInt("day", start_day);
-
-/*
-                getSupportFragmentManager().beginTransaction()
-                        .setReorderingAllowed(true)
-                        .add(ChooseEventFrequency_Screen.class, bundle, ChooseEventFrequency_Screen.LOG_TAG)
-                        .commit();*/
-
-
-                /**
-                 * DialogFragment.show() will take care of adding the fragment
-                 * in a transaction.  We also want to remove any currently showing
-                 * dialog, so make our own transaction and take care of that here.
-                 */
-
-      /*          CalendarFragment prev = getSupportFragmentManager().findFragmentByTag(ChooseEventFrequency_Screen.LOG_TAG);
-                if (prev != null) {
-                    prev.show(ft, ChooseEventFrequency_Screen.LOG_TAG);
-//                    ((ChooseEventFrequency_Screen) prev).show(getSupportFragmentManager(), ChooseEventFrequency_Screen.LOG_TAG);
-//                    fragmentManager.beginTransaction().show(prev).commit();
-                    Toast.makeText(getApplicationContext(), "Showing created dialog", Toast.LENGTH_SHORT).show();
-
-                    ft.show(prev);
-
-                }
-                else{
-                    ft.setReorderingAllowed(true)
-                            .add(ChooseEventFrequency_Screen.class, bundle, ChooseEventFrequency_Screen.LOG_TAG)
-                            .commit();
-                    Toast.makeText(getApplicationContext(), "Creating dialog", Toast.LENGTH_SHORT).show();
-
-                }
-                ft.addToBackStack(null);*/
-
-                // Create and show the dialog.
-/*                ChooseEventFrequency_Screen newFragment = ChooseEventFrequency_Screen.newInstance(start_year, start_month, start_day);
-                newFragment.show(ft, ChooseEventFrequency_Screen.LOG_TAG);*/
             }
         });
+    }
+
+    // method to inflate the options menu when
+    // the user opens the menu for the first timeData
+    @Override
+    public boolean onCreateOptionsMenu( Menu menu ) {
+        getMenuInflater().inflate(R.menu.event_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    // methods to control the operations that will
+    // happen when user clicks on the action buttons
+    @Override
+    public boolean onOptionsItemSelected( @NonNull MenuItem item ) {
+
+        switch (item.getItemId()){
+            case R.id.action_save:
+                onAddEventClick();
+                break;
+            case android.R.id.home:
+                onBackPressed();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void circularRevealActivity() {
@@ -679,7 +465,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
     }
 
-    public void createSaveDialog(MenuItem item){
+    public void createSaveDialog(){
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
         Utils.createCustomBottomSheetDialog(bottomSheetDialog);
 
@@ -695,22 +481,7 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 bottomSheetDialog.dismiss();
 
                 Log.d(Utils.EVENT_TAG, "starting editing single event with privateId " + event.getChainId());
-                absoluteDeleteSingleEvent(private_key, () -> uploadEvent(event));
-            }
-        });
-
-        TextView tv_this_and_future_event = bottomSheetDialog.findViewById(R.id.tv_this_and_future_event);
-        tv_this_and_future_event.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bottomSheetDialog.dismiss();
-
-                Log.d(Utils.EVENT_TAG, "starting editing this and future events with privateId " + event.getPrivateId());
-
-                getEventData((updatedEvent) -> {
-                    absoluteDeleteAllEventsInChain(chain_key, updatedEvent.getStart(), () -> copyAllEventsInChain(updatedEvent, item));
-                });
-
+                absoluteDeleteSingleEvent(event.getPrivateId());
             }
         });
 
@@ -722,63 +493,11 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
                 Log.d(Utils.EVENT_TAG, "starting editing all events with chainId " + event.getChainId());
 
-                getEventData((updatedEvent) -> {
-
-                    updatedEvent.updateStart_date(updatedEvent.receiveFrequency_start());
-                    updatedEvent.setEnd(updatedEvent.getStart() + event.getRange());
-
-                    Log.d(Utils.EVENT_TAG, "deleting all events after getting data " + updatedEvent);
-
-                    absoluteDeleteAllEventsInChain(chain_key, updatedEvent.getStart(), () -> uploadEvent(updatedEvent));
-                });
-
+                absoluteDeleteAllEventsInChain(event.getFrequency_end());
             }
         });
 
         bottomSheetDialog.show();
-    }
-
-    public void copyAllEventsInChain(@NonNull CalendarEvent event, MenuItem item){
-        String private_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
-        String chain_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
-
-        Log.d(Utils.EVENT_TAG, "event before copying data " + event);
-
-        event.updateFrequency_start(event.receiveStart_date());
-
-        event.setPrivateId(private_key);
-        event.setChainId(chain_key);
-
-        Log.d(Utils.EVENT_TAG, "event after copying data " + event);
-
-        uploadEvent(event);
-    }
-
-    private void getEventData(OnGetEventDataListener onGetEventDataListener){
-
-        FirebaseUtils.getAllEventsDatabase().child(event.getChainId()).get().addOnCompleteListener(
-                new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (task.isSuccessful() && task.getResult().exists()){
-                            CalendarEvent superEvent = task.getResult().getValue(CalendarEvent.class);
-
-                            Log.d(Utils.EVENT_TAG, "event before getting data " + event.toString());
-
-                            event.setFrequency_start(superEvent.getFrequency_start());
-                            event.setFrequency_end(superEvent.getFrequency_end());
-
-                            Log.d(Utils.EVENT_TAG, "event after getting data " + event.toString());
-
-                            onGetEventDataListener.onGetEventData(event);
-                        }
-                    }
-                });
-
-    }
-
-    public interface OnGetEventDataListener{
-        void onGetEventData(CalendarEvent updatedEvent);
     }
 
     private int getDips(int dps) {
@@ -787,56 +506,6 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
                 TypedValue.COMPLEX_UNIT_DIP,
                 dps,
                 resources.getDisplayMetrics());
-    }
-
-    @Override
-    public void onBackPressed() {
-        int cx =/* ll_add_event_screen.getWidth() - */x;
-        int cy =/* ll_add_event_screen.getBottom() -*/ y;
-
-        float finalRadius = Math.max(sv_add_event_screen.getWidth(),
-                sv_add_event_screen.getHeight());
-
-        Animator circularReveal = ViewAnimationUtils.createCircularReveal(sv_add_event_screen, cx,
-                cy, finalRadius, 0);
-
-        circularReveal.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) {
-                getSupportActionBar().hide();
-            }
-
-            
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                sv_add_event_screen.setVisibility(View.INVISIBLE);
-
-                Intent toCalendar_Screen = new Intent(getApplicationContext(),
-                        MainActivity.class);
-
-                int day = startDateTime.getDayOfMonth();
-                int month = startDateTime.getMonthValue();
-                int year = startDateTime.getYear();
-
-                toCalendar_Screen.putExtra("day", day);
-                toCalendar_Screen.putExtra("month", month);
-                toCalendar_Screen.putExtra("year", year);
-
-//                startActivity(toCalendar_Screen);
-                Edit_Event_Screen.super.onBackPressed();
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-            }
-        });
-
-        circularReveal.setDuration(800);
-        circularReveal.start();
     }
 
     public void animate(ViewGroup viewGroup) {
@@ -856,152 +525,1524 @@ public class Edit_Event_Screen extends MySuperTouchActivity {
 
     }
 
-    LoadingDialog deletingLoadingDialog;
-
-    @Override
-    public void onAddEventClick(MenuItem item) {
+    public void onAddEventClick() {
         if (editMode){
-
-            Log.d(Utils.LOG_TAG, "event  is " + event.toString());
-
-            if (event.getPrivateId().equals(event.getChainId())){
-                absoluteDeleteSingleEvent(chain_key, () -> uploadEvent(event));
+            if (event.isSingle()) {
+                absoluteDeleteSingleEvent(event.getChainId());
             }
             else {
-                createSaveDialog(item);
+                createSaveDialog();
             }
-
         }
         else {
-            super.onAddEventClick(item);
+            uploadEvent();
         }
     }
 
-    public void absoluteDeleteSingleEvent(String private_key, OnDeleteFinishedCallback onDeleteFinishedCallback){
-        DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
+    public void uploadEvent() {
+        String name = et_name.getText();
+        String description = et_description.getText();
+        String place = et_place.getText();
 
-        deletingLoadingDialog = new LoadingDialog(this);
+        if(!checkFields(name, description, place)){
+            return;
+        }
 
-        deletingLoadingDialog.setMessage("Editing event");
-        deletingLoadingDialog.show();
+        event.addDefaultParams(ImageViewCompat.getImageTintList(ib_color).getDefaultColor(),
+                name, description, place, startDateTime, endDateTime);
 
-        Query query = allEventsDatabase.orderByKey().equalTo(private_key);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot data : snapshot.getChildren()){
-                    data.getRef().removeValue();
-                }
-//                onDeleteFinishedCallback.onDeleteFinished();
+        DatabaseReference eventsDatabase = FirebaseUtils.getEventsDatabase();
+        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(startDateTime.toLocalDate()));
+
+        String chain_key = "Event" + eventsDatabase.push().getKey();
+        event.setChainId(chain_key);
+
+        boolean success = true;
+
+        Log.d(Utils.EVENT_TAG, "uploading event " + event);
+
+        if(row_event) {
+            event.updateFrequency_start(startDateTime.toLocalDate());
+            event.updateFrequency_end(endDateTime.toLocalDate());
+            Log.d(Utils.EVENT_TAG, event.toString());
+            addEventToFirebaseForTextWithPUSH(event, null);
+        }
+        else if(event.getFrequencyType().name().endsWith("AMOUNT")){
+            success = addEventForTimesAdvanced(event);
+            Log.d(Utils.EVENT_TAG, event.toString());
+        }
+        else if(event.getFrequencyType().name().endsWith("END")){
+            success = addEventForUntilAdvanced(event);
+            Log.d(Utils.EVENT_TAG, event.toString());
+        }
+
+//            startAlarm();
+        if(success){
+            FCMSend.sendNotificationsToAllUsersWithTopic(this, event, editMode ? Utils.EDIT_EVENT_NOTIFICATION_CODE : Utils.ADD_EVENT_NOTIFICATION_CODE);
+            if (switch_alarm.isChecked()){
+                AlarmManagerForToday.addAlarm(this, event, 0);
             }
+            FirebaseUtils.isMadrich().observe(this,
+                    isMadrich -> FirebaseUtils.getCurrentUserTrackingRef(event.getPrivateId()).child("attend").setValue(isMadrich));
+        }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+        Intent toCalendar_Screen = new Intent(getApplicationContext(), MainActivity.class);
+        toCalendar_Screen.setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT);
 
-            }
-        });
+        int day = event.receiveFrequency_start().getDayOfMonth();
+        int month = event.receiveFrequency_start().getMonth().getValue();
+        int year = event.receiveFrequency_start().getYear();
 
-        DatabaseReference eventsDatabaseReference = FirebaseUtils.getEventsDatabase();
+        toCalendar_Screen.putExtra("day", day);
+        toCalendar_Screen.putExtra("month", month);
+        toCalendar_Screen.putExtra("year", year);
 
-        eventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot date : snapshot.getChildren()){
-
-                    Log.d("murad", "========================================================");
-                    Log.d("murad", "Date private_key is " + date.getKey());
-                    Log.d("murad", "events on this date: " + date.getChildrenCount());
-
-                    for (DataSnapshot event : date.getChildren()){
-
-                        Log.d("murad", "Event private_key is " + date.getKey());
-                        Log.d("murad", event.getValue(CalendarEvent.class).toString());
-
-                        if (event.getKey().equals(private_key)){
-                            Log.d("murad", "Event found");
-                            event.getRef().removeValue();
-                        }
-                    }
-
-
-                    Log.d("murad", "========================================================");
-                }
-                onDeleteFinishedCallback.onDeleteFinished();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+        if (success) {
+            startActivity(toCalendar_Screen);
+        }
+        else {
+            createBottomSheetDialog();
+        }
     }
 
-    public void absoluteDeleteAllEventsInChain(String chain_key, long start, OnDeleteFinishedCallback onDeleteFinishedCallback){
-        DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
+    public void addEventToFirebaseForTextWithPUSH(@NonNull CalendarEvent event, String chain_key) {
 
-        CircularProgressIndicator circularProgressIndicator = new CircularProgressIndicator(this);
-        circularProgressIndicator.setIndicatorDirection(CircularProgressIndicator.INDICATOR_DIRECTION_CLOCKWISE);
-        circularProgressIndicator.show();
+        LocalDate start_date = event.receiveStartDate();
+        LocalDate end_date = event.receiveEndDate();
 
-        deletingLoadingDialog = new LoadingDialog(this);
+        Log.d("murad", "start_date of event: " + event.getStartDate());
+        Log.d("murad", "end_date of event: " + event.getEndDate());
 
-        deletingLoadingDialog.setMessage("Editing event");
-        deletingLoadingDialog.show();
+        DatabaseReference eventsDatabase = FirebaseUtils.getEventsDatabase();
 
-        Query query = allEventsDatabase.orderByChild("chainId").equalTo(chain_key);
-        Query q = query.getRef().orderByChild("start").startAt(start);
+        LocalDate tmp = start_date;
 
-        q.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot data : snapshot.getChildren()){
-                    data.getRef().removeValue();
-                }
-//                onDeleteFinishedCallback.onDeleteFinished();
-            }
+        String private_key = "Event" + eventsDatabase.push().getKey();
+//        event.setPrivateId(private_key);
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+        event.setPrivateId(private_key);
+        event.setChainId(chain_key == null ? private_key : chain_key);
 
-            }
-        });
+        Log.d("murad", "PRIVATE ID IS " + event.getPrivateId());
+        Log.d("murad", "CHAIN ID IS " + event.getChainId());
 
-        DatabaseReference eventsDatabaseReference = FirebaseUtils.getEventsDatabase();
+        Log.d("murad", "event in addEventToFirebaseForTextWithPUSH" + event);
 
-        eventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot date : snapshot.getChildren()){
+        FirebaseUtils.getAllEventsDatabase().child(event.getPrivateId()).setValue(event);
 
-                    Log.d("murad", "========================================================");
-                    Log.d("murad", "Date chain_key is " + date.getKey());
-                    Log.d("murad", "events on this date: " + date.getChildrenCount());
+        do {
+            eventsDatabase = FirebaseUtils.getEventsDatabase();
+            eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
 
-                    for (DataSnapshot event : date.getChildren()){
+            eventsDatabase.child(event.getPrivateId()).setValue(event.getStart());
 
-                        Log.d("murad", "Event chain_key is " + date.getKey());
-                        Log.d("murad", event.getValue(CalendarEvent.class).toString());
-
-                        if (event.child(UtilsCalendar.KEY_EVENT_CHAIN_ID).getValue(String.class).equals(chain_key) && event.child("start").getValue(long.class) >= start){
-                            Log.d("murad", "Event found");
-                            event.getRef().removeValue();
-                        }
-                    }
-
-                    Log.d("murad", "========================================================");
-                }
-                onDeleteFinishedCallback.onDeleteFinished();
-                circularProgressIndicator.hide();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+            tmp = tmp.plusDays(1);
+        }
+        while(!tmp.isEqual(end_date.plusDays(1)));
     }
 
-    public interface OnDeleteFinishedCallback {
-        void onDeleteFinished();
+/*    public void addEventForTimes(@NonNull CalendarEvent event){
+//        LocalDate end_date = event.receiveEndDate();
+
+        eventsDatabase = FirebaseUtils.getEventsDatabase();
+        String key = event.getChainId();
+
+        int frequency = event.getFrequency();
+        int amount = event.getAmount();
+
+        LocalDate tmp = event.receiveStartDate();
+
+        LocalDate startDate = event.receiveStartDate();
+        LocalDate endDate = event.receiveEndDate();
+
+        LocalDate absolute_end_date = tmp;
+
+        switch(event.getFrequencyType()) {
+            case DAY_BY_AMOUNT:
+                for(int i = 0; i < amount; i++) {
+                    eventsDatabase = FirebaseUtils.getEventsDatabase();
+                    eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                    eventsDatabase = eventsDatabase.child(key);
+                    eventsDatabase.setValue(event);
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusDays(frequency);
+                }
+                break;
+            case DAY_OF_WEEK_BY_AMOUNT:
+                List<Boolean> event_array_frequencyDayOfWeek = event.getArray_frequencyDayOfWeek();
+
+                for(int i = 0; i < amount; i++) {
+                    for(int j = 0; j < event_array_frequencyDayOfWeek.size(); j++) {
+                        if(event_array_frequencyDayOfWeek.get(j)) {
+
+                            eventsDatabase = FirebaseUtils.getEventsDatabase();
+                            eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                            eventsDatabase = eventsDatabase.child(key);
+                            eventsDatabase.setValue(event);
+
+//                          event.setTimestamp(0);
+
+                        }
+
+                        tmp = tmp.plusDays(1);
+                    }
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusWeeks(frequency);
+                }
+                break;
+            case DAY_AND_MONTH_BY_AMOUNT:
+                for(int i = 0; i < amount; i++) {
+                    if(tmp.lengthOfMonth() >= event.getDay()) {
+
+                        eventsDatabase = FirebaseUtils.getEventsDatabase();
+                        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                        eventsDatabase = eventsDatabase.child(key);
+                        eventsDatabase.setValue(event);
+
+//                      event.setTimestamp(0);
+                    }
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusMonths(frequency);
+                }
+                break;
+            case DAY_OF_WEEK_AND_MONTH_BY_AMOUNT:
+                int weekNumber = event.getWeekNumber();
+                Log.d("frequency_dayOfWeek_and_month", "weekNumber = " + weekNumber);
+
+                for(int i = 0; i < amount; i++) {
+                    Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+                    Log.d("frequency_dayOfWeek_and_month", CalendarUtils.DateToTextOnline(tmp));
+
+                    eventsDatabase = FirebaseUtils.getEventsDatabase();
+                    eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                    eventsDatabase = eventsDatabase.child(key);
+                    eventsDatabase.setValue(event);
+
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusMonths(frequency);
+
+                    Log.d("frequency_dayOfWeek_and_month", "the next month is " + CalendarUtils.DateToTextOnline(tmp));
+
+                    if(weekNumber > 4) {
+
+                        tmp = CalendarUtils.getNextOccurrenceForLast(tmp, event.getDayOfWeekPosition());
+                    }
+                    else {
+
+                        tmp = CalendarUtils.getFirstDayWithDayOfWeek(tmp, event.getDayOfWeekPosition());
+                        Log.d("frequency_dayOfWeek_and_month", "the first day of this month on " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(
+                                        TextStyle.FULL, CalendarUtils.getLocale())
+                                + " is " + CalendarUtils.DateToTextOnline(tmp));
+
+                        tmp = CalendarUtils.getNextOccurrence(tmp, event.getWeekNumber());
+                        Log.d("frequency_dayOfWeek_and_month", "the " + weekNumber + " occurrence of " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale()) +
+                                " is on " + CalendarUtils.DateToTextOnline(tmp));
+                        Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+
+                    }
+
+                }
+
+                *//*if(weekNumber > 4) {
+                    for(int i = 0; i < amount; i++) {
+                        Log.d("frequency_dayOfWeek_and_month", CalendarUtils.DateToTextOnline(tmp));
+
+                        eventsDatabase = FirebaseUtils.getEventsDatabase();
+                        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                        eventsDatabase = eventsDatabase.child(key);
+                        eventsDatabase.setValue(event);
+
+                        tmp = tmp.plusMonths(frequency);
+                        Log.d("frequency_dayOfWeek_and_month", "the next month is " + CalendarUtils.DateToTextOnline(tmp));
+
+                        tmp = CalendarUtils.getNextOccurrenceForLast(tmp, event.getDayOfWeekPosition());
+
+                    }
+                }
+                else {
+                    for(int i = 0; i < amount; i++) {
+                        Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+                        Log.d("frequency_dayOfWeek_and_month", CalendarUtils.DateToTextOnline(tmp));
+
+                        eventsDatabase = FirebaseUtils.getEventsDatabase();
+                        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                        eventsDatabase = eventsDatabase.child(key);
+                        eventsDatabase.setValue(event);
+
+//                      event.setTimestamp(0);
+
+                        tmp = tmp.plusMonths(frequency);
+                        Log.d("frequency_dayOfWeek_and_month", "the next month is " + CalendarUtils.DateToTextOnline(tmp));
+
+                        tmp = CalendarUtils.getFirstDayWithDayOfWeek(tmp, event.getDayOfWeekPosition());
+                        Log.d("frequency_dayOfWeek_and_month", "the first day of this month on " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale()
+                                + " is " + CalendarUtils.DateToTextOnline(tmp));
+
+                        tmp = CalendarUtils.getNextOccurrence(tmp, event.getWeekNumber());
+                        Log.d("frequency_dayOfWeek_and_month", "the " + weekNumber + " occurrence of " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale() +
+                                " is on " + CalendarUtils.DateToTextOnline(tmp));
+                        Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+
+                    }
+                }*//*
+                break;
+            case DAY_AND_YEAR_BY_AMOUNT:
+
+                int selected_day = event.getDay();
+                int selected_month = event.getMonth();
+
+                if(event.receiveStartDate().getMonth() == Month.FEBRUARY && selected_day == 29){
+                    event.setFrequency(4);
+
+                    Toast.makeText(getApplicationContext(), "This event will repeat every 4 years", Toast.LENGTH_SHORT).show();
+                }
+
+                for(int i = 0; i < amount; i++) {
+
+                    eventsDatabase = FirebaseUtils.getEventsDatabase();
+                    eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                    eventsDatabase = eventsDatabase.child(key);
+                    eventsDatabase.setValue(event);
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusYears(frequency);
+                }
+                break;
+            case DAY_OF_WEEK_AND_YEAR_BY_AMOUNT:
+                weekNumber = event.getWeekNumber();
+                Log.d("frequency_dayOfWeek_and_month", "weekNumber = " + weekNumber);
+
+                for(int i = 0; i < amount; i++) {
+                    Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+                    Log.d("frequency_dayOfWeek_and_month", CalendarUtils.DateToTextOnline(tmp));
+
+                    eventsDatabase = FirebaseUtils.getEventsDatabase();
+                    eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                    eventsDatabase = eventsDatabase.child(key);
+                    eventsDatabase.setValue(event);
+
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusYears(frequency);
+                    Log.d("frequency_dayOfWeek_and_month", "the next month is " + CalendarUtils.DateToTextOnline(tmp));
+
+
+                    if(weekNumber > 4) {
+
+                        tmp = CalendarUtils.getNextOccurrenceForLast(tmp, event.getDayOfWeekPosition());
+                    }
+                    else {
+
+                        tmp = CalendarUtils.getFirstDayWithDayOfWeek(tmp, event.getDayOfWeekPosition());
+                        Log.d("frequency_dayOfWeek_and_month", "the first day of this month on " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale())
+                                + " is " + CalendarUtils.DateToTextOnline(tmp));
+
+                        tmp = CalendarUtils.getNextOccurrence(tmp, event.getWeekNumber());
+                        Log.d("frequency_dayOfWeek_and_month", "the " + weekNumber + " occurrence of " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale()) +
+                                " is on " + CalendarUtils.DateToTextOnline(tmp));
+                        Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+
+                    }
+
+                }
+
+                break;
+
+        }
+
+        event.updateFrequency_end(absolute_end_date);
+        Log.d("murad", event.getFrequency_end());
+    }
+
+    public void addEventForUntil(@NonNull CalendarEvent event){
+
+        eventsDatabase = FirebaseUtils.getEventsDatabase();
+        String key = event.getChainId();
+
+        int frequency = event.getFrequency();
+        LocalDate end = event.receiveFrequency_end();
+
+        LocalDate tmp = event.receiveStartDate();
+
+        LocalDate absolute_end_date = end;
+        Log.d("murad", "Chosen end is " + CalendarUtils.DateToTextOnline(absolute_end_date));
+
+        switch(event.getFrequencyType()) {
+            case DAY_BY_END:
+                do {
+                    eventsDatabase = FirebaseUtils.getEventsDatabase();
+                    eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                    eventsDatabase = eventsDatabase.child(key);
+                    eventsDatabase.setValue(event);
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusDays(frequency);
+                }
+                while(!tmp.isAfter(end));
+
+                break;
+            case DAY_OF_WEEK_BY_END:
+                List<Boolean> event_array_frequencyDayOfWeek = event.getArray_frequencyDayOfWeek();
+
+                do {
+                    for(int j = 0; j < event_array_frequencyDayOfWeek.size(); j++) {
+                        if(event_array_frequencyDayOfWeek.get(j)) {
+                            eventsDatabase = FirebaseUtils.getEventsDatabase();
+                            eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                            eventsDatabase = eventsDatabase.child(key);
+                            eventsDatabase.setValue(event);
+                        }
+                        tmp = tmp.plusDays(1);
+                    }
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusWeeks(frequency);
+
+                }
+                while(!tmp.isAfter(end));
+
+                break;
+            case DAY_AND_MONTH_BY_END:
+                do {
+                    if(tmp.lengthOfMonth() >= event.getDay()) {
+                        eventsDatabase = FirebaseUtils.getEventsDatabase();
+                        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                        eventsDatabase = eventsDatabase.child(key);
+                        eventsDatabase.setValue(event);
+                    }
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusMonths(frequency);
+
+                }
+                while(!tmp.isAfter(end));
+
+                break;
+            case DAY_OF_WEEK_AND_MONTH_BY_END:
+                int weekNumber = event.getWeekNumber();
+                Log.d("frequency_dayOfWeek_and_month", "weekNumber = " + weekNumber);
+
+                do {
+                    Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+                    Log.d("frequency_dayOfWeek_and_month", CalendarUtils.DateToTextOnline(tmp));
+
+                    eventsDatabase = FirebaseUtils.getEventsDatabase();
+                    eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                    eventsDatabase = eventsDatabase.child(key);
+                    eventsDatabase.setValue(event);
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusMonths(frequency);
+                    Log.d("frequency_dayOfWeek_and_month", "the next month is " + CalendarUtils.DateToTextOnline(tmp));
+
+                    if(weekNumber > 4) {
+
+                        tmp = CalendarUtils.getNextOccurrenceForLast(tmp, event.getDayOfWeekPosition());
+                    }
+                    else {
+
+                        tmp = CalendarUtils.getFirstDayWithDayOfWeek(tmp, event.getDayOfWeekPosition());
+                        Log.d("frequency_dayOfWeek_and_month", "the first day of this month on " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale())
+                                + " is " + CalendarUtils.DateToTextOnline(tmp));
+
+                        tmp = CalendarUtils.getNextOccurrence(tmp, event.getWeekNumber());
+                        Log.d("frequency_dayOfWeek_and_month", "the " + weekNumber + " occurrence of " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale()) +
+                                " is on " + CalendarUtils.DateToTextOnline(tmp));
+                        Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+
+                    }
+
+                }
+                while(!tmp.isAfter(end));
+
+                break;
+            case DAY_AND_YEAR_BY_END:
+
+                int selected_day = event.getDay();
+                int selected_month = event.getMonth();
+
+                if(event.receiveStartDate().getMonth() == Month.FEBRUARY && selected_day == 29){
+                    event.setFrequency(4);
+
+                    Toast.makeText(getApplicationContext(), "This event will repeat every 4 years", Toast.LENGTH_SHORT).show();
+                }
+
+                do {
+                    eventsDatabase = FirebaseUtils.getEventsDatabase();
+                    eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                    eventsDatabase = eventsDatabase.child(key);
+                    eventsDatabase.setValue(event);
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusYears(frequency);
+                }
+                while(!tmp.isAfter(end));
+
+                break;
+            case DAY_OF_WEEK_AND_YEAR_BY_END:
+                weekNumber = event.getWeekNumber();
+                Log.d("frequency_dayOfWeek_and_month", "weekNumber = " + weekNumber);
+
+                do {
+                    Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+                    Log.d("frequency_dayOfWeek_and_month", CalendarUtils.DateToTextOnline(tmp));
+
+                    eventsDatabase = FirebaseUtils.getEventsDatabase();
+                    eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                    eventsDatabase = eventsDatabase.child(key);
+                    eventsDatabase.setValue(event);
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusYears(frequency);
+                    Log.d("frequency_dayOfWeek_and_month", "the next month is " + CalendarUtils.DateToTextOnline(tmp));
+
+
+                    if(weekNumber > 4) {
+
+                        tmp = CalendarUtils.getNextOccurrenceForLast(tmp, event.getDayOfWeekPosition());
+                    }
+                    else {
+
+                        tmp = CalendarUtils.getFirstDayWithDayOfWeek(tmp, event.getDayOfWeekPosition());
+                        Log.d("frequency_dayOfWeek_and_month", "the first day of this month on " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale())
+                                + " is " + CalendarUtils.DateToTextOnline(tmp));
+
+                        tmp = CalendarUtils.getNextOccurrence(tmp, event.getWeekNumber());
+                        Log.d("frequency_dayOfWeek_and_month", "the " + weekNumber + " occurrence of " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale()) +
+                                " is on " + CalendarUtils.DateToTextOnline(tmp));
+                        Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+
+                    }
+
+                }
+                while(!tmp.isAfter(end));
+
+                break;
+
+        }
+
+        Log.d("murad", "Absolute end date after switch is " + CalendarUtils.DateToTextOnline(absolute_end_date));
+
+        event.updateFrequency_end(absolute_end_date);
+    }*/
+
+    public boolean addEventForTimesAdvanced(@NonNull CalendarEvent event){
+
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "******************************************************************************************");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
+        Log.d(Utils.EVENT_TAG, " ");
+        Log.d(Utils.EVENT_TAG, "ADDING BY AMOUNT STARTED");
+
+        String chain_key = event.getChainId();
+
+        CalendarEvent.FrequencyType frequencyType = eventFrequencyViewModel.frequencyType.getValue();
+        Log.d(Utils.EVENT_TAG, "FREQUENCYTYPE IS " + frequencyType);
+
+        int frequency = eventFrequencyViewModel.frequency.getValue();
+        Log.d(Utils.EVENT_TAG, "FREQUENCY IS " + (frequency));
+
+        int amount = eventFrequencyViewModel.amount.getValue();
+        Log.d(Utils.EVENT_TAG, "AMOUNT IS " + amount);
+
+        boolean isLast = eventFrequencyViewModel.last.getValue();
+        Log.d(Utils.EVENT_TAG, "IS LAST = " + isLast);
+
+        LocalDate tmp = event.receiveStartDate();
+
+        LocalDate startDate = event.receiveStartDate();
+        LocalDate endDate = event.receiveEndDate();
+
+        event.updateFrequency_start(startDate);
+
+        Period range = startDate.until(endDate);
+
+        int day = eventFrequencyViewModel.day.getValue();
+        int weekNumber = eventFrequencyViewModel.weekNumber.getValue();
+        int dayOfWeekPosition = eventFrequencyViewModel.dayOfWeekPosition.getValue();
+        DayOfWeek dayOfWeek = DayOfWeek.of(dayOfWeekPosition + 1);
+        List<Boolean> event_array_frequencyDayOfWeek = eventFrequencyViewModel
+                .array_frequencyDayOfWeek.getValue();
+
+        LocalDate absolute_end_date = tmp;
+
+        switch(frequencyType) {
+            case DAY_BY_AMOUNT:
+
+                if(range.getDays() >= frequency){
+//                    createBottomSheetDialog();
+                    return false;
+                }
+
+                for(int i = 0; i < amount; i++) {
+
+                    startDate = tmp;
+                    endDate = tmp.plus(range);
+
+                    event.updateStartDate(startDate);
+                    event.updateEndDate(endDate);
+
+                    Log.d(Utils.EVENT_TAG, "___________________________________________________________");
+                    Log.d(Utils.EVENT_TAG, "CIRCLE NUMBER " + (i+1));
+                    Log.d(Utils.EVENT_TAG, "Frequency Start of event: " + event.getFrequency_start());
+
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
+
+                    tmp = tmp.plusDays(frequency);
+
+                    Log.d(Utils.EVENT_TAG, "___________________________________________________________");
+
+                }
+
+                break;
+
+            case DAY_OF_WEEK_BY_AMOUNT:
+
+                if(range.getDays() >= 7 * frequency){
+                    //                    createBottomSheetDialog();
+                    return false;
+                }
+
+
+
+/*
+                while (!event_array_frequencyDayOfWeek.get(tmp.getDayOfWeek().getValue()-1)) {
+                    // get TemporalAdjuster with
+                    // the next in month adjuster
+*//*                        TemporalAdjuster temporalAdjuster
+                                = TemporalAdjusters.nextOrSame(
+                                DayOfWeek.WEDNESDAY);
+
+                        WeekFields.of(startDate).weekOfMonth();*//*
+
+                    Log.d(Utils.EVENT_TAG, "Going over days to find first occurrence of selected Day Of Week " + CalendarUtils.DateToTextForFirebase(tmp));
+                    tmp = tmp.plusDays(1);
+
+                }
+
+                Log.d(Utils.EVENT_TAG, "");
+                Log.d(Utils.EVENT_TAG, "FOUND!!!");
+                Log.d(Utils.EVENT_TAG, "");
+
+                startDate = tmp;
+                endDate = tmp.plus(range);
+
+                event.updateStartDate(startDate);
+                event.updateEndDate(endDate);
+
+                event.updateFrequency_start(tmp);
+
+                        *//*eventsDatabase = FirebaseUtils.getEventsDatabase();
+                        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));*//*
+
+                private_key = eventsDatabase.push().getKey();
+                event.setPrivate_id(private_key);
+
+                addEventToFirebaseForTextWithPUSH(event);
+                Log.d(Utils.EVENT_TAG, "___________________________________________________________");*/
+
+                boolean first = true;
+
+                for(int i = 0; i < amount; i++) {
+
+                    Log.d(Utils.EVENT_TAG, "___________________________________________________________");
+                    Log.d(Utils.EVENT_TAG, "CIRCLE NUMBER " + (i+1));
+                    Log.d(Utils.EVENT_TAG, "Frequency Start of event: " + event.getFrequency_start());
+
+                    /*for(int j = 0; j < event_array_frequencyDayOfWeek.size(); j++) {
+                        if(event_array_frequencyDayOfWeek.get(j) && tmp.getDayOfWeek().getValue() == j+1) {
+
+                            startDate = tmp;
+                            endDate = tmp.plus(range);
+
+                            event.updateStartDate(startDate);
+                            event.updateEndDate(endDate);
+
+                            *//*eventsDatabase = FirebaseUtils.getEventsDatabase();
+                            eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));*//*
+
+                            String private_key = eventsDatabase.push().getKey();
+                            event.setPrivate_id(private_key);
+
+                            addEventToFirebaseForTextWithPUSH(event);
+
+                        }
+
+                        tmp = tmp.plusDays(1);
+                    }*/
+
+
+                    do{
+
+                        Log.d(Utils.EVENT_TAG, "___________________________________________________________");
+
+                        if(event_array_frequencyDayOfWeek.get(tmp.getDayOfWeek().getValue()-1)) {
+                            // get TemporalAdjuster with
+                            // the next in month adjuster
+/*                        TemporalAdjuster temporalAdjuster
+                                = TemporalAdjusters.nextOrSame(
+                                DayOfWeek.WEDNESDAY);
+
+                                WeekFields.of(startDate).weekOfMonth();*/
+
+                            Log.d(Utils.EVENT_TAG, "");
+                            Log.d(Utils.EVENT_TAG, "FOUND!!! " + CalendarUtils.DateToTextLocal(tmp));
+                            Log.d(Utils.EVENT_TAG, "");
+
+                            if(first){
+                                event.updateFrequency_start(tmp);
+                                first = false;
+                            }
+
+                            startDate = tmp;
+                            endDate = tmp.plus(range);
+
+                            event.updateStartDate(startDate);
+                            event.updateEndDate(endDate);
+
+                        /*eventsDatabase = FirebaseUtils.getEventsDatabase();
+                        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));*/
+
+                            addEventToFirebaseForTextWithPUSH(event, chain_key);
+                            Log.d(Utils.EVENT_TAG, "___________________________________________________________");
+
+                        }
+
+                        Log.d(Utils.EVENT_TAG, "Going over days to find first occurrence of selected Day Of Week " + CalendarUtils.DateToTextForFirebase(tmp));
+                        tmp = tmp.plusDays(1);
+
+
+                    }
+                    while (tmp.plusDays(1).getDayOfWeek().getValue() != DayOfWeek.MONDAY.getValue());
+/*
+                    while (tmp.plusDays(1).getDayOfWeek().getValue() != DayOfWeek.MONDAY.getValue()){
+
+                        while (!event_array_frequencyDayOfWeek.get(tmp.getDayOfWeek().getValue()-1)) {
+                            // get TemporalAdjuster with
+                            // the next in month adjuster
+*/
+/*                        TemporalAdjuster temporalAdjuster
+                                = TemporalAdjusters.nextOrSame(
+                                DayOfWeek.WEDNESDAY);
+
+                        WeekFields.of(startDate).weekOfMonth();*//*
+
+
+                            tmp = tmp.plusDays(1);
+
+                        }
+
+                        startDate = tmp;
+                        endDate = tmp.plus(range);
+
+                        event.updateStartDate(startDate);
+                        event.updateEndDate(endDate);
+
+                        */
+/*eventsDatabase = FirebaseUtils.getEventsDatabase();
+                        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));*//*
+
+
+                        private_key = eventsDatabase.push().getKey();
+                        event.setPrivate_id(private_key);
+
+                        addEventToFirebaseForTextWithPUSH(event);
+                        Log.d(Utils.EVENT_TAG, "___________________________________________________________");
+                    }
+*/
+                    tmp = tmp.plusWeeks(frequency);
+                    tmp = tmp.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+                }
+
+                break;
+
+            case DAY_AND_MONTH_BY_AMOUNT:
+
+                if(/*endDate.getDayOfMonth() >= day && */ range.getMonths() >= frequency){
+//                    createBottomSheetDialog();
+                    return false;
+                }
+
+                tmp = tmp.withDayOfMonth(1);
+
+                for(int i = 0; i < amount; i++) {
+
+                    if(tmp.lengthOfMonth() >= day) {
+                        if(isLast){
+
+                            tmp = tmp.with(TemporalAdjusters.lastDayOfMonth());
+                            Log.d(Utils.EVENT_TAG, "Last date of current month is " + CalendarUtils.DateToTextForFirebase(tmp));
+
+
+
+                            /*eventsDatabase = FirebaseUtils.getEventsDatabase();
+                        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));*/
+
+                        }
+                        else {
+
+                            tmp = tmp.withDayOfMonth(day);
+                            Log.d(Utils.EVENT_TAG, "The " + day + " day of current month is " + CalendarUtils.DateToTextForFirebase(tmp));
+
+                            /*eventsDatabase = FirebaseUtils.getEventsDatabase();
+                        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));*/
+
+                        }
+
+                        startDate = tmp;
+                        endDate = tmp.plus(range);
+
+                        event.updateStartDate(startDate);
+                        event.updateEndDate(endDate);
+
+                        addEventToFirebaseForTextWithPUSH(event, chain_key);
+                    }
+
+                    absolute_end_date = tmp;
+
+//                    tmp = tmp.with(TemporalAdjusters.firstDayOfNextMonth());
+//                    Log.d(Utils.EVENT_TAG, "The first day of next month is " + CalendarUtils.DateToTextForFirebase(tmp));
+
+                    tmp = tmp.plusMonths(frequency);
+                    Log.d(Utils.EVENT_TAG, "The next month is " + CalendarUtils.DateToTextForFirebase(tmp));
+                }
+
+                break;
+
+            case DAY_OF_WEEK_AND_MONTH_BY_AMOUNT:
+
+                if(range.getMonths() >= frequency){
+//                    createBottomSheetDialog();
+                    return false;
+                }
+
+                tmp = tmp.withDayOfMonth(1);
+
+                for(int i = 0; i < amount; i++) {
+                    Log.d(Utils.EVENT_TAG, "--------------------------------------------------------------");
+                    Log.d(Utils.EVENT_TAG, CalendarUtils.DateToTextOnline(tmp));
+
+                    if(isLast){
+                        tmp = tmp.with(TemporalAdjusters.lastInMonth(dayOfWeek));
+                    }
+                    else {
+                        tmp = tmp.with(TemporalAdjusters.dayOfWeekInMonth(weekNumber, dayOfWeek));
+                    }
+
+                    startDate = tmp;
+                    endDate = tmp.plus(range);
+
+                    event.updateStartDate(startDate);
+                    event.updateEndDate(endDate);
+
+                        /*eventsDatabase = FirebaseUtils.getEventsDatabase();
+                        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));*/
+
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusMonths(frequency);
+
+                    Log.d(Utils.EVENT_TAG, "the next month is " + CalendarUtils.DateToTextOnline(tmp));
+/*                    if(weekNumber > 4) {
+
+                        tmp = CalendarUtils.getNextOccurrenceForLast(tmp, event.getDayOfWeekPosition());
+                    }
+                    else {
+
+                        tmp = CalendarUtils.getFirstDayWithDayOfWeek(tmp, event.getDayOfWeekPosition());
+                        Log.d("frequency_dayOfWeek_and_month", "the first day of this month on " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale()
+                                + " is " + CalendarUtils.DateToTextOnline(tmp));
+
+                        tmp = CalendarUtils.getNextOccurrence(tmp, event.getWeekNumber());
+                        Log.d("frequency_dayOfWeek_and_month", "the " + weekNumber + " occurrence of " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale() +
+                                " is on " + CalendarUtils.DateToTextOnline(tmp));
+                        Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+
+                    }*/
+
+                }
+
+                /*if(weekNumber > 4) {
+                    for(int i = 0; i < amount; i++) {
+                        Log.d("frequency_dayOfWeek_and_month", CalendarUtils.DateToTextOnline(tmp));
+
+                        eventsDatabase = FirebaseUtils.getEventsDatabase();
+                        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                        eventsDatabase = eventsDatabase.child(key);
+                        eventsDatabase.setValue(event);
+
+                        tmp = tmp.plusMonths(frequency);
+                        Log.d("frequency_dayOfWeek_and_month", "the next month is " + CalendarUtils.DateToTextOnline(tmp));
+
+                        tmp = CalendarUtils.getNextOccurrenceForLast(tmp, event.getDayOfWeekPosition());
+
+                    }
+                }
+                else {
+                    for(int i = 0; i < amount; i++) {
+                        Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+                        Log.d("frequency_dayOfWeek_and_month", CalendarUtils.DateToTextOnline(tmp));
+
+                        eventsDatabase = FirebaseUtils.getEventsDatabase();
+                        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+
+                        eventsDatabase = eventsDatabase.child(key);
+                        eventsDatabase.setValue(event);
+
+//                      event.setTimestamp(0);
+
+                        tmp = tmp.plusMonths(frequency);
+                        Log.d("frequency_dayOfWeek_and_month", "the next month is " + CalendarUtils.DateToTextOnline(tmp));
+
+                        tmp = CalendarUtils.getFirstDayWithDayOfWeek(tmp, event.getDayOfWeekPosition());
+                        Log.d("frequency_dayOfWeek_and_month", "the first day of this month on " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale()
+                                + " is " + CalendarUtils.DateToTextOnline(tmp));
+
+                        tmp = CalendarUtils.getNextOccurrence(tmp, event.getWeekNumber());
+                        Log.d("frequency_dayOfWeek_and_month", "the " + weekNumber + " occurrence of " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale() +
+                                " is on " + CalendarUtils.DateToTextOnline(tmp));
+                        Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+
+                    }
+                }*/
+                break;
+
+            case DAY_AND_YEAR_BY_AMOUNT:
+
+                if(range.getYears() >= frequency){
+//                    createBottomSheetDialog();
+                    return false;
+                }
+
+                if(event.receiveStartDate().getMonth() == Month.FEBRUARY && day == 29){
+                    event.setFrequency(4);
+                    frequency = 4;
+
+                    Toast.makeText(getApplicationContext(), "This event will repeat every 4 years", Toast.LENGTH_SHORT).show();
+                }
+
+                tmp = tmp.withDayOfMonth(1);
+
+                for(int i = 0; i < amount; i++) {
+
+                    if (isLast){
+                        tmp = tmp.with(TemporalAdjusters.lastDayOfMonth());
+                    }
+                    else {
+                        tmp = tmp.withDayOfMonth(day);
+                    }
+
+                    startDate = tmp;
+                    endDate = tmp.plus(range);
+
+                    event.updateStartDate(startDate);
+                    event.updateEndDate(endDate);
+
+                        /*eventsDatabase = FirebaseUtils.getEventsDatabase();
+                        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));*/
+
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusYears(frequency);
+                }
+
+                break;
+
+            case DAY_OF_WEEK_AND_YEAR_BY_AMOUNT:
+
+                if(range.getYears() >= frequency){
+//                    createBottomSheetDialog();
+                    return false;
+                }
+
+                tmp = tmp.withDayOfMonth(1);
+
+                for(int i = 0; i < amount; i++) {
+                    Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+                    Log.d("frequency_dayOfWeek_and_month", CalendarUtils.DateToTextOnline(tmp));
+
+                    if(isLast){
+                        tmp = tmp.with(TemporalAdjusters.lastInMonth(dayOfWeek));
+                    }
+                    else {
+                        tmp = tmp.with(TemporalAdjusters.dayOfWeekInMonth(weekNumber, dayOfWeek));
+                    }
+
+                    startDate = tmp;
+                    endDate = tmp.plus(range);
+
+                    event.updateStartDate(startDate);
+                    event.updateEndDate(endDate);
+
+                        /*eventsDatabase = FirebaseUtils.getEventsDatabase();
+                        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));*/
+
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusYears(frequency);
+                    Log.d("frequency_dayOfWeek_and_month", "the next month is " + CalendarUtils.DateToTextOnline(tmp));
+/*                    if(weekNumber > 4) {
+
+                        tmp = CalendarUtils.getNextOccurrenceForLast(tmp, event.getDayOfWeekPosition());
+                    }
+                    else {
+
+                        tmp = CalendarUtils.getFirstDayWithDayOfWeek(tmp, event.getDayOfWeekPosition());
+                        Log.d("frequency_dayOfWeek_and_month", "the first day of this month on " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale()
+                                + " is " + CalendarUtils.DateToTextOnline(tmp));
+
+                        tmp = CalendarUtils.getNextOccurrence(tmp, event.getWeekNumber());
+                        Log.d("frequency_dayOfWeek_and_month", "the " + weekNumber + " occurrence of " +
+                                DayOfWeek.of(event.getDayOfWeekPosition() + 1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale() +
+                                " is on " + CalendarUtils.DateToTextOnline(tmp));
+                        Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+
+                    }*/
+
+                }
+
+                break;
+
+            default:
+                throw new IllegalStateException("Unexpected value: " + event.getFrequencyType());
+        }
+
+        event.updateFrequency_end(endDate);
+
+        FirebaseUtils.getAllEventsDatabase().child(event.getChainId()).setValue(event);
+
+        Log.d(Utils.EVENT_TAG, "Frequency End of event: " + event.getFrequency_end());
+
+        Log.d(Utils.EVENT_TAG, "ADDING BY AMOUNT FINISHED");
+        Log.d(Utils.EVENT_TAG, " ");
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "******************************************************************************************");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
+
+        return true;
+    }
+
+    public boolean addEventForUntilAdvanced(@NonNull CalendarEvent event){
+
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "******************************************************************************************");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
+        Log.d(Utils.EVENT_TAG, " ");
+        Log.d(Utils.EVENT_TAG, "ADDING BY END STARTED");
+
+        String chain_key = event.getChainId();
+
+        int frequency = event.getFrequency();
+        Log.d(Utils.EVENT_TAG, "FREQUENCY IS " + (frequency));
+
+        LocalDate end = event.receiveFrequency_end();
+        Log.d(Utils.EVENT_TAG, "END IS " + event.getFrequency_end());
+
+        boolean isLast = event.isLast();
+        Log.d(Utils.EVENT_TAG, "IS LAST = " + isLast);
+
+        LocalDate tmp = event.receiveStartDate();
+
+        LocalDate startDate = event.receiveStartDate();
+        LocalDate endDate = event.receiveEndDate();
+
+        event.updateFrequency_start(startDate);
+
+        Period range = startDate.until(endDate);
+
+        int day;
+        int weekNumber;
+        int dayOfWeekPosition;
+        DayOfWeek dayOfWeek;
+
+        LocalDate absolute_end_date = end;
+        Log.d(Utils.EVENT_TAG, "Chosen end is " + CalendarUtils.DateToTextOnline(absolute_end_date));
+
+
+        switch(event.getFrequencyType()) {
+            case DAY_BY_END:
+
+                if(range.getDays() >= frequency){
+//                    createBottomSheetDialog();
+                    return false;
+                }
+
+                int i = 1;
+
+                do {
+
+                    startDate = tmp;
+                    endDate = tmp.plus(range);
+
+                    event.updateStartDate(startDate);
+                    event.updateEndDate(endDate);
+
+                    Log.d(Utils.EVENT_TAG, "___________________________________________________________");
+                    Log.d(Utils.EVENT_TAG, "CIRCLE NUMBER " + (i));
+                    Log.d(Utils.EVENT_TAG, "Frequency Start of event: " + event.getFrequency_start());
+
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusDays(frequency);
+
+                    Log.d(Utils.EVENT_TAG, "___________________________________________________________");
+                    i++;
+                }
+                while(!tmp.isAfter(end));
+
+                break;
+
+            case DAY_OF_WEEK_BY_END:
+
+                if(range.getDays() >= 7 * frequency){
+                    //                    createBottomSheetDialog();
+                    return false;
+                }
+
+                List<Boolean> event_array_frequencyDayOfWeek = event.getArray_frequencyDayOfWeek();
+
+                boolean first = true;
+
+                i = 1;
+
+                do {
+
+                    Log.d(Utils.EVENT_TAG, "___________________________________________________________");
+                    Log.d(Utils.EVENT_TAG, "CIRCLE NUMBER " + i);
+                    Log.d(Utils.EVENT_TAG, "Frequency Start of event: " + event.getFrequency_start());
+
+                    do{
+
+                        Log.d(Utils.EVENT_TAG, "___________________________________________________________");
+
+                        if(event_array_frequencyDayOfWeek.get(tmp.getDayOfWeek().getValue()-1)) {
+
+                            Log.d(Utils.EVENT_TAG, "");
+                            Log.d(Utils.EVENT_TAG, "FOUND!!! " + CalendarUtils.DateToTextLocal(tmp));
+                            Log.d(Utils.EVENT_TAG, "");
+
+                            if(first){
+                                event.updateFrequency_start(tmp);
+                                first = false;
+                            }
+
+                            startDate = tmp;
+                            endDate = tmp.plus(range);
+
+                            event.updateStartDate(startDate);
+                            event.updateEndDate(endDate);
+
+                            addEventToFirebaseForTextWithPUSH(event, chain_key);
+                            Log.d(Utils.EVENT_TAG, "___________________________________________________________");
+
+                        }
+
+                        Log.d(Utils.EVENT_TAG, "Going over days to find first occurrence of selected Day Of Week " + CalendarUtils.DateToTextForFirebase(tmp));
+                        tmp = tmp.plusDays(1);
+
+                    }
+                    while (tmp.plusDays(1).getDayOfWeek().getValue() != DayOfWeek.MONDAY.getValue());
+
+                    tmp = tmp.plusWeeks(frequency);
+                    tmp = tmp.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+
+                    i++;
+                }
+                while(!tmp.isAfter(end));
+
+                break;
+
+            case DAY_AND_MONTH_BY_END:
+
+                day = event.getDay();
+
+                if(/*endDate.getDayOfMonth() >= day && */ range.getMonths() >= frequency){
+//                    createBottomSheetDialog();
+                    return false;
+                }
+
+                tmp = tmp.withDayOfMonth(1);
+
+                do {
+                    if(tmp.lengthOfMonth() >= day) {
+
+                        if(isLast){
+
+                            tmp = tmp.with(TemporalAdjusters.lastDayOfMonth());
+                            Log.d(Utils.EVENT_TAG, "Last date of current month is " + CalendarUtils.DateToTextForFirebase(tmp));
+
+                        }
+                        else {
+
+                            tmp = tmp.withDayOfMonth(day);
+                            Log.d(Utils.EVENT_TAG, "The " + day + " day of current month is " + CalendarUtils.DateToTextForFirebase(tmp));
+
+                        }
+
+                        startDate = tmp;
+                        endDate = tmp.plus(range);
+
+                        event.updateStartDate(startDate);
+                        event.updateEndDate(endDate);
+
+                        addEventToFirebaseForTextWithPUSH(event, chain_key);
+                    }
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusMonths(frequency);
+                    Log.d(Utils.EVENT_TAG, "The next month is " + CalendarUtils.DateToTextForFirebase(tmp));
+
+                }
+                while(!tmp.isAfter(end));
+
+                break;
+
+            case DAY_OF_WEEK_AND_MONTH_BY_END:
+
+                if(range.getMonths() >= frequency){
+//                    createBottomSheetDialog();
+                    return false;
+                }
+
+                weekNumber = event.getWeekNumber();
+                Log.d(Utils.EVENT_TAG, "weekNumber = " + weekNumber);
+
+                dayOfWeekPosition = event.getDayOfWeekPosition();
+                Log.d(Utils.EVENT_TAG, "dayOfWeekPosition = " + dayOfWeekPosition);
+
+                dayOfWeek = DayOfWeek.of(dayOfWeekPosition+1);
+                Log.d(Utils.EVENT_TAG, "DayOfWeek is " + dayOfWeek);
+
+                tmp = tmp.withDayOfMonth(1);
+
+                do {
+                    Log.d(Utils.EVENT_TAG, "--------------------------------------------------------------");
+                    Log.d(Utils.EVENT_TAG, CalendarUtils.DateToTextOnline(tmp));
+
+                    if(isLast){
+                        tmp = tmp.with(TemporalAdjusters.lastInMonth(dayOfWeek));
+                    }
+                    else {
+                        tmp = tmp.with(TemporalAdjusters.dayOfWeekInMonth(weekNumber, dayOfWeek));
+                    }
+
+                    startDate = tmp;
+                    endDate = tmp.plus(range);
+
+                    event.updateStartDate(startDate);
+                    event.updateEndDate(endDate);
+
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusMonths(frequency);
+
+                    Log.d(Utils.EVENT_TAG, "the next month is " + CalendarUtils.DateToTextOnline(tmp));
+
+                }
+                while(!tmp.isAfter(end));
+
+                break;
+
+            case DAY_AND_YEAR_BY_END:
+
+                if(range.getYears() >= frequency){
+//                    createBottomSheetDialog();
+                    return false;
+                }
+
+                day = event.getDay();
+
+                if(event.receiveStartDate().getMonth() == Month.FEBRUARY && day == 29){
+                    event.setFrequency(4);
+
+                    Toast.makeText(getApplicationContext(), "This event will repeat every 4 years", Toast.LENGTH_SHORT).show();
+                }
+
+                do {
+
+                    if (isLast){
+                        tmp = tmp.with(TemporalAdjusters.lastDayOfMonth());
+                    }
+                    else {
+                        tmp = tmp.withDayOfMonth(day);
+                    }
+
+                    startDate = tmp;
+                    endDate = tmp.plus(range);
+
+                    event.updateStartDate(startDate);
+                    event.updateEndDate(endDate);
+
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusYears(frequency);
+                }
+                while(!tmp.isAfter(end));
+
+                break;
+
+            case DAY_OF_WEEK_AND_YEAR_BY_END:
+
+                if(range.getYears() >= frequency){
+//                    createBottomSheetDialog();
+                    return false;
+                }
+
+                weekNumber = event.getWeekNumber();
+                Log.d(Utils.EVENT_TAG, "weekNumber = " + weekNumber);
+
+                dayOfWeekPosition = event.getDayOfWeekPosition();
+                Log.d(Utils.EVENT_TAG, "dayOfWeekPosition = " + dayOfWeekPosition);
+
+                dayOfWeek = DayOfWeek.of(dayOfWeekPosition+1);
+                Log.d(Utils.EVENT_TAG, "DayOfWeek is " + dayOfWeek);
+
+                tmp = tmp.withDayOfMonth(1);
+
+                do {
+                    Log.d("frequency_dayOfWeek_and_month", "--------------------------------------------------------------");
+                    Log.d("frequency_dayOfWeek_and_month", CalendarUtils.DateToTextOnline(tmp));
+
+                    if(isLast){
+                        tmp = tmp.with(TemporalAdjusters.lastInMonth(dayOfWeek));
+                    }
+                    else {
+                        tmp = tmp.with(TemporalAdjusters.dayOfWeekInMonth(weekNumber, dayOfWeek));
+                    }
+
+                    startDate = tmp;
+                    endDate = tmp.plus(range);
+
+                    event.updateStartDate(startDate);
+                    event.updateEndDate(endDate);
+
+                    addEventToFirebaseForTextWithPUSH(event, chain_key);
+
+                    absolute_end_date = tmp;
+
+                    tmp = tmp.plusYears(frequency);
+                    Log.d("frequency_dayOfWeek_and_month", "the next month is " + CalendarUtils.DateToTextOnline(tmp));
+
+                }
+                while(!tmp.isAfter(end));
+
+                break;
+
+        }
+
+        Log.d(Utils.EVENT_TAG, "Absolute end date after switch is " + CalendarUtils.DateToTextOnline(endDate));
+
+        event.updateFrequency_end(endDate);
+
+        Log.d(Utils.EVENT_TAG, "Frequency End of event: " + event.getFrequency_end());
+
+        FirebaseUtils.getAllEventsDatabase().child(event.getChainId()).setValue(event);
+
+        Log.d(Utils.EVENT_TAG, "ADDING BY AMOUNT FINISHED");
+        Log.d(Utils.EVENT_TAG, " ");
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "******************************************************************************************");
+        Log.d(Utils.EVENT_TAG, "//////////////////////////////////////////////////////////////////////////////////////////");
+        Log.d(Utils.EVENT_TAG, "------------------------------------------------------------------------------------------");
+
+        return true;
+    }
+
+    private boolean checkFields(@NonNull String name, String description, String place) {
+        boolean editTextsFilled = true;
+
+        if (name.isEmpty()) {
+            et_name.setError(getString(R.string.invalid_email));
+            editTextsFilled = false;
+        }
+
+        if(description.isEmpty()){
+            et_description.setError(getString(R.string.invalid_password));
+            editTextsFilled = false;
+        }
+
+        if(place.isEmpty()){
+            et_place.setError(getString(R.string.invalid_password));
+            editTextsFilled = false;
+        }
+
+        return editTextsFilled;
+    }
+
+    public void createBottomSheetDialog(){
+//        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.Widget_Design_BottomSheet_Modal);
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.Theme_Design_Light_BottomSheetDialog);
+        bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog_event_frequency);
+        bottomSheetDialog.setTitle("Repeat");
+        bottomSheetDialog.setCancelable(true);
+
+        TextView tv_event_error = bottomSheetDialog.findViewById(R.id.tv_event_error);
+
+        Button btn_error = bottomSheetDialog.findViewById(R.id.btn_error);
+        btn_error.setOnClickListener(v -> bottomSheetDialog.dismiss());
+
+        bottomSheetDialog.setDismissWithAnimation(true);
+        bottomSheetDialog.show();
+    }
+
+    protected void createColorPickerDialog() {
+        ColorPickerDialog colorPicker = new ColorPickerDialog(this);
+
+        colorPicker.setOnFastChooseColorListener(new ColorPicker.OnFastChooseColorListener() {
+            @Override
+            public void setOnFastChooseColorListener(int position, int color) {
+                ImageViewCompat.setImageTintList(ib_color, ColorStateList.valueOf(color));
+            }
+
+            @Override
+            public void onCancel() {}
+        });
+
+        colorPicker.addListenerButton(getString(R.string.generate),
+                (v, position, color) -> {
+                    ImageViewCompat.setImageTintList(ib_color, ColorStateList.valueOf(Utils.generateRandomColor()));
+                    colorPicker.dismissDialog();
+                });
+
+        colorPicker.show();
+    }
+
+    public void absoluteDeleteSingleEvent(String private_key){
+        loadingDialog.setMessage("Editing event");
+        loadingDialog.show();
+        FirebaseUtils.deleteAll(FirebaseUtils.getEventsDatabase(), private_key, this::uploadEvent);
+    }
+
+    public void absoluteDeleteAllEventsInChain(String chain_key){
+        loadingDialog.setMessage("Editing event");
+        loadingDialog.show();
+
+        FirebaseUtils.deleteAll(FirebaseUtils.getEventsDatabase(), chain_key, this::uploadEvent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        startObserving();
+    }
+
+    public void startObserving(){
+        eventFrequencyViewModel.frequencyType.observe(this, frequencyType -> {
+            Log.d(Utils.EVENT_TAG, "event's frequency type changed");
+            Log.d(Utils.EVENT_TAG, "event's frequency is " + frequencyType);
+            event.setFrequencyType(frequencyType);
+        });
+        eventFrequencyViewModel.frequency.observe(this, frequency -> event.setFrequency(frequency));
+        eventFrequencyViewModel.amount.observe(this, amount -> event.setAmount(amount));
+        eventFrequencyViewModel.row_event.observe(this, row_event -> event.setAllDay(row_event));
+        eventFrequencyViewModel.msg.observe(this, msg -> {
+            Log.d(Utils.EVENT_TAG, "message changed");
+            Log.d(Utils.EVENT_TAG, msg);
+            btn_repeat.setText(msg);
+        });
+        eventFrequencyViewModel.end.observe(this, end -> event.updateFrequency_end(end));
+        eventFrequencyViewModel.last.observe(this, last -> event.setLast(last));
+        eventFrequencyViewModel.day.observe(this, day -> event.setDay(day));
+        eventFrequencyViewModel.dayOfWeekPosition.observe(this, dayOfWeekPosition -> event.setDayOfWeekPosition(dayOfWeekPosition));
+        eventFrequencyViewModel.array_frequencyDayOfWeek.observe(this, array_frequencyDayOfWeek -> event.setArray_frequencyDayOfWeek(array_frequencyDayOfWeek));
+        eventFrequencyViewModel.weekNumber.observe(this, weekNumber -> event.setWeekNumber(weekNumber));
+        eventFrequencyViewModel.month.observe(this, month -> event.setMonth(month));
+    }
+
+    public void stopObserving(){
+        eventFrequencyViewModel.frequencyType.removeObservers(this);
+        eventFrequencyViewModel.frequency.removeObservers(this);
+        eventFrequencyViewModel.amount.removeObservers(this);
+        eventFrequencyViewModel.row_event.removeObservers(this);
+        eventFrequencyViewModel.msg.removeObservers(this);
+        eventFrequencyViewModel.end.removeObservers(this);
+        eventFrequencyViewModel.last.removeObservers(this);
+        eventFrequencyViewModel.day.removeObservers(this);
+        eventFrequencyViewModel.dayOfWeekPosition.removeObservers(this);
+        eventFrequencyViewModel.array_frequencyDayOfWeek.removeObservers(this);
+        eventFrequencyViewModel.weekNumber.removeObservers(this);
+        eventFrequencyViewModel.month.removeObservers(this);
+    }
+
+    public void onFocusChange(View view, boolean b) {
+        if(view instanceof EditText){
+            String text = ((EditText) view).getText().toString();
+            if(!b  && !text.isEmpty() && text.charAt(0) == ' '){
+                text = text.replaceFirst("\\s+", "");
+                ((EditText) view).setText(text);
+            }
+        }
+
+    }
+
+    public static void hideKeyboard(@NonNull Activity context) {
+        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow( context.getCurrentFocus().getWindowToken(), 0);
     }
 }

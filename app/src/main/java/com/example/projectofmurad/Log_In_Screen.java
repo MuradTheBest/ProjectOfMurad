@@ -16,24 +16,18 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.projectofmurad.calendar.UtilsCalendar;
 import com.example.projectofmurad.groups.ShowGroupsScreen;
+import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+import com.example.projectofmurad.helpers.MyTextInputLayout;
+import com.example.projectofmurad.helpers.Utils;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.AuthResult;
 
 public class Log_In_Screen extends UserSigningActivity {
 
-	private TextView tv_sign_up_now;
-	private TextInputLayout et_email_address;
-	private TextInputLayout et_password;
-	private Button btn_log_in;
-	private TextView tv_forgot_password;
+	private MyTextInputLayout et_email_address;
+	private MyTextInputLayout et_password;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -41,18 +35,18 @@ public class Log_In_Screen extends UserSigningActivity {
 		setContentView(R.layout.log_in_page);
 		getSupportActionBar().hide();
 
-		tv_sign_up_now = findViewById(R.id.tv_sign_up_now);
+		TextView tv_sign_up_now = findViewById(R.id.tv_sign_up_now);
 
 		et_email_address = findViewById(R.id.et_email_address);
 		et_password = findViewById(R.id.et_password);
 
-		btn_log_in = findViewById(R.id.btn_log_in);
+		Button btn_log_in = findViewById(R.id.btn_log_in);
 
 		btn_log_in.setOnClickListener(v -> checkFields());
 
 		tv_sign_up_now.setOnClickListener(v -> startActivity(new Intent(this, Sign_Up_Screen.class)));
 
-		tv_forgot_password = findViewById(R.id.tv_forgot_password);
+		TextView tv_forgot_password = findViewById(R.id.tv_forgot_password);
 		tv_forgot_password.setOnClickListener(v -> createPasswordResetDialog());
 
 		btn_google = findViewById(R.id.btn_google);
@@ -60,16 +54,15 @@ public class Log_In_Screen extends UserSigningActivity {
 
 		btn_phone = findViewById(R.id.btn_phone);
 		btn_phone.setOnClickListener(v -> createPhoneAuthenticationDialog());
-
 	}
 
 	private void checkFields() {
-		String email = et_email_address.getEditText().getText().toString();
-		String password = et_password.getEditText().getText().toString();
+		String email = et_email_address.getText();
+		String password = et_password.getText();
 
 		boolean editTextsFilled = true;
 
-		if (email.isEmpty() || !UtilsCalendar.isEmailValid(email)) {
+		if (email.isEmpty() || !CalendarUtils.isEmailValid(email)) {
 			et_email_address.setError("E-mail invalid");
 			editTextsFilled = false;
 		}
@@ -99,13 +92,13 @@ public class Log_In_Screen extends UserSigningActivity {
 		builder.setPositiveButton(R.string.reset, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				String email = et_email_address.getEditText().getText().toString();
+				String email = Utils.getText(et_email_address);
 
-				if (email.isEmpty() || !UtilsCalendar.isEmailValid(email)){
+				if (email.isEmpty() || !CalendarUtils.isEmailValid(email)){
 					et_email_address.setError(getString(R.string.invalid_email));
 				}
 				else {
-					beginRecovery(email);
+					sendPasswordUpdateEmail(email);
 				}
 			}
 		}, false);
@@ -119,51 +112,16 @@ public class Log_In_Screen extends UserSigningActivity {
 		loadingDialog.setMessage(R.string.logging_in_please_wait);
 		loadingDialog.show();
 
-		FirebaseUtils.getFirebaseAuth().signInWithEmailAndPassword(email, password).addOnSuccessListener(
-				new OnSuccessListener<AuthResult>() {
-					@Override
-					public void onSuccess(AuthResult authResult) {
-						loadingDialog.dismiss();
-						finish();
-						startActivity(new Intent(getApplicationContext(), ShowGroupsScreen.class));
-					}
+		FirebaseUtils.getFirebaseAuth().signInWithEmailAndPassword(email, password)
+				.addOnSuccessListener(authResult -> {
+					loadingDialog.dismiss();
+					startActivity(new Intent(getApplicationContext(), ShowGroupsScreen.class));
+					finish();
 				})
-				.addOnFailureListener(new OnFailureListener() {
-					@Override
-					public void onFailure(@NonNull Exception e) {
-						loadingDialog.dismiss();
-						Toast.makeText(Log_In_Screen.this, R.string.failed, Toast.LENGTH_SHORT).show();
-					}
+				.addOnFailureListener(e -> {
+					loadingDialog.dismiss();
+					Toast.makeText(Log_In_Screen.this, R.string.failed, Toast.LENGTH_SHORT).show();
 				});
-	}
-
-	private void beginRecovery(String email) {
-		loadingDialog.setMessage("Sending password reset mail...");
-		loadingDialog.show();
-
-		// calling sendPasswordResetEmail
-		// open your email and write the new
-		// password and then you can login
-		FirebaseUtils.getFirebaseAuth().sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
-			@Override
-			public void onComplete(@NonNull Task<Void> task) {
-				loadingDialog.dismiss();
-				if(task.isSuccessful()) {
-					// if isSuccessful then done message will be shown
-					// and you can change the password
-					Toast.makeText(Log_In_Screen.this,"Password reset mail was sent", Toast.LENGTH_LONG).show();
-				}
-				else {
-					Toast.makeText(Log_In_Screen.this,"Error occurred",Toast.LENGTH_LONG).show();
-				}
-			}
-		}).addOnFailureListener(new OnFailureListener() {
-			@Override
-			public void onFailure(@NonNull Exception e) {
-				loadingDialog.dismiss();
-				Toast.makeText(Log_In_Screen.this,R.string.failed,Toast.LENGTH_LONG).show();
-			}
-		});
 	}
 
 	@Override

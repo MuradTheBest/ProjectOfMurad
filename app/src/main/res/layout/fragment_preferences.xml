@@ -34,7 +34,7 @@
                     android:layout_height="100dp"
                     android:contentDescription="Profile picture"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/images"
+                    android:src="@drawable/sample_profile_picture"
                     app:civ_border_color="@color/colorAccent"
                     app:civ_border_width="3dp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -52,7 +52,7 @@
                     app:layout_constraintStart_toEndOf="@+id/iv_profile_picture"
                     app:layout_constraintTop_toTopOf="@+id/iv_profile_picture">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_username"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
                         app:layout_constraintStart_toEndOf="@+id/iv_profile_picture"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_email"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -73,7 +73,7 @@
                         app:layout_constraintStart_toEndOf="@+id/iv_profile_picture"
                         app:layout_constraintTop_toBottomOf="@+id/tv_username" />
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_phone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -82,7 +82,7 @@
                         app:layout_constraintStart_toEndOf="@+id/iv_profile_picture"
                         app:layout_constraintTop_toBottomOf="@+id/tv_email" />
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_madrich"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -95,7 +95,7 @@
 
                 </LinearLayout>
 
-                <ImageButton
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/iv_go_to_profile"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -116,7 +116,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:text="Change group"
+            android:text="See groups"
             android:textColor="#000000"
             app:icon="@drawable/ic_baseline_arrow_back_ios_new_24_180_degrees_rotate"
             app:iconGravity="end"
@@ -234,14 +234,14 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/sd" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_alarm_before"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
                     android:text="Alarms will work %s before event's start" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"

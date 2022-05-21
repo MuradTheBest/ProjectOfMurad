@@ -1,9 +1,6 @@
 package com.example.projectofmurad.graphs;
 
-import static android.content.Context.MODE_PRIVATE;
-
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.GradientDrawable;
@@ -24,11 +21,11 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.calendar.AlarmDialog;
 import com.example.projectofmurad.calendar.CalendarEvent;
-import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.helpers.CalendarUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
@@ -70,7 +67,7 @@ public class EventsAndTrainingsAdapterForFirebase extends FirebaseRecyclerAdapte
         this.onEventClickListener = onEventClickListener;
         this.context = context;
         this.selected_UID = selected_UID;
-        this.db = context.openOrCreateDatabase(Utils.DATABASE_NAME, MODE_PRIVATE, null);
+        this.db = Utils.openOrCreateDatabase(context);
     }
 
     public class EventAndTrainingsViewHolderForFirebase extends RecyclerView.ViewHolder implements
@@ -90,7 +87,7 @@ public class EventsAndTrainingsAdapterForFirebase extends FirebaseRecyclerAdapte
 
         public CheckBox checkbox_all_attendances;
 
-        private RecyclerView rv_trainings;
+        private final RecyclerView rv_trainings;
 
         public EventAndTrainingsViewHolderForFirebase(@NonNull View itemView, OnEventClickListener onEventClickListener) {
             super(itemView);
@@ -113,27 +110,12 @@ public class EventsAndTrainingsAdapterForFirebase extends FirebaseRecyclerAdapte
             checkbox_all_attendances = itemView.findViewById(R.id.checkbox__all_attendances);
             checkbox_all_attendances.setOnCheckedChangeListener(this);
 
-//            itemView.setOnClickListener(this);
             itemView.setOnClickListener(v -> onEventClickListener.onEventClick(getBindingAdapterPosition(), getItem(getBindingAdapterPosition())));
         }
 
         @Override
         public void onClick(View view) {
-            /*if (view == iv_attendance){
-                Intent intent = new Intent(context, Event_Attendance_Screen.class);
-                String event_private_id = getItem(getBindingAdapterPosition()).getPrivateId();
-                intent.putExtra("event_private_id", event_private_id);
-
-                context.startActivity(intent);
-            }*/
-            if(view == itemView){
-                /*expanded = !expanded;
-                if (selectedDate != null){
-                    onEventExpand(getBindingAdapterPosition(), expanded);
-                }*/
-
-            }
-            else if (view == switch_alarm){
+            if (view == switch_alarm){
 
                 CalendarEvent event = getItem(getAbsoluteAdapterPosition());
 
@@ -180,25 +162,15 @@ public class EventsAndTrainingsAdapterForFirebase extends FirebaseRecyclerAdapte
         GradientDrawable gd = Utils.getGradientBackground(model.getColor());
 
         holder.constraintLayout.setBackground(gd);
-
         holder.tv_event_name.setText(model.getName());
-        Log.d("murad","name: " + model.getName());
-
         holder.tv_event_place.setText(model.getPlace());
-        Log.d("murad","place: " +  model.getPlace());
-
         holder.tv_event_description.setText(model.getDescription());
-        Log.d("murad", "description " + model.getDescription());
 
-        Log.d("murad", "position = " + position);
+        holder.tv_event_start_date_time.setText(String.format(context.getString(R.string.starting_time_s_s),
+                CalendarUtils.OnlineTextToLocal(model.getStartDate()), model.getStartTime()));
 
-        Resources res = context.getResources();
-
-        holder.tv_event_start_date_time.setText(String.format(res.getString(R.string.starting_time_s_s),
-                UtilsCalendar.OnlineTextToLocal(model.getStartDate()), model.getStartTime()));
-
-        holder.tv_event_end_date_time.setText(String.format(res.getString(R.string.ending_time_s_s),
-                UtilsCalendar.OnlineTextToLocal(model.getEndDate()), model.getEndTime()));
+        holder.tv_event_end_date_time.setText(String.format(context.getString(R.string.ending_time_s_s),
+                CalendarUtils.OnlineTextToLocal(model.getEndDate()), model.getEndTime()));
 
         holder.itemView.getBackground().setTint(model.getColor());
 

@@ -11,8 +11,7 @@ public class SuperUserTraining {
 
     public SuperUserTraining() {}
 
-    public SuperUserTraining(
-            HashMap<String, List<Training>> trainings) {
+    public SuperUserTraining(HashMap<String, List<Training>> trainings) {
         this.trainings = trainings;
     }
 
@@ -20,8 +19,7 @@ public class SuperUserTraining {
         return trainings;
     }
 
-    public void setTrainings(
-            HashMap<String, List<Training>> trainings) {
+    public void setTrainings(HashMap<String, List<Training>> trainings) {
         this.trainings = trainings;
     }
 }

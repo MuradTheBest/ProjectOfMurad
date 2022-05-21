@@ -9,13 +9,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SwitchCompat;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
@@ -23,7 +21,6 @@ import com.bumptech.glide.Glide;
 import com.example.projectofmurad.calendar.AlarmDialog;
 import com.example.projectofmurad.groups.ShowGroupsScreen;
 import com.example.projectofmurad.groups.UserGroupData;
-import com.example.projectofmurad.helpers.Constants;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.FCMSend;
@@ -33,6 +30,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.textview.MaterialTextView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -53,22 +52,20 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_preferences, container, false);
     }
 
     private MaterialButton btn_change_group;
-    private SwitchCompat switch_notifications;
-    private SwitchCompat switch_add_event;
-    private SwitchCompat switch_edit_event;
-    private SwitchCompat switch_delete_event;
+    private SwitchMaterial switch_notifications;
+    private SwitchMaterial switch_add_event;
+    private SwitchMaterial switch_edit_event;
+    private SwitchMaterial switch_delete_event;
 
-
-    private SwitchCompat switch_auto_alarm_set;
-    private SwitchCompat switch_auto_alarm_move;
-    private TextView tv_alarm_before;
+    private SwitchMaterial switch_auto_alarm_set;
+    private SwitchMaterial switch_auto_alarm_move;
+    private MaterialTextView tv_alarm_before;
 
     private SharedPreferences sp;
     private SharedPreferences.Editor editor;
@@ -76,16 +73,16 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
     private CardView cv_profile_data;
 
     private CircleImageView iv_profile_picture;
-    private ImageView iv_go_to_profile;
+    private AppCompatImageView iv_go_to_profile;
 
-    private TextView tv_username;
-    private TextView tv_email;
-    private TextView tv_phone;
-    private TextView tv_madrich;
+    private MaterialTextView tv_username;
+    private MaterialTextView tv_email;
+    private MaterialTextView tv_phone;
+    private MaterialTextView tv_madrich;
 
-    private SwitchCompat switch_visible_to_no_one;
-    private SwitchCompat switch_visible_to_madrich;
-    private SwitchCompat switch_visible_to_all;
+    private SwitchMaterial switch_visible_to_no_one;
+    private SwitchMaterial switch_visible_to_madrich;
+    private SwitchMaterial switch_visible_to_all;
 
     private final OnFailureListener onFailureListener = e -> Toast.makeText(requireContext(), "Failed", Toast.LENGTH_SHORT).show();
 
@@ -136,7 +133,7 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
         iv_go_to_profile = view.findViewById(R.id.iv_go_to_profile);
         iv_go_to_profile.setOnClickListener(v -> startActivity(new Intent(requireContext(), Profile_Screen.class)));
 
-        sp = requireActivity().getSharedPreferences(Constants.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE);
+        sp = requireActivity().getSharedPreferences(Utils.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE);
         editor = sp.edit();
 
         FirebaseUtils.getCurrentUserData().observe(getViewLifecycleOwner(), this::getUserData);
@@ -178,8 +175,9 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
         switch_edit_event.setEnabled(switch_notifications.isChecked());
         switch_delete_event.setEnabled(switch_notifications.isChecked());
 
-        Glide.with(this).load(userData.getPicture() != null ? userData.getPicture() : R.drawable.images)
-                .centerCrop().into(iv_profile_picture);
+        Glide.with(this).load(userData.getPicture())
+                .error(R.drawable.sample_profile_picture)
+                .placeholder(R.drawable.sample_profile_picture).centerCrop().into(iv_profile_picture);
 
         tv_username.setText(userData.getUsername());
         tv_email.setText(userData.getEmail());
@@ -327,8 +325,8 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
             editor.apply();
         }*/
 
-        if (v instanceof SwitchCompat){
-            boolean isChecked = ((SwitchCompat) v).isChecked();
+        if (v instanceof SwitchMaterial){
+            boolean isChecked = ((SwitchMaterial) v).isChecked();
 
             if (v == switch_notifications){
                 switch_add_event.setChecked(switch_notifications.isChecked());
@@ -344,7 +342,7 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                 switch_delete_event.callOnClick();
             }
             else if(v == switch_visible_to_no_one){
-                FirebaseUtils.getCurrentUserGroupDataRef().child("show").setValue(Show.NoOne.getValue()).addOnSuccessListener(
+                FirebaseUtils.getCurrentUserGroupDataRef().child("show").setValue(Show.NO_ONE.getValue()).addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
@@ -362,7 +360,7 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                         }).addOnFailureListener(onFailureListener);
             }
             else if(v == switch_visible_to_madrich){
-                FirebaseUtils.getCurrentUserGroupDataRef().child("show").setValue(Show.Madrich.getValue()).addOnSuccessListener(
+                FirebaseUtils.getCurrentUserGroupDataRef().child("show").setValue(Show.MADRICH.getValue()).addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
@@ -380,7 +378,7 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                         }).addOnFailureListener(onFailureListener);
             }
             else if(v == switch_visible_to_all){
-                FirebaseUtils.getCurrentUserGroupDataRef().child("show").setValue(Show.All.getValue()).addOnSuccessListener(
+                FirebaseUtils.getCurrentUserGroupDataRef().child("show").setValue(Show.ALL.getValue()).addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
@@ -415,13 +413,15 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
             }
             else {
 
-                SwitchCompat switchCompat = (SwitchCompat) v;
+                SwitchMaterial switchCompat = (SwitchMaterial) v;
 
                 String topic = (v == switch_add_event ? FCMSend.getTopic(FCMSend.ADD_EVENT_TOPIC)
                         : (v == switch_edit_event) ? FCMSend.getTopic(FCMSend.EDIT_EVENT_TOPIC)
                         : FCMSend.getTopic(FCMSend.DELETE_EVENT_TOPIC));
 
-                String subscription = (v == switch_add_event ? "subscribedToAddEvent" : (v == switch_edit_event) ? "subscribedToEditEvent" : "subscribedToDeleteEvent");
+                String subscription = (v == switch_add_event) ? "subscribedToAddEvent"
+                        : (v == switch_edit_event) ? "subscribedToEditEvent"
+                        : "subscribedToDeleteEvent";
 
                 String subscribedMsg = (v == switch_add_event ? "You will be notified when there will be new event added"
                         : (v == switch_edit_event) ? "You will be notified when any event will be edited"

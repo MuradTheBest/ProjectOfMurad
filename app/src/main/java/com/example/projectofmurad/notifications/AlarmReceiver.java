@@ -22,7 +22,6 @@ import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.DayDialog;
-import com.example.projectofmurad.calendar.UtilsCalendar;
 import com.example.projectofmurad.helpers.Utils;
 
 public class AlarmReceiver extends BroadcastReceiver {
@@ -53,7 +52,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.cancel();
 
-        String event_private_id = intent.getStringExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID);
+        String event_private_id = intent.getStringExtra(CalendarEvent.KEY_EVENT_PRIVATE_ID);
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -87,7 +86,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         String body = intent.getStringExtra("notification_body");
 
-        CalendarEvent event = (CalendarEvent) intent.getSerializableExtra(UtilsCalendar.KEY_EVENT);
+        CalendarEvent event = (CalendarEvent) intent.getSerializableExtra(CalendarEvent.KEY_EVENT);
         int color = event.getColor();
 
         Log.d("murad", "event is not null");
@@ -95,8 +94,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         Intent i = new Intent(context, MainActivity.class);
         i.setAction(DayDialog.ACTION_TO_SHOW_EVENT);
         i.putExtra("isAlarm", true);
-        i.putExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID, event.getPrivateId());
-        i.putExtra(UtilsCalendar.KEY_EVENT_START_DATE_TIME, event.getStart());
+        i.putExtra(CalendarEvent.KEY_EVENT_PRIVATE_ID, event.getPrivateId());
+        i.putExtra(CalendarEvent.KEY_EVENT_START, event.getStart());
         i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         Log.d("murad", event.toString());
 
@@ -110,7 +109,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         Intent intent_stop_alarm = new Intent(context, AlarmReceiver.class);
         intent_stop_alarm.setAction(ACTION_STOP_VIBRATION);
-        intent_stop_alarm.putExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID, notification_tag);
+        intent_stop_alarm.putExtra(CalendarEvent.KEY_EVENT_PRIVATE_ID, notification_tag);
 
         PendingIntent pintent_stop_alarm = PendingIntent.getBroadcast(context, 1, intent_stop_alarm,
                 PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);

@@ -19,6 +19,7 @@ import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -89,7 +90,7 @@ public class GroupTrainingsFragment extends Fragment implements EventsAndTrainin
 
         progressViewModel = new ViewModelProvider(requireActivity()).get(ProgressViewModel.class);
 
-        DatabaseReference eventKeys = FirebaseUtils.getGroupTrainingsDatabase();
+        Query eventKeys = FirebaseUtils.getGroupTrainingsDatabase().orderByValue();
         DatabaseReference events = FirebaseUtils.getAllEventsDatabase();
 
         FirebaseRecyclerOptions<CalendarEvent> options = new FirebaseRecyclerOptions.Builder<CalendarEvent>()

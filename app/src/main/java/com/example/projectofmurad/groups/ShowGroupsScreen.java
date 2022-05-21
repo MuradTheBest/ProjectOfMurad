@@ -14,7 +14,6 @@ import android.os.Vibrator;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -31,18 +30,17 @@ import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.helpers.RecyclerViewSwipeDecorator;
 import com.example.projectofmurad.helpers.Utils;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.database.DataSnapshot;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
-import java.util.HashMap;
+import java.util.Objects;
 
 @SuppressLint("MissingPermission")
 public class ShowGroupsScreen extends MyActivity implements GroupAdapterForFirebase.OnGroupLongClickListener {
 
-    TextView tv_username;
+    MaterialTextView tv_username;
     RecyclerView rv_groups;
     ProgressBar progressBar;
 
@@ -56,7 +54,7 @@ public class ShowGroupsScreen extends MyActivity implements GroupAdapterForFireb
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_groups);
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
         tv_username = findViewById(R.id.tv_username);
         rv_groups = findViewById(R.id.rv_groups);
@@ -141,7 +139,10 @@ public class ShowGroupsScreen extends MyActivity implements GroupAdapterForFireb
                     else {
                         Utils.createAlertDialog(ShowGroupsScreen.this, null,
                                 "To change current group?",
-                                R.string.yes, (dialog, which) -> changeGroup(group),
+                                R.string.yes, (dialog, which) -> {
+                                        FirebaseUtils.changeGroup(getApplicationContext(), group.getKey());
+                                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                                },
                                 R.string.no, (dialog, which) -> dialog.dismiss(),
                                 null).show();
                     }
@@ -187,9 +188,6 @@ public class ShowGroupsScreen extends MyActivity implements GroupAdapterForFireb
                     .create()
                     .decorate();
 
-//            viewHolder.itemView.findViewById(R.id.backgroundStart).setVisibility(dX > 0 ? View.VISIBLE : View.GONE);
-//            viewHolder.itemView.findViewById(R.id.backgroundEnd).setVisibility(dX < 0 ? View.VISIBLE : View.GONE);
-
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
         }
 
@@ -199,20 +197,6 @@ public class ShowGroupsScreen extends MyActivity implements GroupAdapterForFireb
         }
 
     };
-
-    private void changeGroup(@NonNull Group group) {
-        FirebaseUtils.changeGroup(this, group.getKey());
-        startActivity(new Intent(this, MainActivity.class));
-
-        FirebaseUtils.getCurrentGroupDatabase().get().addOnSuccessListener(
-                new OnSuccessListener<DataSnapshot>() {
-                    @Override
-                    public void onSuccess(DataSnapshot snapshot) {
-                        HashMap<String, Object> map = (HashMap<String, Object>) snapshot.getValue();
-                        FirebaseUtils.getDatabase().getReference("dsfdfgdfsdasdf").setValue(map);
-                    }
-                });
-    }
 
     private void leaveGroup(@NonNull Group group) {
         loadingDialog.setMessage("Leaving this group...");
@@ -228,10 +212,7 @@ public class ShowGroupsScreen extends MyActivity implements GroupAdapterForFireb
                                         FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(group.getKey());
                                         FirebaseUtils.groups.child(group.getKey()).child(Group.KEY_USERS_NUMBER).setValue(group.getUsersNumber()-1);
                                         if (group.getKey().equals(FirebaseUtils.CURRENT_GROUP_KEY)) {
-                                            startActivity(new Intent(ShowGroupsScreen.this, ShowGroupsScreen.class)
-                                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                                                            | Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                                            | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                                            startActivity(Utils.getIntentClearTop(new Intent(ShowGroupsScreen.this, ShowGroupsScreen.class)));
                                             finish();
                                         }
                                     }

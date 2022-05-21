@@ -9,23 +9,21 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-
-import com.example.projectofmurad.calendar.UtilsCalendar;
 import com.example.projectofmurad.groups.CreateOrJoinGroupScreen;
+import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
-import com.google.android.gms.tasks.OnFailureListener;
+import com.example.projectofmurad.helpers.MyTextInputLayout;
+import com.example.projectofmurad.helpers.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 
 public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
 
-    private TextInputLayout et_username;
-    private TextInputLayout et_email_address;
-    private TextInputLayout et_password;
-    private TextInputLayout et_confirm_password;
+    private MyTextInputLayout et_username;
+    private MyTextInputLayout et_email_address;
+    private MyTextInputLayout et_password;
+    private MyTextInputLayout et_confirm_password;
 
     private TextView tv_match;
 
@@ -58,14 +56,13 @@ public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
 
         btn_phone = findViewById(R.id.btn_phone);
         btn_phone.setOnClickListener(v -> createPhoneAuthenticationDialog());
-
     }
 
-    public void checkFields(){
-        String username = et_username.getEditText().getText().toString();
-        String email = et_email_address.getEditText().getText().toString();
-        String password = et_password.getEditText().getText().toString();
-        String confirm_password = et_confirm_password.getEditText().getText().toString();
+    public void checkFields() {
+        String username = et_username.getText();
+        String email = et_email_address.getText();
+        String password = et_password.getText();
+        String confirm_password = et_confirm_password.getText();
 
         boolean editTextsFilled = true;
 
@@ -74,22 +71,22 @@ public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
             editTextsFilled = false;
         }
 
-        if (email.isEmpty() || !UtilsCalendar.isEmailValid(email)) {
+        if (email.isEmpty() || !CalendarUtils.isEmailValid(email)) {
             et_email_address.setError(getString(R.string.invalid_email));
             editTextsFilled = false;
         }
 
-        if(password.isEmpty()){
+        if (password.isEmpty()) {
             et_password.setError(getString(R.string.invalid_password));
             editTextsFilled = false;
         }
 
-        if(confirm_password.isEmpty()){
+        if (confirm_password.isEmpty()) {
             et_confirm_password.setError(getString(R.string.invalid_password));
             editTextsFilled = false;
         }
 
-        if (!password.equals(confirm_password)){
+        if (!password.equals(confirm_password)) {
             et_password.setError(getString(R.string.passwords_do_not_match));
             et_confirm_password.setError(getString(R.string.passwords_do_not_match));
             editTextsFilled = false;
@@ -123,19 +120,15 @@ public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
                                 });
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        loadingDialog.dismiss();
-                        Toast.makeText(Sign_Up_Screen.this, R.string.registration_failed, Toast.LENGTH_SHORT).show();
-                    }
+                .addOnFailureListener(e -> {
+                    loadingDialog.dismiss();
+                    Toast.makeText(Sign_Up_Screen.this, R.string.registration_failed, Toast.LENGTH_SHORT).show();
                 });
     }
 
     @Override
     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        if(et_password.getEditText().getText().toString().isEmpty()
-                && et_confirm_password.getEditText().getText().toString().isEmpty()) {
+        if(Utils.getText(et_password).isEmpty() && Utils.getText(et_confirm_password).isEmpty()) {
             tv_match.setVisibility(View.INVISIBLE);
         }
     }
@@ -143,8 +136,8 @@ public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-        String password = et_password.getEditText().getText().toString();
-        String confirm_password = et_confirm_password.getEditText().getText().toString();
+        String password = Utils.getText(et_password);
+        String confirm_password = Utils.getText(et_confirm_password);
 
         if (password.equals(confirm_password)) {
             tv_match.setVisibility(View.INVISIBLE);
@@ -152,8 +145,7 @@ public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
         else if (password.isEmpty() || confirm_password.isEmpty()) {
             tv_match.setVisibility(View.INVISIBLE);
         }
-        else if (et_password.getEditText().getText().toString().isEmpty()
-                && et_confirm_password.getEditText().getText().toString().isEmpty()) {
+        else if (Utils.getText(et_password).isEmpty() && Utils.getText(et_confirm_password).isEmpty()) {
             tv_match.setVisibility(View.INVISIBLE);
         }
         else {

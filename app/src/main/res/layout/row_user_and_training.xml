@@ -31,7 +31,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:scaleType="centerCrop"
-                android:src="@drawable/images"
+                android:src="@drawable/sample_profile_picture"
                 android:contentDescription="Profile picture" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -54,7 +54,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rv_training" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_choose_visibility"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

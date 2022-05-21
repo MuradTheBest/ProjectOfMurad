@@ -12,13 +12,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SwitchCompat;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
@@ -32,23 +29,24 @@ import com.example.projectofmurad.R;
 import com.example.projectofmurad.Show;
 import com.example.projectofmurad.TrainingsAdapterForFirebase;
 import com.example.projectofmurad.UserData;
+import com.example.projectofmurad.groups.UserGroupData;
+import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.helpers.ViewAnimationUtils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
-import com.example.projectofmurad.notifications.FCMSend;
-import com.example.projectofmurad.training.Training;
 import com.example.projectofmurad.training.TrainingsAdapter;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -62,12 +60,12 @@ import java.util.ArrayList;
  * Use the {@link EventInfoDialogFragment#newInstance(CalendarEvent, boolean)} factory method to
  * create an instance of this fragment.
  */
-public class EventInfoDialogFragment extends DialogFragment implements
-        UsersAdapterForFirebase.OnUserExpandListener,
-        UsersAdapterForFirebase.OnUserLongClickListener,
-        View.OnClickListener, CompoundButton.OnCheckedChangeListener,
-        TrainingsAdapter.OnTrainingClickListener,
-        TrainingsAdapterForFirebase.OnShowToOthersListener {
+public class EventInfoDialogFragment extends DialogFragment implements TrainingsAdapterForFirebase.OnShowToOthersListener,
+                                                                        UsersAdapterForFirebase.OnUserLongClickListener,
+                                                                        UsersAdapterForFirebase.OnUserExpandListener,
+                                                                        TrainingsAdapter.OnTrainingClickListener,
+                                                                        CompoundButton.OnCheckedChangeListener,
+                                                                        View.OnClickListener {
 
     public static final String ARG_IS_SHOWS_DIALOG = "isShowsDialog";
 
@@ -98,7 +96,7 @@ public class EventInfoDialogFragment extends DialogFragment implements
     public static EventInfoDialogFragment newInstance(CalendarEvent event, boolean isShowsDialog) {
         EventInfoDialogFragment fragment = new EventInfoDialogFragment();
         Bundle args = new Bundle();
-        args.putSerializable(UtilsCalendar.KEY_EVENT, event);
+        args.putSerializable(CalendarEvent.KEY_EVENT, event);
         args.putBoolean(ARG_IS_SHOWS_DIALOG, isShowsDialog);
         fragment.setArguments(args);
         return fragment;
@@ -108,7 +106,7 @@ public class EventInfoDialogFragment extends DialogFragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            event = (CalendarEvent) getArguments().getSerializable(UtilsCalendar.KEY_EVENT);
+            event = (CalendarEvent) getArguments().getSerializable(CalendarEvent.KEY_EVENT);
             isShowsDialog = getArguments().getBoolean(ARG_IS_SHOWS_DIALOG);
         }
 
@@ -122,23 +120,25 @@ public class EventInfoDialogFragment extends DialogFragment implements
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(isShowsDialog ? R.layout.fragment_event__info_with_collapsing : R.layout.fragment_event__info_, container, false);
+        return inflater.inflate(isShowsDialog
+                                ? R.layout.fragment_event__info_with_collapsing
+                                : R.layout.fragment_event__info_, container, false);
     }
 
     private AppBarLayout app_bar_layout;
 
     private CollapsingToolbarLayout collapsing_toolbar_layout;
 
-    private CardView cv_event;
+    private MaterialCardView cv_event;
 
-    private SwitchCompat switch_alarm;
+    private SwitchMaterial switch_alarm;
 
-    private TextView tv_event_name;
-    private TextView tv_event_place;
-    private TextView tv_event_description;
+    private MaterialTextView tv_event_name;
+    private MaterialTextView tv_event_place;
+    private MaterialTextView tv_event_description;
 
-    private TextView tv_event_start_date_time;
-    private TextView tv_event_end_date_time;
+    private MaterialTextView tv_event_start_date_time;
+    private MaterialTextView tv_event_end_date_time;
 
     private ViewPager2 vp_trainings;
 
@@ -149,9 +149,7 @@ public class EventInfoDialogFragment extends DialogFragment implements
 
     private LoadingDialog loadingDialog;
 
-    private int currentUserPosition = -1;
-
-    private SwitchCompat switch_only_attend;
+    private SwitchMaterial switch_only_attend;
 
     private UsersAdapterForFirebase userAdapter;
 
@@ -191,7 +189,7 @@ public class EventInfoDialogFragment extends DialogFragment implements
         btn_share_event = view.findViewById(R.id.btn_share_event);
         btn_delete_event = view.findViewById(R.id.btn_delete_event);
 
-        if (isShowsDialog){
+        if (isShowsDialog) {
             getDialog().getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
 
             app_bar_layout = view.findViewById(R.id.app_bar_layout);
@@ -206,14 +204,7 @@ public class EventInfoDialogFragment extends DialogFragment implements
         initializeRVUsers();
 
         switch_only_attend = view.findViewById(R.id.switch_only_attend);
-        switch_only_attend.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked){
-                setUpOnlyAttendUsersRecyclerView();
-            }
-            else {
-                setUpAllUsersRecyclerView();
-            }
-        });
+        switch_only_attend.setOnCheckedChangeListener((buttonView, isChecked) -> setUpAllUsersRecyclerView(isChecked));
 
         if (event != null){
             setUpEventData(event);
@@ -222,7 +213,7 @@ public class EventInfoDialogFragment extends DialogFragment implements
 
     private void initializeRVUsers() {
         Query allUserKeys = FirebaseUtils.getCurrentGroupUsers();
-        DatabaseReference users = FirebaseUtils.usersDatabase.orderByValue().getRef();
+        DatabaseReference users = FirebaseUtils.usersDatabase;
 
         FirebaseRecyclerOptions<UserData> userOptions
                 = new FirebaseRecyclerOptions.Builder<UserData>()
@@ -246,10 +237,10 @@ public class EventInfoDialogFragment extends DialogFragment implements
         tv_event_place.setText(event.getPlace());
         tv_event_description.setText(event.getDescription());
         tv_event_start_date_time.setText(String.format(getString(R.string.starting_time_s_s),
-                UtilsCalendar.OnlineTextToLocal(event.getStartDate()), event.getStartTime()));
+                CalendarUtils.OnlineTextToLocal(event.getStartDate()), event.getStartTime()));
 
         tv_event_end_date_time.setText(String.format(getString(R.string.ending_time_s_s),
-                UtilsCalendar.OnlineTextToLocal(event.getEndDate()), event.getEndTime()));
+                CalendarUtils.OnlineTextToLocal(event.getEndDate()), event.getEndTime()));
 
         int textColor = Utils.getContrastColor(event.getColor());
 
@@ -303,11 +294,14 @@ public class EventInfoDialogFragment extends DialogFragment implements
 
         }
 
-        checkIfAlarmSet(event.getPrivateId());
+        switch_alarm.setChecked(Utils.checkIfAlarmSet(event.getPrivateId(), Utils.openOrCreateDatabase(requireContext())));
 
-        setUpAllUsersRecyclerView();
+        setUpAllUsersRecyclerView(false);
 
-        Query usersAndTrainings = FirebaseUtils.getGroupTrainingsDatabase().child(event.getPrivateId())/*.orderByChild("show").equalTo(true)*/;
+        Query usersAndTrainings = FirebaseUtils.getGroupTrainingsDatabase().child(event.getPrivateId())
+                .orderByChild(UserGroupData.KEY_SHOW).equalTo(Show.ALL.getValue());
+
+        Log.d(Utils.LOG_TAG, "snapshot = " + FirebaseUtils.getGroupTrainingsDatabase().child(event.getPrivateId()).child(""));
 
         MutableLiveData<ArrayList<String>> userKeys = new MutableLiveData<>(new ArrayList<>());
         MutableLiveData<ArrayList<String>> invisibleUserKeys = new MutableLiveData<>(new ArrayList<>());
@@ -326,30 +320,34 @@ public class EventInfoDialogFragment extends DialogFragment implements
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 ArrayList<String> keys = new ArrayList<>();
                 for (DataSnapshot user : snapshot.getChildren()) {
+                    Log.d(Utils.LOG_TAG, "snapshot = " + user.hasChild(UserGroupData.KEY_SHOW));
+                    Log.d(Utils.LOG_TAG, "snapshot = " + user.getRef());
+                    Log.d(Utils.LOG_TAG, "snapshot = " + user.child(UserGroupData.KEY_SHOW).getValue(int.class));
+//                    if (user.child(UserGroupData.KEY_SHOW).getValue(int.class) == Show.ALL.getValue()){
                     keys.add(user.getKey());
+//                    }
+
                 }
                 userKeys.setValue(keys);
+
+                FirebaseUtils.getCurrentUserTrainingsForEvent(event.getPrivateId()).observe(EventInfoDialogFragment.this,
+                        trainings -> {
+                            if (trainings != null && !trainings.isEmpty()) {
+                                ArrayList<String> users = userKeys.getValue();
+                                if (!users.contains(FirebaseUtils.getCurrentUID())) {
+                                    Log.d("snapshot", "current user has results in this event");
+                                    users.add(0, FirebaseUtils.getCurrentUID());
+                                }
+                                userKeys.setValue(users);
+                            }
+                        });
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {}
         });
 
-        FirebaseUtils.getCurrentUserTrainingsForEvent(event.getPrivateId()).observe(EventInfoDialogFragment.this,
-                new Observer<ArrayList<Training>>() {
-                    @Override
-                    public void onChanged(ArrayList<Training> trainings) {
-                        if (trainings != null && !trainings.isEmpty()) {
-                            ArrayList<String> users = userKeys.getValue();
-                            if (!users.contains(FirebaseUtils.getCurrentUID())) {
-                                users.add(0, FirebaseUtils.getCurrentUID());
-                            }
-                            userKeys.setValue(users);
-                        }
-                    }
-                });
-
-        FirebaseUtils.getCurrentGroupUsers().orderByChild("show").startAfter(Show.NoOne.getValue()).addValueEventListener(
+        FirebaseUtils.getCurrentGroupUsers().orderByChild("show").equalTo(Show.NO_ONE.getValue()).addValueEventListener(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -412,36 +410,28 @@ public class EventInfoDialogFragment extends DialogFragment implements
 
         vp_trainings.setPageTransformer(compositePageTransformer);
 
+        int currentUserPosition = -1;
         if (currentUserPosition > -1)
             vp_trainings.setCurrentItem(currentUserPosition, true);
 
     }
 
-    public void setUpAllUsersRecyclerView(){
+    public void setUpAllUsersRecyclerView(boolean attend){
         startRVUsersShimmer();
 
-        Query allUserKeys = FirebaseUtils.getCurrentGroupUsers();
-        DatabaseReference users = FirebaseUtils.usersDatabase.orderByValue().getRef();
+        Query userKeys;
+        if (attend){
+            userKeys = FirebaseUtils.getAttendanceDatabase().child(event.getPrivateId()).orderByChild("attend").equalTo(true);
+        }
+        else {
+            userKeys = FirebaseUtils.getCurrentGroupUsers();
+        }
+
+        DatabaseReference users = FirebaseUtils.usersDatabase;
 
         FirebaseRecyclerOptions<UserData> userOptions
                 = new FirebaseRecyclerOptions.Builder<UserData>()
-                .setIndexedQuery(allUserKeys, users, UserData.class)
-                .setLifecycleOwner(this)
-                .build();
-
-        userAdapter.updateOptions(userOptions);
-        rv_users.setAdapter(userAdapter);
-    }
-
-    public void setUpOnlyAttendUsersRecyclerView(){
-        startRVUsersShimmer();
-
-        Query userAttendKeys = FirebaseUtils.getAttendanceDatabase().child(event.getPrivateId()).orderByChild("attend").equalTo(true);
-        DatabaseReference users = FirebaseUtils.usersDatabase.orderByValue().getRef();
-
-        FirebaseRecyclerOptions<UserData> userOptions
-                = new FirebaseRecyclerOptions.Builder<UserData>()
-                .setIndexedQuery(userAttendKeys, users, UserData.class)
+                .setIndexedQuery(userKeys, users, UserData.class)
                 .setLifecycleOwner(this)
                 .build();
 
@@ -452,8 +442,8 @@ public class EventInfoDialogFragment extends DialogFragment implements
     @Override
     public void onUserExpand(int position, int oldPosition) {
         if (oldPosition > -1){
-            UsersAdapterForFirebase.UserViewHolderForFirebase oldCollapsedItem = ((UsersAdapterForFirebase.UserViewHolderForFirebase)
-                    rv_users.findViewHolderForAdapterPosition(oldPosition));
+            UsersAdapterForFirebase.UserViewHolderForFirebase oldCollapsedItem
+                    = ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition));
 
             if (oldCollapsedItem != null){
                 ViewAnimationUtils.collapse(oldCollapsedItem.ll_contact);
@@ -490,10 +480,7 @@ public class EventInfoDialogFragment extends DialogFragment implements
            }
         }
         else if(v == btn_copy_event){
-
-            Log.d(Utils.LOG_TAG, "event  is " + event.toString());
-
-            if (event.getPrivateId().equals(event.getChainId())){
+            if (event.isSingle()){
                 copySingleEvent(event);
             }
             else {
@@ -502,10 +489,10 @@ public class EventInfoDialogFragment extends DialogFragment implements
         }
         else if(v == btn_edit_event){
             Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
-            intent.putExtra(UtilsCalendar.KEY_EVENT, event);
+            intent.putExtra(CalendarEvent.KEY_EVENT, event);
 
             dismiss();
-            requireActivity().startActivity(intent);
+            startActivity(intent);
         }
         else if(v == btn_share_event){
             String text = event.getName() + "\n" + event.getStartTime() + " - " + event.getEndTime()
@@ -517,7 +504,7 @@ public class EventInfoDialogFragment extends DialogFragment implements
             intent.setType("text/plain");
             intent.putExtra(Intent.EXTRA_TEXT, text);
 
-            requireActivity().startActivity(Intent.createChooser(intent, "Choose app"));
+            startActivity(Intent.createChooser(intent, "Choose app"));
         }
         else if(v == btn_delete_event){
 
@@ -525,37 +512,13 @@ public class EventInfoDialogFragment extends DialogFragment implements
 
             Toast.makeText(requireContext(), "Event was deleted successfully", Toast.LENGTH_SHORT).show();
 
-            if (event.getPrivateId().equals(event.getChainId())){
-                deleteSingleEvent(event.getChainId(), () -> requireActivity().startActivity(
-                        new Intent(requireContext(),
-                                MainActivity.class).setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT)));
+            if (event.isSingle()){
+                deleteSingleEvent(event.getPrivateId());
             }
             else {
                 createDeleteDialog();
             }
         }
-
-    }
-
-    private void getEventData(OnGetEventDataListener onGetEventDataListener){
-        FirebaseUtils.getAllEventsDatabase().child(event.getChainId()).get().addOnCompleteListener(
-                new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (task.isSuccessful() && task.getResult().exists()){
-                            CalendarEvent superEvent = task.getResult().getValue(CalendarEvent.class);
-
-                            event.setFrequency_start(superEvent.getFrequency_start());
-                            event.setFrequency_end(superEvent.getFrequency_end());
-
-                            onGetEventDataListener.onGetEventData();
-                        }
-                    }
-                });
-
-    }
-
-    public void checkIfAlarmSet(String event_private_id){
 
     }
 
@@ -587,14 +550,13 @@ public class EventInfoDialogFragment extends DialogFragment implements
 
     @Override
     public void onShowToOthers(int toWho) {
-        Toast.makeText(requireContext(), "Now your results are visible to " + Show.values()[toWho].toString(),
-                Toast.LENGTH_SHORT).show();
+        FirebaseUtils.getCurrentUserTrainingsRefForEvent(event.getPrivateId()).getParent()
+                        .child(UserGroupData.KEY_SHOW).setValue(toWho)
+                        .addOnSuccessListener(unused -> Toast.makeText(requireContext(),
+                                           "Now your results are visible to " + Show.values()[toWho].toString(),
+                                                Toast.LENGTH_SHORT).show());
 
         startVPTrainingsShimmer();
-    }
-
-    public interface OnGetEventDataListener{
-        void onGetEventData();
     }
 
     public void createDeleteDialog(){
@@ -603,147 +565,40 @@ public class EventInfoDialogFragment extends DialogFragment implements
 
         bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
 
-        TextView tv_bottom_sheet_dialog_title = bottomSheetDialog.findViewById(R.id.tv_bottom_sheet_dialog_title);
+        MaterialTextView tv_bottom_sheet_dialog_title = bottomSheetDialog.findViewById(R.id.tv_bottom_sheet_dialog_title);
         tv_bottom_sheet_dialog_title.setText("Delete");
 
-        TextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
-        tv_only_this_event.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bottomSheetDialog.dismiss();
-
-                deleteSingleEvent(event.getPrivateId(), () -> requireActivity().startActivity(new Intent(requireContext(),
-                        MainActivity.class).setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT)));
-            }
+        MaterialTextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
+        tv_only_this_event.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            deleteSingleEvent(event.getPrivateId());
         });
 
-        TextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
-        tv_all_events_in_chain.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bottomSheetDialog.dismiss();
-
-                deleteAllEventsInChain(event.getChainId(), () -> requireActivity().startActivity(new Intent(requireContext(),
-                        MainActivity.class).setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT)));
-            }
+        MaterialTextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
+        tv_all_events_in_chain.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            deleteAllEventsInChain(event.getChainId());
         });
 
         bottomSheetDialog.show();
     }
 
-    public void deleteSingleEvent(@NonNull String private_key, OnDeleteFinishedCallback onDeleteFinishedCallback){
-        DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
-
+    public void deleteSingleEvent(@NonNull String private_key){
         loadingDialog.setMessage("Deleting event");
         loadingDialog.show();
 
-        Query query = allEventsDatabase.orderByKey().equalTo(private_key);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot data : snapshot.getChildren()){
-                    data.getRef().removeValue();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        DatabaseReference eventsDatabaseReference = FirebaseUtils.getEventsDatabase();
-
-        eventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot date : snapshot.getChildren()){
-
-                    Log.d("murad", "========================================================");
-                    Log.d("murad", "Date private_key is " + date.getKey());
-                    Log.d("murad", "events on this date: " + date.getChildrenCount());
-
-                    for (DataSnapshot event : date.getChildren()) {
-
-                        Log.d("murad", "Event private_key is " + date.getKey());
-                        Log.d("murad", event.getValue(CalendarEvent.class).toString());
-
-                        if (event.getKey().equals(private_key)){
-                            Log.d("murad", "Event found");
-                            event.getRef().removeValue();
-                        }
-                    }
-
-
-                    Log.d("murad", "========================================================");
-                }
-                FCMSend.sendNotificationsToAllUsersWithTopic(requireContext(), event, Utils.DELETE_EVENT_NOTIFICATION_CODE);
-                onDeleteFinishedCallback.onDeleteFinished();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+        FirebaseUtils.deleteAll(FirebaseUtils.getCurrentGroupDatabase(), private_key,
+                () -> startActivity(new Intent(requireContext(), MainActivity.class)
+                        .setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT)));
     }
 
-    public void deleteAllEventsInChain(String chain_key, OnDeleteFinishedCallback onDeleteFinishedCallback){
-        DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
-
-        loadingDialog.setMessage("Deleting event");
+    public void deleteAllEventsInChain(String chain_key){
+        loadingDialog.setMessage("Deleting events in the chain");
         loadingDialog.show();
 
-        Query query = allEventsDatabase.orderByKey().equalTo(chain_key);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot eventDS : snapshot.getChildren()){
-                    if (eventDS.child(UtilsCalendar.KEY_EVENT_CHAIN_ID).getValue(String.class).equals(chain_key)){
-                        Log.d("murad", "Event found");
-                        eventDS.getRef().removeValue();
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        DatabaseReference eventsDatabaseReference = FirebaseUtils.getEventsDatabase();
-
-        eventsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot date : snapshot.getChildren()){
-
-                    Log.d("murad", "========================================================");
-                    Log.d("murad", "Date chain_key is " + date.getKey());
-                    Log.d("murad", "events on this date: " + date.getChildrenCount());
-
-                    for (DataSnapshot eventDS : date.getChildren()){
-
-                        Log.d("murad", "Event chain_key is " + date.getKey());
-                        Log.d("murad", eventDS.getValue(CalendarEvent.class).toString());
-
-                        if (eventDS.child(UtilsCalendar.KEY_EVENT_CHAIN_ID).getValue(String.class).equals(chain_key)){
-                            Log.d("murad", "Event found");
-                            eventDS.getRef().removeValue();
-                        }
-                    }
-
-                    Log.d("murad", "========================================================");
-                }
-                onDeleteFinishedCallback.onDeleteFinished();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+        FirebaseUtils.deleteAll(FirebaseUtils.getCurrentGroupDatabase(), chain_key,
+                () -> startActivity(new Intent(requireContext(), MainActivity.class)
+                        .setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT)));
     }
 
     public void createCopyDialog(){
@@ -752,20 +607,18 @@ public class EventInfoDialogFragment extends DialogFragment implements
 
         bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
 
-        TextView tv_bottom_sheet_dialog_title = bottomSheetDialog.findViewById(R.id.tv_bottom_sheet_dialog_title);
-        tv_bottom_sheet_dialog_title.setText("Copy");
+        MaterialTextView tv_bottom_sheet_dialog_title = bottomSheetDialog.findViewById(R.id.tv_bottom_sheet_dialog_title);
+        tv_bottom_sheet_dialog_title.setText(R.string.copy);
 
-        TextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
+        MaterialTextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
         tv_only_this_event.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
-
             copySingleEvent(event);
         });
 
-        TextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
+        MaterialTextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
         tv_all_events_in_chain.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
-
             copyAllEventsInChain(event);
         });
 
@@ -775,39 +628,34 @@ public class EventInfoDialogFragment extends DialogFragment implements
     public void copySingleEvent(@NonNull CalendarEvent event){
         String private_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
 
-        event.setPrivateId(private_key);
-        event.setChainId(private_key);
+        CalendarEvent copy = event.copy();
 
-        event.clearFrequencyData();
+        copy.setPrivateId(private_key);
+        copy.setChainId(private_key);
 
-        event.setFrequency_start(event.getStartDate());
-        event.setFrequency_end(event.getEndDate());
+        copy.clearFrequencyData();
+
+        copy.setFrequency_start(event.getStartDate());
+        copy.setFrequency_end(event.getEndDate());
 
         Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
-        intent.putExtra(UtilsCalendar.KEY_EVENT, event);
+        intent.putExtra(CalendarEvent.KEY_EVENT, copy);
 
-        dismiss();
-        requireActivity().startActivity(intent);
+        startActivity(intent);
     }
 
-    public void copyAllEventsInChain(@NonNull CalendarEvent event){
+    public void copyAllEventsInChain(@NonNull CalendarEvent event) {
         String private_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
         String chain_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
 
-        getEventData(() -> {
-            event.setPrivateId(private_key);
-            event.setChainId(chain_key);
+        CalendarEvent copy = event.copy();
+        copy.setPrivateId(private_key);
+        copy.setChainId(chain_key);
 
-            Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
-            intent.putExtra(UtilsCalendar.KEY_EVENT, event);
+        Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
+        intent.putExtra(CalendarEvent.KEY_EVENT, copy);
 
-            dismiss();
-            startActivity(intent);
-        });
-    }
-
-    public interface OnDeleteFinishedCallback {
-        void onDeleteFinished();
+        startActivity(intent);
     }
 
     @Override

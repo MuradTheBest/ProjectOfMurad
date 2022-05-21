@@ -11,23 +11,23 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.lifecycle.Observer;
 
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.MyActivity;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.Constants;
+import com.example.projectofmurad.helpers.ColorPickerDialog;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LoadingDialog;
+import com.example.projectofmurad.helpers.MyTextInputLayout;
 import com.example.projectofmurad.helpers.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -40,25 +40,25 @@ import petrov.kristiyan.colorpicker.ColorPicker;
 
 public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickListener {
 
-    private TextView tv_choose_color;
-    private TextView tv_username;
-    private TextView tv_create_new_group;
+    private MaterialTextView tv_choose_color;
+    private MaterialTextView tv_username;
+    private MaterialTextView tv_create_new_group;
 
-    private LinearLayout ll_create_group;
+    private LinearLayoutCompat ll_create_group;
 
-    private TextInputLayout et_new_group_name;
-    private TextInputLayout et_new_group_key;
-    private TextInputLayout et_new_trainer_code;
-    private TextInputLayout et_new_group_limit;
+    private MyTextInputLayout et_new_group_name;
+    private MyTextInputLayout et_new_group_key;
+    private MyTextInputLayout et_new_trainer_code;
+    private MyTextInputLayout et_new_group_limit;
 
     private MaterialButton btn_generate_group_key;
 
-    private TextView tv_join_group;
+    private MaterialTextView tv_join_group;
 
-    private LinearLayout ll_join_group;
+    private LinearLayoutCompat ll_join_group;
 
-    private TextInputLayout et_group_key;
-    private TextInputLayout et_trainer_code;
+    private MyTextInputLayout et_group_key;
+    private MyTextInputLayout et_trainer_code;
 
     private LoadingDialog loadingDialog;
 
@@ -83,11 +83,6 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
         et_new_trainer_code = findViewById(R.id.et_new_trainer_code);
         et_new_group_limit = findViewById(R.id.et_new_group_limit);
 
-        et_new_group_name.getEditText().addTextChangedListener(Utils.getDefaultTextChangedListener(et_new_group_name));
-        et_new_group_key.getEditText().addTextChangedListener(Utils.getDefaultTextChangedListener(et_new_group_key));
-        et_new_trainer_code.getEditText().addTextChangedListener(Utils.getDefaultTextChangedListener(et_new_trainer_code));
-        et_new_group_limit.getEditText().addTextChangedListener(Utils.getDefaultTextChangedListener(et_new_group_limit));
-
         et_new_group_key.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -107,7 +102,7 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
         btn_generate_group_key = findViewById(R.id.btn_generate_group_key);
         btn_generate_group_key.setOnClickListener(v -> {
             String randomKey = FirebaseUtils.groups.push().getKey().replace("-", "");
-            et_new_group_key.getEditText().setText(randomKey);
+            et_new_group_key.setText(randomKey);
             et_new_group_key.getEditText().setSelection(randomKey.length());
         });
 
@@ -120,10 +115,8 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
         ll_join_group = findViewById(R.id.ll_join_group);
 
         et_group_key = findViewById(R.id.et_group_key);
-        et_group_key.getEditText().addTextChangedListener(Utils.getDefaultTextChangedListener(et_group_key));
 
         et_trainer_code = findViewById(R.id.et_trainer_code);
-        et_trainer_code.getEditText().addTextChangedListener(Utils.getDefaultTextChangedListener(et_trainer_code));
 
         MaterialButton btn_join_group = findViewById(R.id.btn_join_group);
         btn_join_group.setOnClickListener(this::joinGroup);
@@ -137,11 +130,11 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
 
         Intent intent = getIntent();
 
-        if (!intent.hasExtra(Constants.KEY_LINK)){
+        if (!intent.hasExtra(Utils.KEY_LINK)){
             return;
         }
 
-        String link = intent.getStringExtra(Constants.KEY_LINK);
+        String link = intent.getStringExtra(Utils.KEY_LINK);
 
         Log.d(Utils.LOG_TAG, "uri is " + link);
 
@@ -151,13 +144,15 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
             tv_join_group.callOnClick();
             String groupKey = link.substring(link.lastIndexOf("/") + 1);
             Log.d(Utils.LOG_TAG, "key is " + groupKey);
-            et_group_key.getEditText().setText(groupKey);
+            et_group_key.setText(groupKey);
         }
 
     }
 
     private void createColorPickerDialog() {
-        ColorPicker colorPicker = Utils.createColorPickerDialog(this, new ColorPicker.OnFastChooseColorListener() {
+        ColorPickerDialog colorPicker = new ColorPickerDialog(this);
+
+        colorPicker.setOnFastChooseColorListener(new ColorPicker.OnFastChooseColorListener() {
 
             @Override
             public void setOnFastChooseColorListener(int position, int color) {
@@ -178,10 +173,10 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
     }
 
     public void createGroup(View view){
-        String name = et_new_group_name.getEditText().getText().toString();
-        String key = et_new_group_key.getEditText().getText().toString();
-        String trainerCode = et_new_trainer_code.getEditText().getText().toString();
-        String limit = et_new_group_limit.getEditText().getText().toString();
+        String name = et_new_group_name.getText();
+        String key = et_new_group_key.getText();
+        String trainerCode = et_new_trainer_code.getText();
+        String limit = et_new_group_limit.getText();
 
         boolean filled = true;
 
@@ -207,10 +202,10 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
     }
 
     public void joinGroup(View view){
-        String key = et_group_key.getEditText().getText().toString();
+        String key = et_group_key.getText();
 
         if (key.isEmpty()){
-            ((TextInputLayout) et_group_key.getParent().getParent()).setError("Key required");
+            et_group_key.setError("Key required");
         }
         else {
             checkKeyToJoinGroup(key);
@@ -293,7 +288,7 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
                             return;
                         }
 
-                        String code = et_trainer_code.getEditText().getText().toString();
+                        String code = et_trainer_code.getText();
 
                         if (!code.isEmpty() && g.getMadrichCode() != Integer.parseInt(code)) {
                             et_trainer_code.setError(getString(R.string.madrcih_code_invalid));
@@ -328,10 +323,10 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
     }
 
     public void createGroup(){
-        String name = et_new_group_name.getEditText().getText().toString();
-        String key = et_new_group_key.getEditText().getText().toString();
-        String trainerCode = et_new_trainer_code.getEditText().getText().toString();
-        String limit = et_new_group_limit.getEditText().getText().toString();
+        String name = et_new_group_name.getText();
+        String key = et_new_group_key.getText();
+        String trainerCode = et_new_trainer_code.getText();
+        String limit = et_new_group_limit.getText();
         limit = limit.isEmpty() ? "0" : limit;
         int color = tv_choose_color.getCurrentTextColor();
 
@@ -411,7 +406,5 @@ public class CreateOrJoinGroupScreen extends MyActivity implements View.OnClickL
 
 //        TransitionManager.beginDelayedTransition(viewGroup, trans);
         TransitionManager.beginDelayedTransition(viewGroup, changeBounds);
-
-
     }
 }

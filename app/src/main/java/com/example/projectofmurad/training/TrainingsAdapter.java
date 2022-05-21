@@ -39,8 +39,6 @@ import com.github.mikephil.charting.utils.MPPointD;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.Transformer;
 import com.github.mikephil.charting.utils.ViewPortHandler;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -100,14 +98,11 @@ public class TrainingsAdapter extends RecyclerView.Adapter<TrainingsAdapter.Trai
 
         holder.constraintLayout.setBackground(gd);
 
-        FirebaseUtils.usersDatabase.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        String profile_picture = task.getResult().child(userAndTrainingArrayList.get(position).getUID()).child("profile_picture").getValue(String.class);
-
-                        Glide.with(context).load(profile_picture).centerCrop().into(holder.iv_profile_picture);
-                    }
-                });
+        FirebaseUtils.usersDatabase.child(userAndTrainingArrayList.get(position).getUID()).child("profile_picture").get()
+                .addOnSuccessListener(dataSnapshot -> Glide.with(context).load(dataSnapshot.getValue(String.class))
+                                                            .error(R.drawable.sample_profile_picture)
+                                                            .placeholder(R.drawable.sample_profile_picture)
+                                                            .centerCrop().into(holder.iv_profile_picture));
 
         ArrayList<Training> trainings = userAndTrainingArrayList.get(position).getTraining();
 

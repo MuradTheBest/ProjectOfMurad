@@ -2,7 +2,6 @@ package com.example.projectofmurad;
 
 import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -29,7 +28,8 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.CalendarFragment;
 import com.example.projectofmurad.calendar.DayDialog;
-import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.helpers.CalendarUtils;
+import com.example.projectofmurad.groups.Group;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.home.HomeFragment;
@@ -72,9 +72,9 @@ public class MainActivity extends MyActivity implements NavController.OnDestinat
 //        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
 
-        UtilsCalendar.setLocale();
+        CalendarUtils.setLocale();
 
-        SQLiteDatabase db = openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
+        SQLiteDatabase db = Utils.openOrCreateDatabase(this);
         Utils.createAllTables(db);
 
         Intent gotten_intent = getIntent();
@@ -148,11 +148,14 @@ public class MainActivity extends MyActivity implements NavController.OnDestinat
 
     private void showEvent(@NonNull Intent intent){
 
-        if (intent.getExtras() == null || intent.getAction() == null || !intent.getAction().equals(DayDialog.ACTION_TO_SHOW_EVENT)){
+        if (intent.getExtras() == null
+                || intent.getAction() == null
+                || !intent.getAction().equals(DayDialog.ACTION_TO_SHOW_EVENT)){
             return;
         }
 
-        String event_private_id = intent.getStringExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID);
+
+        String event_private_id = intent.getStringExtra(CalendarEvent.KEY_EVENT_PRIVATE_ID);
 
         Log.d("murad", "===============================================");
         Log.d("murad", "event_private_id = " + event_private_id);
@@ -162,12 +165,15 @@ public class MainActivity extends MyActivity implements NavController.OnDestinat
         Log.d(AlarmManagerForToday.TAG, "event_private_id = " + event_private_id);
         Log.d(AlarmManagerForToday.TAG, "===============================================");
 
-        long start = intent.getLongExtra(UtilsCalendar.KEY_EVENT_START_DATE_TIME, Calendar.getInstance().getTimeInMillis());
+        String groupKey = intent.getStringExtra(Group.KEY_GROUP_KEY);
+        FirebaseUtils.changeGroup(this, groupKey);
+
+        long start = intent.getLongExtra(CalendarEvent.KEY_EVENT_START, Calendar.getInstance().getTimeInMillis());
         LocalDate goTo = CalendarEvent.getDate(start);
         Log.d("murad", "start is " + new Date(start));
 
 
-        Log.d(Utils.LOG_TAG, "goTo is " + UtilsCalendar.DateToTextOnline(goTo));
+        Log.d(Utils.LOG_TAG, "goTo is " + CalendarUtils.DateToTextOnline(goTo));
 
         boolean isAlarm = intent.getBooleanExtra("isAlarm", false);
         Log.d(AlarmManagerForToday.TAG, "isAlarm = " + isAlarm);
@@ -176,7 +182,7 @@ public class MainActivity extends MyActivity implements NavController.OnDestinat
             Log.d(AlarmManagerForToday.TAG, "sending intent to alarm receiver to stop vibration");
             Intent intent_stop_alarm = new Intent(this, AlarmReceiver.class);
             intent_stop_alarm.setAction(AlarmReceiver.ACTION_STOP_VIBRATION);
-            intent_stop_alarm.putExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID, event_private_id);
+            intent_stop_alarm.putExtra(CalendarEvent.KEY_EVENT_PRIVATE_ID, event_private_id);
 
             sendBroadcast(intent_stop_alarm);
         }

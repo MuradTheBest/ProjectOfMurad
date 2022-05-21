@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.projectofmurad" >
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -67,10 +69,6 @@
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Base.Theme.AppCompat" />
-        <activity
-            android:name=".calendar.Event_Attendance_Screen"
-            android:exported="false"
-            android:screenOrientation="portrait" />
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
@@ -103,11 +101,6 @@
             android:exported="false" />
 
         <receiver android:name=".notifications.AlarmReceiver" />
-
-        <activity
-            android:name=".calendar.MySuperTouchActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
         <activity
             android:name=".MainActivity"
             android:exported="false"

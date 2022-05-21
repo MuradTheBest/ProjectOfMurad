@@ -4,25 +4,25 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.calendar.UsersAdapterForFirebase;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
+import com.example.projectofmurad.helpers.MyTextInputLayout;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.helpers.ViewAnimationUtils;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
@@ -32,16 +32,16 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
     protected Group group;
 
     protected CollapsingToolbarLayout collapsing_toolbar_layout;
-    protected ImageView iv_group_picture;
+    protected AppCompatImageView iv_group_picture;
     protected MaterialToolbar toolbar;
-    protected TextInputLayout et_group_name;
-    protected TextInputLayout et_group_description;
-    protected TextInputLayout et_group_key;
-    protected TextInputLayout et_trainer_code;
-    protected TextInputLayout et_group_limit;
-    protected TextView tv_choose_color;
+    protected MyTextInputLayout et_group_name;
+    protected MyTextInputLayout et_group_description;
+    protected MyTextInputLayout et_group_key;
+    protected MyTextInputLayout et_trainer_code;
+    protected MyTextInputLayout et_group_limit;
+    protected MaterialTextView tv_choose_color;
 
-    protected TextView tv_group_users_number;
+    protected MaterialTextView tv_group_users_number;
     protected RecyclerView rv_users;
     protected ShimmerFrameLayout shimmer_rv_users;
 
@@ -82,19 +82,21 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
         collapsing_toolbar_layout.setTitle(group.getName());
         collapsing_toolbar_layout.setContentScrimColor(group.getColor());
 
-        et_group_name.getEditText().setText(group.getName());
-        et_group_description.getEditText().setText(group.getDescription());
-        et_group_key.getEditText().setText(group.getKey());
-        et_trainer_code.getEditText().setText(String.valueOf(group.getMadrichCode()));
-        et_group_limit.getEditText().setText(String.valueOf(group.getLimit()));
+        et_group_name.setText(group.getName());
+        et_group_description.setText(group.getDescription());
+        et_group_key.setText(group.getKey());
+        et_trainer_code.setText(String.valueOf(group.getMadrichCode()));
+        et_group_limit.setText(String.valueOf(group.getLimit()));
 
         tv_choose_color.setTextColor(group.getColor());
 
         tv_group_users_number.setText(String.format(getString(R.string.current_number_of_users_is), group.getUsersNumber()));
 
-        Glide.with(this).load(group.getPicture() != null
-                                        ? group.getPicture()
-                                        : R.drawable.sample_group_picture).centerInside().into(iv_group_picture);
+        Glide.with(this)
+                .load(group.getPicture())
+                .error(R.drawable.sample_group_picture)
+                .placeholder(R.drawable.sample_group_picture)
+                .centerInside().into(iv_group_picture);
 
         enableEverything(false);
         setupUsersRecyclerView();

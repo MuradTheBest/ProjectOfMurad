@@ -11,9 +11,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.calendar.CalendarEvent;
-import com.example.projectofmurad.calendar.UtilsCalendar;
 import com.example.projectofmurad.helpers.Utils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -34,13 +34,13 @@ public class AlarmManagerForToday {
     }
 
     public static String getTodayText(){
-        return UtilsCalendar.DateToTextOnline(getToday());
+        return CalendarUtils.DateToTextOnline(getToday());
     }
 
     public static boolean checkIfAlarmSet(@NonNull Context context, String eventPrivateId){
         boolean alarmSet = false;
 
-        SQLiteDatabase db = context.openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
+        SQLiteDatabase db = Utils.openOrCreateDatabase(context);
 
         Cursor cursor = db.rawQuery("select * from tbl_alarm where "
                 + Utils.TABLE_AlARM_COL_EVENT_PRIVATE_ID + " = '" + eventPrivateId + "'",  null);
@@ -75,7 +75,7 @@ public class AlarmManagerForToday {
                     + beforeText + ". \n" + "It will finish at " + event.getEndTime());
         }
 
-        intent.putExtra(UtilsCalendar.KEY_EVENT, event);
+        intent.putExtra(CalendarEvent.KEY_EVENT, event);
 
         Log.d(TAG, "===============================================================================================");
         Log.d(TAG, "Setting alarm");
@@ -84,7 +84,7 @@ public class AlarmManagerForToday {
                 "It will finish on " + event.getEndDateTime());
         Log.d(TAG, "" + event.getColor());
 
-        SQLiteDatabase db = context.openOrCreateDatabase(Utils.DATABASE_NAME, Context.MODE_PRIVATE, null);
+        SQLiteDatabase db = Utils.openOrCreateDatabase(context);
         int requestCode = Utils.addAlarm(event.getPrivateId(), event.getStartDateTime(), db);
 
         intent.putExtra("requestCode", requestCode);
@@ -152,7 +152,7 @@ public class AlarmManagerForToday {
     public static CalendarEvent findCalendarEventById(String event_private_id){
         final CalendarEvent[] event = {new CalendarEvent()};
 
-        FirebaseUtils.getEventsDatabase().child(UtilsCalendar.DateToTextForFirebase(getToday())).child(event_private_id).addListenerForSingleValueEvent(
+        FirebaseUtils.getEventsDatabase().child(CalendarUtils.DateToTextForFirebase(getToday())).child(event_private_id).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {

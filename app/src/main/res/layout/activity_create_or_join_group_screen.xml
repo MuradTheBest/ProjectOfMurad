@@ -8,7 +8,7 @@
     android:padding="15dp"
     tools:context=".groups.CreateOrJoinGroupScreen">
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tv_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
             android:padding="10dp"
             >
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_create_new_group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -51,7 +51,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:textSize="18sp"/>
 
-            <LinearLayout
+            <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/ll_create_group"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
@@ -151,7 +151,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_choose_color"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -167,7 +167,7 @@
                     android:layout_marginTop="10dp"
                     app:cornerRadius="10dp"/>
 
-            </LinearLayout>
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -188,10 +188,9 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="15dp"
-            >
+            android:padding="15dp">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_join_group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -204,7 +203,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:textSize="18sp"/>
 
-            <LinearLayout
+            <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/ll_join_group"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
@@ -268,7 +267,7 @@
                     android:layout_marginTop="10dp"
                     app:cornerRadius="10dp"/>
 
-            </LinearLayout>
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

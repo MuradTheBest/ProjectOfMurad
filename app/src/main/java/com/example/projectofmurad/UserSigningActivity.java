@@ -1,7 +1,6 @@
 package com.example.projectofmurad;
 
 import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
-import static com.example.projectofmurad.helpers.Utils.getDefaultTextChangedListener;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -12,17 +11,16 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.projectofmurad.calendar.UtilsCalendar;
-import com.example.projectofmurad.groups.ShowGroupsScreen;
+import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
+import com.example.projectofmurad.helpers.Utils;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -41,11 +39,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.messaging.FirebaseMessaging;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -66,7 +60,6 @@ public class UserSigningActivity extends MyActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        getSupportActionBar().hide();
 
         loadingDialog = new LoadingDialog(this);
     }
@@ -102,8 +95,9 @@ public class UserSigningActivity extends MyActivity {
         builder.setPositiveButton(R.string.text_continue, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String phone = et_verify_phone.getEditText().getText().toString();
-                if (phone.isEmpty() || !UtilsCalendar.isPhoneValid(phone)){
+                String phone = Utils.getText(et_verify_phone);
+
+                if (phone.isEmpty() || !CalendarUtils.isPhoneValid(phone)){
                     et_verify_phone.setError(getString(R.string.invalid_phone_number));
                 }
                 else{
@@ -184,12 +178,12 @@ public class UserSigningActivity extends MyActivity {
         builder.setMessage("Enter verification code that was sent to " + phone + ":");
 
         TextInputLayout et_verify_sms_code = view.findViewById(R.id.et_verify_sms_code);
-        et_verify_sms_code.getEditText().addTextChangedListener(getDefaultTextChangedListener(et_verify_sms_code));
+        Utils.addDefaultTextChangedListener(et_verify_sms_code);
 
         builder.setPositiveButton(R.string.verify, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String code = et_verify_sms_code.getEditText().getText().toString();
+                String code = Utils.getText(et_verify_sms_code);
 
                 if (code.isEmpty() || code.length() < 6){
                     et_verify_sms_code.setError("Invalid verification code");
@@ -229,17 +223,13 @@ public class UserSigningActivity extends MyActivity {
 
             FirebaseUser user = task.getResult().getUser();
 
-            HashMap<String, Object> userData = new HashMap<>();
-            userData.put("uid", user.getUid());
-            userData.put("username", user.getDisplayName());
-            userData.put("email", user.getEmail());
-            userData.put(UserData.KEY_PHONE, user.getPhoneNumber());
+            UserData userData = new UserData(user.getUid(), user.getEmail(), user.getDisplayName(), user.getPhoneNumber());
 
             if (user.getPhotoUrl() != null && !user.getPhotoUrl().toString().contains("/a/")){
-                userData.put("picture", user.getPhotoUrl().toString());
+                userData.setPicture(user.getPhotoUrl().toString());
             }
 
-            FirebaseUtils.usersDatabase.child(user.getUid()).updateChildren(userData)
+            FirebaseUtils.usersDatabase.child(user.getUid()).setValue(userData)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -265,9 +255,9 @@ public class UserSigningActivity extends MyActivity {
                 .build();
 
         // Build a GoogleSignInClient with the options specified by gso.
-        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, GOOGLE_REQUEST_CODE);
     }
 
@@ -309,72 +299,30 @@ public class UserSigningActivity extends MyActivity {
         FirebaseUtils.getFirebaseAuth().signInWithCredential(credential).addOnCompleteListener(authCompleteListener);
     }
 
-    protected void getToken(){
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(new OnCompleteListener<String>() {
-                    @Override
-                    public void onComplete(@NonNull Task<String> task) {
-                        if (!task.isSuccessful()) {
-                            return;
-                        }
+    protected void sendPasswordUpdateEmail(String email) {
+        loadingDialog.setMessage("Sending password reset mail...");
+        loadingDialog.show();
 
-                        // Get new FCM registration token
-                        String token = task.getResult();
-                        System.out.println("Token " + token);
+        // calling sendPasswordUpdateEmail open your email and write the new password and then you can login
+        FirebaseUtils.getFirebaseAuth().sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
 
-                        FirebaseUtils.getCurrentUserDataRef().child("tokens").get().addOnCompleteListener(
-                                new OnCompleteListener<DataSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-
-                                        ArrayList<String> tokens;
-
-                                        if (task.getResult().exists()){
-                                            tokens = (ArrayList<String>) task.getResult().getValue();
-                                        }
-                                        else {
-                                            tokens = new ArrayList<>();
-                                        }
-
-                                        tokens.add(token);
-
-                                        FirebaseUtils.getCurrentUserDataRef().child("tokens").setValue(tokens).addOnCompleteListener(
-                                                new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(
-                                                            @NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()){
-                                                            loadingDialog.dismiss();
-
-                                                            startActivity(new Intent(getApplicationContext(), ShowGroupsScreen.class));
-                                                        }
-                                                        else {
-                                                            Toast.makeText(
-                                                                    getApplicationContext(),
-                                                                    "Something went wrong. Try again",
-                                                                    Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    }
-                                                });
-                                    }
-                                });
-
-                    }
-                });
-    }
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //getting Root View that gets focus
-        View rootView = ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
-        rootView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    hideKeyboard(UserSigningActivity.this);
+            public void onComplete(@NonNull Task<Void> task) {
+                loadingDialog.dismiss();
+
+                if (task.isSuccessful()) {
+                    // if isSuccessful then done message will be shown and you can change the password
+                    Utils.createAlertDialog(peekAvailableContext(), null,
+                            "Password reset mail was sent to your email",
+                            getString(R.string.ok), (dialog, which) -> dialog.dismiss(),
+                            null, null, null).show();
+                }
+                else {
+                    Toast.makeText(getApplicationContext(),"Error occurred",Toast.LENGTH_LONG).show();
                 }
             }
         });
+
     }
 
     public static void hideKeyboard(@NonNull Activity context) {

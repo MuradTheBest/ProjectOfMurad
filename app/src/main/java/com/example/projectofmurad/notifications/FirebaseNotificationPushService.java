@@ -17,13 +17,10 @@ import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.DayDialog;
-import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.groups.Group;
 import com.example.projectofmurad.groups.ShowGroupsScreen;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.Utils;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
@@ -38,6 +35,10 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
         Log.d(FCM_TAG, "******************************************************************************************");
         Log.d(FCM_TAG, "remote message from server received");
         Log.d(FCM_TAG, "******************************************************************************************");
+
+        if (FirebaseUtils.isUserLoggedIn()){
+            return;
+        }
 
         if (remoteMessage.getData().isEmpty()){
             Log.d(FCM_TAG, "remoteMessage.getData() is empty");
@@ -63,31 +64,6 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
 
         pushNotification(remoteMessage);
 
-        FirebaseUtils.groupDatabases.orderByChild("Users/" + FirebaseUtils.getCurrentUID() + "/uid").equalTo(FirebaseUtils.getCurrentUID())
-                .addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (!snapshot.exists()){
-                            Log.d(FCM_TAG, "snapshot doesn't exist");
-                            return;
-                        }
-
-                        Log.d(FCM_TAG, "checking user's groups");
-
-                        String key = snapshot.getKey();
-                        if (Objects.equals(key, groupKey)){
-                            Log.d(FCM_TAG, "user is in the group that was in notification");
-//                            pushNotification(remoteMessage);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-
         super.onMessageReceived(remoteMessage);
     }
 
@@ -100,9 +76,10 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
 
         String title = remoteMessage.getNotification().getTitle();
         String body = remoteMessage.getNotification().getBody();
-        String text = remoteMessage.getData().get("text");
         String tag = remoteMessage.getNotification().getTag();
+        String text = remoteMessage.getData().get("text");
         int type = Integer.parseInt(remoteMessage.getData().getOrDefault("type", "0"));
+        String groupKey = remoteMessage.getData().get("group");
 
         String CHANNEL_ID = "Events Notifications";
 
@@ -121,15 +98,12 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
                 .setColor(color)
                 .setAutoCancel(true);
 
-
         if (remoteMessage.getData().containsKey("event")){
             String eventJSON = remoteMessage.getData().get("event");
-            CalendarEvent event = new Gson().fromJson(eventJSON, CalendarEvent.class);
-
-            notificationBuilder = pushEventNotification(event, notificationBuilder, type);
+            CalendarEvent event = CalendarEvent.fromJson(eventJSON);
+            notificationBuilder = pushEventNotification(groupKey, event, notificationBuilder, type);
         }
         else if (remoteMessage.getData().containsKey(FCMSend.KEY_RECEIVER_UID)){
-            String groupKey = remoteMessage.getData().get("group");
             FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(groupKey);
             if (FirebaseUtils.CURRENT_GROUP_KEY.equals(groupKey)) {
                 Log.d(FCM_TAG, "user's current group is the group that he was kicked out from ");
@@ -140,11 +114,12 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
         NotificationManagerCompat.from(this).notify(tag, type, notificationBuilder.build());
     }
 
-    public NotificationCompat.Builder pushEventNotification(@NonNull CalendarEvent event, NotificationCompat.Builder notificationBuilder, int type){
+    public NotificationCompat.Builder pushEventNotification(String groupKey, @NonNull CalendarEvent event, NotificationCompat.Builder notificationBuilder, int type){
         Intent intentToShowEvent = new Intent(this, MainActivity.class);
         intentToShowEvent.setAction(DayDialog.ACTION_TO_SHOW_EVENT);
-        intentToShowEvent.putExtra(UtilsCalendar.KEY_EVENT_PRIVATE_ID, event.getPrivateId());
-        intentToShowEvent.putExtra(UtilsCalendar.KEY_EVENT_START_DATE_TIME, event.getStart());
+        intentToShowEvent.putExtra(Group.KEY_GROUP_KEY, groupKey);
+        intentToShowEvent.putExtra(CalendarEvent.KEY_EVENT_PRIVATE_ID, event.getPrivateId());
+        intentToShowEvent.putExtra(CalendarEvent.KEY_EVENT_START, event.getStart());
         intentToShowEvent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         PendingIntent pintentToShowEvent = PendingIntent.getActivity(this, 0, intentToShowEvent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);

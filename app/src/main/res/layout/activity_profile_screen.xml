@@ -12,22 +12,6 @@
         android:layout_height="match_parent"
         android:padding="10dp" >
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/iv_profile_picture"
-            android:layout_width="130dp"
-            android:layout_height="130dp"
-            android:layout_centerInParent="true"
-            android:src="@drawable/images"
-            app:civ_border_color="@color/colorAccent"
-            app:civ_border_width="2dp"
-            android:scaleType="centerCrop"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.08"/>
-
         <com.facebook.shimmer.ShimmerFrameLayout
             android:id="@+id/shimmer_profile_picture"
             android:layout_width="130dp"
@@ -35,18 +19,22 @@
             android:layout_centerInParent="true"
             android:animateLayoutChanges="true"
             android:animationCache="true"
+            app:shimmer_auto_start="true"
             app:shimmer_repeat_mode="restart"
             app:shimmer_shape="linear"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_profile_picture"
-            app:layout_constraintEnd_toEndOf="@+id/iv_profile_picture"
-            app:layout_constraintStart_toStartOf="@+id/iv_profile_picture"
-            app:layout_constraintTop_toTopOf="@+id/iv_profile_picture">
+            app:shimmer_base_alpha="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/iv_profile_picture"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_centerInParent="true"
-                android:src="@drawable/sample_profile"
+                app:civ_border_color="@color/colorAccent"
+                app:civ_border_width="2dp"
+                android:src="@drawable/sample_profile_picture"
                 android:scaleType="centerCrop"
                 app:civ_circle_background_color="@color/gray"/>
 
@@ -62,7 +50,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.491"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_profile_picture"
+            app:layout_constraintTop_toBottomOf="@+id/shimmer_profile_picture"
             app:layout_constraintVertical_bias="0.02"
             android:gravity="center">
 
@@ -161,10 +149,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="5dp"
                 android:visibility="gone"
-                android:text="Change phone"
+                android:text="@string/change_phone"
                 app:cornerRadius="10dp"/>
 
-            <CheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/et_madrich"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -265,8 +253,6 @@
                 app:iconTintMode="multiply" />
 
         </RelativeLayout>
-
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

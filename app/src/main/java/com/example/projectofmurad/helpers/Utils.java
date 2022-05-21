@@ -1,6 +1,5 @@
 package com.example.projectofmurad.helpers;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -51,11 +50,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Random;
 
-import petrov.kristiyan.colorpicker.ColorPicker;
+public abstract class Utils {
 
-public class Utils {
+    public static final String KEY_LINK = "key_link";
+    public static final String SHARED_PREFERENCES_FILE_NAME = "savedData";
 
     public final static String LOG_TAG = "murad";
     public final static String EVENT_TAG = "event";
@@ -118,6 +119,16 @@ public class Utils {
         return alarm_id;
     }
 
+    public static boolean checkIfAlarmSet(String event_private_id, @NonNull SQLiteDatabase db){
+        Cursor cursor = db.rawQuery("select * from tbl_alarm where "
+                + Utils.TABLE_AlARM_COL_EVENT_PRIVATE_ID + " = '" + event_private_id + "'",  null);
+
+        boolean alarmSet = cursor.moveToNext();
+        cursor.close();
+
+        return alarmSet;
+    }
+
     public static int alarmIdByEvent(String event_private_id, @NonNull SQLiteDatabase db){
         Cursor cursor = db.rawQuery("select * from " + TABLE_AlARM_NAME
                 + " where " + TABLE_AlARM_COL_EVENT_PRIVATE_ID + " = '" + event_private_id + "'", null);
@@ -143,7 +154,7 @@ public class Utils {
         db.execSQL("drop table if exists " + TABLE_AlARM_NAME);
     }
 
-    public Bitmap getBitmapClippedCircle(@NonNull Bitmap bitmap) {
+    public static Bitmap getBitmapClippedCircle(@NonNull Bitmap bitmap) {
 
         final int width = bitmap.getWidth();
         final int height = bitmap.getHeight();
@@ -230,12 +241,9 @@ public class Utils {
                 + '/' + res.getResourceEntryName(resId));
     }
 
-    @NonNull
-    @Contract("_ -> param1")
-    public static AppCompatDialog createCustomDialog(@NonNull AppCompatDialog dialog){
+    public static void createCustomDialog(@NonNull AppCompatDialog dialog){
         dialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.round_picker_dialog_background);
-        return dialog;
     }
 
     @NonNull
@@ -246,19 +254,13 @@ public class Utils {
         return dialog;
     }
 
-    @NonNull
-    @Contract("_ -> param1")
-    public static Dialog createCustomDialog(@NonNull Dialog dialog){
+    public static void createCustomDialog(@NonNull Dialog dialog){
         dialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.round_picker_dialog_background);
-        return dialog;
     }
 
-    @NonNull
-    @Contract("_ -> param1")
-    public static BottomSheetDialog createCustomBottomSheetDialog(@NonNull BottomSheetDialog bottomSheetDialog){
+    public static void createCustomBottomSheetDialog(@NonNull BottomSheetDialog bottomSheetDialog){
         bottomSheetDialog.setDismissWithAnimation(true);
-        return bottomSheetDialog;
     }
 
     public static double round(double value, int places) {
@@ -490,30 +492,8 @@ public class Utils {
     }
 
     @NonNull
-    public static ColorPicker createColorPickerDialog(Activity activity,
-                                                      ColorPicker.OnFastChooseColorListener onFastChooseColorListener) {
-
-        ColorPicker colorPicker = new ColorPicker(activity);
-
-        colorPicker.setDefaultColorButton(R.color.colorAccent);
-        colorPicker.setRoundColorButton(true);
-        colorPicker.setColorButtonSize(30, 30);
-        colorPicker.setColorButtonTickColor(Color.BLACK);
-        colorPicker.setDismissOnButtonListenerClick(true);
-
-        colorPicker.getPositiveButton().setVisibility(View.GONE);
-        colorPicker.getNegativeButton().setVisibility(View.GONE);
-
-        colorPicker.setOnFastChooseColorListener(onFastChooseColorListener);
-
-        colorPicker.getDialogViewLayout().findViewById(R.id.buttons_layout).setVisibility(View.VISIBLE);
-
-        return colorPicker;
-    }
-
-    @NonNull
     @Contract("_ -> new")
-    public static TextWatcher getDefaultTextChangedListener(TextInputLayout textInputLayout){
+    private static TextWatcher getDefaultTextChangedListener(TextInputLayout textInputLayout){
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -528,10 +508,18 @@ public class Utils {
         };
     }
 
+    public static void addDefaultTextChangedListener(@NonNull TextInputLayout... textInputLayouts){
+        Arrays.stream(textInputLayouts).forEach(t -> t.getEditText().addTextChangedListener(getDefaultTextChangedListener(t)));
+    }
+
     public static Intent getIntentClearTop(@NonNull Intent intent){
         return intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                         | Intent.FLAG_ACTIVITY_CLEAR_TOP
                         | Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }
 
+    @NonNull
+    public static String getText(@NonNull TextInputLayout textInputLayout){
+        return Objects.requireNonNull(textInputLayout.getEditText()).getText().toString();
+    }
 }

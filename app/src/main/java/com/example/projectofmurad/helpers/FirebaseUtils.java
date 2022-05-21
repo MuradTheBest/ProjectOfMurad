@@ -18,12 +18,11 @@ import com.bumptech.glide.Glide;
 import com.example.projectofmurad.MyApplication;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
-import com.example.projectofmurad.calendar.UtilsCalendar;
 import com.example.projectofmurad.groups.Group;
 import com.example.projectofmurad.groups.UserGroupData;
 import com.example.projectofmurad.training.Training;
 import com.facebook.shimmer.ShimmerFrameLayout;
-import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
@@ -34,6 +33,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
@@ -46,7 +46,7 @@ import java.util.Objects;
 /**
  * Utils class for all the actions will Firebase
  */
-public class FirebaseUtils {
+public abstract class FirebaseUtils {
 
     @NonNull
     public static FirebaseAuth getFirebaseAuth(){
@@ -96,11 +96,11 @@ public class FirebaseUtils {
     public static final DatabaseReference groupDatabases = getDatabase().getReference("Group Databases").getRef();
 
     public static String CURRENT_GROUP_KEY = MyApplication.getContext()
-            .getSharedPreferences(Constants.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
+            .getSharedPreferences(Utils.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
             .getString(UserData.KEY_CURRENT_GROUP, "");
 
     public static int CURRENT_GROUP_COLOR = MyApplication.getContext()
-            .getSharedPreferences(Constants.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
+            .getSharedPreferences(Utils.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
             .getInt(Group.KEY_COLOR, R.color.colorAccent);
 
     @NonNull
@@ -115,8 +115,9 @@ public class FirebaseUtils {
     }
 
     public static void changeGroup(@NonNull Context context, String key) {
-        SharedPreferences sp = context.getSharedPreferences(Constants.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE);
+        SharedPreferences sp = context.getSharedPreferences(Utils.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
+
         editor.putString(UserData.KEY_CURRENT_GROUP, key);
         editor.apply();
 
@@ -176,8 +177,13 @@ public class FirebaseUtils {
     }
 
     @NonNull
+    public static DatabaseReference getUserGroupDataRef(String UID){
+        return getCurrentGroupUsers().child(UID);
+    }
+
+    @NonNull
     public static DatabaseReference getCurrentUserGroupDataRef(){
-        return getCurrentGroupUsers().child(getCurrentUID());
+        return getUserGroupDataRef(getCurrentUID());
     }
 
     public static void addGroupToCurrentUser(String groupKey, boolean isMadrich,
@@ -199,7 +205,7 @@ public class FirebaseUtils {
     public static LiveData<List<String>> getCurrentUserGroups(){
         MutableLiveData<List<String>> groups = new MutableLiveData<>();
 
-        groupDatabases.orderByChild("Users/" + getCurrentUID()).startAfter(null).addListenerForSingleValueEvent(
+        groupDatabases.orderByChild("Users/" + getCurrentUID() + "/uid").equalTo(getCurrentUID()).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -254,7 +260,7 @@ public class FirebaseUtils {
 
     @NonNull
     public static DatabaseReference getUserTrainingsRefForEvent(String UID, String eventPrivateId){
-        return getGroupTrainingsDatabase().child(eventPrivateId).child(UID);
+        return getGroupTrainingsDatabase().child(eventPrivateId).child(UID).child("Trainings");
     }
 
     @NonNull
@@ -263,8 +269,12 @@ public class FirebaseUtils {
     }
 
     @NonNull
-    public static Task<Void> addTrainingForEvent(String eventPrivateId, @NonNull Training training){
+    public static Task<Void> addTrainingForEvent(String eventPrivateId, @NonNull Training training) {
+        getCurrentUserGroupDataRef().child(UserGroupData.KEY_SHOW).get().addOnSuccessListener(
+                dataSnapshot -> getCurrentUserTrainingsRefForEvent(eventPrivateId).getParent()
+                        .child(UserGroupData.KEY_SHOW).setValue(dataSnapshot.getValue(int.class)));
         return getCurrentUserTrainingsRefForEvent(eventPrivateId).child(training.getPrivateId()).setValue(training);
+
     }
 
     @NonNull
@@ -425,45 +435,31 @@ public class FirebaseUtils {
     public static void getProfilePictureFromFB(String UID, Context context, @NonNull ImageView imageView, ShimmerFrameLayout shimmerFrameLayout){
         imageView.setVisibility(View.INVISIBLE);
 
-        DatabaseReference ref = usersDatabase.child(UID).child(UserData.KEY_PICTURE);
+        usersDatabase.child(UID).child(UserData.KEY_PICTURE).get().addOnSuccessListener(
+                new OnSuccessListener<DataSnapshot>() {
+                    @Override
+                    public void onSuccess(DataSnapshot dataSnapshot) {
+                        Glide.with(context).load(dataSnapshot.getValue(String.class))
+                                .error(R.drawable.sample_profile_picture)
+                                .placeholder(R.drawable.sample_profile_picture)
+                                .centerCrop().into(imageView);
 
-        ref.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if(task.isSuccessful() && task.getResult().exists()) {
-                    String profile_picture = task.getResult().getValue(String.class);
-                    Glide.with(context).load(profile_picture).centerCrop().into(imageView);
-                }
-                else {
-                    Glide.with(context).load(R.drawable.images).centerCrop().into(imageView);
-                }
+                        imageView.setVisibility(View.VISIBLE);
 
-                imageView.setVisibility(View.VISIBLE);
-
-                if (shimmerFrameLayout != null){
-                    shimmerFrameLayout.stopShimmer();
-                    shimmerFrameLayout.setVisibility(View.GONE);
-                }
-            }
-        });
+                        if (shimmerFrameLayout != null){
+                            shimmerFrameLayout.stopShimmer();
+                            shimmerFrameLayout.setVisibility(View.GONE);
+                        }
+                    }
+                });
     }
 
     @NonNull
     public static LiveData<Boolean> isMadrichVerificationCode(int code){
         MutableLiveData<Boolean> isMadrichCode = new MutableLiveData<>();
 
-        groups.child(CURRENT_GROUP_KEY).child(Group.KEY_MADRICH_CODE).addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        isMadrichCode.setValue(snapshot.getValue(int.class) == code);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
+        groups.child(CURRENT_GROUP_KEY).child(Group.KEY_MADRICH_CODE).get().addOnSuccessListener(
+                dataSnapshot -> isMadrichCode.setValue(Objects.equals(dataSnapshot.getValue(int.class), code)));
 
         return isMadrichCode;
     }
@@ -474,7 +470,7 @@ public class FirebaseUtils {
      * @param key Key of location which value has to be deleted
      * @param firebaseCallback Callback that will happen when deleting will be finished
      */
-    public static void deleteAll(@NonNull DatabaseReference rootRef, String key, FirebaseCallback firebaseCallback){
+    public static void deleteAll(@NonNull Query rootRef, String key, FirebaseCallback firebaseCallback){
         Log.d("snapshot", "Attempt to delete");
         rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -507,6 +503,51 @@ public class FirebaseUtils {
         }
     }
 
+    /**
+     * Deletes all the data in {@link FirebaseDatabase} with this key starting from rootRef and deeper.
+     * @param rootRef Starting location for deleting
+     * @param firebaseCallback Callback that will happen when deleting will be finished
+     */
+    public static void deleteAll(@NonNull Query rootRef, FirebaseCallback firebaseCallback, Object... objects){
+        Log.d("snapshot", "Attempt to delete");
+        rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.d("snapshot", "Starting delete");
+                deleteData(snapshot, objects);
+                firebaseCallback.onFirebaseCallback();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    /**
+     *
+     * @param snapshot
+     */
+    private static void deleteData(@NonNull DataSnapshot snapshot, Object... objects){
+        if (!snapshot.exists() && !snapshot.hasChildren()) return;
+
+        Log.d("snapshot", snapshot.getRef().toString());
+
+        for (DataSnapshot data : snapshot.getChildren()) {
+            boolean match = true;
+            for (Object o : objects){
+                if (!(Objects.equals(data.getKey(), o) || Objects.equals(data.getValue(), o))) {
+                    match = false;
+                    break;
+                }
+            }
+
+            if (match){
+                data.getRef().removeValue();
+                deleteData(data, objects);
+            }
+        }
+    }
+
     private static void deleteData2(@NonNull DataSnapshot snapshot, String key){
         if (!snapshot.exists() && !snapshot.hasChildren()) return;
 
@@ -528,14 +569,12 @@ public class FirebaseUtils {
         MyAlertDialogBuilder builder = new MyAlertDialogBuilder(context);
 
         builder.setView(view);
-        builder.setCancelable(false);
         builder.setTitle(R.string.in_order_to_continue_you_are_required_to_prove_your_identity);
 
         TextInputLayout et_email_address = view.findViewById(R.id.et_email_address);
         TextInputLayout et_password = view.findViewById(R.id.et_password);
 
-        et_email_address.getEditText().addTextChangedListener(Utils.getDefaultTextChangedListener(et_email_address));
-        et_password.getEditText().addTextChangedListener(Utils.getDefaultTextChangedListener(et_password));
+        Utils.addDefaultTextChangedListener(et_email_address, et_password);
 
         builder.setPositiveButton(R.string.text_continue,
                 (dialog, which) -> checkFields(context, et_email_address, et_password, firebaseCallback), false);
@@ -548,12 +587,12 @@ public class FirebaseUtils {
     private static void checkFields(Context context, @NonNull TextInputLayout et_email_address,
                              @NonNull TextInputLayout et_password, FirebaseCallback firebaseCallback) {
 
-        String email = et_email_address.getEditText().getText().toString();
-        String password = et_password.getEditText().getText().toString();
+        String email = Utils.getText(et_email_address);
+        String password = Utils.getText(et_password);
 
         boolean editTextsFilled = true;
 
-        if (email.isEmpty() || !UtilsCalendar.isEmailValid(email)) {
+        if (email.isEmpty() || !CalendarUtils.isEmailValid(email)) {
             et_email_address.setError(context.getString(R.string.invalid_email));
             editTextsFilled = false;
         }
@@ -585,5 +624,4 @@ public class FirebaseUtils {
                     Toast.makeText(context, "Entered login and password are wrong", Toast.LENGTH_SHORT).show();
                 });
     }
-
 }

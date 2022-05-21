@@ -29,7 +29,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:scaleType="centerCrop"
-                android:src="@drawable/images"
+                android:src="@drawable/sample_profile_picture"
                 android:contentDescription="Profile picture" />
 
             <com.facebook.shimmer.ShimmerFrameLayout

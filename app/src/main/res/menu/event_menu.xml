@@ -5,9 +5,6 @@
         android:id="@+id/action_save"
         android:icon="@drawable/ic_baseline_done_24"
         app:showAsAction="ifRoom"
-        android:onClick="onAddEventClick"
-        android:title="Save"
-
-        />
+        android:title="Save" />
 
 </menu>

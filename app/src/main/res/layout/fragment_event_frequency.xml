@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scrollview_frequency"
     android:layout_width="match_parent"
@@ -44,7 +45,7 @@
                             android:textSize="16dp"
                             style="?android:attr/buttonBarButtonStyle" />-->
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_cancel"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -54,7 +55,7 @@
                 android:textColor="@color/black"
                 android:background="@color/colorAccent" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_ok"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -75,7 +76,7 @@
             android:dividerPadding="3dp"
             >
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_event_frequency_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -99,7 +100,7 @@
                     android:layout_marginTop="5dp"
                     >
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/every"
@@ -143,14 +144,14 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
-
-                        <AutoCompleteTextView
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/autoCompleteTextView_frequencyType"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:textSize="16sp"
                             android:inputType="none"/>
+
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
@@ -228,7 +229,7 @@
                     android:layout_gravity="start"
                     android:weightSum="4">
 
-                    <RadioButton
+                    <com.google.android.material.radiobutton.MaterialRadioButton
                         android:id="@+id/rb_with_day_and_month"
                         style="@style/radioButton"
                         android:layout_width="match_parent"
@@ -237,7 +238,7 @@
                         android:text="@string/on_d_day"
                         android:textSize="16sp" />
 
-                    <RadioButton
+                    <com.google.android.material.radiobutton.MaterialRadioButton
                         android:id="@+id/rb_with_last_day_and_month"
                         style="@style/radioButton"
                         android:layout_width="match_parent"
@@ -246,7 +247,7 @@
                         android:text="@string/on_the_last_day"
                         android:textSize="16sp" />
 
-                    <RadioButton
+                    <com.google.android.material.radiobutton.MaterialRadioButton
                         android:id="@+id/rb_with_dayOfWeek_and_month"
                         style="@style/radioButton"
                         android:layout_width="match_parent"
@@ -255,7 +256,7 @@
                         android:text="@string/on_s_d"
                         android:textSize="16sp" />
 
-                    <RadioButton
+                    <com.google.android.material.radiobutton.MaterialRadioButton
                         android:id="@+id/rb_with_last_dayOfWeek_and_month"
                         style="@style/radioButton"
                         android:layout_width="match_parent"
@@ -275,7 +276,7 @@
                     android:weightSum="4"
                     >
 
-                    <RadioButton
+                    <com.google.android.material.radiobutton.MaterialRadioButton
                         style="@style/radioButton"
                         android:id="@+id/rb_with_day_and_year"
                         android:layout_width="match_parent"
@@ -284,7 +285,7 @@
                         android:textSize="16sp"
                         android:text="@string/on_d_of_s" />
 
-                    <RadioButton
+                    <com.google.android.material.radiobutton.MaterialRadioButton
                         style="@style/radioButton"
                         android:id="@+id/rb_with_last_day_and_year"
                         android:layout_width="match_parent"
@@ -293,7 +294,7 @@
                         android:textSize="16sp"
                         android:text="@string/on_the_last_day_of_s" />
 
-                    <RadioButton
+                    <com.google.android.material.radiobutton.MaterialRadioButton
                         android:id="@+id/rb_with_dayOfWeek_and_year"
                         style="@style/radioButton"
                         android:layout_width="match_parent"
@@ -302,7 +303,7 @@
                         android:text="@string/on_s_d_of_s"
                         android:textSize="16sp" />
 
-                    <RadioButton
+                    <com.google.android.material.radiobutton.MaterialRadioButton
                         style="@style/radioButton"
                         android:id="@+id/rb_with_last_dayOfWeek_and_year"
                         android:layout_width="match_parent"
@@ -311,7 +312,7 @@
                         android:textSize="16sp"
                         android:text="@string/on_the_last_s_of_s" />
 
-                    <!--            <RadioButton
+                    <!--            <com.google.android.material.radiobutton.MaterialRadioButton
                                     style="@style/radioButton"
                                     android:id="@+id/rb_never"
                                     android:layout_width="match_parent"
@@ -320,11 +321,10 @@
 
                 </RadioGroup>
 
-
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/choose_day_of_week_layout"
+                android:id="@+id/ll_choose_day_of_week"
                 android:layout_width="match_parent"
                 android:layout_height="46dp"
                 android:orientation="horizontal"
@@ -335,7 +335,7 @@
                 android:layout_marginVertical="5dp"
                 >
 
-                <ToggleButton
+                <androidx.appcompat.widget.AppCompatToggleButton
                     android:id="@+id/tb_Sunday"
                     android:layout_width="34dp"
                     android:layout_height="34dp"
@@ -347,7 +347,7 @@
                     android:background="@drawable/toggle_bg"
                     android:checked="false"/>
 
-                <ToggleButton
+                <androidx.appcompat.widget.AppCompatToggleButton
                     android:id="@+id/tb_Monday"
                     android:layout_width="34dp"
                     android:layout_height="34dp"
@@ -359,7 +359,7 @@
                     android:background="@drawable/toggle_bg"
                     android:checked="false"/>
 
-                <ToggleButton
+                <androidx.appcompat.widget.AppCompatToggleButton
                     android:id="@+id/tb_Tuesday"
                     android:layout_width="34dp"
                     android:layout_height="34dp"
@@ -371,7 +371,7 @@
                     android:background="@drawable/toggle_bg"
                     android:checked="false"/>
 
-                <ToggleButton
+                <androidx.appcompat.widget.AppCompatToggleButton
                     android:id="@+id/tb_Wednesday"
                     android:layout_width="34dp"
                     android:layout_height="34dp"
@@ -383,7 +383,7 @@
                     android:background="@drawable/toggle_bg"
                     android:checked="false"/>
 
-                <ToggleButton
+                <androidx.appcompat.widget.AppCompatToggleButton
                     android:id="@+id/tb_Thursday"
                     android:layout_width="34dp"
                     android:layout_height="34dp"
@@ -395,7 +395,7 @@
                     android:background="@drawable/toggle_bg"
                     android:checked="false"/>
 
-                <ToggleButton
+                <androidx.appcompat.widget.AppCompatToggleButton
                     android:id="@+id/tb_Friday"
                     android:layout_width="34dp"
                     android:layout_height="34dp"
@@ -408,7 +408,7 @@
                     android:background="@drawable/toggle_bg"
                     android:checked="false"/>
 
-                <ToggleButton
+                <androidx.appcompat.widget.AppCompatToggleButton
                     android:id="@+id/tb_Saturday"
                     android:layout_width="34dp"
                     android:layout_height="34dp"
@@ -428,7 +428,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
@@ -443,7 +443,7 @@
                     android:orientation="vertical"
                     android:layout_gravity="center">
 
-                    <RadioButton
+                    <com.google.android.material.radiobutton.MaterialRadioButton
                         style="@style/radioButton"
                         android:id="@+id/rb_never"
                         android:layout_width="wrap_content"
@@ -452,7 +452,7 @@
                         android:textSize="16sp"
                         android:checked="false"/>
 
-                    <RadioButton
+                    <com.google.android.material.radiobutton.MaterialRadioButton
                         style="@style/radioButton"
                         android:id="@+id/rb_times"
                         android:layout_width="wrap_content"
@@ -493,7 +493,7 @@
                         android:text="1"
                         android:textSize="16dp" />-->
 
-                    <RadioButton
+                    <com.google.android.material.radiobutton.MaterialRadioButton
                         style="@style/radioButton"
                         android:id="@+id/rb_until"
                         android:layout_width="wrap_content"
@@ -527,7 +527,6 @@
 
                 </RadioGroup>
 
-
             </LinearLayout>
 
             <!--<LinearLayout
@@ -555,6 +554,7 @@
             </LinearLayout>-->
 
         </LinearLayout>
+
     </LinearLayout>
 
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

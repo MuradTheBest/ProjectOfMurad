@@ -180,16 +180,16 @@ public class HomeFragment extends Fragment {
 
         actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
 
-//        actionBar.setHomeAsUpIndicator(R.drawable.ic_baseline_arrow_back_24);
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         FirebaseUtils.getCurrentGroupPicture().observe(getViewLifecycleOwner(),
-                picture -> Glide.with(requireContext()).load(picture != null
-                        ? picture
-                        : R.drawable.sample_group_picture).centerInside().into(iv_group_picture));
-
+                picture -> Glide.with(requireContext())
+                        .load(picture)
+                        .error(R.drawable.sample_group_picture)
+                        .placeholder(R.drawable.sample_group_picture)
+                        .centerInside().into(iv_group_picture));
 
         progressBar = view.findViewById(R.id.progress_bar);
 
@@ -358,7 +358,7 @@ public class HomeFragment extends Fragment {
         vp_event.setUserInputEnabled(false);
 
         new TabLayoutMediator(tabLayout, vp_event,
-                (tab, position) -> tab.setText(position == 0 ? "Last event" : "Next event")).attach();
+                (tab, position) -> tab.setText(position == 0 ? R.string.last_event : R.string.next_event)).attach();
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override

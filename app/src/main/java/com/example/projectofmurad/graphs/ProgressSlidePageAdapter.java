@@ -19,8 +19,7 @@ public class ProgressSlidePageAdapter extends FragmentStateAdapter {
         super(fragment);
     }
 
-    public ProgressSlidePageAdapter(@NonNull FragmentManager fragmentManager,
-                                    @NonNull Lifecycle lifecycle) {
+    public ProgressSlidePageAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
         super(fragmentManager, lifecycle);
     }
 

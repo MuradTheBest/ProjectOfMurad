@@ -117,6 +117,7 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/calendar_cell_text_today_background.xml" value="0.18076923076923077" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/calendar_cell_today_and_selected_background.xml" value="0.1445" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/calendar_cell_unclicked_background.xml" value="0.1445" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/checked_text_view_text_color.xml" value="0.135" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/chip_background.xml" value="0.1275" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/chip_text_color.xml" value="0.1275" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/current_user_background.xml" value="0.1395" />
@@ -167,13 +168,13 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/toggle_text_color.xml" value="0.18076923076923077" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/user_background.xml" value="0.1365" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_add_event_screen.xml" value="0.3632286995515695" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_add_event_screen_linear_layout.xml" value="0.22" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_add_event_screen_linear_layout.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_all_attendancies.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_calendar_screen.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_calendar_view.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_choose_event_frequency_screen.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_choose_or_create_group_screen.xml" value="0.33" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_create_or_join_group_screen.xml" value="0.16794871794871793" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_create_or_join_group_screen.xml" value="0.18" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_edit_group_screen.xml" value="0.1" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_empty_blank.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/activity_event_attendance_screen.xml" value="0.21" />
@@ -219,12 +220,12 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_event__details.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_event__info_.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_event__info_with_collapsing.xml" value="0.2" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_event_frequency.xml" value="0.16582278481012658" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_event_frequency.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_graph_.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_group_info_dialog.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_group_trainings.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_map_.xml" value="0.1" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_preferences.xml" value="0.32661870503597124" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_preferences.xml" value="0.2" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_private_trainings.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_tables_.xml" value="0.14" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_there_is_no_event.xml" value="0.16794871794871793" />
@@ -246,7 +247,7 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_fragment_list.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_group.xml" value="0.33" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_training.xml" value="0.25" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_user.xml" value="0.67" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_user.xml" value="0.18" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_user_and_training.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/save_event_bottom_sheet_dialog.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/sign_in_with_providers_layout.xml" value="0.16794871794871793" />
@@ -280,5 +281,8 @@
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
+  </component>
+  <component name="SuppressKotlinCodeStyleNotification">
+    <option name="disableForAll" value="true" />
   </component>
 </project>

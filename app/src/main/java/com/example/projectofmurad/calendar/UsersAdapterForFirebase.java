@@ -9,13 +9,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,12 +21,14 @@ import com.bumptech.glide.Glide;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.groups.UserGroupData;
+import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.helpers.ViewAnimationUtils;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -59,8 +59,7 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
      * @param onUserLongClickListener
      * @param onUserExpandListener
      */
-    public UsersAdapterForFirebase(@NonNull FirebaseRecyclerOptions<UserData> options, Context context,
-                                   int color,
+    public UsersAdapterForFirebase(@NonNull FirebaseRecyclerOptions<UserData> options, Context context, int color,
                                    OnUserLongClickListener onUserLongClickListener,
                                    OnUserExpandListener onUserExpandListener) {
 
@@ -99,15 +98,15 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
 
         private final CircleImageView iv_profile_picture;
 
-        private final CheckBox checkbox_attendance;
+        private final MaterialCheckBox checkbox_attendance;
 
-        private final TextView tv_username;
-        private final TextView tv_email;
-        private final TextView tv_phone;
+        private final MaterialCheckBox tv_username;
+        private final MaterialCheckBox tv_email;
+        private final MaterialCheckBox tv_phone;
 
-        private final ImageView iv_phone;
-        private final ImageView iv_email;
-        private final ImageView iv_message;
+        private final AppCompatImageView iv_phone;
+        private final AppCompatImageView iv_email;
+        private final AppCompatImageView iv_message;
 
         public boolean expanded = false;
 
@@ -115,8 +114,8 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
             super(itemView);
 
             itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(
-                    v -> onUserLongClickListener.onUserLongClick(getAbsoluteAdapterPosition(), getItem(getAbsoluteAdapterPosition())));
+            itemView.setOnLongClickListener(v ->
+                    onUserLongClickListener.onUserLongClick(getAbsoluteAdapterPosition(), getItem(getAbsoluteAdapterPosition())));
 
             ll_contact = itemView.findViewById(R.id.ll_contact);
             constraintLayout = itemView.findViewById(R.id.constraintLayout);
@@ -190,7 +189,7 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
                     intent_email.setType("text/plain");
                     intent_email.putExtra(Intent.EXTRA_EMAIL, emails);
                     intent_email.putExtra(Intent.EXTRA_SUBJECT, "Subject");
-                    intent_email.putExtra(Intent.EXTRA_TEXT, "this is the email body");
+                    intent_email.putExtra(Intent.EXTRA_TEXT, "This is the email body");
                     context.startActivity(intent_email);
                 }
             }
@@ -212,7 +211,6 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
     public void onBindViewHolder(@NonNull UserViewHolderForFirebase holder, int position, @NonNull UserData model) {
 
         int textColor = Utils.getContrastColor(color);
-
         GradientDrawable gd = Utils.getGradientBackground(color);
 
         if (FirebaseUtils.isCurrentUID(model.getUID())){
@@ -249,7 +247,7 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
                             holder.iv_profile_picture.setBorderColor(context.getColor(R.color.colorAccent));
                             holder.iv_profile_picture.setBorderWidth(Utils.dpToPx(2, context));
 
-                            UtilsCalendar.animate(holder.constraintLayout);
+                            CalendarUtils.animate(holder.constraintLayout);
                         }
                     }
                 });
@@ -267,14 +265,17 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
                     });
 
             holder.checkbox_attendance.setEnabled(FirebaseUtils.isCurrentUID(model.getUID()) && end > System.currentTimeMillis());
-            holder.checkbox_attendance.setAlpha(FirebaseUtils.isCurrentUID(model.getUID()) && end > System.currentTimeMillis() ? 1f : 0.7f);
+            holder.checkbox_attendance.setAlpha(holder.checkbox_attendance.isEnabled() ? 1f : 0.7f);
         }
         else {
             holder.checkbox_attendance.setVisibility(View.GONE);
         }
 
         Glide.with(context)
-                .load(model.getPicture() != null ? model.getPicture() : R.drawable.images).centerCrop().into(holder.iv_profile_picture);
+                .load(model.getPicture())
+                .error(R.drawable.sample_profile_picture)
+                .placeholder(R.drawable.sample_profile_picture)
+                .centerCrop().into(holder.iv_profile_picture);
     }
 
     @NonNull

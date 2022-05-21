@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -19,8 +18,8 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectofmurad.calendar.UtilsCalendar;
 import com.example.projectofmurad.groups.UserGroupData;
+import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
@@ -44,6 +43,7 @@ import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.Transformer;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.database.DataSnapshot;
 
 import java.util.ArrayList;
@@ -100,8 +100,8 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
         holder.switch_choose_visibility.setVisibility(FirebaseUtils.isCurrentUID(UID) ? View.VISIBLE : View.GONE);
 
         if (FirebaseUtils.isCurrentUID(UID)){
-            FirebaseUtils.getCurrentUserGroupDataRef().child("show").get().addOnSuccessListener(ds ->
-                    holder.switch_choose_visibility.setTag(ds.getValue(int.class)));
+            FirebaseUtils.getCurrentUserTrainingsRefForEvent(event_private_id).getParent().child("show").get()
+                    .addOnSuccessListener(ds -> holder.switch_choose_visibility.setTag(ds.getValue(int.class)));
         }
 
         FirebaseUtils.getUserTrainingsForEvent(UID, event_private_id).observe(
@@ -121,14 +121,13 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
                     @Override
                     public void onSuccess(DataSnapshot snapshot) {
                         if (snapshot.exists() && snapshot.getValue(boolean.class)) {
-
                             holder.iv_profile_picture.getLayoutParams().height = Utils.dpToPx(55, context);
                             holder.iv_profile_picture.getLayoutParams().width = Utils.dpToPx(55, context);
 
                             holder.iv_profile_picture.setBorderColor(context.getColor(R.color.colorAccent));
                             holder.iv_profile_picture.setBorderWidth(Utils.dpToPx(2, context));
 
-                            UtilsCalendar.animate(holder.constraintLayout);
+                            CalendarUtils.animate(holder.constraintLayout);
                         }
                     }
                 });
@@ -182,8 +181,6 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
                 Log.d(Utils.LOG_TAG, "me.getY() = " + me.getY());
                 Log.d(Utils.LOG_TAG, "xValue = " + xValue);
                 Log.d(Utils.LOG_TAG, "yValue = " + yValue);
-
-
 
                 Entry e = holder.bc_average_speed.getEntryByTouchPoint(xValue, yValue);
 
@@ -358,7 +355,7 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
 
         private final BarChart bc_average_speed;
 
-        private final SwitchCompat switch_choose_visibility;
+        private final SwitchMaterial switch_choose_visibility;
 
         public TrainingsViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -374,21 +371,24 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
             switch_choose_visibility.setOnClickListener(v -> createChooseVisibilityDialog());
         }
 
-        public void createChooseVisibilityDialog(){
+        public void createChooseVisibilityDialog() {
             MyAlertDialogBuilder builder = new MyAlertDialogBuilder(context);
-            builder.setCancelable(true);
 
-            builder.setSingleChoiceItems(new CharSequence[]{"No one", "Everyone", "Madrichs only"},
+            builder.setSingleChoiceItems(new CharSequence[]{Show.NO_ONE.toString(), "Madrichs only", "Everyone"},
                     (int) switch_choose_visibility.getTag(),
                     (dialog, which) -> {
                         switch_choose_visibility.setTag(which);
+                        Log.d("snapshot", "switch_choose_visibility.getTag() = " + switch_choose_visibility.getTag());
+                        switch_choose_visibility.setChecked((int) switch_choose_visibility.getTag() > Show.NO_ONE.getValue());
                         switch_choose_visibility.setText("Visible to " + Show.values()[which].toString());
                         onShowToOthersListener.onShowToOthers(which);
                         dialog.dismiss();
                     });
 
-            builder.setOnDismissListener(dialog ->
-                    switch_choose_visibility.setChecked((int) switch_choose_visibility.getTag() > Show.NoOne.getValue()));
+            builder.setOnDismissListener(dialog -> {
+                Log.d("snapshot", "switch_choose_visibility.getTag() = " + switch_choose_visibility.getTag());
+                switch_choose_visibility.setChecked((int) switch_choose_visibility.getTag() > Show.NO_ONE.getValue());
+            });
 
             builder.setTitle("Make your results visible to");
             builder.show();

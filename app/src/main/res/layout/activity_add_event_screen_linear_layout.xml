@@ -8,7 +8,6 @@
     android:layout_height="match_parent"
     tools:context=".calendar.Edit_Event_Screen" >
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,59 +18,49 @@
         android:orientation="vertical"
         android:showDividers="middle"
         android:divider="?android:attr/dividerHorizontal"
-        android:dividerPadding="3dp"
-        >
+        android:dividerPadding="3dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_weight="1"
-            >
+            android:gravity="center">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:id="@+id/et_name"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:autofillHints="name"
                 android:hint="@string/name"
-                android:paddingEnd="44dp"
                 android:singleLine="false"
+                android:layout_centerVertical="true"
+                android:textColor="@color/colorAccent"
                 android:textSize="20sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0"
+                app:endIconMode="clear_text"
+                app:endIconTint="@color/colorAccent"
+                app:startIconDrawable="@drawable/ic_baseline_alternate_email_24">
 
-                />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="text" />
 
-            <!--<androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/ib_color"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="@+id/et_name"
-                app:layout_constraintEnd_toEndOf="@+id/et_name"
-                app:layout_constraintTop_toTopOf="@+id/et_name"
-                android:layout_marginEnd="7dp"
-                android:background="@drawable/ic_baseline_circle_24"
-                android:backgroundTint="@color/colorAccent"
-            />-->
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <androidx.appcompat.widget.AppCompatImageButton
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/ib_color"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_alignTop="@id/et_name"
                 android:layout_alignEnd="@id/et_name"
                 android:layout_alignBottom="@id/et_name"
-                android:backgroundTint="@android:color/transparent"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_centerVertical="true"
                 android:src="@drawable/ic_baseline_choose_color_24"
-                android:tint="@color/colorAccent"
-                app:layout_constraintBottom_toBottomOf="@+id/et_name"
-                app:layout_constraintEnd_toEndOf="@+id/et_name"
-                app:layout_constraintTop_toTopOf="@+id/et_name" />
+                app:tint="@color/colorAccent" />
 
         </RelativeLayout>
 
@@ -79,126 +68,58 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center"
-            >
+            android:gravity="center">
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_all_day"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 android:layout_weight="1"
                 android:text="@string/all_day"
                 android:textSize="18sp"
+                android:padding="10dp"
                 android:drawableStart="@drawable/ic_baseline_access_time_24"
-                android:drawablePadding="3dp"
+                android:drawablePadding="10dp"
+                android:drawableTint="@drawable/checked_text_view_text_color"
                 android:gravity="center_vertical"
                 style="@style/Widget.AppCompat.CompoundButton.Switch"
                 android:theme="@style/Widget.AppCompat.CompoundButton.Switch"
                 app:layout_constraintTop_toBottomOf="@+id/et_name"
-                app:useMaterialThemeColors="false"
-                />
-
-            <!--
-                    <LinearLayout
-                        android:id="@+id/ll_start"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        android:orientation="horizontal"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="@+id/switch_all_day"
-                        app:layout_constraintStart_toStartOf="@+id/switch_all_day"
-                        app:layout_constraintTop_toBottomOf="@+id/switch_all_day"
-                        app:layout_constraintVertical_bias="0.0">
-
-                        &lt;!&ndash;            <Button
-                                        android:id="@+id/btn_choose_start_date"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginHorizontal="5dp"
-                                        android:text="Choose start date"
-                                        android:textColor="@drawable/button_onclick"
-                                        android:textSize="12dp" />
-
-                                    <Button
-                                        android:id="@+id/btn_choose_end_date"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginHorizontal="5dp"
-                                        android:text="Choose end date"
-                                        android:textSize="12dp" />&ndash;&gt;
-
-
-            &lt;!&ndash;            <ToggleButton
-                            android:id="@+id/btn_choose_start_date"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="5dp"
-                            android:text="Choose start date"
-                            style="@style/Widget.Button.ToggleButtonForDateTime"
-                            android:textSize="16dp" />&ndash;&gt;
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/btn_choose_start_date"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="5dp"
-                            android:text="Choose start date"
-                            app:chipBackgroundColor="@color/colorAccent"
-                            android:checked="true"
-                            android:textSize="18dp" />
-
-                        <Button
-                            android:id="@+id/btn_choose_end_date"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="5dp"
-                            android:text="Choose end date"
-                            android:textSize="12dp" />
-
-
-
-                    </LinearLayout>
-            -->
+                app:useMaterialThemeColors="false" />
 
             <RelativeLayout
                 android:id="@+id/rl_event_setup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
-                >
+                android:padding="10dp">
 
-                <com.google.android.material.chip.Chip
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_choose_start_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
-                    android:checked="true"
                     android:text="Thu, 31.05.2022"
-                    android:textSize="16sp"
-                    app:chipBackgroundColor="@color/colorAccent" />
+                    android:textSize="12sp"
+                    app:cornerRadius="10dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_choose_end_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
                     android:text="Thu, 31.05.2022"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    app:cornerRadius="10dp" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:src="@drawable/ic_baseline_arrow_forward_24" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_choose_start_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -207,9 +128,10 @@
                     android:layout_alignEnd="@+id/btn_choose_start_date"
                     android:layout_alignParentBottom="true"
                     android:text="08:00"
-                    android:textSize="14sp" />
+                    android:textSize="12sp"
+                    app:cornerRadius="10dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_choose_end_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -219,95 +141,14 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentBottom="true"
                     android:text="09:00"
-                    android:textSize="14sp" />
+                    android:textSize="12sp"
+                    app:cornerRadius="10dp" />
 
             </RelativeLayout>
 
-            <!--
-                    <LinearLayout
-                        android:id="@+id/ll_end"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        android:orientation="horizontal"
-                        android:layout_weight="1"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="@+id/ll_start"
-                        app:layout_constraintStart_toStartOf="@+id/ll_start"
-                        app:layout_constraintTop_toBottomOf="@+id/ll_start"
-                        app:layout_constraintVertical_bias="0.0">
-
-                        <Button
-                            android:id="@+id/btn_choose_start_time"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="5dp"
-                            android:text="Choose start timeData"
-                            android:textSize="12dp" />
-
-                        <Button
-                            android:id="@+id/btn_choose_end_time"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="5dp"
-                            android:text="Choose end timeData"
-                            android:textSize="12dp" />
-
-                    </LinearLayout>
-            -->
-
-
         </LinearLayout>
 
-        <androidx.cardview.widget.CardView
-            xmlns:card_view="http://schemas.android.com/apk/res-auto"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="20"
-            app:layout_constraintBottom_toTopOf="@id/btn_repeat"
-            app:layout_constraintEnd_toEndOf="@+id/ll_end"
-            app:layout_constraintStart_toStartOf="@+id/ll_end"
-            app:layout_constraintTop_toBottomOf="@+id/ll_end"
-            app:layout_constraintVertical_bias="0.0"
-            card_view:cardElevation="5dp"
-            card_view:cardCornerRadius="5dp"
-            >
-
-            <TimePicker
-                android:id="@+id/event_time_picker"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginHorizontal="70dp"
-                android:layout_gravity="center"
-                android:headerTimeTextAppearance="@color/colorAccent"
-                android:numbersInnerTextColor="@color/colorAccent"
-                android:numbersSelectorColor="@color/colorAccent"
-                android:numbersTextColor="@color/black"
-                android:theme="@style/Widget.Material3.MaterialTimePicker.Custom"
-                style="@style/Widget.Material3.MaterialTimePicker.Custom"
-                android:timePickerMode="spinner"
-                />
-
-
-        </androidx.cardview.widget.CardView>
-
-        <DatePicker
-            android:animateLayoutChanges="true"
-            android:id="@+id/date_picker_end"
-            android:layout_width="wrap_content"
-            android:transitionGroup="true"
-            android:layout_height="0dp"
-            android:layout_gravity="center"
-            android:layout_weight="40"
-            android:calendarViewShown="true"
-            android:datePickerMode="calendar"
-            android:scrollbars="none"
-            style="@style/MyCustomCalendarView"
-            android:theme="@style/MyCustomCalendarView"
-            android:visibility="gone"
-            />
-
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/btn_repeat"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -329,80 +170,61 @@
             android:id="@+id/switch_alarm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             android:layout_weight="1"
-            android:text="Set Alarm"
+            android:text="@string/set_alarm"
             android:textSize="18sp"
+            android:paddingHorizontal="10dp"
             android:drawableStart="@drawable/alarm_icon"
             android:drawableTint="@drawable/checked_text_view_text_color"
             android:drawablePadding="3dp"
             android:gravity="center_vertical"
             style="@style/Widget.AppCompat.CompoundButton.Switch"
             android:theme="@style/Widget.AppCompat.CompoundButton.Switch"
-            app:useMaterialThemeColors="false"
-            />
+            app:useMaterialThemeColors="false" />
 
-        <EditText
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:id="@+id/et_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autofillHints="name"
+            android:singleLine="false"
             android:layout_weight="1"
             android:hint="@string/description"
             android:importantForAutofill="no"
-            android:inputType="textCapSentences"
-            android:drawableStart="@drawable/ic_baseline_subject_24"
-            android:drawableTint="@color/black"
-            android:singleLine="false"
             android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btn_repeat"
-            app:layout_constraintVertical_bias="0.0" />
+            app:endIconMode="clear_text"
+            app:endIconTint="@color/colorAccent"
+            app:startIconDrawable="@drawable/ic_baseline_subject_24">
 
-        <EditText
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textCapSentences" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:id="@+id/et_place"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autofillHints="name"
+            android:singleLine="false"
             android:layout_weight="1"
             android:hint="@string/place"
             android:importantForAutofill="no"
             android:textSize="18sp"
-            android:drawableStart="@drawable/ic_baseline_location_on_24"
-            android:drawableTint="@color/black"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/et_description"
-            app:layout_constraintStart_toStartOf="@+id/et_description"
-            app:layout_constraintTop_toBottomOf="@+id/et_description"
-            app:layout_constraintVertical_bias="0.0" />
+            android:layout_marginBottom="10dp"
+            app:endIconMode="clear_text"
+            app:endIconTint="@color/colorAccent"
+            app:startIconDrawable="@drawable/ic_baseline_location_on_24">
 
-        <LinearLayout
-            android:id="@+id/ll_manage_event"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="36dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:weightSum="2"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/et_place"
-            app:layout_constraintStart_toStartOf="@+id/et_place"
-            app:layout_constraintTop_toBottomOf="@+id/et_place"
-            app:layout_constraintVertical_bias="0.0">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
-            <Button
-                android:id="@+id/btn_delete_event"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10dp"
-                android:layout_weight="1"
-                android:text="Delete event"
-                android:textSize="14sp" />
-
-
-        </LinearLayout>
-
+        </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
 

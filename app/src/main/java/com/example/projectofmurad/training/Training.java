@@ -7,7 +7,7 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.tracking.Location;
 import com.example.projectofmurad.tracking.SpeedAndLocation;
@@ -48,9 +48,6 @@ public class Training implements Serializable {
     //ToDo change dates and times to long
 
     private long start;
-    private String startDate;
-    private String startTime;
-    private String startDateTime;
 
     private long time;
     private long totalTime;
@@ -64,16 +61,11 @@ public class Training implements Serializable {
     private double maxSpeed;
 
     private String avgPace;
-/*    @Ignore
-    private HashMap<String, Double> pacesData;*/
     private String maxPace;
 
     private double totalDistance;
 
     private long end;
-    private String endDate;
-    private String endTime;
-    private String endDateTime;
 
     private int color;
 
@@ -81,9 +73,6 @@ public class Training implements Serializable {
     private List<Location> locations;
 
     private String picture;
-
-    private String date;
-    private String dateTime;
 
     @Ignore
     public final static String KEY_TRAINING = "key_training";
@@ -141,7 +130,6 @@ public class Training implements Serializable {
     @Ignore
     public final static String KEY_TRAINING_COLOR = "training_color";
 
-
     public Training(){}
 
     public Training(String privateId, String name, long start, long end) {
@@ -149,14 +137,6 @@ public class Training implements Serializable {
         this.start = start;
         this.end = end;
         this.privateId = privateId;
-
-        this.startDate = UtilsCalendar.DateToTextOnline(getDate(start));
-        this.startTime = UtilsCalendar.TimeToText(getTime(start));
-        this.startDateTime = UtilsCalendar.DateTimeToTextOnline(getDateTime(start));
-
-        this.endDate = UtilsCalendar.DateToTextOnline(getDate(end));
-        this.endTime = UtilsCalendar.TimeToText(getTime(end));
-        this.endDateTime = UtilsCalendar.DateTimeToTextOnline(getDateTime(end));
     }
 
     public Training(String privateId, long start, long end, long time, long totalTime, double avgSpeed, double maxSpeed, HashMap<String, SpeedAndLocation> speeds, List<Location> locations, double totalDistance) {
@@ -172,17 +152,9 @@ public class Training implements Serializable {
 
         this.speeds = speeds;
 
-        this.startDate = UtilsCalendar.DateToTextOnline(getDate(start));
-        this.startTime = UtilsCalendar.TimeToText(getTime(start));
-        this.startDateTime = UtilsCalendar.DateTimeToTextOnline(getDateTime(start));
-
-        this.day = getDate(start).getDayOfMonth();
-        this.month = getDate(start).getMonthValue();
-        this.year = getDate(start).getYear();
-
-        this.endDate = UtilsCalendar.DateToTextOnline(getDate(end));
-        this.endTime = UtilsCalendar.TimeToText(getTime(end));
-        this.endDateTime = UtilsCalendar.DateTimeToTextOnline(getDateTime(end));
+        this.day = receiveStartDate().getDayOfMonth();
+        this.month = receiveStartDate().getMonthValue();
+        this.year = receiveStartDate().getYear();
     }
 
     public Training(String privateId, LocalDateTime start, LocalDateTime end, long time, long totalTime, double avgSpeed, double maxSpeed, HashMap<String, SpeedAndLocation> speeds, List<Location> locations, double totalDistance) {
@@ -207,17 +179,9 @@ public class Training implements Serializable {
 
         this.locations = locations;
 
-        this.startDate = UtilsCalendar.DateToTextOnline(start.toLocalDate());
-        this.startTime = UtilsCalendar.TimeToText(start.toLocalTime());
-        this.startDateTime = UtilsCalendar.DateTimeToTextOnline(start);
-
         this.day = start.getDayOfMonth();
         this.month = start.getMonthValue();
         this.year = start.getYear();
-
-        this.endDate = UtilsCalendar.DateToTextOnline(end.toLocalDate());
-        this.endTime = UtilsCalendar.TimeToText(end.toLocalTime());
-        this.endDateTime = UtilsCalendar.DateTimeToTextOnline(end);
     }
 
     @NonNull
@@ -227,7 +191,6 @@ public class Training implements Serializable {
         int minutes = (int) ((seconds % 3600) / 60);
         int secs = (int) (seconds % 60);
 
-        // Format the timeData into hours, minute and timeData.
         return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, secs);
     }
 
@@ -290,30 +253,6 @@ public class Training implements Serializable {
         this.place = place;
     }
 
-    public String getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
-    }
-
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    public String getStartDateTime() {
-        return startDateTime;
-    }
-
-    public void setStartDateTime(String startDateTime) {
-        this.startDateTime = startDateTime;
-    }
-
     public long getStart() {
         return start;
     }
@@ -328,30 +267,6 @@ public class Training implements Serializable {
 
     public void setEnd(long end) {
         this.end = end;
-    }
-
-    public String getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(String endDate) {
-        this.endDate = endDate;
-    }
-
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
-    }
-
-    public String getEndDateTime() {
-        return endDateTime;
-    }
-
-    public void setEndDateTime(String endDateTime) {
-        this.endDateTime = endDateTime;
     }
 
     public int getColor() {
@@ -391,9 +306,6 @@ public class Training implements Serializable {
                 ", description='" + description + '\'' +
                 ", place='" + place + '\'' +
                 ", start=" + start +
-                ", startDate='" + startDate + '\'' +
-                ", startTime='" + startTime + '\'' +
-                ", startDateTime='" + startDateTime + '\'' +
                 ", timeData=" + time +
                 ", totalTimeData=" + totalTime +
                 ", avgSpeedData=" + avgSpeed +
@@ -401,9 +313,6 @@ public class Training implements Serializable {
                 ", maxSpeedData=" + maxSpeed +
                 ", totalDistanceData=" + totalDistance +
                 ", end=" + end +
-                ", endDate='" + endDate + '\'' +
-                ", endTime='" + endTime + '\'' +
-                ", endDateTime='" + endDateTime + '\'' +
                 ", color=" + color +
                 ", privateId='" + privateId + '\'' +
                 '}';
@@ -521,22 +430,86 @@ public class Training implements Serializable {
         this.maxPace = maxPace;
     }
 
-    public String getDate() {
-        return startDate.equals(endDate) ? startDate : startDate + " -\n" + endDate;
+    public String getStartDate() {
+        return CalendarUtils.DateToTextOnline(receiveStartDate());
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public LocalDate receiveStartDate(){
+        return getDate(start);
+    }
+
+    public void updateStartDate(@NonNull LocalDate start_date) {
+        updateStartDateTime(start_date.atTime(receiveStartTime()));
+    }
+
+    public String getStartTime() {
+        return CalendarUtils.TimeToText(receiveStartTime());
+    }
+
+    public LocalTime receiveStartTime(){
+        return getTime(start);
+    }
+
+    public void updateStartTime(@NonNull LocalTime start_time) {
+        updateStartDateTime(receiveStartDate().atTime(start_time));
+    }
+
+    public String getStartDateTime() {
+        return CalendarUtils.DateTimeToTextOnline(receiveStartDateTime());
+    }
+
+    public LocalDateTime receiveStartDateTime() {
+        return getDateTime(start);
+    }
+
+    public void updateStartDateTime(LocalDateTime localDateTime) {
+        this.start = getMillis(localDateTime);
+    }
+
+    public String getEndDate() {
+        return CalendarUtils.DateToTextLocal(receiveEndDate());
+    }
+
+    public LocalDate receiveEndDate(){
+        return getDate(end);
+    }
+
+    public void updateEndDate(@NonNull LocalDate endDate) {
+        updateEndDateTime(endDate.atTime(receiveEndTime()));
+    }
+
+    public String getEndTime() {
+        return CalendarUtils.TimeToText(receiveEndTime());
+    }
+
+    public LocalTime receiveEndTime() {
+        return getTime(end);
+    }
+
+    public void updateEndTime(@NonNull LocalTime endTime) {
+        updateEndDateTime(receiveEndDate().atTime(endTime));
+    }
+
+    public String getEndDateTime() {
+        return CalendarUtils.DateTimeToTextLocal(receiveEndDateTime());
+    }
+
+    public void updateEndDateTime(LocalDateTime localDateTime) {
+        this.end = getMillis(localDateTime);
+    }
+
+    public LocalDateTime receiveEndDateTime() {
+        return getDateTime(end);
+    }
+
+    public String getDate() {
+        return getStartDate().equals(getEndDate()) ? getStartDate() : getStartDate() + " -\n" + getEndDate();
     }
 
     public String getDateTime() {
-        return startDate.equals(endDate) ?
-                (startDate + "\n" + startTime + " - " + endTime) :
-                (startDate + " -\n" + endDate + "\n" + startTime + " - " + endTime);
-    }
-
-    public void setDateTime(String dateTime) {
-        this.dateTime = dateTime;
+        return getStartDate().equals(getEndDate()) ?
+                (getStartDate() + "\n" + getStartTime() + " - " + getEndTime()) :
+                (getStartDate() + " -\n" + getEndDate() + "\n" + getStartTime() + " - " + getEndTime());
     }
 
     public String getPicture() {

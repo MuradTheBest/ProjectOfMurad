@@ -12,6 +12,7 @@ public class UserGroupData {
     private boolean subscribedToEditEvent;
     private boolean subscribedToDeleteEvent;
 
+    public static final String KEY_USER_GROUP_DATA = "userGroupData";
     public static final String KEY_UID = "uid";
     public static final String KEY_GROUP_KEY = "groupKey";
     public static final String KEY_MADRICH = "madrich";
@@ -27,7 +28,7 @@ public class UserGroupData {
         this.UID = UID;
         this.groupKey = groupKey;
         this.madrich = madrich;
-        this.show = Show.Madrich.getValue();
+        this.show = Show.MADRICH.getValue();
     }
 
     public UserGroupData(String UID, String groupKey, boolean madrich, int show,
@@ -41,11 +42,6 @@ public class UserGroupData {
         this.subscribedToAddEvent = subscribedToAddEvent;
         this.subscribedToEditEvent = subscribedToEditEvent;
         this.subscribedToDeleteEvent = subscribedToDeleteEvent;
-    }
-
-    public UserGroupData(boolean madrich, int show) {
-        this.madrich = madrich;
-        this.show = show;
     }
 
     public boolean isMadrich() {

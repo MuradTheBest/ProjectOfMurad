@@ -15,7 +15,6 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialog;
@@ -27,14 +26,16 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.BuildConfig;
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.R;
+import com.example.projectofmurad.helpers.CalendarUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.RecyclerViewSwipeDecorator;
 import com.example.projectofmurad.helpers.Utils;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -67,7 +68,7 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
         super(context);
         this.passingDate = passingDate;
 
-        Log.d(Utils.LOG_TAG, "passingDate is " + UtilsCalendar.DateToTextOnline(passingDate));
+        Log.d(Utils.LOG_TAG, "passingDate is " + CalendarUtils.DateToTextOnline(passingDate));
 
         this.context = context;
 
@@ -95,40 +96,26 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
         setCancelable(true);
 
         String day = String.valueOf(passingDate.getDayOfMonth());
-        String full_date = passingDate.format(DateTimeFormatter.ofPattern("E, MMMM yyyy", UtilsCalendar.locale));
+        String full_date = passingDate.format(DateTimeFormatter.ofPattern("E, MMMM yyyy", CalendarUtils.getLocale()));
 
-        TextView tv_day = findViewById(R.id.tv_day);
+        MaterialTextView tv_day = findViewById(R.id.tv_day);
         tv_day.setText(day);
 
-        TextView tv_full_date = findViewById(R.id.tv_full_date);
+        MaterialTextView tv_full_date = findViewById(R.id.tv_full_date);
         tv_full_date.setText(full_date);
 
         rv_events = findViewById(R.id.rv_events);
 
-        TextView tv_no_events = findViewById(R.id.tv_no_events);
+        MaterialTextView tv_no_events = findViewById(R.id.tv_no_events);
         tv_no_events.setVisibility(View.GONE);
 
-        DatabaseReference eventsDatabase = FirebaseUtils.getEventsDatabase().child(UtilsCalendar.DateToTextForFirebase(passingDate));
+        Query eventsDatabase = FirebaseUtils.getEventsDatabase().child(CalendarUtils.DateToTextForFirebase(passingDate))
+                .orderByValue();
 
-        Query query = eventsDatabase.orderByChild("start");
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot data : snapshot.getChildren()){
-                    Log.d("snapshot", "===============================================================");
-                    Log.d("snapshot", data.getKey());
-                    Log.d("snapshot", "=====================================================================");
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+        DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
 
         options = new FirebaseRecyclerOptions.Builder<CalendarEvent>()
-                .setQuery(query, CalendarEvent.class)
+                .setIndexedQuery(eventsDatabase, allEventsDatabase, CalendarEvent.class)
                 .setLifecycleOwner((LifecycleOwner) context)
                 .build();
 
@@ -225,7 +212,7 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
 
         btn_clear_all = findViewById(R.id.btn_clear_all);
         btn_clear_all.setOnClickListener(v -> {
-            FirebaseUtils.getEventsDatabase().child(UtilsCalendar.DateToTextForFirebase(passingDate)).setValue(null);
+            FirebaseUtils.getEventsDatabase().child(CalendarUtils.DateToTextForFirebase(passingDate)).setValue(null);
 
             rv_events.setVisibility(View.INVISIBLE);
             Log.d("murad", "Visibility set to " + rv_events.getVisibility());

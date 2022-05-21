@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.calendar.UsersAdapterForFirebase;
+import com.example.projectofmurad.helpers.ColorPickerDialog;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.helpers.ViewAnimationUtils;
@@ -71,8 +72,9 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
     private boolean createColorPickerDialog() {
         edit(true);
 
-        ColorPicker colorPicker = Utils.createColorPickerDialog(this,
-                new ColorPicker.OnFastChooseColorListener() {
+        ColorPicker colorPicker = new ColorPickerDialog(this);
+
+         colorPicker.setOnFastChooseColorListener(new ColorPicker.OnFastChooseColorListener() {
                     @Override
                     public void setOnFastChooseColorListener(int position, int color) {
                         tv_choose_color.setTextColor(color);
@@ -187,11 +189,11 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
     }
 
     private void saveGroup() {
-        String name = et_group_name.getEditText().getText().toString();
-        String description = et_group_description.getEditText().getText().toString();
-        String groupKey = et_group_key.getEditText().getText().toString();
-        String trainerCode = et_trainer_code.getEditText().getText().toString();
-        String limit = et_group_limit.getEditText().getText().toString();
+        String name = Utils.getText(et_group_name);
+        String description = Utils.getText(et_group_description);
+        String groupKey = Utils.getText(et_group_key);
+        String trainerCode = Utils.getText(et_trainer_code);
+        String limit = Utils.getText(et_group_limit);
 
         boolean editTextsFilled = true;
 
@@ -384,15 +386,29 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
     }
 
     private void removeUser(@NonNull UserData userData) {
+
+        FirebaseUtils.groupDatabases.child(group.getKey()).child("Group Trainings").orderByChild(
+                userData.getUID() + "/uid").equalTo(userData.getUID()).get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+                    @Override
+                    public void onSuccess(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot data : dataSnapshot.getChildren()){
+                            HashMap<String, Object> trainings
+                                    = (HashMap<String, Object>) data.child(userData.getUID()).getValue();
+
+                            FirebaseUtils.getPrivateTrainingsDatabase().child(userData.getUID())
+                                    .updateChildren(trainings);
+                        }
+                    }
+                });
+
         DatabaseReference startRef = FirebaseUtils.groupDatabases.child(group.getKey());
 
-        FirebaseUtils.deleteAll(startRef, userData.getUID(),
-                () -> Toast.makeText(GroupInfoScreenMadrich.this,
-                        "User was successfully removed from this group",
-                        Toast.LENGTH_SHORT).show());
-
-        FCMSend.sendNotificationAboutUser(this, group, userData.getUID());
+        FirebaseUtils.deleteAll(startRef, userData.getUID(), () -> Toast.makeText(GroupInfoScreenMadrich.this,
+                                                                "User was successfully removed from this group",
+                                                                    Toast.LENGTH_SHORT).show());
 
         FirebaseUtils.getUserDataByUIDRef(userData.getUID()).child("currentGroup").child(group.getKey()).removeValue();
+
+        FCMSend.sendNotificationAboutUser(this, group, userData.getUID());
     }
 }

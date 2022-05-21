@@ -14,7 +14,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.projectofmurad.calendar.CalendarEvent;
-import com.example.projectofmurad.calendar.UtilsCalendar;
 import com.example.projectofmurad.groups.Group;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.Utils;
@@ -44,7 +43,7 @@ public class FCMSend {
     @NonNull
     @Contract(pure = true)
     public static String getTopic(String type) {
-        return FirebaseUtils.CURRENT_GROUP_KEY + "-" + type;
+        return FirebaseUtils.CURRENT_GROUP_KEY + "|" + type;
     }
 
     private static void sendNotificationToTopic(@NonNull Context context, @NonNull CalendarEvent event, String title, int type){
@@ -105,7 +104,7 @@ public class FCMSend {
             data.put("text", text);
             data.put("color", new Gson().toJson(event.getColor()));
             data.put("group", FirebaseUtils.CURRENT_GROUP_KEY);
-            data.put(UtilsCalendar.KEY_EVENT, event.toJson());
+            data.put(CalendarEvent.KEY_EVENT, event.toJson());
             data.put(KEY_SENDER_UID, FirebaseUtils.getCurrentUID());
 
             json.put("data", data);

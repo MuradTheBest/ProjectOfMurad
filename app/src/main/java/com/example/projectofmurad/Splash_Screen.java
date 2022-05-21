@@ -19,7 +19,6 @@ import androidx.core.content.ContextCompat;
 
 import com.example.projectofmurad.groups.CreateOrJoinGroupScreen;
 import com.example.projectofmurad.groups.ShowGroupsScreen;
-import com.example.projectofmurad.helpers.Constants;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -41,7 +40,7 @@ public class Splash_Screen extends MyActivity {
         btn_get_started = findViewById(R.id.btn_get_started);
         progressBar = findViewById(R.id.progressBar);
 
-        SQLiteDatabase db = openOrCreateDatabase(Utils.DATABASE_NAME, MODE_PRIVATE, null);
+        SQLiteDatabase db = Utils.openOrCreateDatabase(this);
         Utils.createAllTables(db);
 
         btn_get_started.setOnClickListener(this::checkGroup);
@@ -89,7 +88,7 @@ public class Splash_Screen extends MyActivity {
 
         if (link.contains("group-join-link")){
             Intent i = new Intent(Splash_Screen.this, CreateOrJoinGroupScreen.class);
-            i.putExtra(Constants.KEY_LINK, link);
+            i.putExtra(Utils.KEY_LINK, link);
             startActivity(i);
         }
 

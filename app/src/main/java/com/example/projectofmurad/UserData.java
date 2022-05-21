@@ -26,6 +26,7 @@ public class UserData {
     private long privateTotalDistance;
     private long privateTotalSpeed;
 
+    public final static String KEY_USER_DATA = "userData";
     public final static String KEY_UID = "uid";
     public final static String KEY_EMAIL = "email";
     public final static String KEY_USERNAME = "username";

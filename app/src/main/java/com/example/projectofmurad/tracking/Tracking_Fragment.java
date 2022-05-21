@@ -1036,7 +1036,8 @@ public class Tracking_Fragment extends Fragment implements
     private void getUserBitmap(String UID, String picture, MarkerOptions markerOptions){
         Glide.with(this)
                 .asBitmap()
-                .load(picture != null ? picture : R.drawable.images)
+                .load(picture)
+                .error(R.drawable.sample_profile_picture)
                 .dontTransform()
                 .into(new SimpleTarget<Bitmap>() {
                     @Override

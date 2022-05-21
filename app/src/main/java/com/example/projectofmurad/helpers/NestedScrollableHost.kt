@@ -36,8 +36,8 @@ import kotlin.math.sign
  * (e.g. a horizontal RecyclerView in a vertical RecyclerView in a horizontal ViewPager2).
  */
 class NestedScrollableHost : FrameLayout {
-    constructor(context: Context) : super(context)
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context : Context) : super(context)
+    constructor(context : Context, attrs: AttributeSet?) : super(context, attrs)
 
     private var touchSlop = 0
     private var initialX = 0f

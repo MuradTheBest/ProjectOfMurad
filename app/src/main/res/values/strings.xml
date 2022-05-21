@@ -134,4 +134,9 @@
     <string name="creating_the_group">Creating the group</string>
     <string name="select_group_picture">Select Group Picture</string>
     <string name="only_users_that_attend">Only users that attend</string>
+    <string name="change_phone">Change phone</string>
+    <string name="last_event">Last event</string>
+    <string name="next_event">Next event</string>
+    <string name="copy">Copy</string>
+    <string name="set_alarm">Set Alarm</string>
 </resources>

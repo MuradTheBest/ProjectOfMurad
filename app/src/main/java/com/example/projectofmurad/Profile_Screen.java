@@ -3,6 +3,7 @@ package com.example.projectofmurad;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -13,16 +14,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.CheckBox;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
-import com.example.projectofmurad.calendar.UtilsCalendar;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.example.projectofmurad.groups.UserGroupData;
+import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
+import com.example.projectofmurad.helpers.MyTextInputLayout;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.facebook.shimmer.ShimmerFrameLayout;
@@ -32,6 +39,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -54,11 +62,11 @@ public class Profile_Screen extends UserSigningActivity {
     private CircleImageView iv_profile_picture;
     private ShimmerFrameLayout shimmer_profile_picture;
 
-    private TextInputLayout et_username;
-    private TextInputLayout et_email;
-    private TextInputLayout et_phone;
+    private MyTextInputLayout et_username;
+    private MyTextInputLayout et_email;
+    private MyTextInputLayout et_phone;
 
-    private CheckBox et_madrich;
+    private MaterialCheckBox et_madrich;
 
     private MaterialButton btn_delete_account;
     private MaterialButton btn_sign_out;
@@ -93,7 +101,7 @@ public class Profile_Screen extends UserSigningActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        loadingDialog = new LoadingDialog(this/*, loadingDialog.THEME_HOLO_LIGHT*/);
+        loadingDialog = new LoadingDialog(this);
 
         if (!FirebaseUtils.isUserLoggedIn()){
             startActivity(new Intent(Profile_Screen.this, Log_In_Screen.class));
@@ -119,6 +127,7 @@ public class Profile_Screen extends UserSigningActivity {
 
                         googleSignInClient.signOut()
                                 .addOnSuccessListener(unused -> {
+                                    loadingDialog.dismiss();
                                     FirebaseUtils.getFirebaseAuth().signOut();
                                     startActivity(Utils.getIntentClearTop(new Intent(Profile_Screen.this,
                                             Log_In_Screen.class)));
@@ -138,6 +147,8 @@ public class Profile_Screen extends UserSigningActivity {
 
         et_phone.getEditText().addTextChangedListener(new TextWatcher() {
 
+            final String phone = Utils.getText(et_phone);
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -150,11 +161,14 @@ public class Profile_Screen extends UserSigningActivity {
                     s.append("-");
                 }
                 length = s.length();
+                btn_change_phone.setVisibility(phone.contentEquals(s) ? View.VISIBLE : View.GONE);
             }
         });
 
         btn_change_password = findViewById(R.id.btn_change_password);
-        btn_change_password.setOnClickListener(v -> FirebaseUtils.createReAuthenticateDialog(this, this::sendPasswordUpdateEmail));
+        btn_change_password.setOnClickListener(v ->
+                FirebaseUtils.createReAuthenticateDialog(this,
+                        () -> sendPasswordUpdateEmail(FirebaseUtils.getCurrentFirebaseUser().getEmail())));
 
         btn_change_phone = findViewById(R.id.btn_change_phone);
         btn_change_phone.setOnClickListener(v -> checkPhoneNumber());
@@ -163,7 +177,6 @@ public class Profile_Screen extends UserSigningActivity {
         iv_profile_picture.setOnClickListener(v -> chooseProfilePicture());
 
         shimmer_profile_picture = findViewById(R.id.shimmer_profile_picture);
-        shimmer_profile_picture.startShimmer();
 
         btn_delete_account = findViewById(R.id.btn_delete_account);
         btn_delete_account.setOnClickListener(
@@ -296,12 +309,12 @@ public class Profile_Screen extends UserSigningActivity {
         builder.setMessage("Enter special madrich verification code:");
 
         TextInputLayout et_verify_madrich = view.findViewById(R.id.et_verify_madrich);
-        et_verify_madrich.getEditText().addTextChangedListener(Utils.getDefaultTextChangedListener(et_verify_madrich));
+        Utils.addDefaultTextChangedListener(et_verify_madrich);
 
         builder.setPositiveButton(R.string.verify, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String code = et_verify_madrich.getEditText().getText().toString();
+                String code = Utils.getText(et_verify_madrich);
 
                 if (code.isEmpty() || code.length() < 6) {
                     et_verify_madrich.setError(getString(R.string.invalid_code));
@@ -310,20 +323,23 @@ public class Profile_Screen extends UserSigningActivity {
 
                 FirebaseUtils.isMadrichVerificationCode(Integer.parseInt(code)).observe(Profile_Screen.this,
                         isMadrichCode ->
-                                FirebaseUtils.getCurrentUserGroupDataRef().setValue(isMadrichCode)
+                                FirebaseUtils.getCurrentUserGroupDataRef().child(UserGroupData.KEY_MADRICH)
+                                        .setValue(isMadrichCode)
                                         .addOnSuccessListener(unused -> {
+                                                dialog.dismiss();
                                                 et_madrich.setChecked(isMadrichCode);
                                                 Toast.makeText(Profile_Screen.this,
                                                                 isMadrichCode
-                                                                ? "Madrich privileges were granted"
+                                                                ? "MADRICH privileges were granted"
                                                                 : "Invalid verification code",
                                                         Toast.LENGTH_SHORT).show();
                                         })
                                         .addOnFailureListener(e -> {
+                                                dialog.dismiss();
                                                 et_madrich.toggle();
-                                                Toast.makeText(Profile_Screen.this,
-                                                        R.string.upps_something_went_wrong,
-                                                        Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(Profile_Screen.this,
+                                                            R.string.upps_something_went_wrong,
+                                                            Toast.LENGTH_SHORT).show();
                                         })
                 );
             }
@@ -335,13 +351,13 @@ public class Profile_Screen extends UserSigningActivity {
     }
 
     public void createStopBeingMadrichDialog(){
-        Utils.createAlertDialog(Profile_Screen.this, null,
+        Utils.createAlertDialog(this, null,
                 "Are you sure about losing madrich privileges?",
                 R.string.yes, (dialog, which) ->
                         FirebaseUtils.getCurrentUserGroupDataRef().setValue(false)
                                 .addOnSuccessListener(unused -> {
                                         et_madrich.setChecked(false);
-                                        Toast.makeText(this, "Madrich privileges were taken", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(this, "MADRICH privileges were taken", Toast.LENGTH_SHORT).show();
                                 })
                                 .addOnFailureListener(e -> {
                                         et_madrich.toggle();
@@ -395,12 +411,17 @@ public class Profile_Screen extends UserSigningActivity {
     }
 
     public void unsubscribeFromTopic(FirebaseUtils.FirebaseCallback onFirebaseCallback) {
-        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.ADD_EVENT_TOPIC)
-                .addOnSuccessListener(unused -> FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.EDIT_EVENT_TOPIC)
-                        .addOnSuccessListener(unused1 -> FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.DELETE_EVENT_TOPIC)
-                                .addOnSuccessListener(unused2 -> onFirebaseCallback.onFirebaseCallback())));
-
-        FirebaseUtils.getFirebaseMessaging().subscribeToTopic("NotificationForGroup" + FirebaseUtils.CURRENT_GROUP_KEY + "|" + FCMSend.ADD_EVENT_TOPIC);
+        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.getTopic(FCMSend.ADD_EVENT_TOPIC))
+                .addOnSuccessListener(unused1 -> FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.getTopic(FCMSend.EDIT_EVENT_TOPIC))
+                        .addOnSuccessListener(unused2 -> FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.getTopic(FCMSend.DELETE_EVENT_TOPIC))
+                                .addOnSuccessListener(unused3 ->
+                                        FirebaseUtils.getCurrentUserGroups().observe(this,
+                                                keys -> {
+                                                    for (String key : keys){
+                                                        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(key);
+                                                    }
+                                                    onFirebaseCallback.onFirebaseCallback();
+                                                }))));
     }
 
     public void onSaveProfileClick() {
@@ -411,12 +432,11 @@ public class Profile_Screen extends UserSigningActivity {
         loadingDialog.setMessage("Updating the data...");
         loadingDialog.show();
 
-        String username = et_username.getEditText().getText().toString();
-        boolean madrich = et_madrich.isChecked();
+        String username = et_username.getText();
+        userData.setUsername(username);
 
         FirebaseUser user = FirebaseUtils.getCurrentFirebaseUser();
-
-        userData.setUsername(username);
+        userData.setPhone(user.getPhoneNumber());
 
         if (selectedImageUri != null && !Objects.equals(user.getPhotoUrl(), selectedImageUri)){
             uploadProfilePicture(userData, selectedImageUri);
@@ -427,12 +447,9 @@ public class Profile_Screen extends UserSigningActivity {
     }
 
     public void uploadUser(@NonNull UserData userData){
-
-        Log.d(Utils.LOG_TAG, userData.toString());
-
         UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder();
         builder.setDisplayName(userData.getUsername());
-        builder.setPhotoUri(Uri.parse(userData.getPicture()));
+        builder.setPhotoUri(userData.getPicture() != null ? Uri.parse(userData.getPicture()) : null);
 
         FirebaseUtils.getCurrentFirebaseUser().updateProfile(builder.build())
                 .addOnSuccessListener(unused -> FirebaseUtils.getCurrentUserDataRef().setValue(userData)
@@ -466,7 +483,7 @@ public class Profile_Screen extends UserSigningActivity {
     }
 
     public void checkPhoneNumber() {
-        String phone = et_phone.getEditText().getText().toString();
+        String phone = et_phone.getText();
 
         if (phone.isEmpty()){
             et_phone.setError(getString(R.string.invalid_phone_number));
@@ -485,8 +502,7 @@ public class Profile_Screen extends UserSigningActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot data : snapshot.getChildren()){
-                    if (data.hasChild(UserData.KEY_PHONE) && Objects.equals(
-                            data.child(UserData.KEY_PHONE).getValue(String.class), finalPhone)){
+                    if (Objects.equals(data.child(UserData.KEY_PHONE).getValue(String.class), finalPhone)){
                         loadingDialog.dismiss();
                         Toast.makeText(getApplicationContext(), "User with this phone number already exists", Toast.LENGTH_LONG).show();
                         return;
@@ -512,6 +528,7 @@ public class Profile_Screen extends UserSigningActivity {
                 new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        loadingDialog.dismiss();
                         if (task.isSuccessful()){
                             String phone = task.getResult().getUser().getPhoneNumber();
                             FirebaseUtils.getCurrentUserDataRef().child(UserData.KEY_PHONE).setValue(phone);
@@ -519,7 +536,6 @@ public class Profile_Screen extends UserSigningActivity {
                         else {
                             Toast.makeText(getApplicationContext(), "Verification code is invalid", Toast.LENGTH_SHORT).show();
                         }
-                        loadingDialog.dismiss();
                     }
                 });
     }
@@ -528,21 +544,20 @@ public class Profile_Screen extends UserSigningActivity {
 
         boolean result = true;
 
-        String username = et_username.getEditText().getText().toString();
-        String email = et_email.getEditText().getText().toString();
-        String phone = et_phone.getEditText().getText().toString();
+        String username = et_username.getText();
+        String email = et_email.getText();
 
         if(username.isEmpty()){
             et_username.setError("Enter username");
             result = false;
         }
 
-        if(email.isEmpty() || !UtilsCalendar.isEmailValid(email)){
+        if(email.isEmpty() || !CalendarUtils.isEmailValid(email)){
             et_email.setError("E-mail invalid");
             result = false;
         }
 
-        /*if(phone.isEmpty() && !UtilsCalendar.isPhoneValid(phone)){
+        /*if(phone.isEmpty() && !CalendarUtils.isPhoneValid(phone)){
             et_phone.setError("Phone invalid");
             result = false;
         }*/
@@ -574,9 +589,9 @@ public class Profile_Screen extends UserSigningActivity {
 
         FirebaseUtils.isMadrich().observe(this, isMadrich -> et_madrich.setChecked(isMadrich));
 
-        et_username.getEditText().setText(username);
-        et_email.getEditText().setText(email);
-        et_phone.getEditText().setText(phone);
+        et_username.setText(username);
+        et_email.setText(email);
+        et_phone.setText(phone);
 
         List<? extends UserInfo> providers = user.getProviderData();
         for (UserInfo userInfo : providers){
@@ -589,11 +604,28 @@ public class Profile_Screen extends UserSigningActivity {
         }
 
         Uri pp = user.getPhotoUrl();
-        Glide.with(this).load(pp != null ? pp : R.drawable.images).centerCrop().into(iv_profile_picture);
-        iv_profile_picture.setVisibility(View.VISIBLE);
 
-        shimmer_profile_picture.stopShimmer();
-        shimmer_profile_picture.setVisibility(View.GONE);
+        Glide.with(this)
+                .load(pp)
+                .error(R.drawable.sample_profile_picture)
+                .placeholder(R.drawable.sample_profile_picture)
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model,
+                                                Target<Drawable> target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model,
+                                                   Target<Drawable> target, DataSource dataSource,
+                                                   boolean isFirstResource) {
+                        shimmer_profile_picture.stopShimmer();
+                        shimmer_profile_picture.setAlpha(1f);
+                        return false;
+                    }
+                })
+                .centerCrop().into(iv_profile_picture);
     }
 
     @Override
@@ -608,32 +640,6 @@ public class Profile_Screen extends UserSigningActivity {
 
         // call superclass to save any view hierarchy
         super.onSaveInstanceState(outState);
-    }
-
-    private void sendPasswordUpdateEmail() {
-        loadingDialog.setMessage("Sending password reset mail...");
-        loadingDialog.show();
-
-        // calling sendPasswordUpdateEmail open your email and write the new password and then you can login
-        FirebaseUtils.getFirebaseAuth().sendPasswordResetEmail(FirebaseUtils.getCurrentFirebaseUser().getEmail()).addOnCompleteListener(new OnCompleteListener<Void>() {
-
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                loadingDialog.dismiss();
-
-                if (task.isSuccessful()) {
-                    // if isSuccessful then done message will be shown and you can change the password
-                    Utils.createAlertDialog(Profile_Screen.this, null,
-                            "Password reset mail was sent to your email",
-                            getString(R.string.ok), (dialog, which) -> dialog.dismiss(),
-                            null, null, null).show();
-                }
-                else {
-                    Toast.makeText(getApplicationContext(),"Error occurred",Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-
     }
 
     public String addChar(@NonNull String str, char ch, int position) {
@@ -694,7 +700,7 @@ public class Profile_Screen extends UserSigningActivity {
                         }
                         loadingDialog.dismiss();
                     }
-                }).addOnFailureListener(e -> e.printStackTrace());
+                }).addOnFailureListener(Throwable::printStackTrace);
     }
 
     // this function is triggered when user

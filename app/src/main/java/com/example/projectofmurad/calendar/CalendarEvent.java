@@ -4,7 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.projectofmurad.training.Training;
+import com.example.projectofmurad.helpers.CalendarUtils;
 import com.google.gson.Gson;
 
 import java.io.Serializable;
@@ -15,36 +15,24 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
-public class CalendarEvent implements Serializable {
+public class CalendarEvent implements Serializable, Cloneable {
 
     private String chainId;
-    private int timestamp;
+    private String privateId;
 
     private long range;
 
-    private int position;
     private String name;
     private String description;
     private String place;
 
-    //ToDo change dates and times to long
-
     private long start;
-    private String startDate;
-    private String startTime;
-    private String startDateTime;
-
     private long end;
-    private String endDate;
-    private String endTime;
-    private String endDateTime;
 
     private int color;
     private boolean allDay;
-
-    private String frequencyType;
-    private String privateId;
 
     private int frequency;
     private int amount;
@@ -56,131 +44,106 @@ public class CalendarEvent implements Serializable {
     private int month;
 
     private boolean isLast;
-    private List<Training> trainings;
 
     private String frequency_start;
     private String frequency_end;
 
-    public CalendarEvent(){
+    public static final String KEY_EVENT = "event";
+    public static final String KEY_EVENT_CHAIN_ID = "chainId";
+    public static final String KEY_EVENT_TIMESTAMP = "timestamp";
+    public static final String KEY_EVENT_RANGE = "range";
+    public static final String KEY_EVENT_NAME = "name";
+    public static final String KEY_EVENT_DESCRIPTION = "description";
+    public static final String KEY_EVENT_PLACE = "place";
+    public static final String KEY_EVENT_START = "start";
+    public static final String KEY_EVENT_END = "end";
+    public static final String KEY_EVENT_COLOR = "color";
+    public static final String KEY_EVENT_ALL_DAY = "allDay";
+    public static final String KEY_EVENT_FREQUENCY_TYPE = "frequencyType";
+    public static final String KEY_EVENT_PRIVATE_ID = "privateId";
+    public static final String KEY_EVENT_FREQUENCY = "frequency";
+    public static final String KEY_EVENT_AMOUNT = "amount";
+    public static final String KEY_EVENT_DAY = "day";
+    public static final String KEY_EVENT_DAY_OF_WEEK_POSITION = "dayOfWeekPosition";
+    public static final String KEY_EVENT_ARRAY_FREQUENCY_DAY_OF_WEEK = "array_frequencyDayOfWeek";
+    public static final String KEY_EVENT_WEEK_NUMBER = "weekNumber";
+    public static final String KEY_EVENT_MONTH = "month";
+    public static final String KEY_EVENT_FREQUENCY_START = "frequency_start";
+    public static final String KEY_EVENT_FREQUENCY_END = "frequency_end";
 
-        this.frequencyType = MySuperTouchActivity.DAY_BY_END;
-        this.frequency = 1;
+    public enum FrequencyType {
+        DAY_BY_AMOUNT,
+        DAY_OF_WEEK_BY_AMOUNT,
+        DAY_AND_MONTH_BY_AMOUNT,
+        DAY_OF_WEEK_AND_MONTH_BY_AMOUNT,
+        DAY_AND_YEAR_BY_AMOUNT,
+        DAY_OF_WEEK_AND_YEAR_BY_AMOUNT,
+        DAY_BY_END,
+        DAY_OF_WEEK_BY_END,
+        DAY_AND_MONTH_BY_END,
+        DAY_OF_WEEK_AND_MONTH_BY_END,
+        DAY_AND_YEAR_BY_END,
+        DAY_OF_WEEK_AND_YEAR_BY_END;
 
-        this.startTime = "08:00";
-        this.endTime = "09:00";
-
-/*
-        this.event_id = "";
-
-        this.name = "";
-        this.description = "";
-        this.place = "";
-
-        this.startDate = "";
-        this.startTime = "";
-
-        this.endDate = "";
-        this.endTime = "";
-
-        this.timestamp = 0;
-
-        this.frequency = 0;
-        this.frequencyDay = "";
-        this.frequencyDayOfWeek = new String[]{};
-        this.frequencyMonth = "";
-        this.frequencyYear = "";*/
+        @NonNull
+        @Override
+        public String toString() {
+            return name().toUpperCase(Locale.ROOT);
+        }
     }
 
-    public void addDefaultParams(int color, String name, String description, String place, int timestamp, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+    private FrequencyType frequencyType;
 
+    public FrequencyType getFrequencyType() {
+        return frequencyType;
+    }
+
+    public void setFrequencyType(
+            FrequencyType frequencyType) {
+        this.frequencyType = frequencyType;
+    }
+
+    public CalendarEvent() {
+        this.frequency = 1;
+        this.frequencyType = FrequencyType.DAY_BY_END;
+    }
+
+    public void addDefaultParams(int color, String name, String description, String place,
+                                 @NonNull LocalDate startDate, @NonNull LocalTime startTime,
+                                 @NonNull LocalDate endDate, LocalTime endTime) {
         this.name = name;
         this.description = description;
         this.place = place;
-
-        this.timestamp = timestamp;
-
-        this.startDate = UtilsCalendar.DateToTextOnline(startDate);
-
-        this.startTime = UtilsCalendar.TimeToText(startTime);
-
-        this.endDate = UtilsCalendar.DateToTextOnline(endDate);
-
-        this.endTime = UtilsCalendar.TimeToText(endTime);
-
-        this.timestamp = startTime.toSecondOfDay();
 
         this.start = getMillis(startDate.atTime(startTime));
         this.end = getMillis(endDate.atTime(endTime));
 
         this.range = end - start;
-
         this.color = color;
-
-        /*Calendar start = Calendar.getInstance();
-        start.set(startDate.getYear(), startDate.getMonthValue(), startDate.getDayOfMonth(),
-                startTime.getHour(), startTime.getMinute());
-
-        this.timeData = start.getTimeInMillis();
-
-        Calendar end = Calendar.getInstance();
-        end.set(endDate.getYear(), endDate.getMonthValue(), endDate.getDayOfMonth(),
-                endTime.getHour(), endTime.getMinute());
-
-        this.range = end.getTimeInMillis() - start.getTimeInMillis();*/
-/*
-        Period period = Period.between(startDate, endDate);
-        long d = endDate.toEpochDay();
-        startDate.getChronology().dateEpochDay(d);
-
-
-        startDate.getChronology().dateEpochDay(d);
-
-        LocalDateTime newDateTime =
-                LocalDateTime.from(Instant.ofEpochMilli(end.getTimeInMillis()));
-
-        newDateTime.atZone(ZoneId.systemDefault()).toEpochSecond();
-        newDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-
-        ZonedDateTime zonedDateTime = ZonedDateTime.now();*/
-
     }
 
-    public void addDefaultParams(int color, String name, String description, String place, int timestamp, @NonNull LocalDateTime startDateTime, @NonNull LocalDateTime endDateTime) {
-
+    public void addDefaultParams(int color, String name, String description, String place,
+                                 @NonNull LocalDateTime startDateTime, @NonNull LocalDateTime endDateTime) {
         this.name = name;
         this.description = description;
         this.place = place;
-
-        this.timestamp = timestamp;
-
-        this.startDate = UtilsCalendar.DateToTextOnline(startDateTime.toLocalDate());
-        this.startTime = UtilsCalendar.TimeToText(startDateTime.toLocalTime());
-        this.startDateTime = UtilsCalendar.DateTimeToTextOnline(startDateTime);
-
-        this.endDate = UtilsCalendar.DateToTextOnline(endDateTime.toLocalDate());
-        this.endTime = UtilsCalendar.TimeToText(endDateTime.toLocalTime());
-        this.endDateTime = UtilsCalendar.DateTimeToTextOnline(endDateTime);
-
-        this.timestamp = startDateTime.getSecond();
 
         this.start = getMillis(startDateTime);
         this.end = getMillis(endDateTime);
 
         this.range = end - start;
-
         this.color = color;
-
     }
 
-    public static long getMillis(@NonNull LocalDateTime localDateTime){
+    public static long getMillis(@NonNull LocalDateTime localDateTime) {
         return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 
-    public static long getMillis(@NonNull LocalDate localDate, LocalTime localTime){
+    public static long getMillis(@NonNull LocalDate localDate, LocalTime localTime) {
         return localDate.atTime(localTime).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 
-    public static LocalDateTime getDateTime(long millis){
+    public static LocalDateTime getDateTime(long millis) {
         Log.d("murad", "getDateTime " + new Date(millis));
         Log.d("murad", "instant " + Instant.ofEpochMilli(millis).toString());
 
@@ -244,50 +207,31 @@ public class CalendarEvent implements Serializable {
     }
 
     public String getStartDate() {
-        return startDate;
+        return CalendarUtils.DateToTextOnline(receiveStartDate());
     }
 
-    public void setStartDate(String startDate){
-        updateStart_date(UtilsCalendar.TextToDateForFirebase(startDate));
-    }
-
-    public LocalDate receiveStart_date(){
+    public LocalDate receiveStartDate(){
         return getDate(start);
     }
 
-    public void updateStart_date(@NonNull LocalDate start_date) {
-        LocalDateTime localDateTime = receiveStartDateTime().withDayOfMonth(start_date.getDayOfMonth());
-        localDateTime = localDateTime.withMonth(start_date.getMonthValue());
-        localDateTime = localDateTime.withYear(start_date.getYear());
-
-        updateStartDateTime(localDateTime);
+    public void updateStartDate(@NonNull LocalDate start_date) {
+        updateStartDateTime(start_date.atTime(receiveStartTime()));
     }
 
     public String getStartTime() {
-        return startTime;
+        return CalendarUtils.TimeToText(receiveStartTime());
     }
 
-    public void setStartTime(String startTime) {
-        updateStart_time(UtilsCalendar.TextToTime(startTime));
+    public LocalTime receiveStartTime(){
+        return getTime(start);
     }
 
-    public LocalTime receiveStart_time(){
-        return UtilsCalendar.TextToTime(startTime);
-    }
-
-    public void updateStart_time(@NonNull LocalTime start_time) {
-        LocalDateTime localDateTime = receiveStartDateTime().withMinute(start_time.getMinute());
-        localDateTime = localDateTime.withHour(start_time.getHour());
-
-        updateStartDateTime(localDateTime);
+    public void updateStartTime(@NonNull LocalTime start_time) {
+        updateStartDateTime(receiveStartDate().atTime(start_time));
     }
 
     public String getStartDateTime() {
-        return startDateTime;
-    }
-
-    public void setStartDateTime(String startDateTime){
-//        updateStart_date(UtilsCalendar.TextToDateForFirebase(startDateTime));
+        return CalendarUtils.DateTimeToTextOnline(receiveStartDateTime());
     }
 
     public LocalDateTime receiveStartDateTime() {
@@ -296,73 +240,42 @@ public class CalendarEvent implements Serializable {
 
     public void updateStartDateTime(LocalDateTime localDateTime) {
         this.start = getMillis(localDateTime);
-
-        this.startDate = UtilsCalendar.DateToTextOnline(localDateTime.toLocalDate());
-        this.startTime = UtilsCalendar.TimeToText(localDateTime.toLocalTime());
-        this.startDateTime = UtilsCalendar.DateTimeToTextOnline(localDateTime);
     }
 
     public String getEndDate() {
-        return endDate;
+        return CalendarUtils.DateToTextLocal(receiveEndDate());
     }
 
-    public void setEndDate(String endDate){
-        updateEnd_date(UtilsCalendar.TextToDateForFirebase(endDate));
-    }
-
-    public LocalDate receiveEnd_date(){
+    public LocalDate receiveEndDate(){
         return getDate(end);
     }
 
-    public void updateEnd_date(@NonNull LocalDate end_date) {
-        LocalDateTime localDateTime = receiveEndDateTime().withDayOfMonth(end_date.getDayOfMonth());
-        localDateTime = localDateTime.withMonth(end_date.getMonthValue());
-        localDateTime = localDateTime.withYear(end_date.getYear());
-
-        updateEndDateTime(localDateTime);
+    public void updateEndDate(@NonNull LocalDate endDate) {
+        updateEndDateTime(endDate.atTime(receiveEndTime()));
     }
 
     public String getEndTime() {
-        return endTime;
+        return CalendarUtils.TimeToText(receiveEndTime());
     }
 
-    public void setEndTime(String endTime) {
-        updateEnd_time(UtilsCalendar.TextToTime(endTime));
+    public LocalTime receiveEndTime() {
+        return getTime(end);
     }
 
-    public LocalTime receiveEnd_time(){
-        return UtilsCalendar.TextToTime(endTime);
-    }
-
-    public void updateEnd_time(@NonNull LocalTime end_time) {
-        LocalDateTime localDateTime = receiveEndDateTime().withMinute(end_time.getMinute());
-        localDateTime = localDateTime.withHour(end_time.getHour());
-
-        updateEndDateTime(localDateTime);
+    public void updateEndTime(@NonNull LocalTime endTime) {
+        updateEndDateTime(receiveEndDate().atTime(endTime));
     }
 
     public String getEndDateTime() {
-        return endDateTime;
+        return CalendarUtils.DateTimeToTextLocal(receiveEndDateTime());
     }
 
     public void updateEndDateTime(LocalDateTime localDateTime) {
         this.end = getMillis(localDateTime);
-
-        this.endDate = UtilsCalendar.DateToTextOnline(localDateTime.toLocalDate());
-        this.endTime = UtilsCalendar.TimeToText(localDateTime.toLocalTime());
-        this.endDateTime = UtilsCalendar.DateTimeToTextOnline(localDateTime);
     }
 
     public LocalDateTime receiveEndDateTime() {
         return getDateTime(end);
-    }
-
-    public int getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(int timestamp) {
-        this.timestamp = timestamp;
     }
 
     public int getColor() {
@@ -371,14 +284,6 @@ public class CalendarEvent implements Serializable {
 
     public void setColor(int color) {
         this.color = color;
-    }
-
-    public String getFrequencyType() {
-        return frequencyType;
-    }
-
-    public void setFrequencyType(String frequencyType) {
-        this.frequencyType = frequencyType;
     }
 
     public int getFrequency() {
@@ -443,7 +348,7 @@ public class CalendarEvent implements Serializable {
 
     public LocalDate receiveFrequency_start(){
         Log.d("murad", "Frequency start date received " + frequency_start);
-        return UtilsCalendar.TextToDateForFirebase(frequency_start);
+        return CalendarUtils.TextToDateForFirebase(frequency_start);
     }
 
     public void setFrequency_start(String frequency_start) {
@@ -451,8 +356,8 @@ public class CalendarEvent implements Serializable {
     }
 
     public void updateFrequency_start(LocalDate frequency_start) {
-        this.frequency_start = UtilsCalendar.DateToTextOnline(frequency_start);
-        Log.d("murad", "Frequency_start date updated " + UtilsCalendar.DateToTextOnline(frequency_start));
+        this.frequency_start = CalendarUtils.DateToTextOnline(frequency_start);
+        Log.d("murad", "Frequency_start date updated " + CalendarUtils.DateToTextOnline(frequency_start));
     }
 
     public String getFrequency_end() {
@@ -461,7 +366,7 @@ public class CalendarEvent implements Serializable {
 
     public LocalDate receiveFrequency_end(){
         Log.d("murad", "Frequency end date received " + frequency_end);
-        return UtilsCalendar.TextToDateForFirebase(frequency_end);
+        return CalendarUtils.TextToDateForFirebase(frequency_end);
     }
 
     public void setFrequency_end(String frequency_end) {
@@ -469,8 +374,8 @@ public class CalendarEvent implements Serializable {
     }
 
     public void updateFrequency_end(LocalDate frequency_end) {
-        this.frequency_end = UtilsCalendar.DateToTextOnline(frequency_end);
-        Log.d("murad", "Absolute end date updated " + UtilsCalendar.DateToTextOnline(frequency_end));
+        this.frequency_end = CalendarUtils.DateToTextOnline(frequency_end);
+        Log.d("murad", "Absolute end date updated " + CalendarUtils.DateToTextOnline(frequency_end));
     }
 
     public String getPrivateId() {
@@ -479,6 +384,10 @@ public class CalendarEvent implements Serializable {
 
     public void setPrivateId(String privateId) {
         this.privateId = privateId;
+    }
+
+    public boolean isSingle(){
+        return privateId.equals(chainId);
     }
 
     public boolean isLast() {
@@ -490,7 +399,7 @@ public class CalendarEvent implements Serializable {
     }
 
     public void clearFrequencyData(){
-        this.frequencyType = MySuperTouchActivity.DAY_BY_END;
+        this.frequencyType = FrequencyType.DAY_BY_END;
         this.frequency = 1;
 
         this.day = 0;
@@ -502,39 +411,20 @@ public class CalendarEvent implements Serializable {
         this.frequency_end = "";
     }
 
-/*    @NonNull
-    public String toString(){
-
-        return *//*"------------------------------------------------------------------------------------------------------------------------------------ \n" +*//*
-                "\n" + this.getName() + " | " + this.getPlace() + " | " + this.getDescription() +
-                "\n" + this.getStartDate() + " | " + this.getStartTime() +
-                "\n" + this.getEndDate() + " | " + this.getEndTime() +
-                "\n"*//* + "\n ------------------------------------------------------------------------------------------------------------------------------------ \n"*//*;
-    }*/
-
     @NonNull
     @Override
     public String toString() {
         return "CalendarEvent{" +
                 "\n chainId = '" + chainId + '\'' +
-                ", \n timestamp = " + timestamp +
                 ", \n range = " + range +
-                ", \n position = " + position +
                 ", \n name = '" + name + '\'' +
                 ", \n description = '" + description + '\'' +
                 ", \n place = '" + place + '\'' +
                 ", \n start = " + start +
                 ", \n start = " + new Date(start) +
-                ", \n startDate = '" + startDate + '\'' +
-                ", \n startTime = '" + startTime + '\'' +
-                ", \n startDateTime = '" + startDateTime + '\'' +
                 ", \n end = " + end +
                 ", \n end = " + new Date(end) +
-                ", \n endDate = '" + endDate + '\'' +
-                ", \n endTime = '" + endTime + '\'' +
-                ", \n endDateTime = '" + endDateTime + '\'' +
                 ", \n color = " + color +
-                ", \n frequencyType = '" + frequencyType + '\'' +
                 ", \n privateId = '" + privateId + '\'' +
                 ", \n frequency = " + frequency +
                 ", \n amount = " + amount +
@@ -546,19 +436,24 @@ public class CalendarEvent implements Serializable {
                 ", \n isLast = " + isLast +
                 ", \n frequency_start = '" + frequency_start + '\'' +
                 ", \n frequency_end = '" + frequency_end + '\'' +
-                '}';
+                "\n}";
     }
 
-    public int getPosition() {
-        return position;
-    }
 
-    public void setPosition(int position) {
-        this.position = position;
+    public String print(){
+        return "{" +
+                ", \n name = '" + name + '\'' +
+                ", \n description = '" + description + '\'' +
+                ", \n place = '" + place + '\'' +
+                ", \n start = " + start +
+                ", \n start = " + new Date(start) +
+                ", \n end = " + end +
+                ", \n end = " + new Date(end) +
+                "\n}";
     }
 
     public long getRange() {
-        return end - start;
+        return range;
     }
 
     public void setRange(long range) {
@@ -569,6 +464,10 @@ public class CalendarEvent implements Serializable {
         return new Gson().toJson(this);
     }
 
+    public static CalendarEvent fromJson(String eventJson){
+        return new Gson().fromJson(eventJson, CalendarEvent.class);
+    }
+
     public boolean isAllDay() {
         return allDay;
     }
@@ -577,11 +476,37 @@ public class CalendarEvent implements Serializable {
         this.allDay = allDay;
     }
 
-    public List<Training> getTrainings() {
-        return trainings;
+    public CalendarEvent copy() {
+        CalendarEvent newEvent = new CalendarEvent();
+
+        newEvent.setStart(getStart());
+        newEvent.setEnd(getEnd());
+        newEvent.setChainId(getChainId());
+        newEvent.setName(getName());
+        newEvent.setDescription(getDescription());
+        newEvent.setPlace(getPlace());
+        newEvent.setColor(getColor());
+        newEvent.setFrequencyType(getFrequencyType());
+        newEvent.setFrequency(getFrequency());
+        newEvent.setAmount(getAmount());
+        newEvent.setDay(getDay());
+        newEvent.setDayOfWeekPosition(getDayOfWeekPosition());
+        newEvent.setArray_frequencyDayOfWeek(getArray_frequencyDayOfWeek());
+        newEvent.setWeekNumber(getWeekNumber());
+        newEvent.setMonth(getMonth());
+        newEvent.setFrequency_start(getFrequency_start());
+        newEvent.setFrequency_end(getFrequency_end());
+        newEvent.setPrivateId(getPrivateId());
+        newEvent.setLast(isLast());
+        newEvent.setRange(getRange());
+        newEvent.setAllDay(isAllDay());
+
+        return newEvent;
     }
 
-    public void setTrainings(List<Training> trainings) {
-        this.trainings = trainings;
+    @NonNull
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

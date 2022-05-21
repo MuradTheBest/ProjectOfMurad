@@ -34,9 +34,11 @@ import com.example.projectofmurad.MainViewModel;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.MyGridLayoutManager;
 import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.textview.MaterialTextView;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -56,7 +58,7 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
 
     public static final String ACTION_MOVE_TO_CALENDAR_FRAGMENT = "action_move_to_calendar_fragment";
 
-    private TextView monthYearText;
+    private MaterialTextView tv_date;
     private RecyclerView calendarRecyclerView;
     private LocalDate selectedDate = LocalDate.now();
 
@@ -69,7 +71,7 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
 
     private MainViewModel mainViewModel;
 
-    private final String[] days = UtilsCalendar.getShortDaysOfWeek();
+    private final String[] days = CalendarUtils.getShortDaysOfWeek();
 
     public CalendarFragment() {
         // Required empty public constructor
@@ -103,8 +105,8 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
 
         calendarRecyclerView = view.findViewById(R.id.calendarRecyclerView);
 
-        monthYearText = view.findViewById(R.id.monthYearTV);
-        monthYearText.setOnClickListener(new View.OnClickListener() {
+        tv_date = view.findViewById(R.id.tv_date);
+        tv_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
@@ -129,7 +131,7 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
 
         ll_calendar_view = view.findViewById(R.id.ll_calendar_view);
 
-        Log.d("murad","today is " + UtilsCalendar.DateToTextOnline(today));
+        Log.d("murad","today is " + CalendarUtils.DateToTextOnline(today));
 
         Button btn_auto_event = view.findViewById(R.id.btn_auto_event);
         btn_auto_event.setOnClickListener(this::sendAlarm);
@@ -179,14 +181,14 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
         calendarEvent.setColor(Utils.generateRandomColor());
         calendarEvent.setPrivateId("sample_event_private_id");
         calendarEvent.setChainId("sample_event_private_id");
-        calendarEvent.updateStart_date(LocalDate.now());
-        calendarEvent.updateStart_time(LocalTime.now().plusMinutes(1));
-        calendarEvent.updateEnd_date(LocalDate.now());
-        calendarEvent.updateEnd_time(LocalTime.now().plusMinutes(1).plusHours(1));
+        calendarEvent.updateStartDate(LocalDate.now());
+        calendarEvent.updateStartTime(LocalTime.now().plusMinutes(1));
+        calendarEvent.updateEndDate(LocalDate.now());
+        calendarEvent.updateEndTime(LocalTime.now().plusMinutes(1).plusHours(1));
         Log.d("murad", calendarEvent.toString());
 
         AlarmManagerForToday.addAlarm(requireContext(), calendarEvent, 0);
-        FirebaseUtils.getEventsDatabase().child(UtilsCalendar.DateToTextForFirebase(calendarEvent.receiveStart_date()))
+        FirebaseUtils.getEventsDatabase().child(CalendarUtils.DateToTextForFirebase(calendarEvent.receiveStartDate()))
                 .child(calendarEvent.getPrivateId()).setValue(calendarEvent);
 
         FirebaseUtils.getAllEventsDatabase().child(calendarEvent.getPrivateId()).setValue(calendarEvent);
@@ -256,10 +258,10 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
         prev = 0;
         next = 1;
 
-        monthYearText.setText(monthYearFromDate(selectedDate));
+        tv_date.setText(monthYearFromDate(selectedDate));
         ArrayList<LocalDate> daysInMonth = daysInMonthArray(selectedDate);
 
-        CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth, requireContext(), this, selectedDate);
+        CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth, selectedDate, this);
         calendarRecyclerView.setAdapter(calendarAdapter);
 
         MyGridLayoutManager gridLayoutManager = new MyGridLayoutManager(requireContext(), 7);
@@ -362,7 +364,7 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
     }
 
     private String monthYearFromDate(@NonNull LocalDate date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", UtilsCalendar.locale);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", CalendarUtils.getLocale());
         return date.format(formatter);
     }
 
@@ -383,7 +385,7 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
 
         int duration = 0;
 
-        Log.d("murad", "selectedDate " + UtilsCalendar.DateToTextOnline(selectedDate) + ", passingDate " + UtilsCalendar.DateToTextOnline(passingDate));
+        Log.d("murad", "selectedDate " + CalendarUtils.DateToTextOnline(selectedDate) + ", passingDate " + CalendarUtils.DateToTextOnline(passingDate));
         if(selectedDate.getMonthValue() != passingDate.getMonthValue()){
 
             selectedDate = passingDate;

@@ -3,9 +3,9 @@ package com.example.projectofmurad;
 import androidx.annotation.NonNull;
 
 public enum Show {
-    All(2),
-    Madrich (1),
-    NoOne(0);
+    ALL(2),
+    MADRICH(1),
+    NO_ONE(0);
 
     private int value;
 

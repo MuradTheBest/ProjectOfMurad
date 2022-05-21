@@ -7,7 +7,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -21,6 +20,7 @@ import com.example.projectofmurad.helpers.Utils;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 
 
@@ -53,9 +53,10 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
 
         ConstraintLayout constraintLayout;
 
-        TextView tv_group_name;
-        TextView tv_group_description;
-        TextView tv_users;
+        MaterialTextView tv_group_name;
+        MaterialTextView tv_group_description;
+        MaterialTextView tv_users;
+
         private boolean isMadrich;
 
         public GroupViewHolderForFirebase(@NonNull View itemView) {
