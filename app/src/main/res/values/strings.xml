@@ -139,4 +139,7 @@
     <string name="next_event">Next event</string>
     <string name="copy">Copy</string>
     <string name="set_alarm">Set Alarm</string>
+    <string name="save">Save</string>
+    <string name="private_training">Private training</string>
+    <string name="group_training">Group training</string>
 </resources>

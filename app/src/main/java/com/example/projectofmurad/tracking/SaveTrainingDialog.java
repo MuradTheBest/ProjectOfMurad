@@ -3,10 +3,6 @@ package com.example.projectofmurad.tracking;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.View;
-import android.widget.CompoundButton;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import androidx.annotation.NonNull;
@@ -18,19 +14,10 @@ import com.example.projectofmurad.training.Training;
 
 import java.time.LocalDate;
 
-public class SaveTrainingDialog extends AppCompatDialog implements CompoundButton.OnCheckedChangeListener,
-        View.OnClickListener {
-
-    private RadioButton rb_private_training;
-    private RadioButton rb_group_training;
-
-    private LinearLayout ll_private_training;
-    private LinearLayout ll_group_training;
+public class SaveTrainingDialog extends AppCompatDialog implements RadioGroup.OnCheckedChangeListener {
 
     private final Training training;
-
     private final Context context;
-
     private final OnAddTrainingListener onAddTrainingListener;
 
     public SaveTrainingDialog(@NonNull Context context, Training training, OnAddTrainingListener onAddTrainingListener) {
@@ -42,69 +29,36 @@ public class SaveTrainingDialog extends AppCompatDialog implements CompoundButto
 //        this.onAddTrainingListener = (OnAddTrainingListener) context;
         this.onAddTrainingListener = onAddTrainingListener;
 
-        this.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
-        this.getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
+        Utils.createCustomDialog(this);
+        setCancelable(false);
+        setCanceledOnTouchOutside(false);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setTitle("Choose trainingData type");
-        setCancelable(false);
+        setTitle("Choose training type");
         setContentView(R.layout.choose_event_dialog);
 
-        RadioGroup rg_choose_training = findViewById(R.id.rg_choose_training);
-
-        rb_private_training = findViewById(R.id.rb_private_training);
-        rb_group_training = findViewById(R.id.rb_group_training);
-
-        rb_private_training.setOnCheckedChangeListener(this);
-        rb_group_training.setOnCheckedChangeListener(this);
-
-        ll_private_training = findViewById(R.id.ll_private_training);
-        ll_private_training.setOnClickListener(this);
-        ll_group_training = findViewById(R.id.ll_group_training);
-        ll_group_training.setOnClickListener(this);
-
-        Utils.createCustomDialog(this);
+        RadioGroup rg_choose_training_type = findViewById(R.id.rg_choose_training_type);
+        rg_choose_training_type.setOnCheckedChangeListener(this);
     }
 
-    
     @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (isChecked){
-            if (buttonView == rb_private_training) {
-                rb_group_training.setChecked(false);
-                ll_private_training.setBackgroundResource(R.drawable.calendar_cell_selected_background);
-                ll_group_training.setBackgroundResource(R.drawable.calendar_cell_unclicked_background);
-
-//                new MyRepository(getOwnerActivity().getApplication()).insert(trainingData);
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+        switch (checkedId){
+            case R.id.rb_private_training:
                 onAddTrainingListener.onAddTraining(training);
-            }
-            if (buttonView == rb_group_training) {
-                rb_private_training.setChecked(false);
-                ll_private_training.setBackgroundResource(R.drawable.calendar_cell_unclicked_background);
-                ll_group_training.setBackgroundResource(R.drawable.calendar_cell_selected_background);
-
+                break;
+            case R.id.rb_group_training:
                 ChooseEventClickDialog chooseEventDialog
                         = new ChooseEventClickDialog(context, LocalDate.now(), training, onAddTrainingListener);
 
                 chooseEventDialog.show();
-            }
+                break;
+        }
 
-            new Handler().postDelayed(this::dismiss, 500);
-        }
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v == ll_private_training) {
-            rb_private_training.setChecked(true);
-        }
-        if (v == ll_group_training) {
-            rb_group_training.setChecked(true);
-        }
+        new Handler().postDelayed(this::dismiss, 500);
     }
 
     public interface OnAddTrainingListener{

@@ -51,26 +51,26 @@ public abstract class CalendarUtils {
 
     @NonNull
     public static String[] getNarrowDaysOfWeek(){
-        String[] days = new String[7];
+        String[] daysOfWeek = new String[7];
 
         for(int i = 0; i < DayOfWeek.values().length; i++) {
             DayOfWeek d = DayOfWeek.of(i+1);
-            days[i] = d.getDisplayName(TextStyle.NARROW, getLocale());
+            daysOfWeek[i] = d.getDisplayName(TextStyle.NARROW, getLocale());
         }
 
-        return days;
+        return daysOfWeek;
     }
 
     @NonNull
     public static String[] getShortDaysOfWeek(){
-        String[] days = new String[7];
+        String[] daysOfWeek = new String[7];
 
         for(int i = 0; i < DayOfWeek.values().length; i++) {
             DayOfWeek d = DayOfWeek.of(i+1);
-            days[i] = d.getDisplayName(TextStyle.SHORT, getLocale());
+            daysOfWeek[i] = d.getDisplayName(TextStyle.SHORT, getLocale());
         }
 
-        return days;
+        return daysOfWeek;
     }
 
     /*public static int getWeekNumber(LocalDate date){
@@ -90,30 +90,6 @@ public abstract class CalendarUtils {
 
         return count;
     }
-
-    /*public static int getWeekNumber(LocalDate date){
-        // Or use a specific locale, or configure your own rules
-        WeekFields weekFields = WeekFields.of(Locale.getDefault());
-        int count = date.get(weekFields.weekOfMonth());
-
-        int dayOfWeek = DayOfWeek.from(date).getValue();
-        Log.d("murad", "dayOfWeek = " + dayOfWeek);
-
-        Month month = date.getMonth();
-
-        Log.d("murad", "weekNumber = " + count);
-
-        int firstDayOfWeek = date.withDayOfMonth(1).getDayOfWeek().getValue();
-        Log.d("murad", "firstDayOfWeek = " + firstDayOfWeek);
-
-        if(dayOfWeek < firstDayOfWeek *//*|| (dayOfWeek == 7 && firstDayOfWeek !=7 )*//*){
-            count--;
-        }
-
-
-
-        return count;
-    }*/
 
     public static LocalDate getNextOccurrence(@NonNull LocalDate date, int weekNumber){
         int dayOfWeek = date.getDayOfWeek().getValue();
@@ -167,11 +143,6 @@ public abstract class CalendarUtils {
         return date.format(dateFormatLocal.withLocale(getLocale()));
     }
 
-    public static String OnlineTextToLocal(String date){
-        LocalDate h = LocalDate.parse(date, dateFormatOnline);
-        return h.format(dateFormatLocal.withLocale(getLocale()));
-    }
-
     public static LocalDate TextToDateForFirebase(String date){
         return LocalDate.parse(date, dateFormatOnline);
     }
@@ -179,10 +150,6 @@ public abstract class CalendarUtils {
     public static String DateToTextForFirebase(@NonNull LocalDate date){
         return date.format(dateFormatForFBOnline);
     }
-
-    /*public static LocalDate TextToDateForFirebase(String date){
-        return LocalDate.parse(date, dateFormat);
-    }*/
 
     public static String TimeToText(@NonNull LocalTime time){
         return time.format(timeFormat);

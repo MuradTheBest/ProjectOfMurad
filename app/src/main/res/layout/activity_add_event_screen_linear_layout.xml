@@ -38,7 +38,8 @@
                 android:layout_centerVertical="true"
                 android:textColor="@color/colorAccent"
                 android:textSize="20sp"
-                app:endIconMode="clear_text"
+                app:endIconMode="custom"
+                app:endIconDrawable="@drawable/ic_baseline_choose_color_24"
                 app:endIconTint="@color/colorAccent"
                 app:startIconDrawable="@drawable/ic_baseline_alternate_email_24">
 
@@ -48,19 +49,6 @@
                     android:inputType="text" />
 
             </com.google.android.material.textfield.TextInputLayout>
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/ib_color"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_alignTop="@id/et_name"
-                android:layout_alignEnd="@id/et_name"
-                android:layout_alignBottom="@id/et_name"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="5dp"
-                android:layout_centerVertical="true"
-                android:src="@drawable/ic_baseline_choose_color_24"
-                app:tint="@color/colorAccent" />
 
         </RelativeLayout>
 

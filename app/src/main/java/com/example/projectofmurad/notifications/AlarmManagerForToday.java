@@ -11,15 +11,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.projectofmurad.helpers.CalendarUtils;
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.helpers.Utils;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 
-import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -29,20 +23,12 @@ public class AlarmManagerForToday {
 
     public static final String TAG = "AlarmManagerForToday";
 
-    public static LocalDate getToday(){
-        return LocalDate.now();
-    }
-
-    public static String getTodayText(){
-        return CalendarUtils.DateToTextOnline(getToday());
-    }
-
     public static boolean checkIfAlarmSet(@NonNull Context context, String eventPrivateId){
         boolean alarmSet = false;
 
         SQLiteDatabase db = Utils.openOrCreateDatabase(context);
 
-        Cursor cursor = db.rawQuery("select * from tbl_alarm where "
+        Cursor cursor = db.rawQuery("select * from " + Utils.TABLE_AlARM_NAME + " where "
                 + Utils.TABLE_AlARM_COL_EVENT_PRIVATE_ID + " = '" + eventPrivateId + "'",  null);
 
         if(cursor.moveToNext()){
@@ -146,27 +132,5 @@ public class AlarmManagerForToday {
 
             alarmManager.cancel(pendingIntent);
         }
-    }
-
-    @NonNull
-    public static CalendarEvent findCalendarEventById(String event_private_id){
-        final CalendarEvent[] event = {new CalendarEvent()};
-
-        FirebaseUtils.getEventsDatabase().child(CalendarUtils.DateToTextForFirebase(getToday())).child(event_private_id).addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()) {
-                            event[0] = snapshot.getValue(CalendarEvent.class);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-
-        return event[0];
     }
 }

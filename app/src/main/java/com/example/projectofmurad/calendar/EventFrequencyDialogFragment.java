@@ -92,9 +92,6 @@ public class EventFrequencyDialogFragment extends DialogFragment implements
 
     public ArrayAdapter<String> arrayAdapter;
 
-    public int frequency;
-
-    public int amount;
     public LocalDate frequency_end_date;
 
     public int day;
@@ -161,6 +158,8 @@ public class EventFrequencyDialogFragment extends DialogFragment implements
 
             this.startDate = LocalDate.of(year, month, day);
         }
+
+        getDialog().getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow;
     }
 
     @Nullable
@@ -172,8 +171,6 @@ public class EventFrequencyDialogFragment extends DialogFragment implements
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        getDialog().getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow;
 
         eventFrequencyViewModel = new ViewModelProvider(requireActivity()).get(EventFrequencyViewModel.class);
 
@@ -302,9 +299,6 @@ public class EventFrequencyDialogFragment extends DialogFragment implements
                 month = month + 1;
                 frequency_end_date = LocalDate.of(year, month, day);
                 String date_text = CalendarUtils.DateToTextLocal(frequency_end_date);
-
-                frequency_end_date = LocalDate.of(year, month, day);
-
                 rb_until.setText(getString(R.string.until___, date_text));
             }
         });
@@ -320,6 +314,8 @@ public class EventFrequencyDialogFragment extends DialogFragment implements
 
         btn_cancel = view.findViewById(R.id.btn_cancel);
         btn_cancel.setOnClickListener(this);
+
+        Log.d(Utils.EVENT_TAG, "requireActivity is " + requireActivity().getLocalClassName());
     }
 
     private void initAllToggleButtons(){
@@ -397,13 +393,16 @@ public class EventFrequencyDialogFragment extends DialogFragment implements
 
             textInputLayout_times.setVisibility(View.GONE);
             date_picker_end.setVisibility(View.VISIBLE);
-            date_picker_end.updateDate(date_picker_end.getYear(),
+            date_picker_end.updateDate(frequency_end_date.getYear(),
                     frequency_end_date.getMonthValue()-1, frequency_end_date.getDayOfMonth());
 
             animate(radioGroup);
             animate(date_picker_end);
 
             scrollview_frequency.post(() -> scrollview_frequency.fullScroll(ScrollView.FOCUS_DOWN));
+        }
+        else if (radioGroup.getCheckedRadioButtonId() == R.id.rb_never){
+            eventFrequencyViewModel.frequencyType.setValue(null);
         }
 
         int checkedId = rg_repeat_for_month.getCheckedRadioButtonId();
@@ -565,7 +564,7 @@ public class EventFrequencyDialogFragment extends DialogFragment implements
                 rb_with_last_day_and_month.setVisibility(View.GONE);
             }
 
-            if(startDate.with(TemporalAdjusters.lastInMonth(DayOfWeek.of(dayOfWeekPosition+1))).equals(startDate)){
+            if(startDate.with(TemporalAdjusters.lastInMonth(DayOfWeek.of(dayOfWeekPosition+1))).equals(startDate)) {
                 if (weekNumber != 4) {
                     rb_with_dayOfWeek_and_month.setVisibility(View.GONE);
                 }
@@ -595,7 +594,6 @@ public class EventFrequencyDialogFragment extends DialogFragment implements
             }
 
             animate(rg_repeat_for_year);
-
         }
 
         animate(scrollview_frequency);
@@ -630,8 +628,8 @@ public class EventFrequencyDialogFragment extends DialogFragment implements
     public void onClick(View view) {
         if(view == btn_ok){
 
-            frequency = Integer.parseInt(et_frequency.getText().toString());
-            amount = Integer.parseInt(et_times.getText().toString());
+            int frequency = Integer.parseInt(et_frequency.getText().toString());
+            int amount = Integer.parseInt(et_times.getText().toString());
 
             switch (eventFrequencyViewModel.frequencyType.getValue()){
                 case DAY_BY_AMOUNT: {

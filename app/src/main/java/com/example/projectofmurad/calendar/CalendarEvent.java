@@ -207,7 +207,7 @@ public class CalendarEvent implements Serializable, Cloneable {
     }
 
     public String getStartDate() {
-        return CalendarUtils.DateToTextOnline(receiveStartDate());
+        return CalendarUtils.DateToTextLocal(receiveStartDate());
     }
 
     public LocalDate receiveStartDate(){
@@ -231,7 +231,7 @@ public class CalendarEvent implements Serializable, Cloneable {
     }
 
     public String getStartDateTime() {
-        return CalendarUtils.DateTimeToTextOnline(receiveStartDateTime());
+        return CalendarUtils.DateTimeToTextLocal(receiveStartDateTime());
     }
 
     public LocalDateTime receiveStartDateTime() {
@@ -508,5 +508,9 @@ public class CalendarEvent implements Serializable, Cloneable {
     @Override
     protected Object clone() throws CloneNotSupportedException {
         return super.clone();
+    }
+
+    public boolean isRowEvent(){
+        return frequencyType.equals(FrequencyType.DAY_BY_END) && frequency == 1;
     }
 }

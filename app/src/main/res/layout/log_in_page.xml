@@ -6,7 +6,7 @@
 	android:layout_height="match_parent"
 	tools:context=".Log_In_Screen">
 
-	<ImageView
+	<androidx.appcompat.widget.AppCompatImageView
 		android:id="@+id/vector_ek1"
 		android:layout_width="match_parent"
 		android:layout_height="85dp"
@@ -30,7 +30,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/vector_ek1"
 		app:layout_constraintVertical_bias="0.0" />
 
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
         android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
@@ -97,7 +97,7 @@
 
 	</com.google.android.material.textfield.TextInputLayout>
 
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:id="@+id/tv_don_t_have_an_account"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -112,7 +112,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
 		app:layout_constraintVertical_bias="0.28" />
 
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:id="@+id/tv_sign_up_now"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -142,7 +142,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/et_password"
 		app:layout_constraintVertical_bias="0.0" />
 
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:id="@+id/tv_forgot_password"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -155,7 +155,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/et_password"
 		app:layout_constraintHorizontal_bias="0.0" />
 
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:id="@+id/tv_log_in_with"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -167,7 +167,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/btn_log_in"
 		app:layout_constraintVertical_bias="0.056" />
 
-	<LinearLayout
+	<androidx.appcompat.widget.LinearLayoutCompat
 		android:id="@+id/linearLayout4"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -177,7 +177,6 @@
 		app:layout_constraintStart_toStartOf="@+id/tv_log_in_with"
 		app:layout_constraintTop_toBottomOf="@+id/tv_log_in_with"
 		app:layout_constraintVertical_bias="0.11">
-
 
 		<com.google.android.material.button.MaterialButton
 			android:id="@+id/btn_google"
@@ -210,6 +209,6 @@
 			app:iconSize="28dp"
 			app:iconTintMode="multiply" />
 
-	</LinearLayout>
+	</androidx.appcompat.widget.LinearLayoutCompat>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

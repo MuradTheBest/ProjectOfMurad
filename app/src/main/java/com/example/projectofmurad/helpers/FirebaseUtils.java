@@ -88,8 +88,13 @@ public abstract class FirebaseUtils {
     }
 
     @NonNull
+    public static DatabaseReference getUserTrackingRef(String event_private_id, String UID){
+        return getAttendanceDatabase().child(event_private_id).child(UID);
+    }
+
+    @NonNull
     public static DatabaseReference getCurrentUserTrackingRef(String event_private_id){
-        return getAttendanceDatabase().child(event_private_id).child(getCurrentUID());
+        return getUserTrackingRef(event_private_id, getCurrentUID());
     }
 
     public static final DatabaseReference groups = getDatabase().getReference("Groups").getRef();
@@ -101,7 +106,11 @@ public abstract class FirebaseUtils {
 
     public static int CURRENT_GROUP_COLOR = MyApplication.getContext()
             .getSharedPreferences(Utils.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
-            .getInt(Group.KEY_COLOR, R.color.colorAccent);
+            .getInt(CURRENT_GROUP_KEY, MyApplication.getContext().getColor(R.color.colorAccent));
+
+    public static boolean isCurrentGroup(String key){
+        return Objects.equals(CURRENT_GROUP_KEY, key);
+    }
 
     @NonNull
     public static DatabaseReference getCurrentGroupDatabase() {
@@ -122,6 +131,18 @@ public abstract class FirebaseUtils {
         editor.apply();
 
         CURRENT_GROUP_KEY = key;
+    }
+
+    public static void changeGroup(@NonNull Context context, String key, int groupColor) {
+        SharedPreferences sp = context.getSharedPreferences(Utils.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        editor.putString(UserData.KEY_CURRENT_GROUP, key);
+        editor.putInt(key, groupColor);
+        editor.apply();
+
+        CURRENT_GROUP_KEY = key;
+        CURRENT_GROUP_COLOR = groupColor;
     }
 
     @NonNull
@@ -167,7 +188,7 @@ public abstract class FirebaseUtils {
     }
 
     @NonNull
-    public static Task<DataSnapshot> checkCurrentGroup(){
+    public static Task<DataSnapshot> checkCurrentGroup() {
         return getCurrentUserDataRef().child(UserData.KEY_CURRENT_GROUP).get();
     }
 
@@ -234,7 +255,7 @@ public abstract class FirebaseUtils {
     public static final DatabaseReference usersDatabase = getDatabase().getReference("Users").getRef();
 
     @NonNull
-    public static DatabaseReference getEventsDatabase(){
+    public static DatabaseReference getEventsDatabase() {
         return getCurrentGroupDatabase().child("Events").getRef();
     }
 
@@ -274,7 +295,6 @@ public abstract class FirebaseUtils {
                 dataSnapshot -> getCurrentUserTrainingsRefForEvent(eventPrivateId).getParent()
                         .child(UserGroupData.KEY_SHOW).setValue(dataSnapshot.getValue(int.class)));
         return getCurrentUserTrainingsRefForEvent(eventPrivateId).child(training.getPrivateId()).setValue(training);
-
     }
 
     @NonNull
@@ -373,7 +393,7 @@ public abstract class FirebaseUtils {
     public static LiveData<String> getCurrentUsername(){
         MutableLiveData<String> username = new MutableLiveData<>();
 
-        getCurrentUserDataRef().child(UserData.KEY_USERNAME).addListenerForSingleValueEvent(
+        getCurrentUserDataRef().child(UserData.KEY_USERNAME).addValueEventListener(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -395,7 +415,7 @@ public abstract class FirebaseUtils {
         MutableLiveData<Boolean> isMadrich = new MutableLiveData<>();
 
         getCurrentUserGroupDataRef().child(UserGroupData.KEY_MADRICH)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+                .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         isMadrich.setValue(snapshot.exists() && snapshot.getValue(boolean.class));
@@ -500,51 +520,6 @@ public abstract class FirebaseUtils {
                 data.getRef().removeValue();
             }
             deleteData(data, key);
-        }
-    }
-
-    /**
-     * Deletes all the data in {@link FirebaseDatabase} with this key starting from rootRef and deeper.
-     * @param rootRef Starting location for deleting
-     * @param firebaseCallback Callback that will happen when deleting will be finished
-     */
-    public static void deleteAll(@NonNull Query rootRef, FirebaseCallback firebaseCallback, Object... objects){
-        Log.d("snapshot", "Attempt to delete");
-        rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.d("snapshot", "Starting delete");
-                deleteData(snapshot, objects);
-                firebaseCallback.onFirebaseCallback();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        });
-    }
-
-    /**
-     *
-     * @param snapshot
-     */
-    private static void deleteData(@NonNull DataSnapshot snapshot, Object... objects){
-        if (!snapshot.exists() && !snapshot.hasChildren()) return;
-
-        Log.d("snapshot", snapshot.getRef().toString());
-
-        for (DataSnapshot data : snapshot.getChildren()) {
-            boolean match = true;
-            for (Object o : objects){
-                if (!(Objects.equals(data.getKey(), o) || Objects.equals(data.getValue(), o))) {
-                    match = false;
-                    break;
-                }
-            }
-
-            if (match){
-                data.getRef().removeValue();
-                deleteData(data, objects);
-            }
         }
     }
 

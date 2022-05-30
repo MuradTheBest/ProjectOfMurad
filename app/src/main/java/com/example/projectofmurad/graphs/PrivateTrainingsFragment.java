@@ -85,10 +85,10 @@ public class PrivateTrainingsFragment extends Fragment {
         rv_private_training = view.findViewById(R.id.rv_private_training);
 
         progressViewModel = new ViewModelProvider(requireActivity()).get(ProgressViewModel.class);
-        progressViewModel.getPrivateTrainings().observe(getViewLifecycleOwner(), this::setUpRV);
+        progressViewModel.getPrivateTrainings().observe(getViewLifecycleOwner(), this::setupRV);
     }
 
-    public void setUpRV(List<Training> trainings){
+    public void setupRV(List<Training> trainings){
         TrainingAdapter trainingAdapter = new TrainingAdapter(requireContext(), requireContext().getColor(R.color.colorAccent),
                 (ArrayList<Training>) trainings);
 

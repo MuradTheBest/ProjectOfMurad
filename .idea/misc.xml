@@ -196,12 +196,12 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/bottom_sheet_training_collapsed.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/bottom_sheet_training_expanded.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/calendar_cell.xml" value="0.25" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/choose_event_dialog.xml" value="0.25" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/choose_event_dialog.xml" value="0.33" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/choose_event_frequency_dialog.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/choose_event_frequency_dialogcustom_with_exposed_dropdown.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/choose_event_frequency_dialogcustom_with_exposed_dropdown_scroll_view.xml" value="0.33" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/choose_training_dialog.xml" value="0.16794871794871793" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/day_dialog.xml" value="0.1675213675213675" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/day_dialog.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/day_dialog_with_recyclerview.xml" value="0.2" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/dfghtjhk.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/dropdown_item.xml" value="0.1675213675213675" />
@@ -219,7 +219,7 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_ddfddssdfs.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_event__details.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_event__info_.xml" value="0.25" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_event__info_with_collapsing.xml" value="0.2" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_event__info_with_collapsing.xml" value="0.1" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_event_frequency.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_graph_.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_group_info_dialog.xml" value="0.25" />
@@ -229,7 +229,7 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_private_trainings.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_tables_.xml" value="0.14" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_there_is_no_event.xml" value="0.16794871794871793" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_tracking_.xml" value="0.18216318785578747" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_tracking_.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_training__info__dialog.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/loading_dialog.xml" value="0.22" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/log_in_page.xml" value="0.25" />
@@ -242,7 +242,7 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/raw_training.xml" value="0.33" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/raw_user_and_training.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/reauthenticate_dialog.xml" value="0.16" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_event_and_trainings.xml" value="0.15" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_event_and_trainings.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_event_info.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_fragment_list.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/row_group.xml" value="0.33" />
@@ -262,7 +262,7 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/blank_fragment_menu.xml" value="0.22" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/bottom_menu.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/calendar_menu.xml" value="0.1675213675213675" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/event_menu.xml" value="0.5" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/event_menu.xml" value="0.17" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/group_menu.xml" value="0.16794871794871793" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/home_fragment_menu.xml" value="0.1675213675213675" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/menu/profile_screen_menu.xml" value="0.1675213675213675" />

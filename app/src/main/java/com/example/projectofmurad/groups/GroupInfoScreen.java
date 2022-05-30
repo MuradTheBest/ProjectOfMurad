@@ -15,13 +15,14 @@ import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.calendar.UsersAdapterForFirebase;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
-import com.example.projectofmurad.helpers.MyTextInputLayout;
+import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.helpers.ViewAnimationUtils;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
@@ -34,16 +35,18 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
     protected CollapsingToolbarLayout collapsing_toolbar_layout;
     protected AppCompatImageView iv_group_picture;
     protected MaterialToolbar toolbar;
-    protected MyTextInputLayout et_group_name;
-    protected MyTextInputLayout et_group_description;
-    protected MyTextInputLayout et_group_key;
-    protected MyTextInputLayout et_trainer_code;
-    protected MyTextInputLayout et_group_limit;
+    protected TextInputLayout et_group_name;
+    protected TextInputLayout et_group_description;
+    protected TextInputLayout et_group_key;
+    protected TextInputLayout et_trainer_code;
+    protected TextInputLayout et_group_limit;
     protected MaterialTextView tv_choose_color;
 
     protected MaterialTextView tv_group_users_number;
     protected RecyclerView rv_users;
     protected ShimmerFrameLayout shimmer_rv_users;
+
+    protected LoadingDialog loadingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +64,8 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
         et_trainer_code = findViewById(R.id.et_trainer_code);
         et_group_limit = findViewById(R.id.et_group_limit);
 
+        Utils.addDefaultTextChangedListener(et_group_name, et_group_description, et_group_key, et_trainer_code, et_group_limit);
+
         tv_choose_color = findViewById(R.id.tv_choose_color);
 
         tv_group_users_number = findViewById(R.id.tv_group_users_number);
@@ -75,18 +80,16 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
     }
 
     protected void getGroupData() {
-
         int contrastColor = Utils.getContrastColor(group.getColor());
         collapsing_toolbar_layout.setCollapsedTitleTextColor(contrastColor);
-
         collapsing_toolbar_layout.setTitle(group.getName());
         collapsing_toolbar_layout.setContentScrimColor(group.getColor());
 
-        et_group_name.setText(group.getName());
-        et_group_description.setText(group.getDescription());
-        et_group_key.setText(group.getKey());
-        et_trainer_code.setText(String.valueOf(group.getMadrichCode()));
-        et_group_limit.setText(String.valueOf(group.getLimit()));
+        Utils.setText(et_group_name, group.getName());
+        Utils.setText(et_group_description, group.getDescription());
+        Utils.setText(et_group_key, group.getKey());
+        Utils.setText(et_trainer_code, String.valueOf(group.getMadrichCode()));
+        Utils.setText(et_group_limit, String.valueOf(group.getLimit()));
 
         tv_choose_color.setTextColor(group.getColor());
 
@@ -128,8 +131,7 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
         rv_users.setAdapter(userAdapter);
 
         LinearLayoutManagerWrapper linearLayoutManagerWrapper = new LinearLayoutManagerWrapper(this);
-        linearLayoutManagerWrapper.addOnLayoutCompleteListener(()
-                -> new Handler().postDelayed(this::stopRVUsersShimmer, 500));
+        linearLayoutManagerWrapper.addOnLayoutCompleteListener(() -> new Handler().postDelayed(this::stopRVUsersShimmer, 500));
 
         rv_users.setLayoutManager(linearLayoutManagerWrapper);
     }
@@ -142,16 +144,15 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
 
     protected void stopRVUsersShimmer() {
         shimmer_rv_users.stopShimmer();
-        Log.d(Utils.LOG_TAG,"shimmer_rv_users visibility is " + shimmer_rv_users.isShimmerVisible());
         shimmer_rv_users.setVisibility(View.GONE);
         rv_users.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onUserExpand(int position, int oldPosition) {
-        if (oldPosition > -1){
-            UsersAdapterForFirebase.UserViewHolderForFirebase oldCollapsedItem = ((UsersAdapterForFirebase.UserViewHolderForFirebase)
-                    rv_users.findViewHolderForAdapterPosition(oldPosition));
+        if (oldPosition > -1) {
+            UsersAdapterForFirebase.UserViewHolderForFirebase oldCollapsedItem
+                    = ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition));
 
             if (oldCollapsedItem != null){
                 ViewAnimationUtils.collapse(oldCollapsedItem.ll_contact);

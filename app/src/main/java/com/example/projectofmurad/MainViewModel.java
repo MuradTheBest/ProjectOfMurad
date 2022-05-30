@@ -1,14 +1,12 @@
 package com.example.projectofmurad;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.projectofmurad.calendar.CalendarEvent;
-import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.tracking.Location;
 import com.example.projectofmurad.training.MyRepository;
 import com.example.projectofmurad.training.Training;
@@ -35,8 +33,6 @@ public class MainViewModel extends AndroidViewModel {
 
     private final MutableLiveData<Boolean> scrollUp;
 
-    private final MutableLiveData<Integer> selectedTab;
-
     public MainViewModel(@NonNull Application application) {
         super(application);
 
@@ -55,7 +51,6 @@ public class MainViewModel extends AndroidViewModel {
 
         ready = new MutableLiveData<>(0);
         scrollUp = new MutableLiveData<>();
-        selectedTab = new MutableLiveData<>(1);
     }
 
     public MutableLiveData<CalendarEvent> getLastEvent() {
@@ -160,15 +155,5 @@ public class MainViewModel extends AndroidViewModel {
 
     public void setScrollUp(boolean scrollUp) {
         this.scrollUp.setValue(scrollUp);
-    }
-
-    public MutableLiveData<Integer> getSelectedTab() {
-        Log.d(Utils.LOG_TAG, "getSelectedTab = " + selectedTab.getValue());
-        return selectedTab;
-    }
-
-    public void setSelectedTab(int selectedTab){
-        Log.d(Utils.LOG_TAG, "setSelectedTab = " + selectedTab);
-        this.selectedTab.setValue(selectedTab);
     }
 }

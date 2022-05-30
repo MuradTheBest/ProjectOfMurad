@@ -38,7 +38,6 @@ import com.example.projectofmurad.BuildConfig;
 import com.example.projectofmurad.R;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.jetbrains.annotations.Contract;
@@ -257,10 +256,6 @@ public abstract class Utils {
     public static void createCustomDialog(@NonNull Dialog dialog){
         dialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.round_picker_dialog_background);
-    }
-
-    public static void createCustomBottomSheetDialog(@NonNull BottomSheetDialog bottomSheetDialog){
-        bottomSheetDialog.setDismissWithAnimation(true);
     }
 
     public static double round(double value, int places) {
@@ -521,5 +516,13 @@ public abstract class Utils {
     @NonNull
     public static String getText(@NonNull TextInputLayout textInputLayout){
         return Objects.requireNonNull(textInputLayout.getEditText()).getText().toString();
+    }
+
+    public static void setText(@NonNull TextInputLayout textInputLayout, String text){
+        Objects.requireNonNull(textInputLayout.getEditText()).setText(text);
+    }
+
+    public static void setText(@NonNull TextInputLayout textInputLayout, @StringRes int resId){
+        Objects.requireNonNull(textInputLayout.getEditText()).setText(resId);
     }
 }

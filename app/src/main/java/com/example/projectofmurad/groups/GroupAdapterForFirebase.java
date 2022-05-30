@@ -19,16 +19,13 @@ import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.Utils;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textview.MaterialTextView;
-import com.google.firebase.database.DataSnapshot;
 
 
 /** FirebaseRecyclerAdapter is a class provided by
    FirebaseUI. it provides functions to bind, adapt and show
    database contents in a Recycler View */
 public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, GroupAdapterForFirebase.GroupViewHolderForFirebase> {
-
 
     private final Context context;
     private final OnGroupLongClickListener onGroupLongClickListener;
@@ -69,13 +66,13 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
             tv_users = itemView.findViewById(R.id.tv_users);
 
             itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(v -> onGroupLongClickListener.onGroupLongClick(getItem(getAbsoluteAdapterPosition())));
+            itemView.setOnLongClickListener(v -> onGroupLongClickListener.onGroupLongClick(getItem(getBindingAdapterPosition())));
         }
 
         @Override
         public void onClick(View view) {
             Intent intent = new Intent(context, isMadrich() ? GroupInfoScreenMadrich.class : GroupInfoScreen.class);
-            intent.putExtra(Group.KEY_GROUP, getItem(getAbsoluteAdapterPosition()));
+            intent.putExtra(Group.KEY_GROUP, getItem(getBindingAdapterPosition()));
             context.startActivity(intent);
         }
 
@@ -94,7 +91,7 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
 
         GradientDrawable gd = Utils.getGradientBackground(model.getColor());
 
-        if (model.getKey().equals(FirebaseUtils.CURRENT_GROUP_KEY)){
+        if (FirebaseUtils.isCurrentGroup(model.getKey())){
             gd.setStroke(Utils.dpToPx(5, context), context.getColor(R.color.colorAccent));
         }
 
@@ -106,19 +103,16 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
 
         holder.tv_group_description.setText(model.getDescription());
 
-        holder.tv_users.setText(model.getUsersNumber() + "/" + model.getLimit());
 
-        FirebaseUtils.groupDatabases.child(model.getKey()).child("Users").child(FirebaseUtils.getCurrentUID()).child("madrich").get()
-                .addOnSuccessListener(
-                new OnSuccessListener<DataSnapshot>() {
-                    @Override
-                    public void onSuccess(DataSnapshot snapshot) {
+        FirebaseUtils.getGroupDatabase(model.getKey()).child("Users").child(FirebaseUtils.getCurrentUID())
+                .child(UserGroupData.KEY_MADRICH).get()
+                .addOnSuccessListener(snapshot -> {
                         holder.setMadrich(snapshot.exists() && snapshot.getValue(boolean.class));
                         if (holder.isMadrich()){
                             holder.tv_group_name.setCompoundDrawablesRelative(
-                                    AppCompatResources.getDrawable(context, R.drawable.ic_baseline_person_24), null, null, null);
+                                    AppCompatResources.getDrawable(context, R.drawable.ic_baseline_person_24),
+                                    null, null, null);
                         }
-                    }
                 });
 
         holder.tv_group_name.setTextColor(textColor);
@@ -130,13 +124,15 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
         if (model.getLimit() == 0){
             holder.tv_users.setText(model.getUsersNumber() + "/" + context.getString(R.string.no_user_limit));
         }
+        else {
+            holder.tv_users.setText(model.getUsersNumber() + "/" + model.getLimit());
+        }
     }
 
     @NonNull
     @Override
     public GroupViewHolderForFirebase onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_group, parent, false);
-
         return new GroupViewHolderForFirebase(view);
     }
 

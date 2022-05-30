@@ -100,10 +100,12 @@ public class Group implements Serializable {
         return "Group{" +
                 "name='" + name + '\'' +
                 ", key='" + key + '\'' +
+                ", description='" + description + '\'' +
                 ", color=" + color +
                 ", madrichCode=" + madrichCode +
                 ", limit=" + limit +
                 ", usersNumber=" + usersNumber +
+                ", picture='" + picture + '\'' +
                 '}';
     }
 

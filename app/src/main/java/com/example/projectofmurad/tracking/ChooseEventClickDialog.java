@@ -2,9 +2,8 @@ package com.example.projectofmurad.tracking;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,35 +14,34 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.EventsAdapterForFirebase;
-import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.LoadingDialog;
+import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.training.Training;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
 
-public class ChooseEventClickDialog extends AppCompatDialog implements EventsAdapterForFirebase.OnEventClickListener{
+public class ChooseEventClickDialog extends AppCompatDialog implements EventsAdapterForFirebase.OnEventClickListener {
 
     private final LocalDate passingDate;
     private final Context context;
 
     private RecyclerView rv_events;
+    private EventsAdapterForFirebase adapterForFirebase;
 
     private final Training training;
 
     private final SaveTrainingDialog.OnAddTrainingListener onAddTrainingListener;
 
-    private LoadingDialog LoadingDialog;
+    private LoadingDialog loadingDialog;
 
     public ChooseEventClickDialog(@NonNull Context context, LocalDate passingDate, Training training, SaveTrainingDialog.OnAddTrainingListener onAddTrainingListener) {
         super(context);
@@ -53,37 +51,37 @@ public class ChooseEventClickDialog extends AppCompatDialog implements EventsAda
         this.training = training;
         this.onAddTrainingListener = onAddTrainingListener;
 
-        getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
-        getWindow().setBackgroundDrawableResource(R.drawable.round_dialog_background);
+        Utils.createCustomDialog(this);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.day_dialog);
-        setCancelable(true);
+        setCancelable(false);
 
-        LoadingDialog = new LoadingDialog(getContext());
+        loadingDialog = new LoadingDialog(getContext());
 
-        TextView tv_day = findViewById(R.id.tv_day);
+        MaterialTextView tv_day = findViewById(R.id.tv_day);
         tv_day.setVisibility(View.GONE);
 
-        TextView tv_full_date = findViewById(R.id.tv_full_date);
+        MaterialTextView tv_full_date = findViewById(R.id.tv_full_date);
         tv_full_date.setVisibility(View.GONE);
 
-        TextView tv_no_events = findViewById(R.id.tv_no_events);
+        MaterialTextView tv_no_events = findViewById(R.id.tv_no_events);
         tv_no_events.setVisibility(View.GONE);
 
-        FloatingActionButton fab_add_event = findViewById(R.id.fab_add_event);
-        fab_add_event.setVisibility(View.GONE);
-
-        Button btn_clear_all = findViewById(R.id.btn_clear_all);
-        btn_clear_all.setVisibility(View.GONE);
+        MaterialButton btn_cancel = findViewById(R.id.btn_cancel);
+        btn_cancel.setVisibility(View.VISIBLE);
+        btn_cancel.setOnClickListener(v -> {
+            SaveTrainingDialog saveTrainingDialog = new SaveTrainingDialog(context, training, onAddTrainingListener);
+            dismiss();
+            saveTrainingDialog.show();
+        });
 
         rv_events = findViewById(R.id.rv_events);
 
-        Query events = FirebaseUtils.getEventsDatabase().child(CalendarUtils.DateToTextForFirebase(passingDate))
-                .orderByChild("start");
+        Query events = FirebaseUtils.getEventsDatabase().child(passingDate.toString()).orderByChild(CalendarEvent.KEY_EVENT_START);
         DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
 
         FirebaseRecyclerOptions<CalendarEvent> options = new FirebaseRecyclerOptions.Builder<CalendarEvent>()
@@ -91,38 +89,29 @@ public class ChooseEventClickDialog extends AppCompatDialog implements EventsAda
                 .setLifecycleOwner((LifecycleOwner) context)
                 .build();
 
-        EventsAdapterForFirebase adapterForFirebase = new EventsAdapterForFirebase(options,
-                passingDate, context, this);
+        adapterForFirebase = new EventsAdapterForFirebase(options, passingDate, getContext(), this);
 
         rv_events.setAdapter(adapterForFirebase);
-        rv_events.setLayoutManager(new LinearLayoutManagerWrapper(context));
 
-        events.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                rv_events.setVisibility(snapshot.hasChildren() ? View.VISIBLE : View.INVISIBLE);
-                tv_no_events.setVisibility(snapshot.hasChildren() ? View.GONE : View.VISIBLE);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+        LinearLayoutManagerWrapper layoutManager = new LinearLayoutManagerWrapper(getContext());
+        layoutManager.addOnLayoutCompleteListener(
+                () -> new Handler().postDelayed(() -> {
+                    rv_events.setVisibility(adapterForFirebase.getItemCount() > 0 ? View.VISIBLE : View.INVISIBLE);
+                    tv_no_events.setVisibility(adapterForFirebase.getItemCount() > 0 ? View.GONE : View.VISIBLE);
+                }, 500));
+        rv_events.setLayoutManager(layoutManager);
     }
 
     @Override
     public void onEventClick(int position, @NonNull CalendarEvent calendarEvent) {
-        String selectedEventPrivateId = calendarEvent.getPrivateId();
+        loadingDialog.setMessage("Adding the training to selected event...");
+        loadingDialog.show();
 
-        LoadingDialog.setMessage("Adding the trainingData to selected event...");
-        LoadingDialog.show();
-
-        FirebaseUtils.addTrainingForEvent(selectedEventPrivateId, training).addOnCompleteListener(
+        FirebaseUtils.addTrainingForEvent(calendarEvent.getPrivateId(), training).addOnCompleteListener(
                 new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        LoadingDialog.dismiss();
+                        loadingDialog.dismiss();
                         if (!task.isSuccessful()){
                             Toast.makeText(context, "Adding the training to this event failed \n" +
                                     "The training will be added to private trainings", Toast.LENGTH_SHORT).show();
@@ -135,4 +124,15 @@ public class ChooseEventClickDialog extends AppCompatDialog implements EventsAda
                 });
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        adapterForFirebase.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        adapterForFirebase.stopListening();
+    }
 }

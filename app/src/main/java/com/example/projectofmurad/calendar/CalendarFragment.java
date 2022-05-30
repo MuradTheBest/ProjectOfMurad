@@ -5,21 +5,15 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.transition.AutoTransition;
-import android.transition.ChangeBounds;
 import android.transition.Slide;
 import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,15 +23,16 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.MainViewModel;
 import com.example.projectofmurad.R;
+import com.example.projectofmurad.helpers.CalendarUtils;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.MyGridLayoutManager;
 import com.example.projectofmurad.helpers.Utils;
-import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.time.LocalDate;
@@ -53,8 +48,6 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
     public static final String SELECTED_DATE_DAY = "selected_date_day";
     public static final String SELECTED_DATE_MONTH = "selected_date_month";
     public static final String SELECTED_DATE_YEAR = "selected_date_year";
-
-    public static final String EVENT_TO_SHOW_PRIVATE_ID = "selected_date_year";
 
     public static final String ACTION_MOVE_TO_CALENDAR_FRAGMENT = "action_move_to_calendar_fragment";
 
@@ -113,15 +106,13 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
                         android.app.AlertDialog.THEME_HOLO_LIGHT);
 
                 datePickerDialog.getDatePicker().setBackgroundColor(Color.TRANSPARENT);
-                datePickerDialog.updateDate(selectedDate.getYear(), selectedDate.getMonthValue(),
-                        selectedDate.getDayOfMonth());
+                datePickerDialog.updateDate(selectedDate.getYear(), selectedDate.getMonthValue(), selectedDate.getDayOfMonth());
 
                 datePickerDialog.getDatePicker().findViewById(
                         getResources().getIdentifier("day", "id", "android")).setVisibility(View.GONE);
 
                 datePickerDialog.setOnDateSetListener((v, year, month, day) -> {
-                    month = month + 1;
-                    selectedDate = LocalDate.of(year, month, day);
+                    selectedDate = LocalDate.of(year, month + 1, day);
                     setMonthView();
                 });
 
@@ -133,18 +124,16 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
 
         Log.d("murad","today is " + CalendarUtils.DateToTextOnline(today));
 
-        Button btn_auto_event = view.findViewById(R.id.btn_auto_event);
-        btn_auto_event.setOnClickListener(this::sendAlarm);
+        MaterialButton btn_auto_event = view.findViewById(R.id.btn_auto_event);
+        btn_auto_event.setOnClickListener(v -> sendAlarm());
 
-        Button btn_previous_month = view.findViewById(R.id.btn_previous_month);
+        MaterialButton btn_previous_month = view.findViewById(R.id.btn_previous_month);
         btn_previous_month.setOnClickListener(this::previousMonthAction);
 
-        Button btn_next_month = view.findViewById(R.id.btn_next_month);
+        MaterialButton btn_next_month = view.findViewById(R.id.btn_next_month);
         btn_next_month.setOnClickListener(this::nextMonthAction);
 
-        String day = "" + selectedDate.getDayOfMonth();
-        Toast.makeText(requireContext(), day, Toast.LENGTH_SHORT).show();
-        initAllDaysOfWeek(view);
+        initAllDaysOfWeek();
 
         mainViewModel.getEventDate().observe(getViewLifecycleOwner(), localDate -> {
             selectedDate = localDate;
@@ -168,12 +157,11 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
         if (event_private_id != null){
             new Handler().postDelayed(() -> createDayDialog(selectedDate, event_private_id), 500);
             mainViewModel.resetEventPrivateId();
-            Log.d(Utils.LOG_TAG, "event_private_id is null");
+            Log.d(Utils.LOG_TAG, "event_private_id is NOT null");
         }
     }
 
-    public void sendAlarm(View view) {
-
+    public void sendAlarm() {
         CalendarEvent calendarEvent = new CalendarEvent();
         calendarEvent.setName("Sample Event");
         calendarEvent.setPlace("Sample Place");
@@ -188,7 +176,7 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
         Log.d("murad", calendarEvent.toString());
 
         AlarmManagerForToday.addAlarm(requireContext(), calendarEvent, 0);
-        FirebaseUtils.getEventsDatabase().child(CalendarUtils.DateToTextForFirebase(calendarEvent.receiveStartDate()))
+        FirebaseUtils.getEventsDatabase().child(calendarEvent.receiveStartDate().toString())
                 .child(calendarEvent.getPrivateId()).setValue(calendarEvent);
 
         FirebaseUtils.getAllEventsDatabase().child(calendarEvent.getPrivateId()).setValue(calendarEvent);
@@ -197,39 +185,30 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
 
     }
 
-    private void initAllDaysOfWeek(@NonNull View view){
-        TextView tv_Sunday = view.findViewById(R.id.tv_Sunday);
+    private void initAllDaysOfWeek(){
+        TextView tv_Sunday = requireView().findViewById(R.id.tv_Sunday);
         tv_Sunday.setText(days[6]);
 
-        TextView tv_Monday = view.findViewById(R.id.tv_Monday);
+        TextView tv_Monday = requireView().findViewById(R.id.tv_Monday);
         tv_Monday.setText(days[0]);
 
-        TextView tv_Tuesday = view.findViewById(R.id.tv_Tuesday);
+        TextView tv_Tuesday = requireView().findViewById(R.id.tv_Tuesday);
         tv_Tuesday.setText(days[1]);
 
-        TextView tv_Wednesday = view.findViewById(R.id.tv_Wednesday);
+        TextView tv_Wednesday = requireView().findViewById(R.id.tv_Wednesday);
         tv_Wednesday.setText(days[2]);
 
-        TextView tv_Thursday = view.findViewById(R.id.tv_Thursday);
+        TextView tv_Thursday = requireView().findViewById(R.id.tv_Thursday);
         tv_Thursday.setText(days[3]);
 
-        TextView tv_Friday = view.findViewById(R.id.tv_Friday);
+        TextView tv_Friday = requireView().findViewById(R.id.tv_Friday);
         tv_Friday.setText(days[4]);
 
-        TextView tv_Saturday = view.findViewById(R.id.tv_Saturday);
+        TextView tv_Saturday = requireView().findViewById(R.id.tv_Saturday);
         tv_Saturday.setText(days[5]);
     }
 
-    public void animate(ViewGroup viewGroup){
-        AutoTransition trans = new AutoTransition();
-        trans.setDuration(100);
-        trans.setInterpolator(new AccelerateDecelerateInterpolator());
-
-        ChangeBounds changeBounds = new ChangeBounds();
-        changeBounds.setDuration(300);
-        changeBounds.setInterpolator(new AccelerateDecelerateInterpolator());
-
-
+    public void animate(ViewGroup viewGroup) {
 
         if (previousDate.getMonthValue() == selectedDate.getMonthValue()) {
             AutoTransition slide = new AutoTransition();
@@ -248,10 +227,6 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
         }
 
         previousDate = selectedDate;
-
-//        TransitionManager.beginDelayedTransition(viewGroup, trans);
-
-
     }
 
     private void setMonthView() {
@@ -273,9 +248,6 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
         calendarRecyclerView.setHasFixedSize(true);
 
         animate(ll_calendar_view);
-
-        Log.d("murad", "prev " + prev);
-        Log.d("murad", "next " + next);
 
     }
 
@@ -345,7 +317,7 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
         int length = daysInMonthArray.size();
         Log.d("murad", "old length " + length);
         if(prevDays == 7){
-            for(int i=0; i < 7; i++){
+            for(int i = 0; i < 7; i++){
                 daysInMonthArray.remove(0).getDayOfMonth();
             }
             prev = 0;
@@ -397,11 +369,10 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
             calendarRecyclerView.findViewHolderForAdapterPosition(oldPosition).
                     itemView.setBackgroundResource(R.drawable.calendar_cell_unclicked_background);
 
-            calendarRecyclerView.findViewHolderForAdapterPosition(position).itemView.
-                    setBackgroundResource(R.drawable.calendar_cell_selected_background);
+            calendarRecyclerView.findViewHolderForAdapterPosition(position)
+                    .itemView.setBackgroundResource(R.drawable.calendar_cell_selected_background);
 
-            calendarRecyclerView.findViewHolderForAdapterPosition(position).itemView.
-                    bringToFront();
+            calendarRecyclerView.findViewHolderForAdapterPosition(position).itemView.bringToFront();
         }
 
         new Handler().postDelayed(() -> createDayDialog(passingDate, null), duration);
@@ -438,23 +409,5 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
             dayDialogFragment.dismiss();
             dayDialogFragment = null;
         }
-    }
-
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.calendar_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        super.onOptionsItemSelected(item);
-
-        if (item.getItemId() == R.id.calendar_app_bar_today) {
-            selectedDate = LocalDate.now();
-            setMonthView();
-        }
-
-        return true;
     }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -27,7 +28,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_event_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -40,7 +41,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_event_description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -54,7 +55,7 @@
             app:layout_constraintStart_toStartOf="@+id/tv_event_name"
             app:layout_constraintTop_toBottomOf="@+id/tv_event_name" />
 
-        <LinearLayout
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/linearLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -66,7 +67,7 @@
             app:layout_constraintStart_toStartOf="@+id/tv_event_description"
             app:layout_constraintTop_toBottomOf="@+id/tv_event_description">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_event_start_date_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -74,7 +75,16 @@
                 android:textSize="14sp"
                 android:text="Starting time: 10.05.2021, 10:45"/>
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tv_hyphen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:visibility="gone"
+                android:text=" - "
+                android:textSize="16sp" />
+
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_event_end_date_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -82,9 +92,9 @@
                 android:textSize="14sp"
                 android:text="Ending time: 15.05.2021, 12:00"/>
 
-        </LinearLayout>
+        </androidx.appcompat.widget.LinearLayoutCompat>
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_event_place"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -96,7 +106,7 @@
             app:layout_constraintStart_toEndOf="@+id/linearLayout"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
-        <CheckBox
+        <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/checkbox__all_attendances"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -121,4 +131,4 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

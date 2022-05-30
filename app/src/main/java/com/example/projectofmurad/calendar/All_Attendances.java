@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectofmurad.MyActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.helpers.FirebaseUtils;
@@ -14,7 +14,7 @@ import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.Query;
 
-public class All_Attendances extends MyActivity implements EventsAdapterForFirebase.OnEventClickListener {
+public class All_Attendances extends AppCompatActivity implements EventsAdapterForFirebase.OnEventClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +33,7 @@ public class All_Attendances extends MyActivity implements EventsAdapterForFireb
                 .setLifecycleOwner(this)
                 .build();
 
-        EventsAdapterForFirebase adapterForFirebase = new EventsAdapterForFirebase(options,
-                selected_UID, this, this);
+        EventsAdapterForFirebase adapterForFirebase = new EventsAdapterForFirebase(options, selected_UID, this,this);
 
         rv_events.setAdapter(adapterForFirebase);
         rv_events.setLayoutManager(new LinearLayoutManagerWrapper(this));

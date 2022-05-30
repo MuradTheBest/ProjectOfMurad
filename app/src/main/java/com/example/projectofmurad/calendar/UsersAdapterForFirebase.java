@@ -29,6 +29,7 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.checkbox.MaterialCheckBox;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -42,23 +43,10 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
     private final long end;
     private final OnUserLongClickListener onUserLongClickListener;
     private final OnUserExpandListener onUserExpandListener;
-
     private final int color;
-
     private final Context context;
-
     private int oldPosition = -1;
 
-    /**
-     * Initialize a {@link RecyclerView.Adapter} that listens to a Firebase query. See
-     * {@link FirebaseRecyclerOptions} for configuration options.
-     *
-     * @param options
-     * @param context
-     * @param color
-     * @param onUserLongClickListener
-     * @param onUserExpandListener
-     */
     public UsersAdapterForFirebase(@NonNull FirebaseRecyclerOptions<UserData> options, Context context, int color,
                                    OnUserLongClickListener onUserLongClickListener,
                                    OnUserExpandListener onUserExpandListener) {
@@ -98,11 +86,11 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
 
         private final CircleImageView iv_profile_picture;
 
-        private final MaterialCheckBox checkbox_attendance;
+        private final MaterialCheckBox cb_attendance;
 
-        private final MaterialCheckBox tv_username;
-        private final MaterialCheckBox tv_email;
-        private final MaterialCheckBox tv_phone;
+        private final MaterialTextView tv_username;
+        private final MaterialTextView tv_email;
+        private final MaterialTextView tv_phone;
 
         private final AppCompatImageView iv_phone;
         private final AppCompatImageView iv_email;
@@ -126,9 +114,9 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
             tv_email = itemView.findViewById(R.id.tv_email);
             tv_phone = itemView.findViewById(R.id.tv_user_phone);
 
-            checkbox_attendance = itemView.findViewById(R.id.checkbox_attendance);
-            checkbox_attendance.setOnClickListener(v ->
-                    FirebaseUtils.getCurrentUserTrackingRef(event_private_id).child("attend").setValue(checkbox_attendance.isChecked()));
+            cb_attendance = itemView.findViewById(R.id.checkbox_attendance);
+            cb_attendance.setOnClickListener(v ->
+                    FirebaseUtils.getCurrentUserTrackingRef(event_private_id).child("attend").setValue(cb_attendance.isChecked()));
 
             iv_phone = itemView.findViewById(R.id.iv_phone);
             iv_phone.setOnClickListener(this);
@@ -214,7 +202,7 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
         GradientDrawable gd = Utils.getGradientBackground(color);
 
         if (FirebaseUtils.isCurrentUID(model.getUID())){
-            gd.setStroke(Utils.dpToPx(4, context), context.getColor(R.color.colorAccent));
+            gd.setStroke(Utils.dpToPx(4, context), FirebaseUtils.CURRENT_GROUP_COLOR);
         }
 
         gd.setCornerRadius(Utils.dpToPx(10, context));
@@ -225,7 +213,7 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
         holder.tv_email.setTextColor(textColor);
         holder.tv_phone.setTextColor(textColor);
 
-        holder.checkbox_attendance.setButtonTintList(ColorStateList.valueOf(textColor));
+        holder.cb_attendance.setButtonTintList(ColorStateList.valueOf(textColor));
 
         holder.iv_phone.setImageTintList(ColorStateList.valueOf(textColor));
         holder.iv_email.setImageTintList(ColorStateList.valueOf(textColor));
@@ -235,16 +223,16 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
         holder.tv_email.setText(model.getEmail());
         holder.tv_phone.setText(model.getPhone());
 
+
         FirebaseUtils.getCurrentGroupUsers().child(model.getUID()).child(UserGroupData.KEY_MADRICH).get().addOnSuccessListener(
                 new OnSuccessListener<DataSnapshot>() {
                     @Override
                     public void onSuccess(DataSnapshot snapshot) {
                         if (snapshot.exists() && snapshot.getValue(boolean.class)) {
-
                             holder.iv_profile_picture.getLayoutParams().height = Utils.dpToPx(55, context);
                             holder.iv_profile_picture.getLayoutParams().width = Utils.dpToPx(55, context);
 
-                            holder.iv_profile_picture.setBorderColor(context.getColor(R.color.colorAccent));
+                            holder.iv_profile_picture.setBorderColor(FirebaseUtils.CURRENT_GROUP_COLOR);
                             holder.iv_profile_picture.setBorderWidth(Utils.dpToPx(2, context));
 
                             CalendarUtils.animate(holder.constraintLayout);
@@ -252,23 +240,24 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
                     }
                 });
 
-        if (event_private_id != null){
-            FirebaseUtils.getAttendanceDatabase().child(event_private_id).child(model.getUID()).child("attend").addValueEventListener(
+        if (event_private_id != null) {
+
+            FirebaseUtils.getUserTrackingRef(event_private_id, model.getUID()).child("attend").addValueEventListener(
                     new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            holder.checkbox_attendance.setChecked(snapshot.exists() &&  snapshot.getValue(boolean.class));
+                            holder.cb_attendance.setChecked(snapshot.exists() &&  snapshot.getValue(boolean.class));
                         }
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {}
                     });
 
-            holder.checkbox_attendance.setEnabled(FirebaseUtils.isCurrentUID(model.getUID()) && end > System.currentTimeMillis());
-            holder.checkbox_attendance.setAlpha(holder.checkbox_attendance.isEnabled() ? 1f : 0.7f);
+            holder.cb_attendance.setEnabled(FirebaseUtils.isCurrentUID(model.getUID()) && end > System.currentTimeMillis());
+            holder.cb_attendance.setAlpha(holder.cb_attendance.isEnabled() ? 1f : 0.7f);
         }
         else {
-            holder.checkbox_attendance.setVisibility(View.GONE);
+            holder.cb_attendance.setVisibility(View.GONE);
         }
 
         Glide.with(context)

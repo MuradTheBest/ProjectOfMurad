@@ -11,13 +11,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
@@ -115,7 +115,7 @@ public class HomeFragment extends Fragment {
     private MainViewModel mainViewModel;
 
     private ProgressBar progressBar;
-    private ImageView iv_group_picture;
+    private AppCompatImageView iv_group_picture;
 
     private Animation rotate_open_anim;
     private Animation rotate_close_anim;
@@ -170,14 +170,10 @@ public class HomeFragment extends Fragment {
         });
 
         toolbar = view.findViewById(R.id.toolbar);
-        ((AppCompatActivity) requireActivity()).getSupportActionBar();
-
         iv_group_picture = view.findViewById(R.id.iv_group_picture);
-
         collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar_layout);
 
         ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
-
         actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
 
         actionBar.setDisplayShowHomeEnabled(true);
@@ -195,9 +191,11 @@ public class HomeFragment extends Fragment {
 
         vp_event = view.findViewById(R.id.vp_event);
 
-        Query queryLast = FirebaseUtils.getAllEventsDatabase().orderByChild("end").endAt(Calendar.getInstance().getTimeInMillis()).limitToLast(1);
+        Query queryLast = FirebaseUtils.getAllEventsDatabase().orderByChild("end")
+                .endAt(Calendar.getInstance().getTimeInMillis()).limitToLast(1);
 
-        Query queryNext = FirebaseUtils.getAllEventsDatabase().orderByChild("end").startAt(Calendar.getInstance().getTimeInMillis()).limitToFirst(1);
+        Query queryNext = FirebaseUtils.getAllEventsDatabase().orderByChild("end")
+                .startAt(Calendar.getInstance().getTimeInMillis()).limitToFirst(1);
 
         queryLast.addValueEventListener(new ValueEventListener() {
             @Override
@@ -206,6 +204,7 @@ public class HomeFragment extends Fragment {
                     mainViewModel.getLastEvent().setValue(null);
                     return;
                 }
+
                 for (DataSnapshot data : snapshot.getChildren()){
                     mainViewModel.getLastEvent().setValue(data.getValue(CalendarEvent.class));
                 }
@@ -222,6 +221,7 @@ public class HomeFragment extends Fragment {
                     mainViewModel.getNextEvent().setValue(null);
                     return;
                 }
+
                 for (DataSnapshot data : snapshot.getChildren()){
                     mainViewModel.getNextEvent().setValue(data.getValue(CalendarEvent.class));
                 }
@@ -247,7 +247,6 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 TrackingService.trainingType.setValue(TrackingService.GROUP_TRAINING);
-
                 CalendarEvent event = mainViewModel.getNextEvent().getValue();
                 TrackingService.eventPrivateId.setValue(event.getPrivateId());
                 ((MainActivity) requireActivity()).moveToTrackingFragment();
@@ -305,16 +304,6 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        /*MainViewModel.toSwipeFragments.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                Toast.makeText(requireContext(), "toSwipeFragments is " + aBoolean, Toast.LENGTH_SHORT).show();
-                Log.d("murad", "toSwipeFragments is " + aBoolean);
-                vp_event.setUserInputEnabled(aBoolean);
-
-            }
-        });*/
-
         initializeAnimations();
     }
 
@@ -363,7 +352,6 @@ public class HomeFragment extends Fragment {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                mainViewModel.setSelectedTab(tab.getPosition());
 
                 fab_add_training.setVisibility(tab.getPosition() == 0 ? View.GONE : View.VISIBLE);
                 fab_add_training2.setVisibility(tab.getPosition() == 0 ? View.GONE : View.VISIBLE);
@@ -387,8 +375,7 @@ public class HomeFragment extends Fragment {
             public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        tabLayout.selectTab(tabLayout.getTabAt(mainViewModel.getSelectedTab().getValue()), true);
-        vp_event.setCurrentItem(mainViewModel.getSelectedTab().getValue(), false);
+        vp_event.setCurrentItem(1, false);
     }
 
 }

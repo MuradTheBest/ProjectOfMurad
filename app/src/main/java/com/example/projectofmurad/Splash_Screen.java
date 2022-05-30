@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.projectofmurad.groups.CreateOrJoinGroupScreen;
@@ -25,7 +26,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.database.DataSnapshot;
 
-public class Splash_Screen extends MyActivity {
+import java.util.Objects;
+
+public class Splash_Screen extends AppCompatActivity {
 
     private MaterialButton btn_get_started;
     private ProgressBar progressBar;
@@ -35,7 +38,7 @@ public class Splash_Screen extends MyActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_page);
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
         btn_get_started = findViewById(R.id.btn_get_started);
         progressBar = findViewById(R.id.progressBar);
@@ -100,7 +103,6 @@ public class Splash_Screen extends MyActivity {
     }
 
     public void checkGroup(View view){
-
         startLoading();
 
         if(FirebaseUtils.isUserLoggedIn()){

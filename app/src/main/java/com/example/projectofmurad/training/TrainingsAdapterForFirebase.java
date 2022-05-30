@@ -1,4 +1,4 @@
-package com.example.projectofmurad;
+package com.example.projectofmurad.training;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -18,15 +18,14 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.projectofmurad.R;
+import com.example.projectofmurad.Show;
 import com.example.projectofmurad.groups.UserGroupData;
 import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
 import com.example.projectofmurad.helpers.Utils;
-import com.example.projectofmurad.training.Training;
-import com.example.projectofmurad.training.TrainingAdapter;
-import com.example.projectofmurad.training.TrainingInfoDialogFragment;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -68,7 +67,6 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
         this.UIDs = UIDs;
         this.onShowToOthersListener = onShowToOthersListener;
         this.event_private_id = event_private_id;
-
     }
 
     @NonNull
@@ -88,12 +86,13 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
         GradientDrawable gd = Utils.getGradientBackground(color);
 
         if (FirebaseUtils.isCurrentUID(UID)){
-            gd.setStroke(Utils.dpToPx(4, context), context.getColor(R.color.colorAccent));
+            gd.setStroke(Utils.dpToPx(4, context), FirebaseUtils.CURRENT_GROUP_COLOR);
         }
 
         gd.setCornerRadius(Utils.dpToPx(10, context));
-
         holder.constraintLayout.setBackground(gd);
+
+        holder.switch_choose_visibility.setTextColor(textColor);
 
         FirebaseUtils.getProfilePictureFromFB(UID, context, holder.iv_profile_picture);
 
@@ -112,7 +111,7 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
                         TrainingAdapter trainingAdapter = new TrainingAdapter(context, color, trainings);
                         holder.rv_training.setAdapter(trainingAdapter);
                         holder.rv_training.setLayoutManager(new LinearLayoutManagerWrapper(context));
-                        setupGraph(trainings, holder.bc_average_speed);
+                        setupGraph(trainings, holder.bc_average_speed, textColor);
                     }
                 });
 
@@ -131,32 +130,6 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
                         }
                     }
                 });
-
-/*
-        holder.bc_average_speed.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-            @Override
-            public void onValueSelected(Entry e, Highlight h) {
-
-                if (holder.bc_average_speed.isPressed()){
-                }
-
-                    TrainingInfoDialogFragment training_info_dialogFragment = new TrainingInfoDialogFragment();
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable(Training.KEY_TRAINING, (Training) e.getData());
-                    training_info_dialogFragment.setArguments(bundle);
-
-                    FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
-
-                    training_info_dialogFragment.show(fm, TrainingInfoDialogFragment.TAG);
-
-            }
-
-            @Override
-            public void onNothingSelected() {
-
-            }
-        });
-*/
 
         holder.bc_average_speed.setOnChartGestureListener(new OnChartGestureListener() {
             @Override
@@ -215,10 +188,9 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
             public void onChartTranslate(MotionEvent me, float dX, float dY) {}
 
         });
-
     }
 
-    public void setupGraph(@NonNull ArrayList<Training> trainings, BarChart bc_average_speed){
+    public void setupGraph(@NonNull ArrayList<Training> trainings, BarChart bc_average_speed, int textColor){
         ArrayList<BarEntry> speedEntries = new ArrayList<>();
         ArrayList<BarEntry> paceEntries = new ArrayList<>();
         ArrayList<String> paceText = new ArrayList<>();
@@ -249,6 +221,7 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
 
         BarDataSet speedLineDataSet = new BarDataSet(speedEntries, "Average speed");
         speedLineDataSet.setColor(context.getColor(R.color.colorAccent));
+        speedLineDataSet.setValueTextColor(textColor);
 //                        speedLineDataSet.setGradientColor(gradientColor, context.getColor(R.color.colorAccent));
 
         Log.d(Utils.LOG_TAG, speedEntries.toString());
@@ -271,11 +244,11 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
 
         BarData barData = new BarData(speedLineDataSet/*, paceLineDataSet*/);
         barData.setHighlightEnabled(false);
+        barData.setValueTextColor(textColor);
 
         bc_average_speed.setData(barData);
         bc_average_speed.animateY(2000);
         bc_average_speed.getDescription().setEnabled(false);
-
 
         bc_average_speed.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
 
@@ -341,11 +314,6 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
         }
     }
 
-    @Override
-    public int getItemCount() {
-        return UIDs.size();
-    }
-
     public class TrainingsViewHolder extends RecyclerView.ViewHolder{
 
         private final ConstraintLayout constraintLayout;
@@ -374,6 +342,8 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
         public void createChooseVisibilityDialog() {
             MyAlertDialogBuilder builder = new MyAlertDialogBuilder(context);
 
+            builder.setTitle("Make your results visible to");
+
             builder.setSingleChoiceItems(new CharSequence[]{Show.NO_ONE.toString(), "Madrichs only", "Everyone"},
                     (int) switch_choose_visibility.getTag(),
                     (dialog, which) -> {
@@ -390,7 +360,6 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
                 switch_choose_visibility.setChecked((int) switch_choose_visibility.getTag() > Show.NO_ONE.getValue());
             });
 
-            builder.setTitle("Make your results visible to");
             builder.show();
         }
     }
@@ -399,8 +368,9 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
         void onShowToOthers(int toWho);
     }
 
-    public interface OnTrainingClickListener{
-        void onTrainingClick(int position);
+    @Override
+    public int getItemCount() {
+        return UIDs.size();
     }
 
     @Override

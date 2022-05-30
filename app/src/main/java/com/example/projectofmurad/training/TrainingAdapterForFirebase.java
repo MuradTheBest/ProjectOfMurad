@@ -3,7 +3,6 @@ package com.example.projectofmurad.training;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.GradientDrawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,10 +48,6 @@ public class TrainingAdapterForFirebase extends
         GradientDrawable gd = Utils.getGradientBackground(color);
 
         holder.constraintLayout.setBackground(gd);
-
-        Log.d("training", "position = " + position);
-        Log.d("training", model.toString());
-
 
         holder.tv_distance.setText(model.getTotalDistance() + " km");
         holder.tv_time.setText(model.getDuration());
@@ -118,5 +113,15 @@ public class TrainingAdapterForFirebase extends
     @Override
     public int getItemCount() {
         return getSnapshots().size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 }

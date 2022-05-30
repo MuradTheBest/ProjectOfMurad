@@ -2,7 +2,6 @@ package com.example.projectofmurad;
 
 import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,10 +10,10 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
@@ -45,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Super class of all activities that require user's interaction with {@link FirebaseAuth}
  */
-public class UserSigningActivity extends MyActivity {
+public class UserSigningActivity extends AppCompatActivity {
 
     protected MaterialButton btn_google;
     protected MaterialButton btn_facebook;
@@ -88,9 +87,9 @@ public class UserSigningActivity extends MyActivity {
                     s.append("-");
                 }
                 length = s.length();
-                et_verify_phone.setError(null);
             }
         });
+        Utils.addDefaultTextChangedListener(et_verify_phone);
 
         builder.setPositiveButton(R.string.text_continue, new DialogInterface.OnClickListener() {
             @Override
@@ -229,19 +228,15 @@ public class UserSigningActivity extends MyActivity {
                 userData.setPicture(user.getPhotoUrl().toString());
             }
 
-            FirebaseUtils.usersDatabase.child(user.getUid()).setValue(userData)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            loadingDialog.dismiss();
-                            if (task.isSuccessful()){
-                                finish();
-                                startActivity(new Intent(getApplicationContext(), Splash_Screen.class));
-                            }
-                            else {
-                                Toast.makeText(getApplicationContext(), R.string.failed, Toast.LENGTH_SHORT).show();
-                            }
-                        }
+            FirebaseUtils.getCurrentUserDataRef().setValue(userData)
+                    .addOnSuccessListener(unused -> {
+                        loadingDialog.dismiss();
+                        startActivity(new Intent(getApplicationContext(), Splash_Screen.class));
+                        finish();
+                    })
+                    .addOnFailureListener(e -> {
+                        loadingDialog.dismiss();
+                        Toast.makeText(getApplicationContext(), R.string.failed, Toast.LENGTH_SHORT).show();
                     });
         }
     };
@@ -312,7 +307,7 @@ public class UserSigningActivity extends MyActivity {
 
                 if (task.isSuccessful()) {
                     // if isSuccessful then done message will be shown and you can change the password
-                    Utils.createAlertDialog(peekAvailableContext(), null,
+                    Utils.createAlertDialog(UserSigningActivity.this, null,
                             "Password reset mail was sent to your email",
                             getString(R.string.ok), (dialog, which) -> dialog.dismiss(),
                             null, null, null).show();
@@ -323,10 +318,5 @@ public class UserSigningActivity extends MyActivity {
             }
         });
 
-    }
-
-    public static void hideKeyboard(@NonNull Activity context) {
-        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow( context.getCurrentFocus().getWindowToken(), 0);
     }
 }

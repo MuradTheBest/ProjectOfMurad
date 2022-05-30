@@ -6,14 +6,13 @@
 	android:layout_height="match_parent"
 	tools:context=".Sign_Up_Screen">
 
-	<ImageView
+	<androidx.appcompat.widget.AppCompatImageView
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:src="@drawable/background"
-		android:scaleType="centerCrop"
-		/>
+		android:scaleType="centerCrop" />
 
-	<ImageView
+	<androidx.appcompat.widget.AppCompatImageView
         android:layout_width="match_parent"
 		android:layout_height="85dp"
 		android:background="@drawable/vector_ek2"
@@ -36,7 +35,7 @@
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_bias="0.154" />
 
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
         android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center_horizontal|center"
@@ -73,12 +72,11 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:inputType="textEmailAddress"
-			android:autofillHints="emailAddress"
-			/>
+			android:autofillHints="emailAddress" />
 
 	</com.google.android.material.textfield.TextInputLayout>
 
-	<com.example.projectofmurad.helpers.MyTextInputLayout
+	<com.google.android.material.textfield.TextInputLayout
 		android:id="@+id/et_email_address"
 		style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 		android:layout_width="match_parent"
@@ -100,10 +98,9 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:inputType="textEmailAddress"
-			android:autofillHints="emailAddress"
-			/>
+			android:autofillHints="emailAddress" />
 
-	</com.example.projectofmurad.helpers.MyTextInputLayout>
+	</com.google.android.material.textfield.TextInputLayout>
 
 	<com.google.android.material.textfield.TextInputLayout
 		style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -126,8 +123,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:inputType="textPassword"
-			android:autofillHints="password"
-			/>
+			android:autofillHints="password" />
 
 	</com.google.android.material.textfield.TextInputLayout>
 
@@ -152,12 +148,11 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:inputType="textPassword"
-			android:autofillHints="password"
-			/>
+			android:autofillHints="password" />
 
 	</com.google.android.material.textfield.TextInputLayout>
 
-	<Button
+	<com.google.android.material.button.MaterialButton
 		android:id="@+id/btn_sign_up"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -170,7 +165,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/et_confirm_password"
 		app:layout_constraintVertical_bias="0.05" />
 
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:id="@+id/tv_already_have_an_account"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -186,7 +181,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
 		app:layout_constraintVertical_bias="0.0" />
 
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:id="@+id/tv_sign_in"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -202,7 +197,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/tv_already_have_an_account"
 		app:layout_constraintVertical_bias="0.0" />
 
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:id="@+id/tv_match"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -217,7 +212,7 @@
 		app:layout_constraintStart_toStartOf="@+id/et_confirm_password"
 		app:layout_constraintTop_toBottomOf="@+id/et_confirm_password" />
 
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:id="@+id/tv_sign_up_with"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -229,7 +224,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/btn_sign_up"
 		app:layout_constraintVertical_bias="0.05" />
 
-	<LinearLayout
+	<androidx.appcompat.widget.LinearLayoutCompat
 		android:id="@+id/linearLayout4"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -286,6 +281,6 @@
 			app:iconSize="28dp"
 			app:iconTintMode="multiply" />
 
-	</LinearLayout>
+	</androidx.appcompat.widget.LinearLayoutCompat>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

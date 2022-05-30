@@ -5,35 +5,37 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.projectofmurad.groups.CreateOrJoinGroupScreen;
 import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
-import com.example.projectofmurad.helpers.MyTextInputLayout;
 import com.example.projectofmurad.helpers.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Objects;
+
 public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
 
-    private MyTextInputLayout et_username;
-    private MyTextInputLayout et_email_address;
-    private MyTextInputLayout et_password;
-    private MyTextInputLayout et_confirm_password;
+    private TextInputLayout et_username;
+    private TextInputLayout et_email_address;
+    private TextInputLayout et_password;
+    private TextInputLayout et_confirm_password;
 
-    private TextView tv_match;
+    private MaterialTextView tv_match;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_up_page);
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
-        TextView tv_sign_in = findViewById(R.id.tv_sign_in);
+        MaterialTextView tv_sign_in = findViewById(R.id.tv_sign_in);
         tv_sign_in.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), Log_In_Screen.class)));
 
         et_username = findViewById(R.id.et_username);
@@ -43,11 +45,13 @@ public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
 
         tv_match = findViewById(R.id.tv_match);
 
-        Button btn_sign_up = findViewById(R.id.btn_sign_up);
+        MaterialButton btn_sign_up = findViewById(R.id.btn_sign_up);
         btn_sign_up.setOnClickListener(view -> checkFields());
 
         et_password.getEditText().addTextChangedListener(this);
         et_confirm_password.getEditText().addTextChangedListener(this);
+
+        Utils.addDefaultTextChangedListener(et_username, et_email_address, et_password, et_confirm_password);
 
         btn_google = findViewById(R.id.btn_google);
         btn_google.setOnClickListener(v -> showGoogleSignIn());
@@ -59,10 +63,10 @@ public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
     }
 
     public void checkFields() {
-        String username = et_username.getText();
-        String email = et_email_address.getText();
-        String password = et_password.getText();
-        String confirm_password = et_confirm_password.getText();
+        String username = Utils.getText(et_username);
+        String email = Utils.getText(et_email_address);
+        String password = Utils.getText(et_password);
+        String confirm_password = Utils.getText(et_confirm_password);
 
         boolean editTextsFilled = true;
 
@@ -70,22 +74,18 @@ public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
             et_username.setError(getString(R.string.username_invalid));
             editTextsFilled = false;
         }
-
         if (email.isEmpty() || !CalendarUtils.isEmailValid(email)) {
             et_email_address.setError(getString(R.string.invalid_email));
             editTextsFilled = false;
         }
-
         if (password.isEmpty()) {
             et_password.setError(getString(R.string.invalid_password));
             editTextsFilled = false;
         }
-
         if (confirm_password.isEmpty()) {
             et_confirm_password.setError(getString(R.string.invalid_password));
             editTextsFilled = false;
         }
-
         if (!password.equals(confirm_password)) {
             et_password.setError(getString(R.string.passwords_do_not_match));
             et_confirm_password.setError(getString(R.string.passwords_do_not_match));

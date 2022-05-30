@@ -10,12 +10,14 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.calendar.CalendarEvent;
+import com.example.projectofmurad.calendar.EventInfoDialogFragment;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DatabaseReference;
@@ -26,7 +28,7 @@ import com.google.firebase.database.Query;
  * Use the {@link GroupTrainingsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class GroupTrainingsFragment extends Fragment implements EventsAndTrainingsAdapterForFirebase.OnEventClickListener{
+public class GroupTrainingsFragment extends Fragment implements EventAndTrainingsAdapterForFirebase.OnEventClickListener{
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -98,18 +100,27 @@ public class GroupTrainingsFragment extends Fragment implements EventsAndTrainin
                 .setIndexedQuery(eventKeys, events, CalendarEvent.class)
                 .build();
 
-        EventsAndTrainingsAdapterForFirebase eventsAdapterForFirebase = new EventsAndTrainingsAdapterForFirebase(options, FirebaseUtils.getCurrentUID(), requireContext(), this);
+        EventAndTrainingsAdapterForFirebase eventsAdapterForFirebase = new EventAndTrainingsAdapterForFirebase(options, requireContext(), this);
 
         rv_group_training.setAdapter(eventsAdapterForFirebase);
-        rv_group_training.setLayoutManager(new LinearLayoutManagerWrapper(requireContext()).addOnLayoutCompleteListener(
+
+        LinearLayoutManagerWrapper layoutManager = new LinearLayoutManagerWrapper(requireContext());
+        layoutManager.addOnLayoutCompleteListener(
                 () -> new Handler().postDelayed(() -> {
                     progressBar.setVisibility(View.GONE);
                     rv_group_training.setVisibility(View.VISIBLE);
-                }, 500)));
+                }, 500));
+
+        rv_group_training.setLayoutManager(layoutManager);
     }
 
     @Override
     public void onEventClick(int position, CalendarEvent calendarEvent) {
+        FragmentManager fm = getParentFragmentManager();
 
+        if (fm.findFragmentByTag(EventInfoDialogFragment.TAG) == null){
+            EventInfoDialogFragment event_info_dialogFragment = EventInfoDialogFragment.newInstance(calendarEvent, true);
+            event_info_dialogFragment.show(fm, EventInfoDialogFragment.TAG);
+        }
     }
 }

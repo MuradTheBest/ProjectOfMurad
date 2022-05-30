@@ -40,22 +40,10 @@
         android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_full_date" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        app:elevation="0dp"
-        android:id="@+id/fab_add_event"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:clickable="true"
-        android:layout_margin="1dp"
-        app:layout_constraintBottom_toBottomOf="@+id/rv_events"
-        app:layout_constraintEnd_toEndOf="@+id/rv_events"
-        app:srcCompat="@android:drawable/ic_input_add"
-        android:tint="@android:color/transparent"
-        android:contentDescription="Add event" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_full_date"
+        app:layout_constraintVertical_bias="0.0" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tv_no_events"
@@ -69,12 +57,30 @@
         app:layout_constraintStart_toStartOf="@+id/rv_events"
         app:layout_constraintTop_toTopOf="@+id/rv_events" />
 
-    <Button
-        android:id="@+id/btn_clear_all"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        app:elevation="0dp"
+        android:id="@+id/fab_add_event"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Clear all"
+        android:visibility="gone"
+        android:layout_gravity="bottom"
+        android:clickable="true"
+        android:layout_margin="1dp"
+        app:layout_constraintBottom_toBottomOf="@+id/rv_events"
+        app:layout_constraintEnd_toEndOf="@+id/rv_events"
+        app:srcCompat="@android:drawable/ic_input_add"
+        android:tint="@android:color/transparent"
+        android:contentDescription="Add event" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="Cancel"
         android:textSize="10sp"
+        android:layout_margin="5dp"
+        app:cornerRadius="10dp"
         app:layout_constraintBottom_toTopOf="@+id/rv_events"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

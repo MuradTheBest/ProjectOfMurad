@@ -13,11 +13,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialog;
-import androidx.appcompat.widget.SwitchCompat;
 
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 public class AlarmDialog extends AppCompatDialog {
 
@@ -28,13 +28,13 @@ public class AlarmDialog extends AppCompatDialog {
     private int alarm_hour;
     private int alarm_minute;
 
-    private final SwitchCompat switch_alarm;
+    private final SwitchMaterial switch_alarm;
 
     private TimePickerDialog timePickerDialog;
 
     private OnAutoAlarmSetListener onAutoAlarmSetListener;
 
-    public AlarmDialog(@NonNull Context context, CalendarEvent event, SwitchCompat switch_alarm, int alarm_hour, int alarm_minute) {
+    public AlarmDialog(@NonNull Context context, CalendarEvent event, SwitchMaterial switch_alarm, int alarm_hour, int alarm_minute) {
         super(context);
 
         this.context = context;
@@ -48,7 +48,7 @@ public class AlarmDialog extends AppCompatDialog {
 
     }
 
-    public AlarmDialog(@NonNull Context context, SwitchCompat switch_alarm, OnAutoAlarmSetListener onAutoAlarmSetListener) {
+    public AlarmDialog(@NonNull Context context, SwitchMaterial switch_alarm, OnAutoAlarmSetListener onAutoAlarmSetListener) {
         super(context);
 
         this.context = context;

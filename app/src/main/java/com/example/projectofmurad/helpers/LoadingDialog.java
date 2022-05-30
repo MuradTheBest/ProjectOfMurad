@@ -18,8 +18,7 @@ public class LoadingDialog extends Dialog {
     public LoadingDialog(@NonNull Context context) {
         super(context);
 
-        getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
-        getWindow().setBackgroundDrawableResource(R.drawable.round_picker_dialog_background);
+        Utils.createCustomDialog(this);
     }
 
     @Override

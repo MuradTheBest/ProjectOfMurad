@@ -150,10 +150,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         notificationManager.createNotificationChannel(channel);
 
-
-// notificationId is a unique int for each notification that you must define
-
-//        notificationManager.notify(notification_id, builder.build());
         notificationManager.notify(notification_tag, ALARM_NOTIFICATION_ID, builder.build());
     }
 }

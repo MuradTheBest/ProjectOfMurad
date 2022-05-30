@@ -34,6 +34,7 @@ public class Training implements Serializable {
 
     private String eventPrivateId;
     private String UID;
+    private String groupKey;
 
     private int day;
     private int month;
@@ -431,7 +432,7 @@ public class Training implements Serializable {
     }
 
     public String getStartDate() {
-        return CalendarUtils.DateToTextOnline(receiveStartDate());
+        return CalendarUtils.DateToTextLocal(receiveStartDate());
     }
 
     public LocalDate receiveStartDate(){
@@ -526,5 +527,13 @@ public class Training implements Serializable {
 
     public void setLocations(List<Location> locations) {
         this.locations = locations;
+    }
+
+    public String getGroupKey() {
+        return groupKey;
+    }
+
+    public void setGroupKey(String groupKey) {
+        this.groupKey = groupKey;
     }
 }

@@ -37,7 +37,7 @@ public class MyGridLayoutManager extends GridLayoutManager {
     }
 
     public void setOnLayoutCompleteListener(OnLayoutCompleteCallback callback) {
-        mCallback = callback;
+        this.mCallback = callback;
     }
 
     private OnLayoutCompleteCallback mCallback = null;

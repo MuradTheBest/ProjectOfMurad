@@ -2,6 +2,7 @@ package com.example.projectofmurad;
 
 import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -28,8 +30,8 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.CalendarFragment;
 import com.example.projectofmurad.calendar.DayDialog;
-import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.groups.Group;
+import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.home.HomeFragment;
@@ -45,7 +47,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-public class MainActivity extends MyActivity implements NavController.OnDestinationChangedListener {
+public class MainActivity extends AppCompatActivity implements NavController.OnDestinationChangedListener {
 
     private View containerView;
     private BottomNavigationView bottomNavigationView;
@@ -82,6 +84,15 @@ public class MainActivity extends MyActivity implements NavController.OnDestinat
         if (gotten_intent.getAction() != null){
             checkIntent(gotten_intent);
         }
+
+        Log.d(LOG_TAG, "current group color = " + FirebaseUtils.CURRENT_GROUP_COLOR);
+
+        int color = getSharedPreferences(Utils.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
+                .getInt(FirebaseUtils.CURRENT_GROUP_KEY, getColor(R.color.colorAccent));
+
+        Log.d(LOG_TAG, "color = " + color);
+
+        Log.d(LOG_TAG, String.valueOf(color == getColor(R.color.colorAccent)));
 
     }
 

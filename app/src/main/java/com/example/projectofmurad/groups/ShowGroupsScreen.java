@@ -18,12 +18,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.MainActivity;
-import com.example.projectofmurad.MyActivity;
 import com.example.projectofmurad.R;
+import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.LoadingDialog;
@@ -38,7 +39,7 @@ import com.google.firebase.database.Query;
 import java.util.Objects;
 
 @SuppressLint("MissingPermission")
-public class ShowGroupsScreen extends MyActivity implements GroupAdapterForFirebase.OnGroupLongClickListener {
+public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapterForFirebase.OnGroupLongClickListener {
 
     MaterialTextView tv_username;
     RecyclerView rv_groups;
@@ -80,6 +81,7 @@ public class ShowGroupsScreen extends MyActivity implements GroupAdapterForFireb
 
         groupAdapterForFirebase = new GroupAdapterForFirebase(options, ShowGroupsScreen.this, this);
         rv_groups.setAdapter(groupAdapterForFirebase);
+
         rv_groups.setLayoutManager(new LinearLayoutManagerWrapper(this).addOnLayoutCompleteListener(
                 () -> new Handler().postDelayed(() -> {
                     if (groupAdapterForFirebase.getItemCount() > 0) {
@@ -87,8 +89,8 @@ public class ShowGroupsScreen extends MyActivity implements GroupAdapterForFireb
                         rv_groups.setVisibility(View.VISIBLE);
                     }
                     else {
-                        finish();
                         startActivity(new Intent(ShowGroupsScreen.this, CreateOrJoinGroupScreen.class));
+                        finish();
                     }
 
                 }, 500)));
@@ -99,7 +101,6 @@ public class ShowGroupsScreen extends MyActivity implements GroupAdapterForFireb
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             vibrationEffect = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK);
         }
-
     }
 
     private Vibrator vibrator;
@@ -129,9 +130,9 @@ public class ShowGroupsScreen extends MyActivity implements GroupAdapterForFireb
             switch (direction) {
                 case ItemTouchHelper.START:
 
-                    if (group.getKey().equals(FirebaseUtils.CURRENT_GROUP_KEY)){
+                    if (FirebaseUtils.isCurrentGroup(group.getKey())){
                         Utils.createAlertDialog(ShowGroupsScreen.this, null,
-                                "It is current selected group",
+                                "It is currently selected group",
                                 getString(R.string.ok), (dialog, which) -> dialog.dismiss(),
                                 null, null,
                                 null).show();
@@ -140,7 +141,7 @@ public class ShowGroupsScreen extends MyActivity implements GroupAdapterForFireb
                         Utils.createAlertDialog(ShowGroupsScreen.this, null,
                                 "To change current group?",
                                 R.string.yes, (dialog, which) -> {
-                                        FirebaseUtils.changeGroup(getApplicationContext(), group.getKey());
+                                        FirebaseUtils.changeGroup(getApplicationContext(), group.getKey(), group.getColor());
                                         startActivity(new Intent(getApplicationContext(), MainActivity.class));
                                 },
                                 R.string.no, (dialog, which) -> dialog.dismiss(),
@@ -202,21 +203,19 @@ public class ShowGroupsScreen extends MyActivity implements GroupAdapterForFireb
         loadingDialog.setMessage("Leaving this group...");
         loadingDialog.show();
 
-        FirebaseUtils.getCurrentUserDataRef().child("currentGroup").child(group.getKey()).removeValue()
+        FirebaseUtils.getCurrentUserDataRef().child(UserData.KEY_CURRENT_GROUP).child(group.getKey()).removeValue()
                 .addOnSuccessListener(unused ->
                         FirebaseUtils.deleteAll(FirebaseUtils.getGroupDatabase(group.getKey()),
                                 FirebaseUtils.getCurrentUID(),
-                                new FirebaseUtils.FirebaseCallback() {
-                                    @Override
-                                    public void onFirebaseCallback() {
-                                        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(group.getKey());
-                                        FirebaseUtils.groups.child(group.getKey()).child(Group.KEY_USERS_NUMBER).setValue(group.getUsersNumber()-1);
-                                        if (group.getKey().equals(FirebaseUtils.CURRENT_GROUP_KEY)) {
-                                            startActivity(Utils.getIntentClearTop(new Intent(ShowGroupsScreen.this, ShowGroupsScreen.class)));
-                                            finish();
-                                        }
+                                () -> {
+                                    loadingDialog.dismiss();
+                                    FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(group.getKey());
+                                    FirebaseUtils.groups.child(group.getKey()).child(Group.KEY_USERS_NUMBER).setValue(group.getUsersNumber()-1);
+                                    if (group.getKey().equals(FirebaseUtils.CURRENT_GROUP_KEY)) {
+                                        startActivity(Utils.getIntentClearTop(new Intent(ShowGroupsScreen.this, ShowGroupsScreen.class)));
+                                        finish();
                                     }
-                }))
+                                }))
                 .addOnFailureListener(e -> {
                     loadingDialog.dismiss();
                     Toast.makeText(ShowGroupsScreen.this,

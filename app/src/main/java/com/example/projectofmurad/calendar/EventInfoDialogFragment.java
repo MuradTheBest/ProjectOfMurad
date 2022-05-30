@@ -27,10 +27,9 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.Show;
-import com.example.projectofmurad.TrainingsAdapterForFirebase;
+import com.example.projectofmurad.training.TrainingsAdapterForFirebase;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.groups.UserGroupData;
-import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.LoadingDialog;
@@ -122,7 +121,8 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
         // Inflate the layout for this fragment
         return inflater.inflate(isShowsDialog
                                 ? R.layout.fragment_event__info_with_collapsing
-                                : R.layout.fragment_event__info_, container, false);
+                                : R.layout.fragment_event__info_,
+                container, false);
     }
 
     private AppBarLayout app_bar_layout;
@@ -148,8 +148,6 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
     private MaterialButton btn_delete_event;
 
     private LoadingDialog loadingDialog;
-
-    private SwitchMaterial switch_only_attend;
 
     private UsersAdapterForFirebase userAdapter;
 
@@ -203,7 +201,7 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
         initializeRVUsers();
 
-        switch_only_attend = view.findViewById(R.id.switch_only_attend);
+        SwitchMaterial switch_only_attend = view.findViewById(R.id.switch_only_attend);
         switch_only_attend.setOnCheckedChangeListener((buttonView, isChecked) -> setUpAllUsersRecyclerView(isChecked));
 
         if (event != null){
@@ -236,11 +234,12 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
         tv_event_name.setText(event.getName());
         tv_event_place.setText(event.getPlace());
         tv_event_description.setText(event.getDescription());
+
         tv_event_start_date_time.setText(String.format(getString(R.string.starting_time_s_s),
-                CalendarUtils.OnlineTextToLocal(event.getStartDate()), event.getStartTime()));
+                event.getStartDate(), event.getStartTime()));
 
         tv_event_end_date_time.setText(String.format(getString(R.string.ending_time_s_s),
-                CalendarUtils.OnlineTextToLocal(event.getEndDate()), event.getEndTime()));
+                event.getEndDate(), event.getEndTime()));
 
         int textColor = Utils.getContrastColor(event.getColor());
 
@@ -258,6 +257,7 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
         if (isShowsDialog){
             collapsing_toolbar_layout.setContentScrimColor(event.getColor());
+            collapsing_toolbar_layout.setCollapsedTitleTextColor(textColor);
 
             app_bar_layout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
                 @Override
@@ -304,13 +304,6 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
         Log.d(Utils.LOG_TAG, "snapshot = " + FirebaseUtils.getGroupTrainingsDatabase().child(event.getPrivateId()).child(""));
 
         MutableLiveData<ArrayList<String>> userKeys = new MutableLiveData<>(new ArrayList<>());
-        MutableLiveData<ArrayList<String>> invisibleUserKeys = new MutableLiveData<>(new ArrayList<>());
-
-        invisibleUserKeys.observe(this, strings -> {
-            ArrayList<String> UIDs = userKeys.getValue();
-            UIDs.retainAll(strings);
-            userKeys.setValue(UIDs);
-        });
 
         userKeys.observe(this, this::initializeTrainingsFirebaseViewPager2);
 
@@ -333,12 +326,14 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
                 FirebaseUtils.getCurrentUserTrainingsForEvent(event.getPrivateId()).observe(EventInfoDialogFragment.this,
                         trainings -> {
                             if (trainings != null && !trainings.isEmpty()) {
-                                ArrayList<String> users = userKeys.getValue();
+                                /*ArrayList<String> users = userKeys.getValue();
                                 if (!users.contains(FirebaseUtils.getCurrentUID())) {
                                     Log.d("snapshot", "current user has results in this event");
                                     users.add(0, FirebaseUtils.getCurrentUID());
                                 }
-                                userKeys.setValue(users);
+                                userKeys.setValue(users);*/
+
+                                userKeys.getValue().add(0, FirebaseUtils.getCurrentUID());
                             }
                         });
             }
@@ -346,23 +341,6 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
             @Override
             public void onCancelled(@NonNull DatabaseError error) {}
         });
-
-        FirebaseUtils.getCurrentGroupUsers().orderByChild("show").equalTo(Show.NO_ONE.getValue()).addValueEventListener(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        ArrayList<String> userArrayList = new ArrayList<>();
-                        for (DataSnapshot user : snapshot.getChildren()){
-                            userArrayList.add(user.getKey());
-                        }
-                        invisibleUserKeys.setValue(userArrayList);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -522,19 +500,19 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
     }
 
-    public void startRVUsersShimmer(){
+    public void startRVUsersShimmer() {
         rv_users.setVisibility(View.INVISIBLE);
         shimmer_rv_users.setVisibility(View.VISIBLE);
         shimmer_rv_users.startShimmer();
     }
 
-    public void stopRVUsersShimmer(){
+    public void stopRVUsersShimmer() {
         shimmer_rv_users.stopShimmer();
         shimmer_rv_users.setVisibility(View.GONE);
         rv_users.setVisibility(View.VISIBLE);
     }
 
-    public void startVPTrainingsShimmer(){
+    public void startVPTrainingsShimmer() {
         vp_trainings.setVisibility(View.INVISIBLE);
         shimmer_vp_user_and_training.setVisibility(View.VISIBLE);
         shimmer_vp_user_and_training.startShimmer();
@@ -561,7 +539,7 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
     public void createDeleteDialog(){
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
-        Utils.createCustomBottomSheetDialog(bottomSheetDialog);
+        bottomSheetDialog.setDismissWithAnimation(true);
 
         bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
 
@@ -596,14 +574,15 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
         loadingDialog.setMessage("Deleting events in the chain");
         loadingDialog.show();
 
-        FirebaseUtils.deleteAll(FirebaseUtils.getCurrentGroupDatabase(), chain_key,
+        FirebaseUtils.deleteAll(FirebaseUtils.getAllEventsDatabase().orderByChild("chainId").equalTo(chain_key),
+                CalendarEvent.KEY_EVENT_PRIVATE_ID,
                 () -> startActivity(new Intent(requireContext(), MainActivity.class)
                         .setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT)));
     }
 
     public void createCopyDialog(){
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
-        Utils.createCustomBottomSheetDialog(bottomSheetDialog);
+        bottomSheetDialog.setDismissWithAnimation(true);
 
         bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
 

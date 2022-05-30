@@ -33,20 +33,18 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.widget.SwitchCompat;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -57,12 +55,12 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.MainViewModel;
-import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
 import com.example.projectofmurad.R;
+import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LoadingDialog;
+import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.training.MyRepository;
 import com.example.projectofmurad.training.Training;
@@ -89,9 +87,11 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.FileNotFoundException;
@@ -130,16 +130,16 @@ public class Tracking_Fragment extends Fragment implements
     private HashMap<String, Marker> markers;
 
     //    private SwitchCompat switch_last_location;
-    private SwitchCompat switch_map_type;
+    private SwitchMaterial switch_map_type;
 
     private Polyline gpsTrack;
 
     private RelativeLayout rl_training;
 
-    private TextView tv_time;
-    private TextView tv_distance;
-    private TextView tv_speed;
-    private TextView tv_max_speed;
+    private MaterialTextView tv_time;
+    private MaterialTextView tv_distance;
+    private MaterialTextView tv_speed;
+    private MaterialTextView tv_max_speed;
 
     private BroadcastReceiver broadcastReceiver;
 
@@ -147,7 +147,9 @@ public class Tracking_Fragment extends Fragment implements
     private MaterialButton btn_stop_tracking;
     private MaterialButton btn_finish_tracking;
 
-    private LinearLayout ll_pause_or_finish_training;
+    private MaterialButton btn_help;
+
+    private LinearLayoutCompat ll_pause_or_finish_training;
 
     private Marker selected_location_marker;
 
@@ -254,19 +256,17 @@ public class Tracking_Fragment extends Fragment implements
 
     private GridLayout bottom_sheet_training_expanded;
 
-    private TextView tv_training_duration;
-    private TextView tv_training_total_duration;
-    private TextView tv_training_distance;
-    private TextView tv_training_average_speed;
-    private TextView tv_training_max_speed;
-    private TextView tv_training_average_pace;
-    private TextView tv_training_max_pace;
+    private MaterialTextView tv_training_duration;
+    private MaterialTextView tv_training_total_duration;
+    private MaterialTextView tv_training_distance;
+    private MaterialTextView tv_training_average_speed;
+    private MaterialTextView tv_training_max_speed;
+    private MaterialTextView tv_training_average_pace;
+    private MaterialTextView tv_training_max_pace;
 
     private MainViewModel mainViewModel;
 
-    private MaterialToolbar materialToolbar;
-
-    private ImageView iv_share_location;
+    private AppCompatImageView iv_share_location;
 
     private View mapView;
 
@@ -296,7 +296,7 @@ public class Tracking_Fragment extends Fragment implements
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext());
 
-        materialToolbar = view.findViewById(R.id.materialToolbar);
+        MaterialToolbar materialToolbar = view.findViewById(R.id.materialToolbar);
         materialToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
 
             @Override
@@ -339,6 +339,27 @@ public class Tracking_Fragment extends Fragment implements
         btn_finish_tracking = view.findViewById(R.id.btn_finish_tracking);
         btn_finish_tracking.setOnClickListener(v -> finishTracking());
 
+        btn_help = view.findViewById(R.id.btn_help);
+        btn_help.setOnClickListener(v ->
+                FirebaseUtils.getCurrentUserTrackingRef(TrackingService.eventPrivateId.getValue()).child("help")
+                        .setValue(btn_help.getText().equals("Help!")));
+
+        FirebaseUtils.getCurrentUserTrackingRef(TrackingService.eventPrivateId.getValue()).child("help").addValueEventListener(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        boolean isAskingForHelp = snapshot.exists() && snapshot.getValue(boolean.class);
+                        btn_help.getBackground().setTint(isAskingForHelp ? requireContext().getColor(R.color.colorAccent) : Color.RED);
+                        btn_help.setText(isAskingForHelp ? "Asked" : "Help!");
+                        btn_help.setTextColor(isAskingForHelp ? Color.WHITE : Color.BLACK);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
         /*if (TrackingService.isRunning.getValue() && !isTrackingServiceRunning()){
 
             resumeTracking();
@@ -361,39 +382,16 @@ public class Tracking_Fragment extends Fragment implements
         }
 
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
-
-        Button button = view.findViewById(R.id.button);
-        button.setOnClickListener(v -> {
-            LatLng northEast = new LatLng(40.465, 35.846532);
-            LatLng southWest = new LatLng(50.45120, 35.452);
-
-            LatLngBounds bounds = LatLngBounds.builder().include(northEast).include(southWest).build();
-
-            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 5), 200,
-                    new GoogleMap.CancelableCallback() {
-                        @Override
-                        public void onCancel() {
-
-                        }
-
-                        @Override
-                        public void onFinish() {
-                            map.setMyLocationEnabled(false);
-                            captureScreen();
-                        }
-                    });
-        });
     }
 
     private void shareMyLocation(@NonNull Location location) {
 //      String uri = "http://maps.google.com/maps?saddr=" + location.getLatitude()+","+location.getLongitude();
         String uri = "http://maps.google.com/maps?q=loc:" + location.getLatitude() + "," + location.getLongitude();
-        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-        sharingIntent.setType("text/plain");
-        String sharesub = "Here is my location";
-        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, sharesub);
-        sharingIntent.putExtra(Intent.EXTRA_TEXT, uri);
-        startActivity(Intent.createChooser(sharingIntent, "Share via"));
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Here is my location");
+        intent.putExtra(Intent.EXTRA_TEXT, uri);
+        startActivity(Intent.createChooser(intent, "Share via"));
     }
 
     public void captureScreen() {
@@ -566,7 +564,9 @@ public class Tracking_Fragment extends Fragment implements
 
         if (TrackingService.trainingType.getValue() != null && TrackingService.trainingType.getValue().equals(TrackingService.GROUP_TRAINING)){
             String event_private_id = TrackingService.eventPrivateId.getValue();
-            DatabaseReference usersLocations = FirebaseUtils.getAttendanceDatabase().child(event_private_id);
+            Query usersLocations = FirebaseUtils.getAttendanceDatabase().child(event_private_id)
+                    .orderByChild("attend").equalTo(true);
+            btn_help.setVisibility(View.VISIBLE);
             usersLocations.addValueEventListener(valueEventListener);
         }
 
@@ -689,53 +689,14 @@ public class Tracking_Fragment extends Fragment implements
         List<LatLng> latLngs = TrackingService.locationsData.getValue();
         LatLngBounds bounds = Utils.getLatLngBounds(latLngs);
 
-        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,  10));
+        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,10));
 
-        TrackingService.trainingData.observe(getViewLifecycleOwner(), new Observer<Training>() {
-            @Override
-            public void onChanged(Training t) {
-                if (TrackingService.trainingType.getValue() == null){
-                    SaveTrainingDialog saveTrainingDialog = new SaveTrainingDialog(requireContext(), t, Tracking_Fragment.this);
-                    saveTrainingDialog.show();
-                }
-                else if (TrackingService.trainingType.getValue().equals(TrackingService.GROUP_TRAINING)){
-                    if (TrackingService.eventPrivateId.getValue() != null){
-                        LoadingDialog LoadingDialog = new LoadingDialog(requireContext());
-                        LoadingDialog.setMessage("Adding the trainingData to selected event...");
+        TrackingService.trainingData.observe(getViewLifecycleOwner(), this::createSaveTrainingDialog);
 
-                        FirebaseUtils.addTrainingForEvent(TrackingService.eventPrivateId.getValue(), t).addOnCompleteListener(
-                                new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        LoadingDialog.dismiss();
-
-                                        if (!task.isSuccessful()){
-                                            Toast.makeText(requireContext(), "Adding the training to this event failed \n" +
-                                                    "The training will be added to private trainings", Toast.LENGTH_SHORT).show();
-                                            onAddTraining(t);
-                                        }
-
-                                        Toast.makeText(requireContext(), "The training was added to this event successfully", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                    }
-                    else {
-                        ChooseEventClickDialog chooseEventClickDialog = new ChooseEventClickDialog(requireContext(),
-                                LocalDate.now(), t, Tracking_Fragment.this);
-
-                        chooseEventClickDialog.show();
-                    }
-                }
-                else if (TrackingService.trainingType.getValue().equals(TrackingService.PRIVATE_TRAINING)){
-                    onAddTraining(t);
-                }
-            }
-        });
-
-        Intent intent = new Intent(getContext(), TrackingService.class);
+        Intent intent = new Intent(requireContext(), TrackingService.class);
         requireActivity().stopService(intent);
 
-        createSaveTrainingDialog();
+        btn_help.setVisibility(View.GONE);
 
         createPowerSavingDialog(true);
     }
@@ -808,27 +769,43 @@ public class Tracking_Fragment extends Fragment implements
     }
 */
 
-    public void createSaveTrainingDialog(){
-        /*Dialog dialog = new Dialog(requireContext());
-        dialog.setTitle("Choose trainingData type");
-        dialog.setCancelable(false);
-        dialog.setContentView(R.layout.choose_training_dialog);
+    public void createSaveTrainingDialog(Training t){
+        if (TrackingService.trainingType.getValue() == null){
+            SaveTrainingDialog saveTrainingDialog = new SaveTrainingDialog(requireContext(), t, Tracking_Fragment.this);
+            saveTrainingDialog.show();
+        }
+        else if (TrackingService.trainingType.getValue().equals(TrackingService.GROUP_TRAINING)){
+            if (TrackingService.eventPrivateId.getValue() != null){
 
-        RadioGroup rg_choose_training = dialog.findViewById(R.id.rg_choose_training);
+                LoadingDialog loadingDialog = new LoadingDialog(requireContext());
+                loadingDialog.setMessage("Adding the training data to selected event...");
 
-        RadioButton rb_private_training = dialog.findViewById(R.id.rb_private_training);
-        RadioButton rb_group_training = dialog.findViewById(R.id.rb_group_training);
+                FirebaseUtils.addTrainingForEvent(TrackingService.eventPrivateId.getValue(), t).addOnCompleteListener(
+                        new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                loadingDialog.dismiss();
 
-        rb_private_training.setOnCheckedChangeListener(this);
-        rb_group_training.setOnCheckedChangeListener(this);
+                                if (!task.isSuccessful()){
+                                    Toast.makeText(requireContext(), "Adding the training to this event failed \n" +
+                                            "The training will be added to private trainings", Toast.LENGTH_SHORT).show();
+                                    onAddTraining(t);
+                                }
 
-        LinearLayout ll_private_training = dialog.findViewById(R.id.ll_private_training);
-        LinearLayout ll_group_training = dialog.findViewById(R.id.ll_group_training);
+                                Toast.makeText(requireContext(), "The training was added to this event successfully", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+            else {
+                ChooseEventClickDialog chooseEventClickDialog = new ChooseEventClickDialog(requireContext(),
+                        LocalDate.now(), t, Tracking_Fragment.this);
 
-        Utils.createCustomDialog(dialog);
-
-        dialog.show();*/
-
+                chooseEventClickDialog.show();
+            }
+        }
+        else if (TrackingService.trainingType.getValue().equals(TrackingService.PRIVATE_TRAINING)){
+            onAddTraining(t);
+        }
     }
 
     @Override
@@ -991,11 +968,16 @@ public class Tracking_Fragment extends Fragment implements
                     String UID = user.getKey();
                     double latitude = user.child("latitude").getValue(double.class);
                     double longitude = user.child("longitude").getValue(double.class);
+                    boolean help = user.hasChild("help") && user.child("help").getValue(boolean.class);
 
                     FirebaseUtils.getUserDataByUIDRef(UID).get().addOnSuccessListener(
                             new OnSuccessListener<DataSnapshot>() {
                                 @Override
                                 public void onSuccess(DataSnapshot snapshot) {
+                                    if (!snapshot.exists()){
+                                        return;
+                                    }
+
                                     String username = snapshot.child("username").getValue(String.class);
                                     String picture = snapshot.child("picture").getValue(String.class);
 
@@ -1003,16 +985,16 @@ public class Tracking_Fragment extends Fragment implements
                                     Log.d("map", "latitude is " + latitude);
                                     Log.d("map", "longitude is " + longitude);
 
-
                                     LatLng latLng = new LatLng(latitude, longitude);
                                     MarkerOptions markerOptions = new MarkerOptions()
                                             .position(latLng)
-                                            .title(username)
+                                            .title(username + (help ? "HELP!!!" : ""))
                                             .flat(true)
                                             .zIndex(0)
                                             /*.snippet(username)*/;
 
-                                    if (!user.child("locationAvailable").getValue(boolean.class)){
+                                    if (user.hasChild("locationAvailable")
+                                            && !user.child("locationAvailable").getValue(boolean.class)){
                                         markerOptions.alpha(0.5f);
                                     }
 
@@ -1050,7 +1032,7 @@ public class Tracking_Fragment extends Fragment implements
 
                         Bitmap bitmap = Bitmap.createScaledBitmap(resource, pixels, pixels, true);
 
-                        if(bitmap != null){
+                        if (bitmap != null){
                             bitmap = getBitmapClippedCircle(bitmap);
 //                            bitmap = geStrokeBitmap(bitmap);
                             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
@@ -1059,7 +1041,6 @@ public class Tracking_Fragment extends Fragment implements
 
                             if (old_marker != null){
                                 old_marker.remove();
-                                Log.d(LOG_TAG, "Old marker is successfully removed");
                             }
 
                             Marker marker = map.addMarker(markerOptions);

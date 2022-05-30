@@ -1,7 +1,7 @@
 package com.example.projectofmurad.calendar;
 
 import android.animation.Animator;
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
@@ -22,11 +22,9 @@ import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -34,26 +32,27 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.core.widget.ImageViewCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.projectofmurad.MainActivity;
-import com.example.projectofmurad.MyActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.ColorPickerDialog;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LoadingDialog;
-import com.example.projectofmurad.helpers.MyTextInputLayout;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -63,16 +62,16 @@ import java.time.Period;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
-public class Edit_Event_Screen extends MyActivity {
+public class Edit_Event_Screen extends AppCompatActivity {
 
-    protected MyTextInputLayout et_name;
-    protected MyTextInputLayout et_place;
-    protected MyTextInputLayout et_description;
+    protected TextInputLayout et_name;
+    protected TextInputLayout et_place;
+    protected TextInputLayout et_description;
 
-    protected AppCompatImageView ib_color;
     protected SwitchMaterial switch_all_day;
     protected SwitchMaterial switch_alarm;
 
@@ -110,6 +109,9 @@ public class Edit_Event_Screen extends MyActivity {
     int x;
     int y;
 
+    private int selectedColor;
+
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,10 +123,10 @@ public class Edit_Event_Screen extends MyActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_close_24);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setShowHideAnimationEnabled(true);
         getSupportActionBar().hide();
 
         eventFrequencyViewModel = new ViewModelProvider(this).get(EventFrequencyViewModel.class);
-
         startObserving();
 
         Intent gotten_intent = getIntent();
@@ -145,8 +147,7 @@ public class Edit_Event_Screen extends MyActivity {
                             @Override
                             public void onGlobalLayout() {
                                 circularRevealActivity();
-                                sv_add_event_screen.getViewTreeObserver().removeOnGlobalLayoutListener(
-                                        this);
+                                sv_add_event_screen.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                             }
 
                         });
@@ -155,6 +156,8 @@ public class Edit_Event_Screen extends MyActivity {
         }
 
         et_name = findViewById(R.id.et_name);
+        et_name.setEndIconOnClickListener(v -> createColorPickerDialog());
+
         et_description = findViewById(R.id.et_description);
         et_place = findViewById(R.id.et_place);
         switch_alarm = findViewById(R.id.switch_alarm);
@@ -163,9 +166,6 @@ public class Edit_Event_Screen extends MyActivity {
         btn_choose_end_date = findViewById(R.id.btn_choose_end_date);
         btn_choose_start_time = findViewById(R.id.btn_choose_start_time);
         btn_choose_end_time = findViewById(R.id.btn_choose_end_time);
-
-        ib_color = findViewById(R.id.ib_color);
-        ib_color.setOnClickListener(v -> createColorPickerDialog());
 
         rl_event_setup = findViewById(R.id.rl_event_setup);
 
@@ -188,24 +188,27 @@ public class Edit_Event_Screen extends MyActivity {
         startDateTime = LocalDateTime.of(start_year, start_month, start_day, 8, 0);
         endDateTime = LocalDateTime.of(start_year, start_month, start_day, 9, 0);
 
+        selectedColor = getColor(R.color.colorAccent);
+
         if (gotten_intent.hasExtra(CalendarEvent.KEY_EVENT)){
             editMode = true;
+
             Log.d("murad", "event is not null => Edit_Event_Screen");
 
             event = (CalendarEvent) gotten_intent.getSerializableExtra(CalendarEvent.KEY_EVENT);
 
             boolean allDay = event.isAllDay();
+            switch_all_day.setChecked(allDay);
 
             startDateTime = event.receiveStartDateTime();
             endDateTime = event.receiveEndDateTime();
 
-            et_name.setText(event.getName());
-            et_description.setText(event.getDescription());
-            et_place.setText(event.getPlace());
+            Utils.setText(et_name, event.getName());
+            Utils.setText(et_description, event.getDescription());
+            Utils.setText(et_place, event.getPlace());
 
-            ImageViewCompat.setImageTintList(ib_color, ColorStateList.valueOf(event.getColor()));
-
-            switch_all_day.setChecked(allDay);
+            selectedColor = event.getColor();
+            et_name.setEndIconTintList(ColorStateList.valueOf(event.getColor()));
 
             switch_alarm.setChecked(AlarmManagerForToday.checkIfAlarmSet(this, event.getPrivateId()));
         }
@@ -283,7 +286,6 @@ public class Edit_Event_Screen extends MyActivity {
 
                                     btn_choose_start_date.setText(CalendarUtils.DateToTextLocal(startDateTime.toLocalDate()));
                                     btn_choose_start_time.setText(CalendarUtils.TimeToText(startDateTime.toLocalTime()));
-
                                 }
 
                                 event.updateStartDateTime(startDateTime);
@@ -415,7 +417,7 @@ public class Edit_Event_Screen extends MyActivity {
     // methods to control the operations that will
     // happen when user clicks on the action buttons
     @Override
-    public boolean onOptionsItemSelected( @NonNull MenuItem item ) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item ) {
 
         switch (item.getItemId()){
             case R.id.action_save:
@@ -462,12 +464,11 @@ public class Edit_Event_Screen extends MyActivity {
         });
 
         circularReveal.start();
-
     }
 
     public void createSaveDialog(){
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
-        Utils.createCustomBottomSheetDialog(bottomSheetDialog);
+        bottomSheetDialog.setDismissWithAnimation(true);
 
         bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
 
@@ -493,7 +494,7 @@ public class Edit_Event_Screen extends MyActivity {
 
                 Log.d(Utils.EVENT_TAG, "starting editing all events with chainId " + event.getChainId());
 
-                absoluteDeleteAllEventsInChain(event.getFrequency_end());
+                absoluteDeleteAllEventsInChain(event.getChainId());
             }
         });
 
@@ -526,7 +527,15 @@ public class Edit_Event_Screen extends MyActivity {
     }
 
     public void onAddEventClick() {
-        if (editMode){
+        String name = Utils.getText(et_name);
+        String description = Utils.getText(et_description);
+        String place = Utils.getText(et_place);
+
+        if(!checkFields(name, description, place)) {
+            return;
+        }
+
+        if (editMode) {
             if (event.isSingle()) {
                 absoluteDeleteSingleEvent(event.getChainId());
             }
@@ -540,19 +549,13 @@ public class Edit_Event_Screen extends MyActivity {
     }
 
     public void uploadEvent() {
-        String name = et_name.getText();
-        String description = et_description.getText();
-        String place = et_place.getText();
+        String name = Utils.getText(et_name);
+        String description = Utils.getText(et_description);
+        String place = Utils.getText(et_place);
 
-        if(!checkFields(name, description, place)){
-            return;
-        }
+        event.addDefaultParams(selectedColor, name, description, place, startDateTime, endDateTime);
 
-        event.addDefaultParams(ImageViewCompat.getImageTintList(ib_color).getDefaultColor(),
-                name, description, place, startDateTime, endDateTime);
-
-        DatabaseReference eventsDatabase = FirebaseUtils.getEventsDatabase();
-        eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(startDateTime.toLocalDate()));
+        DatabaseReference eventsDatabase = FirebaseUtils.getEventsDatabase().child(startDateTime.toLocalDate().toString());
 
         String chain_key = "Event" + eventsDatabase.push().getKey();
         event.setChainId(chain_key);
@@ -561,11 +564,11 @@ public class Edit_Event_Screen extends MyActivity {
 
         Log.d(Utils.EVENT_TAG, "uploading event " + event);
 
-        if(row_event) {
+        if(event.isRowEvent()) {
             event.updateFrequency_start(startDateTime.toLocalDate());
             event.updateFrequency_end(endDateTime.toLocalDate());
             Log.d(Utils.EVENT_TAG, event.toString());
-            addEventToFirebaseForTextWithPUSH(event, null);
+            addEventToFirebaseForTextWithPUSH(event, event.getPrivateId());
         }
         else if(event.getFrequencyType().name().endsWith("AMOUNT")){
             success = addEventForTimesAdvanced(event);
@@ -582,8 +585,6 @@ public class Edit_Event_Screen extends MyActivity {
             if (switch_alarm.isChecked()){
                 AlarmManagerForToday.addAlarm(this, event, 0);
             }
-            FirebaseUtils.isMadrich().observe(this,
-                    isMadrich -> FirebaseUtils.getCurrentUserTrackingRef(event.getPrivateId()).child("attend").setValue(isMadrich));
         }
 
         Intent toCalendar_Screen = new Intent(getApplicationContext(), MainActivity.class);
@@ -615,13 +616,10 @@ public class Edit_Event_Screen extends MyActivity {
 
         DatabaseReference eventsDatabase = FirebaseUtils.getEventsDatabase();
 
-        LocalDate tmp = start_date;
-
         String private_key = "Event" + eventsDatabase.push().getKey();
-//        event.setPrivateId(private_key);
 
         event.setPrivateId(private_key);
-        event.setChainId(chain_key == null ? private_key : chain_key);
+        event.setChainId(chain_key);
 
         Log.d("murad", "PRIVATE ID IS " + event.getPrivateId());
         Log.d("murad", "CHAIN ID IS " + event.getChainId());
@@ -631,14 +629,20 @@ public class Edit_Event_Screen extends MyActivity {
         FirebaseUtils.getAllEventsDatabase().child(event.getPrivateId()).setValue(event);
 
         do {
-            eventsDatabase = FirebaseUtils.getEventsDatabase();
-            eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));
+            eventsDatabase = FirebaseUtils.getEventsDatabase().child(start_date.toString());
 
-            eventsDatabase.child(event.getPrivateId()).setValue(event.getStart());
+            eventsDatabase.child(event.getPrivateId()).child(CalendarEvent.KEY_EVENT_CHAIN_ID).setValue(event.getChainId());
+            eventsDatabase.child(event.getPrivateId()).child(CalendarEvent.KEY_EVENT_START).setValue(event.getStart());
 
-            tmp = tmp.plusDays(1);
+            start_date = start_date.plusDays(1);
         }
-        while(!tmp.isEqual(end_date.plusDays(1)));
+        while(!start_date.isAfter(end_date));
+
+
+        if (switch_alarm.isChecked()){
+            FirebaseUtils.isMadrich().observe(this,
+                    isMadrich -> FirebaseUtils.getCurrentUserTrackingRef(event.getPrivateId()).child("attend").setValue(isMadrich));
+        }
     }
 
 /*    public void addEventForTimes(@NonNull CalendarEvent event){
@@ -1078,16 +1082,16 @@ public class Edit_Event_Screen extends MyActivity {
 
         String chain_key = event.getChainId();
 
-        CalendarEvent.FrequencyType frequencyType = eventFrequencyViewModel.frequencyType.getValue();
+        CalendarEvent.FrequencyType frequencyType = event.getFrequencyType();
         Log.d(Utils.EVENT_TAG, "FREQUENCYTYPE IS " + frequencyType);
 
-        int frequency = eventFrequencyViewModel.frequency.getValue();
+        int frequency = event.getFrequency();
         Log.d(Utils.EVENT_TAG, "FREQUENCY IS " + (frequency));
 
-        int amount = eventFrequencyViewModel.amount.getValue();
+        int amount = event.getAmount();
         Log.d(Utils.EVENT_TAG, "AMOUNT IS " + amount);
 
-        boolean isLast = eventFrequencyViewModel.last.getValue();
+        boolean isLast = event.isLast();
         Log.d(Utils.EVENT_TAG, "IS LAST = " + isLast);
 
         LocalDate tmp = event.receiveStartDate();
@@ -1099,12 +1103,11 @@ public class Edit_Event_Screen extends MyActivity {
 
         Period range = startDate.until(endDate);
 
-        int day = eventFrequencyViewModel.day.getValue();
-        int weekNumber = eventFrequencyViewModel.weekNumber.getValue();
-        int dayOfWeekPosition = eventFrequencyViewModel.dayOfWeekPosition.getValue();
+        int day = event.getDay();
+        int weekNumber = event.getWeekNumber();
+        int dayOfWeekPosition = event.getDayOfWeekPosition();
         DayOfWeek dayOfWeek = DayOfWeek.of(dayOfWeekPosition + 1);
-        List<Boolean> event_array_frequencyDayOfWeek = eventFrequencyViewModel
-                .array_frequencyDayOfWeek.getValue();
+        List<Boolean> event_array_frequencyDayOfWeek = event.getArray_frequencyDayOfWeek();
 
         LocalDate absolute_end_date = tmp;
 
@@ -1563,7 +1566,7 @@ public class Edit_Event_Screen extends MyActivity {
 
         event.updateFrequency_end(endDate);
 
-        FirebaseUtils.getAllEventsDatabase().child(event.getChainId()).setValue(event);
+//        FirebaseUtils.getAllEventsDatabase().child(event.getChainId()).setValue(event);
 
         Log.d(Utils.EVENT_TAG, "Frequency End of event: " + event.getFrequency_end());
 
@@ -1901,7 +1904,7 @@ public class Edit_Event_Screen extends MyActivity {
 
         Log.d(Utils.EVENT_TAG, "Frequency End of event: " + event.getFrequency_end());
 
-        FirebaseUtils.getAllEventsDatabase().child(event.getChainId()).setValue(event);
+//        FirebaseUtils.getAllEventsDatabase().child(event.getChainId()).setValue(event);
 
         Log.d(Utils.EVENT_TAG, "ADDING BY AMOUNT FINISHED");
         Log.d(Utils.EVENT_TAG, " ");
@@ -1921,12 +1924,10 @@ public class Edit_Event_Screen extends MyActivity {
             et_name.setError(getString(R.string.invalid_email));
             editTextsFilled = false;
         }
-
         if(description.isEmpty()){
             et_description.setError(getString(R.string.invalid_password));
             editTextsFilled = false;
         }
-
         if(place.isEmpty()){
             et_place.setError(getString(R.string.invalid_password));
             editTextsFilled = false;
@@ -1935,8 +1936,7 @@ public class Edit_Event_Screen extends MyActivity {
         return editTextsFilled;
     }
 
-    public void createBottomSheetDialog(){
-//        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.Widget_Design_BottomSheet_Modal);
+    public void createBottomSheetDialog() {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.Theme_Design_Light_BottomSheetDialog);
         bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog_event_frequency);
         bottomSheetDialog.setTitle("Repeat");
@@ -1957,7 +1957,8 @@ public class Edit_Event_Screen extends MyActivity {
         colorPicker.setOnFastChooseColorListener(new ColorPicker.OnFastChooseColorListener() {
             @Override
             public void setOnFastChooseColorListener(int position, int color) {
-                ImageViewCompat.setImageTintList(ib_color, ColorStateList.valueOf(color));
+                selectedColor = color;
+                et_name.setEndIconTintList(ColorStateList.valueOf(selectedColor));
             }
 
             @Override
@@ -1966,41 +1967,66 @@ public class Edit_Event_Screen extends MyActivity {
 
         colorPicker.addListenerButton(getString(R.string.generate),
                 (v, position, color) -> {
-                    ImageViewCompat.setImageTintList(ib_color, ColorStateList.valueOf(Utils.generateRandomColor()));
+                    selectedColor = Utils.generateRandomColor();
+                    et_name.setEndIconTintList(ColorStateList.valueOf(selectedColor));
                     colorPicker.dismissDialog();
                 });
 
         colorPicker.show();
     }
 
-    public void absoluteDeleteSingleEvent(String private_key){
+    public void absoluteDeleteSingleEvent(String private_key) {
         loadingDialog.setMessage("Editing event");
         loadingDialog.show();
+
         FirebaseUtils.deleteAll(FirebaseUtils.getEventsDatabase(), private_key, this::uploadEvent);
     }
 
-    public void absoluteDeleteAllEventsInChain(String chain_key){
+    public void absoluteDeleteAllEventsInChain(String chain_key) {
         loadingDialog.setMessage("Editing event");
         loadingDialog.show();
 
-        FirebaseUtils.deleteAll(FirebaseUtils.getEventsDatabase(), chain_key, this::uploadEvent);
+        FirebaseUtils.getEventsDatabase().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot date : snapshot.getChildren()){
+                    for (DataSnapshot event : date.getChildren()){
+                        String eventChainId = event.child(CalendarEvent.KEY_EVENT_CHAIN_ID).getValue(String.class);
+                        if (Objects.equals(eventChainId, chain_key)){
+                            event.getRef().removeValue();
+                        }
+                    }
+                }
+
+                uploadEvent();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         startObserving();
+        getSupportActionBar().show();
     }
 
-    public void startObserving(){
+    public void startObserving() {
         eventFrequencyViewModel.frequencyType.observe(this, frequencyType -> {
             Log.d(Utils.EVENT_TAG, "event's frequency type changed");
             Log.d(Utils.EVENT_TAG, "event's frequency is " + frequencyType);
             event.setFrequencyType(frequencyType);
         });
-        eventFrequencyViewModel.frequency.observe(this, frequency -> event.setFrequency(frequency));
-        eventFrequencyViewModel.amount.observe(this, amount -> event.setAmount(amount));
-        eventFrequencyViewModel.row_event.observe(this, row_event -> event.setAllDay(row_event));
+        eventFrequencyViewModel.frequency.observe(this, frequency -> {
+            event.setFrequency(frequency);
+        });
+        eventFrequencyViewModel.amount.observe(this, amount -> {
+            event.setAmount(amount);
+            Log.d(Utils.EVENT_TAG, "amount changed");
+            Log.d(Utils.EVENT_TAG, "amount is " + amount);
+        });
         eventFrequencyViewModel.msg.observe(this, msg -> {
             Log.d(Utils.EVENT_TAG, "message changed");
             Log.d(Utils.EVENT_TAG, msg);
@@ -2019,7 +2045,6 @@ public class Edit_Event_Screen extends MyActivity {
         eventFrequencyViewModel.frequencyType.removeObservers(this);
         eventFrequencyViewModel.frequency.removeObservers(this);
         eventFrequencyViewModel.amount.removeObservers(this);
-        eventFrequencyViewModel.row_event.removeObservers(this);
         eventFrequencyViewModel.msg.removeObservers(this);
         eventFrequencyViewModel.end.removeObservers(this);
         eventFrequencyViewModel.last.removeObservers(this);
@@ -2028,21 +2053,5 @@ public class Edit_Event_Screen extends MyActivity {
         eventFrequencyViewModel.array_frequencyDayOfWeek.removeObservers(this);
         eventFrequencyViewModel.weekNumber.removeObservers(this);
         eventFrequencyViewModel.month.removeObservers(this);
-    }
-
-    public void onFocusChange(View view, boolean b) {
-        if(view instanceof EditText){
-            String text = ((EditText) view).getText().toString();
-            if(!b  && !text.isEmpty() && text.charAt(0) == ' '){
-                text = text.replaceFirst("\\s+", "");
-                ((EditText) view).setText(text);
-            }
-        }
-
-    }
-
-    public static void hideKeyboard(@NonNull Activity context) {
-        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow( context.getCurrentFocus().getWindowToken(), 0);
     }
 }

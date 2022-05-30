@@ -11,15 +11,13 @@
     app:layout_constraintHorizontal_weight="2"
     app:layout_constraintVertical_weight="5"
     android:rowOrderPreserved="true"
-
     app:layout_constraintBottom_toBottomOf="@+id/textView"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/lineChart_speed"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android" >
 
-
-    <LinearLayout
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
@@ -29,13 +27,13 @@
         android:layout_rowWeight="1"
         android:gravity="center">
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Workout duration"
+            android:text="@string/workout_duration"
             android:textSize="14sp" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_training_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -43,9 +41,9 @@
             android:textStyle="bold"
             android:textSize="16sp"/>
 
-    </LinearLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <LinearLayout
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
@@ -55,13 +53,13 @@
         android:layout_rowWeight="1"
         android:gravity="center">
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Total duration"
+            android:text="@string/total_duration"
             android:textSize="14sp" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_training_total_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -69,9 +67,9 @@
             android:textStyle="bold"
             android:textSize="16sp"/>
 
-    </LinearLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <LinearLayout
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
@@ -81,13 +79,13 @@
         android:layout_rowWeight="1"
         android:gravity="center">
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Distance"
+            android:text="@string/distance"
             android:textSize="14sp" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_training_distance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -95,9 +93,9 @@
             android:textStyle="bold"
             android:textSize="16sp"/>
 
-    </LinearLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_columnWeight="1"
@@ -106,7 +104,7 @@
         android:layout_gravity="center"
         android:src="@drawable/ic_baseline_directions_bike_24"/>
 
-    <LinearLayout
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
@@ -116,13 +114,13 @@
         android:layout_rowWeight="1"
         android:gravity="center">
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Average speed"
+            android:text="@string/average_speed"
             android:textSize="14sp" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_training_average_speed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -130,9 +128,9 @@
             android:textStyle="bold"
             android:textSize="16sp"/>
 
-    </LinearLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <LinearLayout
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
@@ -142,13 +140,13 @@
         android:layout_rowWeight="1"
         android:gravity="center">
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Max. speed"
+            android:text="@string/max_speed"
             android:textSize="14sp" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_training_max_speed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -156,9 +154,9 @@
             android:textStyle="bold"
             android:textSize="16sp"/>
 
-    </LinearLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <LinearLayout
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
@@ -168,13 +166,13 @@
         android:layout_rowWeight="1"
         android:gravity="center">
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Average pace"
+            android:text="@string/average_pace"
             android:textSize="14sp" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_training_average_pace"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -182,9 +180,9 @@
             android:textStyle="bold"
             android:textSize="16sp"/>
 
-    </LinearLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <LinearLayout
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:orientation="vertical"
@@ -194,13 +192,13 @@
         android:layout_rowWeight="1"
         android:gravity="center">
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Max. pace"
+            android:text="@string/max_pace"
             android:textSize="14sp" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_training_max_pace"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -208,6 +206,6 @@
             android:textStyle="bold"
             android:textSize="16sp"/>
 
-    </LinearLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
 </GridLayout>

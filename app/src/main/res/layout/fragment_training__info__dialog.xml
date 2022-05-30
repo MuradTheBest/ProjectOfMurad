@@ -23,7 +23,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_start_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/materialToolbar" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
             app:layout_constraintStart_toStartOf="@+id/tv_start_date"
             app:layout_constraintTop_toBottomOf="@+id/tv_start_date" />
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardView"
             style="@style/Widget.MaterialComponents.CardView"
             android:layout_width="match_parent"
@@ -68,14 +68,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_time">
 
-            <LinearLayout
+            <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
                 android:gravity="center"
                 android:orientation="vertical"
                 android:layout_height="wrap_content"
                 android:padding="20dp">
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_duration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -83,12 +83,12 @@
                     android:textStyle="bold"
                     android:textSize="20sp"/>
 
-                <LinearLayout
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="match_parent"
                     android:gravity="center"
                     android:layout_height="wrap_content">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_distance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -97,13 +97,13 @@
                         android:textSize="14sp"
                         />
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=" | "
                         android:textStyle="bold"/>
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_pace"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -112,11 +112,11 @@
                         android:textSize="14sp"
                         />
 
-                </LinearLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
-            </LinearLayout>
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/lineChart_speed"
@@ -127,7 +127,7 @@
             app:layout_constraintTop_toBottomOf="@+id/cardView"
             app:layout_constraintStart_toStartOf="parent"  />
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.CardView"
@@ -138,7 +138,7 @@
             app:cardCornerRadius="10dp"
             app:cardElevation="3dp">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/workout_details"
@@ -162,8 +162,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/lineChart_speed">
 
-
-                <LinearLayout
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:orientation="vertical"
@@ -173,13 +172,13 @@
                     android:layout_rowWeight="1"
                     android:gravity="center">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/workout_duration"
                         android:textSize="14sp" />
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_training_duration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -187,9 +186,9 @@
                         android:textStyle="bold"
                         android:textSize="16sp"/>
 
-                </LinearLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <LinearLayout
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:orientation="vertical"
@@ -199,13 +198,13 @@
                     android:layout_rowWeight="1"
                     android:gravity="center">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/total_duration"
                         android:textSize="14sp" />
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_training_total_duration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -213,9 +212,9 @@
                         android:textStyle="bold"
                         android:textSize="16sp"/>
 
-                </LinearLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <LinearLayout
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:orientation="vertical"
@@ -225,13 +224,13 @@
                     android:layout_rowWeight="1"
                     android:gravity="center">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/distance"
                         android:textSize="14sp" />
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_training_distance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -239,9 +238,9 @@
                         android:textStyle="bold"
                         android:textSize="16sp"/>
 
-                </LinearLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -250,7 +249,7 @@
                     android:layout_gravity="center"
                     android:src="@drawable/ic_baseline_directions_bike_24" />
 
-                <LinearLayout
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:orientation="vertical"
@@ -260,13 +259,13 @@
                     android:layout_rowWeight="1"
                     android:gravity="center">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/average_speed"
                         android:textSize="14sp" />
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_training_average_speed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -274,9 +273,9 @@
                         android:textStyle="bold"
                         android:textSize="16sp"/>
 
-                </LinearLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <LinearLayout
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:orientation="vertical"
@@ -286,13 +285,13 @@
                     android:layout_rowWeight="1"
                     android:gravity="center">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/max_speed"
                         android:textSize="14sp" />
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_training_max_speed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -300,9 +299,9 @@
                         android:textStyle="bold"
                         android:textSize="16sp"/>
 
-                </LinearLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <LinearLayout
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:orientation="vertical"
@@ -312,13 +311,13 @@
                     android:layout_rowWeight="1"
                     android:gravity="center">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/average_pace"
                         android:textSize="14sp" />
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_training_average_pace"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -326,9 +325,9 @@
                         android:textStyle="bold"
                         android:textSize="16sp"/>
 
-                </LinearLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <LinearLayout
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:orientation="vertical"
@@ -338,13 +337,13 @@
                     android:layout_rowWeight="1"
                     android:gravity="center">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/max_pace"
                         android:textSize="14sp" />
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_training_max_pace"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -352,11 +351,11 @@
                         android:textStyle="bold"
                         android:textSize="16sp"/>
 
-                </LinearLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
             </GridLayout>
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

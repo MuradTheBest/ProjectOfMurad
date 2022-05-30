@@ -14,7 +14,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.AlarmManagerForToday;
@@ -43,11 +42,11 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
      * @param options
      */
 
-    private LocalDate selectedDate;
-    private final OnEventClickListener onEventClickListener;
-    private final Context context;
-    private String selected_UID;
-    private final SQLiteDatabase db;
+    protected LocalDate selectedDate;
+    protected final OnEventClickListener onEventClickListener;
+    protected final Context context;
+    protected String selected_UID;
+    protected final SQLiteDatabase db;
 
     public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, LocalDate selectedDate,
                                     @NonNull Context context, OnEventClickListener onEventClickListener) {
@@ -79,11 +78,11 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         public MaterialTextView tv_event_place;
         public MaterialTextView tv_event_description;
 
-        public MaterialTextView tv_event_start_time;
+        public MaterialTextView tv_event_start_date_time;
         public MaterialTextView tv_hyphen;
-        public MaterialTextView tv_event_end_time;
+        public MaterialTextView tv_event_end_date_time;
 
-        public MaterialCheckBox checkbox_all_attendances;
+        public MaterialCheckBox cb_all_attendances;
 
         public EventViewHolderForFirebase(@NonNull View itemView, OnEventClickListener onEventClickListener) {
             super(itemView);
@@ -97,21 +96,21 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             tv_event_place = itemView.findViewById(R.id.tv_event_place);
             tv_event_description = itemView.findViewById(R.id.tv_event_description);
 
-            tv_event_start_time = itemView.findViewById(R.id.tv_event_start_time);
+            tv_event_start_date_time = itemView.findViewById(R.id.tv_event_start_date_time);
             tv_hyphen = itemView.findViewById(R.id.tv_hyphen);
-            tv_event_end_time = itemView.findViewById(R.id.tv_event_end_time);
+            tv_event_end_date_time = itemView.findViewById(R.id.tv_event_end_date_time);
 
-            checkbox_all_attendances = itemView.findViewById(R.id.checkbox__all_attendances);
-            checkbox_all_attendances.setOnClickListener(this);
+            cb_all_attendances = itemView.findViewById(R.id.checkbox__all_attendances);
+            cb_all_attendances.setOnClickListener(this);
 
-            itemView.setOnClickListener(v ->
-                    onEventClickListener.onEventClick(getBindingAdapterPosition(), getItem(getBindingAdapterPosition())));
+            itemView.setOnClickListener(v -> onEventClickListener.onEventClick(getBindingAdapterPosition(), getItem(getBindingAdapterPosition())));
         }
 
         @Override
         public void onClick(View view) {
+            CalendarEvent event = getItem(getAbsoluteAdapterPosition());
+
             if (view == switch_alarm){
-                CalendarEvent event = getItem(getAbsoluteAdapterPosition());
 
                 if (switch_alarm.isChecked()){
                     int alarm_hour = 2;
@@ -128,11 +127,12 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
                     AlarmManagerForToday.cancelAlarm(context, event);
                 }
             }
-            else if(view == checkbox_all_attendances){
-                FirebaseUtils.getAttendanceDatabase().child(getItem(getBindingAdapterPosition()).getPrivateId())
-                        .child(FirebaseUtils.getCurrentUID()).child("attend").setValue(checkbox_all_attendances.isChecked());
+            else if(view == cb_all_attendances){
+                FirebaseUtils.getCurrentUserTrackingRef(event.getPrivateId())
+                        .child("attend").setValue(cb_all_attendances.isChecked());
+
                 Toast.makeText(context, "Attendance " +
-                        (checkbox_all_attendances.isChecked() ? "approved" : "disapproved"), Toast.LENGTH_SHORT).show();
+                        (cb_all_attendances.isChecked() ? "approved" : "disapproved"), Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -140,17 +140,16 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
     @Override
     protected void onBindViewHolder(@NonNull EventViewHolderForFirebase holder, int position, @NonNull CalendarEvent model) {
-
         int textColor = Utils.getContrastColor(model.getColor());
 
         holder.switch_alarm.setTextColor(textColor);
         holder.tv_event_name.setTextColor(textColor);
         holder.tv_event_place.setTextColor(textColor);
         holder.tv_event_description.setTextColor(textColor);
-        holder.tv_event_start_time.setTextColor(textColor);
+        holder.tv_event_start_date_time.setTextColor(textColor);
         holder.tv_hyphen.setTextColor(textColor);
-        holder.tv_event_end_time.setTextColor(textColor);
-        holder.checkbox_all_attendances.setTextColor(textColor);
+        holder.tv_event_end_date_time.setTextColor(textColor);
+        holder.cb_all_attendances.setTextColor(textColor);
 
         GradientDrawable gd = Utils.getGradientBackground(model.getColor());
         holder.constraintLayout.setBackground(gd);
@@ -161,14 +160,14 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
         if (selectedDate != null) {
             if(model.getStartDate().equals(model.getEndDate())){
-                holder.tv_event_start_time.setText(model.getStartTime());
-                holder.tv_event_end_time.setText(model.getEndTime());
+                holder.tv_event_start_date_time.setText(model.getStartTime());
+                holder.tv_event_end_date_time.setText(model.getEndTime());
             }
-            else if(model.getStartDate().equals(CalendarUtils.DateToTextOnline(selectedDate))){
-                holder.tv_event_start_time.setText(model.getStartTime());
+            else if(model.receiveStartDate().equals(selectedDate)){
+                holder.tv_event_start_date_time.setText(model.getStartTime());
             }
-            else if(model.getEndDate().equals(CalendarUtils.DateToTextOnline(selectedDate))){
-                holder.tv_event_end_time.setText(model.getEndTime());
+            else if(model.receiveEndDate().equals(selectedDate)){
+                holder.tv_event_end_date_time.setText(model.getEndTime());
             }
             else{
                 holder.tv_hyphen.setText(R.string.all_day);
@@ -176,14 +175,14 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         }
 
         if(model.getStartDate().equals(model.getEndDate())){
-            holder.tv_event_start_time.setText(model.getStartTime());
-            holder.tv_event_end_time.setText(model.getEndTime());
+            holder.tv_event_start_date_time.setText(model.getStartTime());
+            holder.tv_event_end_date_time.setText(model.getEndTime());
         }
-        else if(model.getStartDate().equals(CalendarUtils.DateToTextOnline(selectedDate))){
-            holder.tv_event_start_time.setText(model.getStartTime());
+        else if(model.receiveStartDate().equals(selectedDate)){
+            holder.tv_event_start_date_time.setText(model.getStartTime());
         }
-        else if(model.getEndDate().equals(CalendarUtils.DateToTextOnline(selectedDate))){
-            holder.tv_event_end_time.setText(model.getEndTime());
+        else if(model.receiveEndDate().equals(selectedDate)){
+            holder.tv_event_end_date_time.setText(model.getEndTime());
         }
         else{
             holder.tv_hyphen.setText(R.string.all_day);
@@ -193,8 +192,6 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             holder.tv_hyphen.setText(R.string.all_day);
         }
 
-        holder.itemView.getBackground().setTint(model.getColor());
-
         if (selected_UID != null){
             DatabaseReference ref = FirebaseUtils.getAttendanceDatabase().child(model.getPrivateId())
                     .child(selected_UID).child("attend");
@@ -202,7 +199,7 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             ref.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    holder.checkbox_all_attendances.setChecked(snapshot.exists() && snapshot.getValue(boolean.class));
+                    holder.cb_all_attendances.setChecked(snapshot.exists() && snapshot.getValue(boolean.class));
                 }
 
                 @Override
@@ -210,30 +207,16 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
                 }
             });
-
-            /*ref.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if(task.getResult().exists()){
-                        attend[0] = task.getResult().getValue(boolean.class);
-                    }
-                    holder.checkbox_all_attendances.setChecked(attend[0]);
-                    holder.checkbox_all_attendances.setVisibility(View.GONE);
-                    if (selected_UID == null){
-                    }
-                }
-            });*/
         }
 
         if (selected_UID != null){
-            holder.checkbox_all_attendances.setVisibility(View.VISIBLE);
+            holder.cb_all_attendances.setVisibility(View.VISIBLE);
         }
         else {
-            holder.checkbox_all_attendances.setVisibility(View.GONE);
+            holder.cb_all_attendances.setVisibility(View.GONE);
         }
 
-        holder.switch_alarm.setChecked(Utils.checkIfAlarmSet(model.getPrivateId(), db));
-    }
+        holder.switch_alarm.setChecked(Utils.checkIfAlarmSet(model.getPrivateId(), db));    }
 
     @NonNull
     @Override

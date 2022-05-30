@@ -29,7 +29,6 @@ import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
-import com.example.projectofmurad.helpers.MyTextInputLayout;
 import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.facebook.shimmer.ShimmerFrameLayout;
@@ -62,9 +61,9 @@ public class Profile_Screen extends UserSigningActivity {
     private CircleImageView iv_profile_picture;
     private ShimmerFrameLayout shimmer_profile_picture;
 
-    private MyTextInputLayout et_username;
-    private MyTextInputLayout et_email;
-    private MyTextInputLayout et_phone;
+    private TextInputLayout et_username;
+    private TextInputLayout et_email;
+    private TextInputLayout et_phone;
 
     private MaterialCheckBox et_madrich;
 
@@ -256,8 +255,8 @@ public class Profile_Screen extends UserSigningActivity {
         firebaseUser.delete().addOnSuccessListener(
                 unused -> FirebaseUtils.deleteAll(FirebaseUtils.getDatabase().getReference(), UID,
                         () -> {
-                            startActivity(new Intent(Profile_Screen.this, Splash_Screen.class));
                             Toast.makeText(getApplicationContext(), "Account was successfully deleted", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(Profile_Screen.this, Splash_Screen.class));
                         }))
                 .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Account deleting failed", Toast.LENGTH_SHORT).show());
     }
@@ -432,7 +431,7 @@ public class Profile_Screen extends UserSigningActivity {
         loadingDialog.setMessage("Updating the data...");
         loadingDialog.show();
 
-        String username = et_username.getText();
+        String username = Utils.getText(et_username);
         userData.setUsername(username);
 
         FirebaseUser user = FirebaseUtils.getCurrentFirebaseUser();
@@ -470,11 +469,11 @@ public class Profile_Screen extends UserSigningActivity {
                             userData.setPicture(uri.toString());
                             uploadUser(userData);
                         }))
-                .addOnFailureListener(e -> {
-                    loadingDialog.dismiss();
-                    Toast.makeText(getApplicationContext(),
-                            "Updating your profile picture failed.\nPlease try again", Toast.LENGTH_SHORT).show();
-                })
+                        .addOnFailureListener(e -> {
+                            loadingDialog.dismiss();
+                            Toast.makeText(getApplicationContext(),
+                                    "Updating your profile picture failed.\nPlease try again", Toast.LENGTH_SHORT).show();
+                        })
                 .addOnFailureListener(e -> {
                     loadingDialog.dismiss();
                     Toast.makeText(getApplicationContext(),
@@ -483,7 +482,7 @@ public class Profile_Screen extends UserSigningActivity {
     }
 
     public void checkPhoneNumber() {
-        String phone = et_phone.getText();
+        String phone = Utils.getText(et_phone);
 
         if (phone.isEmpty()){
             et_phone.setError(getString(R.string.invalid_phone_number));
@@ -544,8 +543,8 @@ public class Profile_Screen extends UserSigningActivity {
 
         boolean result = true;
 
-        String username = et_username.getText();
-        String email = et_email.getText();
+        String username = Utils.getText(et_username);
+        String email = Utils.getText(et_email);
 
         if(username.isEmpty()){
             et_username.setError("Enter username");
@@ -589,9 +588,9 @@ public class Profile_Screen extends UserSigningActivity {
 
         FirebaseUtils.isMadrich().observe(this, isMadrich -> et_madrich.setChecked(isMadrich));
 
-        et_username.setText(username);
-        et_email.setText(email);
-        et_phone.setText(phone);
+        Utils.setText(et_username, username);
+        Utils.setText(et_email, email);
+        Utils.setText(et_phone, phone);
 
         List<? extends UserInfo> providers = user.getProviderData();
         for (UserInfo userInfo : providers){

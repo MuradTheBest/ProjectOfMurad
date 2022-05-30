@@ -24,15 +24,18 @@ import com.example.projectofmurad.helpers.Utils;
 import com.example.projectofmurad.helpers.ViewAnimationUtils;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
@@ -50,8 +53,7 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         et_group_name.setOnLongClickListener(this);
         et_group_description.setOnLongClickListener(this);
@@ -72,17 +74,17 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
     private boolean createColorPickerDialog() {
         edit(true);
 
-        ColorPicker colorPicker = new ColorPickerDialog(this);
+        ColorPickerDialog colorPicker = new ColorPickerDialog(this);
 
-         colorPicker.setOnFastChooseColorListener(new ColorPicker.OnFastChooseColorListener() {
-                    @Override
-                    public void setOnFastChooseColorListener(int position, int color) {
-                        tv_choose_color.setTextColor(color);
-                    }
+        colorPicker.setOnFastChooseColorListener(new ColorPicker.OnFastChooseColorListener() {
+                @Override
+                public void setOnFastChooseColorListener(int position, int color) {
+                    tv_choose_color.setTextColor(color);
+                }
 
-                    @Override
-                    public void onCancel() {}
-                });
+                @Override
+                public void onCancel() {}
+        });
 
         colorPicker.addListenerButton(getString(R.string.generate),
                 (v, position, color) -> {
@@ -130,13 +132,14 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
     private void deleteGroup() {
         DatabaseReference startRef = FirebaseUtils.getDatabase().getReference().getRef();
 
-        FirebaseUtils.getGroupTrainingsDatabase().addListenerForSingleValueEvent(
+        FirebaseUtils.getGroupDatabase(group.getKey()).child("Group Trainings").addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         HashMap<String, Object> map = new HashMap<>();
 
                         for (DataSnapshot event : snapshot.getChildren()){
+
                             for (DataSnapshot userDS : event.getChildren()){
                                 DataSnapshot trainingsDS = userDS.child("Trainings");
                                 HashMap<String, Object> trainings = (HashMap<String, Object>) trainingsDS.getValue();
@@ -146,18 +149,15 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
                             }
                         }
 
-                        Log.d("snapshot", "Trying to delete");
-
-                        FirebaseUtils.groups.child(group.getKey()).removeValue();
-                        FirebaseUtils.getDatabase().getReference(group.getKey()).removeValue();
-
                         FirebaseUtils.getPrivateTrainingsDatabase().updateChildren(map).addOnSuccessListener(
                                 new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void unused) {
 
-                                        FirebaseUtils.groupDatabases.child(group.getKey()).removeValue();
+                                        Log.d("snapshot", "Trying to delete");
+
                                         FirebaseUtils.groups.child(group.getKey()).removeValue();
+                                        FirebaseUtils.getGroupDatabase(group.getKey()).removeValue();
 
                                         FirebaseUtils.deleteAll(FirebaseUtils.usersDatabase, group.getKey(), new FirebaseUtils.FirebaseCallback() {
                                             @Override
@@ -176,8 +176,6 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
                                     }
                                 })
                         .addOnFailureListener(e -> Log.d("snapshot", e.getMessage()));
-
-
                     }
 
                     @Override
@@ -327,17 +325,13 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK) {
-            // compare the resultCode with the
-            // SELECT_PICTURE constant
-            if (requestCode == SELECT_PICTURE) {
-                // Get the url of the image from data
-                if (data.getData() != null) {
-                    selectedImageUri = data.getData();
-                    edit(true);
-                    Glide.with(this).load(selectedImageUri).centerInside().into(iv_group_picture);
-                }
-            }
+        // compare the resultCode with the
+        // SELECT_PICTURE constant
+        // Get the url of the image from data
+        if (resultCode == RESULT_OK && requestCode == SELECT_PICTURE && data.getData() != null) {
+            selectedImageUri = data.getData();
+            edit(true);
+            Glide.with(this).load(selectedImageUri).error(R.drawable.sample_profile_picture).centerInside().into(iv_group_picture);
         }
     }
 
@@ -349,14 +343,12 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
     }
 
     public void edit(boolean edit) {
-        Log.d(Utils.LOG_TAG, "edit is " + edit);
-
         ViewAnimationUtils.expandOrCollapse(et_group_name, edit);
 
         et_group_name.getEditText().setInputType(edit ? EditorInfo.TYPE_CLASS_TEXT : EditorInfo.TYPE_NULL);
         et_group_description.getEditText().setInputType(edit
                 ? (EditorInfo.TYPE_CLASS_TEXT | EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE)
-                : (EditorInfo.TYPE_CLASS_TEXT | EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE));
+                : (EditorInfo.TYPE_CLASS_TEXT | EditorInfo.TYPE_NULL));
         et_group_key.getEditText().setInputType(edit ? EditorInfo.TYPE_CLASS_TEXT : EditorInfo.TYPE_NULL);
         et_trainer_code.getEditText().setInputType(edit ? EditorInfo.TYPE_NUMBER_VARIATION_PASSWORD : EditorInfo.TYPE_NULL);
         et_group_limit.getEditText().setInputType(edit ? EditorInfo.TYPE_CLASS_NUMBER : EditorInfo.TYPE_NULL);
@@ -376,7 +368,8 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
     public boolean onUserLongClick(int position, @NonNull UserData userData) {
         Utils.createAlertDialog(this,
                 "Are you sure that you want to remove user " + userData.getUsername() + " from this group?",
-                "All data in this group for user " + userData.getUsername() + " will be deleted",
+                "All data in this group for user " + userData.getUsername() + " will be deleted." +
+                "\n Group trainings of " + userData.getUsername() + "will be moved to his private trainings",
                 R.string.yes, (dialog, which) -> FirebaseUtils.createReAuthenticateDialog(
                         GroupInfoScreenMadrich.this, () -> removeUser(userData)),
                 R.string.no, (dialog, which) -> dialog.dismiss(),
@@ -386,29 +379,63 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
     }
 
     private void removeUser(@NonNull UserData userData) {
+        loadingDialog.setMessage("Removing user " + userData.getUsername() + "from group " + group.getName());
+        loadingDialog.show();
 
-        FirebaseUtils.groupDatabases.child(group.getKey()).child("Group Trainings").orderByChild(
-                userData.getUID() + "/uid").equalTo(userData.getUID()).get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+        FirebaseUtils.getGroupDatabase(group.getKey()).child("Group Trainings")
+                .orderByChild(userData.getUID()).startAfter(null).get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
                     @Override
                     public void onSuccess(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot data : dataSnapshot.getChildren()){
-                            HashMap<String, Object> trainings
-                                    = (HashMap<String, Object>) data.child(userData.getUID()).getValue();
-
-                            FirebaseUtils.getPrivateTrainingsDatabase().child(userData.getUID())
-                                    .updateChildren(trainings);
+                        if (!dataSnapshot.exists()){
+                            return;
                         }
+
+                        HashMap<String, Object> trainings = new HashMap<>();
+
+                        for (DataSnapshot event : dataSnapshot.getChildren()){
+                            HashMap<String, Object> trainingsForEvent
+                                    = (HashMap<String, Object>) event.child(userData.getUID()).child("Trainings").getValue();
+
+                            trainings.putAll(trainingsForEvent);
+                        }
+
+                        moveTrainingsToPrivate(trainings, userData);
                     }
                 });
 
-        DatabaseReference startRef = FirebaseUtils.groupDatabases.child(group.getKey());
+    }
 
-        FirebaseUtils.deleteAll(startRef, userData.getUID(), () -> Toast.makeText(GroupInfoScreenMadrich.this,
-                                                                "User was successfully removed from this group",
-                                                                    Toast.LENGTH_SHORT).show());
+    private void moveTrainingsToPrivate(HashMap<String, Object> trainings, @NonNull UserData userData) {
+        DatabaseReference startRef = FirebaseUtils.getGroupDatabase(group.getKey());
 
-        FirebaseUtils.getUserDataByUIDRef(userData.getUID()).child("currentGroup").child(group.getKey()).removeValue();
+        FirebaseUtils.getPrivateTrainingsDatabase().child(userData.getUID()).updateChildren(trainings)
+                .addOnSuccessListener(
+                        unused -> FirebaseUtils.deleteAll(startRef, userData.getUID(),
+                                () -> FirebaseUtils.groups.child(group.getKey()).child(Group.KEY_USERS_NUMBER)
+                                        .setValue(ServerValue.increment(-1))
+                                        .addOnCompleteListener(
+                                                u -> {
+                                                    loadingDialog.dismiss();
+                                                    Toast.makeText(GroupInfoScreenMadrich.this,
+                                                            "User was successfully removed from this group",
+                                                            Toast.LENGTH_SHORT).show();
+                                                })))
+                .addOnFailureListener(e -> {
+                    loadingDialog.dismiss();
+                    Toast.makeText(GroupInfoScreenMadrich.this, "Moving group trainings of user " +
+                            userData.getUsername() + " failed!", Toast.LENGTH_SHORT).show();
+                });
 
-        FCMSend.sendNotificationAboutUser(this, group, userData.getUID());
+        FirebaseUtils.getUserDataByUIDRef(userData.getUID()).child(UserData.KEY_CURRENT_GROUP)
+                .child(group.getKey()).removeValue()
+                .addOnSuccessListener(
+                        unused -> FCMSend.sendNotificationAboutUser(GroupInfoScreenMadrich.this, group, userData.getUID()))
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+
     }
 }

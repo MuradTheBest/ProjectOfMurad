@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -56,7 +55,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         return new CalendarViewHolder(view);
     }
 
-    public class CalendarViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class CalendarViewHolder extends RecyclerView.ViewHolder {
 
         private final MaterialTextView dayOfMonth;
 
@@ -81,15 +80,11 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
             tv_more = itemView.findViewById(R.id.tv_more);
 
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View view) {
-            if(view == itemView){
-                onCalendarCellClickListener.onCalendarCellClick(getAbsoluteAdapterPosition(), oldPosition, daysOfMonth.get(getAbsoluteAdapterPosition()));
-                oldPosition = getAbsoluteAdapterPosition();
-            }
+            itemView.setOnClickListener(v -> {
+                onCalendarCellClickListener.onCalendarCellClick(getAbsoluteAdapterPosition(), oldPosition,
+                        daysOfMonth.get(getBindingAdapterPosition()));
+                oldPosition = getBindingAdapterPosition();
+            });
         }
     }
 
@@ -138,8 +133,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
         DatabaseReference eventsDatabase = FirebaseUtils.getEventsDatabase();
 
-        Query query = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(daysOfMonth.get(position)))
-                .orderByValue();
+        Query query = eventsDatabase.child(daysOfMonth.get(position).toString()).orderByChild(CalendarEvent.KEY_EVENT_START);
 
         DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
 
@@ -217,12 +211,22 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
     }
 
+    public interface OnCalendarCellClickListener {
+        void onCalendarCellClick(int position, int oldPosition, LocalDate selectedDate);
+    }
+
     @Override
     public int getItemCount() {
         return daysOfMonth.size();
     }
 
-    public interface OnCalendarCellClickListener {
-        void onCalendarCellClick(int position, int oldPosition, LocalDate selectedDate);
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 }
