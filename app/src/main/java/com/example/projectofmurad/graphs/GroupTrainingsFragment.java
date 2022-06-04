@@ -6,19 +6,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.EventInfoDialogFragment;
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
@@ -34,10 +34,6 @@ public class GroupTrainingsFragment extends Fragment implements EventAndTraining
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     public GroupTrainingsFragment() {
         // Required empty public constructor
@@ -67,21 +63,21 @@ public class GroupTrainingsFragment extends Fragment implements EventAndTraining
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            // TODO: Rename and change types of parameters
+            String mParam1 = getArguments().getString(ARG_PARAM1);
+            String mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_group_trainings, container, false);
     }
 
     RecyclerView rv_group_training;
-    ProgressViewModel progressViewModel;
     ProgressBar progressBar;
+    TextView tv_there_are_no_group_trainings;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -89,8 +85,7 @@ public class GroupTrainingsFragment extends Fragment implements EventAndTraining
 
         rv_group_training = view.findViewById(R.id.rv_group_training);
         progressBar = view.findViewById(R.id.progressBar);
-
-        progressViewModel = new ViewModelProvider(requireActivity()).get(ProgressViewModel.class);
+        tv_there_are_no_group_trainings = view.findViewById(R.id.tv_there_are_no_group_trainings);
 
         Query eventKeys = FirebaseUtils.getGroupTrainingsDatabase().orderByValue();
         DatabaseReference events = FirebaseUtils.getAllEventsDatabase();
@@ -100,15 +95,16 @@ public class GroupTrainingsFragment extends Fragment implements EventAndTraining
                 .setIndexedQuery(eventKeys, events, CalendarEvent.class)
                 .build();
 
-        EventAndTrainingsAdapterForFirebase eventsAdapterForFirebase = new EventAndTrainingsAdapterForFirebase(options, requireContext(), this);
-
-        rv_group_training.setAdapter(eventsAdapterForFirebase);
+        EventAndTrainingsAdapterForFirebase adapter
+                = new EventAndTrainingsAdapterForFirebase(options, requireContext(), this);
+        rv_group_training.setAdapter(adapter);
 
         LinearLayoutManagerWrapper layoutManager = new LinearLayoutManagerWrapper(requireContext());
-        layoutManager.addOnLayoutCompleteListener(
+        layoutManager.setOnLayoutCompleteListener(
                 () -> new Handler().postDelayed(() -> {
                     progressBar.setVisibility(View.GONE);
-                    rv_group_training.setVisibility(View.VISIBLE);
+                    rv_group_training.setVisibility(adapter.getItemCount() > 0 ? View.VISIBLE : View.INVISIBLE);
+                    tv_there_are_no_group_trainings.setVisibility(adapter.getItemCount() > 0 ? View.GONE : View.VISIBLE);
                 }, 500));
 
         rv_group_training.setLayoutManager(layoutManager);

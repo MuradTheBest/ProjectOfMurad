@@ -1,6 +1,6 @@
 package com.example.projectofmurad;
 
-import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
+import static com.example.projectofmurad.helpers.utils.Utils.LOG_TAG;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,11 +15,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.projectofmurad.helpers.CalendarUtils;
-import com.example.projectofmurad.helpers.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.CalendarUtils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
 import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -89,6 +89,7 @@ public class UserSigningActivity extends AppCompatActivity {
                 length = s.length();
             }
         });
+
         Utils.addDefaultTextChangedListener(et_verify_phone);
 
         builder.setPositiveButton(R.string.text_continue, new DialogInterface.OnClickListener() {
@@ -231,7 +232,7 @@ public class UserSigningActivity extends AppCompatActivity {
             FirebaseUtils.getCurrentUserDataRef().setValue(userData)
                     .addOnSuccessListener(unused -> {
                         loadingDialog.dismiss();
-                        startActivity(new Intent(getApplicationContext(), Splash_Screen.class));
+                        startActivity(new Intent(getApplicationContext(), SplashScreen.class));
                         finish();
                     })
                     .addOnFailureListener(e -> {

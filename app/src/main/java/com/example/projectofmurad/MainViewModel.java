@@ -8,8 +8,6 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.tracking.Location;
-import com.example.projectofmurad.training.MyRepository;
-import com.example.projectofmurad.training.Training;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,8 +24,6 @@ public class MainViewModel extends AndroidViewModel {
 
     private MutableLiveData<Location> location;
     private MutableLiveData<List<Location>> locations;
-
-    private final MyRepository myRepository;
 
     private final MutableLiveData<Integer> ready;
 
@@ -46,8 +42,6 @@ public class MainViewModel extends AndroidViewModel {
         locations = new MutableLiveData<>();
 
         filePath = new MutableLiveData<>();
-
-        myRepository = new MyRepository(application);
 
         ready = new MutableLiveData<>(0);
         scrollUp = new MutableLiveData<>();
@@ -115,10 +109,6 @@ public class MainViewModel extends AndroidViewModel {
 
     public void resetLocations() {
         this.locations = new MutableLiveData<>();
-    }
-
-    public void addPrivateTraining(Training training){
-        myRepository.insert(training);
     }
 
     public MutableLiveData<String> getFilePath() {

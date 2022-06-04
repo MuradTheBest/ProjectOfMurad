@@ -1,4 +1,4 @@
-package com.example.projectofmurad.helpers;
+package com.example.projectofmurad.helpers.utils;
 
 import android.view.View;
 import android.view.animation.Animation;
@@ -6,7 +6,7 @@ import android.view.animation.Transformation;
 
 import androidx.annotation.NonNull;
 
-public class ViewAnimationUtils {
+public abstract class ViewAnimationUtils {
 
     public static void expandOrCollapse(@NonNull final View v, boolean expandOrCollapse) {
         if (expandOrCollapse){

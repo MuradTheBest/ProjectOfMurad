@@ -15,7 +15,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.paging.DatabasePagingOptions;
@@ -65,8 +65,7 @@ public class TrainingAdapterForFirebase extends
     @NonNull
     @Override
     public TrainingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.row_training, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_training, parent, false);
 
         return new TrainingViewHolder(view);
     }
@@ -124,4 +123,5 @@ public class TrainingAdapterForFirebase extends
     public long getItemId(int position) {
         return position;
     }
+
 }

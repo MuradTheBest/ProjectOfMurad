@@ -1,10 +1,8 @@
 package com.example.projectofmurad.calendar;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
-import com.example.projectofmurad.helpers.CalendarUtils;
+import com.example.projectofmurad.helpers.utils.CalendarUtils;
 import com.google.gson.Gson;
 
 import java.io.Serializable;
@@ -17,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class CalendarEvent implements Serializable, Cloneable {
+public class CalendarEvent implements Serializable {
 
     private String chainId;
     private String privateId;
@@ -47,6 +45,9 @@ public class CalendarEvent implements Serializable, Cloneable {
 
     private String frequency_start;
     private String frequency_end;
+
+    private long chainStart;
+    private long chainEnd;
 
     public static final String KEY_EVENT = "event";
     public static final String KEY_EVENT_CHAIN_ID = "chainId";
@@ -140,22 +141,19 @@ public class CalendarEvent implements Serializable, Cloneable {
     }
 
     public static long getMillis(@NonNull LocalDate localDate, LocalTime localTime) {
-        return localDate.atTime(localTime).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        return getMillis(localDate.atTime(localTime));
     }
 
     public static LocalDateTime getDateTime(long millis) {
-        Log.d("murad", "getDateTime " + new Date(millis));
-        Log.d("murad", "instant " + Instant.ofEpochMilli(millis).toString());
-
         return Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
     public static LocalDate getDate(long millis){
-        return Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate();
+        return getDateTime(millis).toLocalDate();
     }
 
     public static LocalTime getTime(long millis){
-        return Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalTime();
+        return getDateTime(millis).toLocalTime();
     }
 
     public long getStart() {
@@ -294,6 +292,46 @@ public class CalendarEvent implements Serializable, Cloneable {
         this.frequency = frequency;
     }
 
+    public long getChainStart() {
+        return chainStart;
+    }
+
+    public void setChainStart(long chainStart){
+        this.chainStart = chainStart;
+    }
+
+    public String getChainStartDate() {
+        return CalendarUtils.DateToTextLocal(receiveChainStartDate());
+    }
+
+    public LocalDate receiveChainStartDate(){
+        return getDate(chainStart);
+    }
+
+    public void updateChainStartDate(@NonNull LocalDate startDate) {
+        this.chainStart = getMillis(startDate, receiveStartTime());
+    }
+
+    public long getChainEnd() {
+        return chainEnd;
+    }
+
+    public void setChainEnd(long chainEnd){
+        this.chainEnd = chainEnd;
+    }
+
+    public String getChainEndDate() {
+        return CalendarUtils.DateToTextLocal(receiveChainEndDate());
+    }
+
+    public LocalDate receiveChainEndDate(){
+        return getDate(chainEnd);
+    }
+
+    public void updateChainEndDate(@NonNull LocalDate endDate) {
+        this.chainEnd = getMillis(endDate, receiveEndTime());
+    }
+
     public int getAmount() {
         return amount;
     }
@@ -347,7 +385,6 @@ public class CalendarEvent implements Serializable, Cloneable {
     }
 
     public LocalDate receiveFrequency_start(){
-        Log.d("murad", "Frequency start date received " + frequency_start);
         return CalendarUtils.TextToDateForFirebase(frequency_start);
     }
 
@@ -357,7 +394,6 @@ public class CalendarEvent implements Serializable, Cloneable {
 
     public void updateFrequency_start(LocalDate frequency_start) {
         this.frequency_start = CalendarUtils.DateToTextOnline(frequency_start);
-        Log.d("murad", "Frequency_start date updated " + CalendarUtils.DateToTextOnline(frequency_start));
     }
 
     public String getFrequency_end() {
@@ -365,7 +401,6 @@ public class CalendarEvent implements Serializable, Cloneable {
     }
 
     public LocalDate receiveFrequency_end(){
-        Log.d("murad", "Frequency end date received " + frequency_end);
         return CalendarUtils.TextToDateForFirebase(frequency_end);
     }
 
@@ -375,7 +410,6 @@ public class CalendarEvent implements Serializable, Cloneable {
 
     public void updateFrequency_end(LocalDate frequency_end) {
         this.frequency_end = CalendarUtils.DateToTextOnline(frequency_end);
-        Log.d("murad", "Absolute end date updated " + CalendarUtils.DateToTextOnline(frequency_end));
     }
 
     public String getPrivateId() {
@@ -409,6 +443,8 @@ public class CalendarEvent implements Serializable, Cloneable {
         this.month = 0;
         this.frequency_start = "";
         this.frequency_end = "";
+        this.chainStart = 0;
+        this.chainEnd = 0;
     }
 
     @NonNull
@@ -477,8 +513,8 @@ public class CalendarEvent implements Serializable, Cloneable {
     }
 
     public CalendarEvent copy() {
-        CalendarEvent newEvent = new CalendarEvent();
 
+        CalendarEvent newEvent = new CalendarEvent();
         newEvent.setStart(getStart());
         newEvent.setEnd(getEnd());
         newEvent.setChainId(getChainId());
@@ -496,18 +532,14 @@ public class CalendarEvent implements Serializable, Cloneable {
         newEvent.setMonth(getMonth());
         newEvent.setFrequency_start(getFrequency_start());
         newEvent.setFrequency_end(getFrequency_end());
+        newEvent.setChainStart(getChainStart());
+        newEvent.setChainEnd(getChainEnd());
         newEvent.setPrivateId(getPrivateId());
         newEvent.setLast(isLast());
         newEvent.setRange(getRange());
         newEvent.setAllDay(isAllDay());
 
         return newEvent;
-    }
-
-    @NonNull
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
     public boolean isRowEvent(){

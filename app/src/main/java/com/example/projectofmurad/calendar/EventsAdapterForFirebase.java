@@ -3,10 +3,10 @@ package com.example.projectofmurad.calendar;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.GradientDrawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,14 +14,13 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.FirebaseUtils;
-import com.example.projectofmurad.helpers.Utils;
-import com.example.projectofmurad.notifications.AlarmManagerForToday;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.notifications.MyAlarmManager;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.switchmaterial.SwitchMaterial;
-import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -70,21 +69,21 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
     public class EventViewHolderForFirebase extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        public ConstraintLayout constraintLayout;
+        public final ConstraintLayout constraintLayout;
 
-        public SwitchMaterial switch_alarm;
+        public final SwitchMaterial switch_alarm;
 
-        public MaterialTextView tv_event_name;
-        public MaterialTextView tv_event_place;
-        public MaterialTextView tv_event_description;
+        public final TextView tv_event_name;
+        public final TextView tv_event_place;
+        public final TextView tv_event_description;
 
-        public MaterialTextView tv_event_start_date_time;
-        public MaterialTextView tv_hyphen;
-        public MaterialTextView tv_event_end_date_time;
+        public final TextView tv_event_start_date_time;
+        public final TextView tv_hyphen;
+        public final TextView tv_event_end_date_time;
 
-        public MaterialCheckBox cb_all_attendances;
+        public final MaterialCheckBox cb_all_attendances;
 
-        public EventViewHolderForFirebase(@NonNull View itemView, OnEventClickListener onEventClickListener) {
+        public EventViewHolderForFirebase(@NonNull View itemView) {
             super(itemView);
 
             constraintLayout = itemView.findViewById(R.id.constraintLayout);
@@ -103,28 +102,23 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             cb_all_attendances = itemView.findViewById(R.id.checkbox__all_attendances);
             cb_all_attendances.setOnClickListener(this);
 
-            itemView.setOnClickListener(v -> onEventClickListener.onEventClick(getBindingAdapterPosition(), getItem(getBindingAdapterPosition())));
+            itemView.setOnClickListener(v ->
+                    onEventClickListener.onEventClick(getBindingAdapterPosition(), getItem(getBindingAdapterPosition())));
         }
 
         @Override
         public void onClick(View view) {
-            CalendarEvent event = getItem(getAbsoluteAdapterPosition());
+            CalendarEvent event = getItem(getBindingAdapterPosition());
 
             if (view == switch_alarm){
 
                 if (switch_alarm.isChecked()){
-                    int alarm_hour = 2;
-                    int alarm_minute = 0;
-                    AlarmDialog alarmDialog = new AlarmDialog(context, event, switch_alarm,
-                            alarm_hour, alarm_minute);
-
+                    AlarmDialog alarmDialog = new AlarmDialog(context, event, switch_alarm);
                     alarmDialog.show();
                 }
                 else {
-                    Log.d("murad", "Alarm deleted");
                     Toast.makeText(context, "Alarm deleted", Toast.LENGTH_SHORT).show();
-//                    Utils.deleteAlarm(event_private_id, event_date, event, db, context);
-                    AlarmManagerForToday.cancelAlarm(context, event);
+                    MyAlarmManager.cancelAlarm(context, event);
                 }
             }
             else if(view == cb_all_attendances){
@@ -216,14 +210,15 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             holder.cb_all_attendances.setVisibility(View.GONE);
         }
 
-        holder.switch_alarm.setChecked(Utils.checkIfAlarmSet(model.getPrivateId(), db));    }
+        holder.switch_alarm.setChecked(Utils.checkIfAlarmSet(model.getPrivateId(), db));
+    }
 
     @NonNull
     @Override
     public EventViewHolderForFirebase onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_event_info, parent, false);
 
-        return new EventViewHolderForFirebase(view, onEventClickListener);
+        return new EventViewHolderForFirebase(view);
     }
 
     public interface OnEventClickListener {
@@ -233,5 +228,15 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
     @Override
     public int getItemCount() {
         return getSnapshots().size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 }

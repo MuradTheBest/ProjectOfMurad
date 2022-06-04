@@ -4,7 +4,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:context=".Splash_Screen">
+	tools:context=".SplashScreen">
 
 	<ImageView
 		android:id="@+id/vector_ek2"
@@ -25,7 +25,7 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
 
-	<View
+	<ImageView
 		android:id="@+id/ellipse_3"
 		android:layout_width="172dp"
 		android:layout_height="172dp"

@@ -20,6 +20,7 @@ import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
@@ -29,13 +30,12 @@ import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.CalendarUtils;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.CalendarUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.android.material.textview.MaterialTextView;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -64,7 +64,7 @@ public class EventFrequencyDialogFragment extends DialogFragment implements
     public TextInputEditText et_frequency;
     public TextInputEditText et_times;
 
-    public MaterialTextView tv_event_frequency_info;
+    public TextView tv_event_frequency_info;
 
     public RadioGroup rg_repeat_for_month;
 

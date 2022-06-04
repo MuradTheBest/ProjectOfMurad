@@ -41,7 +41,7 @@
         app:shimmer_repeat_mode="restart"
         app:shimmer_shape="linear">
 
-        <com.google.android.material.textview.MaterialTextView
+        <TextView
             android:id="@+id/tv_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

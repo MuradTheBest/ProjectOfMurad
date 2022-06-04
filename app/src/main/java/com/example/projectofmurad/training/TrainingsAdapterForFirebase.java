@@ -1,6 +1,5 @@
 package com.example.projectofmurad.training;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.GradientDrawable;
@@ -15,17 +14,17 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.Show;
 import com.example.projectofmurad.groups.UserGroupData;
-import com.example.projectofmurad.helpers.CalendarUtils;
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.CalendarUtils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -44,8 +43,10 @@ import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.Query;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -78,7 +79,7 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TrainingsViewHolder holder, @SuppressLint("RecyclerView") int position) {
+    public void onBindViewHolder(@NonNull TrainingsViewHolder holder, int position) {
         String UID = UIDs.get(position);
 
         int textColor = Utils.getContrastColor(color);
@@ -103,17 +104,19 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
                     .addOnSuccessListener(ds -> holder.switch_choose_visibility.setTag(ds.getValue(int.class)));
         }
 
-        FirebaseUtils.getUserTrainingsForEvent(UID, event_private_id).observe(
-                (LifecycleOwner) context,
-                new Observer<ArrayList<Training>>() {
-                    @Override
-                    public void onChanged(ArrayList<Training> trainings) {
-                        TrainingAdapter trainingAdapter = new TrainingAdapter(context, color, trainings);
-                        holder.rv_training.setAdapter(trainingAdapter);
-                        holder.rv_training.setLayoutManager(new LinearLayoutManagerWrapper(context));
-                        setupGraph(trainings, holder.bc_average_speed, textColor);
-                    }
-                });
+        Query trainings = FirebaseUtils.getUserTrainingsRefForEvent(UID, event_private_id).orderByChild(Training.KEY_TRAINING_START);
+
+        FirebaseRecyclerOptions<Training> options = new FirebaseRecyclerOptions.Builder<Training>()
+                .setLifecycleOwner((LifecycleOwner) context)
+                .setQuery(trainings, Training.class)
+                .build();
+
+        TrainingAdapterForFirebase trainingAdapter = new TrainingAdapterForFirebase(options, context, color);
+        holder.rv_training.setAdapter(trainingAdapter);
+
+        LinearLayoutManagerWrapper layoutManager = new LinearLayoutManagerWrapper(context);
+        layoutManager.setOnLayoutCompleteListener(() -> setupGraph(trainingAdapter.getSnapshots(), holder.bc_average_speed, textColor));
+        holder.rv_training.setLayoutManager(new LinearLayoutManagerWrapper(context));
 
         FirebaseUtils.getCurrentGroupUsers().child(UID).child(UserGroupData.KEY_MADRICH).get().addOnSuccessListener(
                 new OnSuccessListener<DataSnapshot>() {
@@ -188,9 +191,13 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
             public void onChartTranslate(MotionEvent me, float dX, float dY) {}
 
         });
+
     }
 
-    public void setupGraph(@NonNull ArrayList<Training> trainings, BarChart bc_average_speed, int textColor){
+    public void setupGraph(@NonNull List<Training> trainings, BarChart bc_average_speed, int textColor){
+
+        Log.d(Utils.LOG_TAG, "trainings = " + trainings);
+
         ArrayList<BarEntry> speedEntries = new ArrayList<>();
         ArrayList<BarEntry> paceEntries = new ArrayList<>();
         ArrayList<String> paceText = new ArrayList<>();
@@ -314,7 +321,7 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
         }
     }
 
-    public class TrainingsViewHolder extends RecyclerView.ViewHolder{
+    public class TrainingsViewHolder extends RecyclerView.ViewHolder {
 
         private final ConstraintLayout constraintLayout;
 
@@ -344,7 +351,7 @@ public class TrainingsAdapterForFirebase extends RecyclerView.Adapter<TrainingsA
 
             builder.setTitle("Make your results visible to");
 
-            builder.setSingleChoiceItems(new CharSequence[]{Show.NO_ONE.toString(), "Madrichs only", "Everyone"},
+            builder.setSingleChoiceItems(new CharSequence[]{Show.NO_ONE.print(), Show.MADRICH.print(), Show.ALL.print()},
                     (int) switch_choose_visibility.getTag(),
                     (dialog, which) -> {
                         switch_choose_visibility.setTag(which);

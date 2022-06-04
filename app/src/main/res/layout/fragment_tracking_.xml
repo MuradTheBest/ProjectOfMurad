@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".tracking.Tracking_Fragment">
+    tools:context=".tracking.TrackingFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_gravity="top"
@@ -36,7 +36,7 @@
             app:layout_constraintTop_toBottomOf="@+id/materialToolbar"
             tools:ignore="NotSibling" />
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <ImageView
             android:id="@+id/iv_share_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

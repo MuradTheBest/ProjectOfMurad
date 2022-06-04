@@ -7,6 +7,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -15,11 +16,10 @@ import androidx.core.widget.TextViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.FirebaseUtils;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.android.material.textview.MaterialTextView;
 
 
 /** FirebaseRecyclerAdapter is a class provided by
@@ -48,11 +48,11 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
 
     public class GroupViewHolderForFirebase extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        ConstraintLayout constraintLayout;
+        final ConstraintLayout constraintLayout;
 
-        MaterialTextView tv_group_name;
-        MaterialTextView tv_group_description;
-        MaterialTextView tv_users;
+        final TextView tv_group_name;
+        final TextView tv_group_description;
+        final TextView tv_users;
 
         private boolean isMadrich;
 
@@ -100,9 +100,7 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
         holder.constraintLayout.setBackground(gd);
 
         holder.tv_group_name.setText(model.getName());
-
         holder.tv_group_description.setText(model.getDescription());
-
 
         FirebaseUtils.getGroupDatabase(model.getKey()).child("Users").child(FirebaseUtils.getCurrentUID())
                 .child(UserGroupData.KEY_MADRICH).get()

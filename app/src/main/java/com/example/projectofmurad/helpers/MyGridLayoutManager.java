@@ -45,8 +45,7 @@ public class MyGridLayoutManager extends GridLayoutManager {
     @Override
     public void onLayoutCompleted(RecyclerView.State state) {
         super.onLayoutCompleted(state);
-        if (mCallback != null)
-            mCallback.onLayoutComplete();
+        if (mCallback != null) mCallback.onLayoutComplete();
     }
 
     public interface OnLayoutCompleteCallback {

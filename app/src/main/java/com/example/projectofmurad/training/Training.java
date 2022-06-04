@@ -3,12 +3,9 @@ package com.example.projectofmurad.training;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.room.Entity;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
 
-import com.example.projectofmurad.helpers.CalendarUtils;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.CalendarUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.example.projectofmurad.tracking.Location;
 import com.example.projectofmurad.tracking.SpeedAndLocation;
 
@@ -24,14 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-@Entity(tableName = "trainings")
 public class Training implements Serializable {
 
-    @PrimaryKey(autoGenerate = true)
-    public int id;
-
     private String privateId;
-
     private String eventPrivateId;
     private String UID;
     private String groupKey;
@@ -57,9 +49,9 @@ public class Training implements Serializable {
     private String totalDuration;
 
     private double avgSpeed;
-    @Ignore
-    private HashMap<String, SpeedAndLocation> speeds;
     private double maxSpeed;
+
+    private HashMap<String, SpeedAndLocation> speeds;
 
     private String avgPace;
     private String maxPace;
@@ -70,97 +62,44 @@ public class Training implements Serializable {
 
     private int color;
 
-    @Ignore
     private List<Location> locations;
 
     private String picture;
 
-    @Ignore
-    public final static String KEY_TRAINING = "key_training";
+    public final static String KEY_TRAINING = "training";
 
-    @Ignore
-    public final static String KEY_TRAINING_ID = "training_uid";
-    @Ignore
-    public final static String KEY_TRAINING_PRIVATE_ID = "training_privateId";
-    @Ignore
-    public final static String KEY_TRAINING_EVENT_PRIVATE_ID = "training_eventPrivateId";
-    @Ignore
-    public final static String KEY_TRAINING_UID = "training_userID";
-    @Ignore
-    public final static String KEY_TRAINING_DAY = "training_day";
-    @Ignore
-    public final static String KEY_TRAINING_MONTH = "training_month";
-    @Ignore
-    public final static String KEY_TRAINING_YEAR = "training_year";
-    @Ignore
-    public final static String KEY_TRAINING_RANGE = "training_range";
-    @Ignore
-    public final static String KEY_TRAINING_NAME = "training_name";
-    @Ignore
-    public final static String KEY_TRAINING_description = "training_description";
-    @Ignore
-    public final static String KEY_TRAINING_PLACE = "training_place";
-    @Ignore
-    public final static String KEY_TRAINING_START = "training_start";
-    @Ignore
-    public final static String KEY_TRAINING_START_DATE = "training_startDate";
-    @Ignore
-    public final static String KEY_TRAINING_START_TIME = "training_startTime";
-    @Ignore
-    public final static String KEY_TRAINING_START_DATE_TIME = "training_startDateTime";
-    @Ignore
-    public final static String KEY_TRAINING_TIME = "training_time";
-    @Ignore
-    public final static String KEY_TRAINING_TOTAL_TIME = "training_totalTime";
-    @Ignore
-    public final static String KEY_TRAINING_AVG_SPEED = "training_avgSpeed";
-    @Ignore
-    public final static String KEY_TRAINING_SPEEDS = "training_speeds";
-    @Ignore
-    public final static String KEY_TRAINING_MAX_SPEED = "training_maxSpeed";
-    @Ignore
-    public final static String KEY_TRAINING_TOTAL_DISTANCE = "training_totalDistance";
-    @Ignore
-    public final static String KEY_TRAINING_END = "training_end";
-    @Ignore
-    public final static String KEY_TRAINING_END_DATE = "training_endDate";
-    @Ignore
-    public final static String KEY_TRAINING_END_TIME = "training_endTime";
-    @Ignore
-    public final static String KEY_TRAINING_END_DATE_TIME = "training_endDateTime";
-    @Ignore
-    public final static String KEY_TRAINING_COLOR = "training_color";
+    public final static String KEY_TRAINING_PRIVATE_ID = "privateId";
+    public final static String KEY_TRAINING_EVENT_PRIVATE_ID = "eventPrivateId";
+    public final static String KEY_TRAINING_UID = "uid";
+    public final static String KEY_TRAINING_DAY = "day";
+    public final static String KEY_TRAINING_MONTH = "month";
+    public final static String KEY_TRAINING_YEAR = "year";
+    public final static String KEY_TRAINING_RANGE = "range";
+    public final static String KEY_TRAINING_NAME = "name";
+    public final static String KEY_TRAINING_description = "description";
+    public final static String KEY_TRAINING_PLACE = "place";
+    public final static String KEY_TRAINING_START = "start";
+    public final static String KEY_TRAINING_START_DATE = "startDate";
+    public final static String KEY_TRAINING_START_TIME = "startTime";
+    public final static String KEY_TRAINING_START_DATE_TIME = "startDateTime";
+    public final static String KEY_TRAINING_TIME = "time";
+    public final static String KEY_TRAINING_TOTAL_TIME = "totalTime";
+    public final static String KEY_TRAINING_AVG_SPEED = "avgSpeed";
+    public final static String KEY_TRAINING_SPEEDS = "speeds";
+    public final static String KEY_TRAINING_MAX_SPEED = "maxSpeed";
+    public final static String KEY_TRAINING_TOTAL_DISTANCE = "totalDistance";
+    public final static String KEY_TRAINING_END = "end";
+    public final static String KEY_TRAINING_END_DATE = "endDate";
+    public final static String KEY_TRAINING_END_TIME = "endTime";
+    public final static String KEY_TRAINING_END_DATE_TIME = "endDateTime";
+    public final static String KEY_TRAINING_COLOR = "color";
 
     public Training(){}
-
-    public Training(String privateId, String name, long start, long end) {
-        this.name = name;
-        this.start = start;
-        this.end = end;
-        this.privateId = privateId;
-    }
-
-    public Training(String privateId, long start, long end, long time, long totalTime, double avgSpeed, double maxSpeed, HashMap<String, SpeedAndLocation> speeds, List<Location> locations, double totalDistance) {
-        this.start = start;
-        this.end = end;
-        this.privateId = privateId;
-
-        this.time = time;
-        this.totalTime = totalTime;
-        this.avgSpeed = avgSpeed;
-        this.maxSpeed = maxSpeed;
-        this.totalDistance = totalDistance;
-
-        this.speeds = speeds;
-
-        this.day = receiveStartDate().getDayOfMonth();
-        this.month = receiveStartDate().getMonthValue();
-        this.year = receiveStartDate().getYear();
-    }
 
     public Training(String privateId, LocalDateTime start, LocalDateTime end, long time, long totalTime, double avgSpeed, double maxSpeed, HashMap<String, SpeedAndLocation> speeds, List<Location> locations, double totalDistance) {
         this.start = getMillis(start);
         this.end = getMillis(end);
+
         this.privateId = privateId;
 
         this.time = time;

@@ -3,28 +3,12 @@ package com.example.projectofmurad;
 import androidx.annotation.NonNull;
 
 public class UserData {
-
     private String UID;
     private String email;
     private String username;
     private String phone;
     private String picture;
     private String currentGroup;
-
-    private boolean subscribedToAutoAlarmSet;
-    private boolean subscribedToAutoAlarmMove;
-
-    private long totalTime;
-    private long totalDistance;
-    private long totalSpeed;
-
-    private long groupTotalTime;
-    private long groupTotalDistance;
-    private long groupTotalSpeed;
-
-    private long privateTotalTime;
-    private long privateTotalDistance;
-    private long privateTotalSpeed;
 
     public final static String KEY_USER_DATA = "userData";
     public final static String KEY_UID = "uid";
@@ -94,17 +78,6 @@ public class UserData {
                 ", phone='" + phone + '\'' +
                 ", picture='" + picture + '\'' +
                 ", currentGroup='" + currentGroup + '\'' +
-                ", subscribedToAutoAlarmSet=" + subscribedToAutoAlarmSet +
-                ", subscribedToAutoAlarmMove=" + subscribedToAutoAlarmMove +
-                ", totalTime=" + totalTime +
-                ", totalDistance=" + totalDistance +
-                ", totalSpeed=" + totalSpeed +
-                ", groupTotalTime=" + groupTotalTime +
-                ", groupTotalDistance=" + groupTotalDistance +
-                ", groupTotalSpeed=" + groupTotalSpeed +
-                ", privateTotalTime=" + privateTotalTime +
-                ", privateTotalDistance=" + privateTotalDistance +
-                ", privateTotalSpeed=" + privateTotalSpeed +
                 '}';
     }
 

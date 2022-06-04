@@ -67,7 +67,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_event_name"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -81,7 +81,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_event_description"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -108,7 +108,7 @@
                         app:layout_constraintStart_toStartOf="@+id/tv_event_description"
                         app:layout_constraintTop_toBottomOf="@+id/tv_event_description">
 
-                        <com.google.android.material.textview.MaterialTextView
+                        <TextView
                             android:id="@+id/tv_event_start_date_time"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -117,7 +117,7 @@
                             android:textColor="@color/black"
                             android:textSize="14sp" />
 
-                        <com.google.android.material.textview.MaterialTextView
+                        <TextView
                             android:id="@+id/tv_event_end_date_time"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -128,7 +128,7 @@
 
                     </androidx.appcompat.widget.LinearLayoutCompat>
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_event_place"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -178,7 +178,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.google.android.material.textview.MaterialTextView
+            <TextView
                 android:id="@+id/tv_there_are_no_upcoming_events"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

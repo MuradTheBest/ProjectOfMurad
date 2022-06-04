@@ -14,6 +14,7 @@ import android.os.Vibrator;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,23 +26,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.helpers.RecyclerViewSwipeDecorator;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
 import java.util.Objects;
 
-@SuppressLint("MissingPermission")
 public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapterForFirebase.OnGroupLongClickListener {
 
-    MaterialTextView tv_username;
+    TextView tv_username;
     RecyclerView rv_groups;
     ProgressBar progressBar;
 
@@ -79,10 +78,10 @@ public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapterF
                 .setIndexedQuery(currentUserGroups, groups, Group.class)
                 .build();
 
-        groupAdapterForFirebase = new GroupAdapterForFirebase(options, ShowGroupsScreen.this, this);
+        groupAdapterForFirebase = new GroupAdapterForFirebase(options, this, this);
         rv_groups.setAdapter(groupAdapterForFirebase);
 
-        rv_groups.setLayoutManager(new LinearLayoutManagerWrapper(this).addOnLayoutCompleteListener(
+        rv_groups.setLayoutManager(new LinearLayoutManagerWrapper(this).setOnLayoutCompleteListener(
                 () -> new Handler().postDelayed(() -> {
                     if (groupAdapterForFirebase.getItemCount() > 0) {
                         progressBar.setVisibility(View.GONE);
@@ -106,10 +105,12 @@ public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapterF
     private Vibrator vibrator;
     private VibrationEffect vibrationEffect;
 
-    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END | ItemTouchHelper.START) {
+    final ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,
+            ItemTouchHelper.END | ItemTouchHelper.START) {
+
         @Override
         public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
-            return 0.5f;
+            return super.getSwipeThreshold(viewHolder);
         }
 
         @Override
@@ -117,10 +118,13 @@ public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapterF
             return false;
         }
 
+        @SuppressLint("MissingPermission")
         @Override
         public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
 
-            vibrator.vibrate(vibrationEffect);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                vibrator.vibrate(vibrationEffect);
+            }
 
             GroupAdapterForFirebase.GroupViewHolderForFirebase groupViewHolder =
                     (GroupAdapterForFirebase.GroupViewHolderForFirebase) viewHolder;
@@ -224,7 +228,7 @@ public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapterF
                 });
     }
 
-    ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+    final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
 
     @Override
     public boolean onGroupLongClick(Group group) {

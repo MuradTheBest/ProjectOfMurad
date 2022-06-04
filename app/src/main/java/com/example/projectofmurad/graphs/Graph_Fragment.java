@@ -27,10 +27,6 @@ public class Graph_Fragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     public Graph_Fragment() {
         // Required empty public constructor
     }
@@ -58,8 +54,8 @@ public class Graph_Fragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            // TODO: Rename and change types of parameters
+            String mParam1 = getArguments().getString(ARG_PARAM1);
         }
     }
 
@@ -83,9 +79,7 @@ public class Graph_Fragment extends Fragment {
 
         vp_trainings.setAdapter(pagerAdapter);
         vp_trainings.setPageTransformer(new ZoomOutPageTransformer());
-
         vp_trainings.setNestedScrollingEnabled(true);
-
         vp_trainings.setUserInputEnabled(false);
 
         new TabLayoutMediator(tabLayout_trainings, vp_trainings,

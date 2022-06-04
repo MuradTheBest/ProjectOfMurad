@@ -15,8 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialog;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.Utils;
-import com.example.projectofmurad.notifications.AlarmManagerForToday;
+import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.notifications.MyAlarmManager;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 public class AlarmDialog extends AppCompatDialog {
@@ -45,7 +45,6 @@ public class AlarmDialog extends AppCompatDialog {
 
         setCancelable(true);
         Utils.createCustomDialog(this);
-
     }
 
     public AlarmDialog(@NonNull Context context, SwitchMaterial switch_alarm, OnAutoAlarmSetListener onAutoAlarmSetListener) {
@@ -54,6 +53,17 @@ public class AlarmDialog extends AppCompatDialog {
         this.context = context;
         this.switch_alarm = switch_alarm;
         this.onAutoAlarmSetListener = onAutoAlarmSetListener;
+
+        setCancelable(true);
+        Utils.createCustomDialog(this);
+    }
+
+    public AlarmDialog(Context context, CalendarEvent event, SwitchMaterial switch_alarm) {
+        super(context);
+
+        this.context = context;
+        this.event = event;
+        this.switch_alarm = switch_alarm;
 
         setCancelable(true);
         Utils.createCustomDialog(this);
@@ -83,7 +93,7 @@ public class AlarmDialog extends AppCompatDialog {
                         Log.d(Utils.LOG_TAG, String.valueOf(before));
 
                         if (onAutoAlarmSetListener == null){
-                            AlarmManagerForToday.addAlarm(getContext(), event, before);
+                            MyAlarmManager.addAlarm(getContext(), event, before);
                             //new Handler().postDelayed(AlarmDialog.this::dismiss,300);
                         }
                         else {
@@ -113,7 +123,6 @@ public class AlarmDialog extends AppCompatDialog {
 
                 switch (checkedId) {
                     case R.id.rb_at_time:
-                        before = 0;
                         toast += "Alarm was set for time of the event";
                         Toast.makeText(getContext(), toast, Toast.LENGTH_SHORT).show();
                         break;
@@ -144,7 +153,7 @@ public class AlarmDialog extends AppCompatDialog {
                 }
 
                 if (onAutoAlarmSetListener == null){
-                    AlarmManagerForToday.addAlarm(AlarmDialog.this.getContext(), event, before);
+                    MyAlarmManager.addAlarm(AlarmDialog.this.getContext(), event, before);
                 }
                 else {
                     onAutoAlarmSetListener.onAutoAlarmSet(before, Utils.longToTimeText(before));

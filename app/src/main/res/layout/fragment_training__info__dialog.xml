@@ -23,7 +23,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.textview.MaterialTextView
+        <TextView
             android:id="@+id/tv_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.textview.MaterialTextView
+        <TextView
             android:id="@+id/tv_start_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/materialToolbar" />
 
-        <com.google.android.material.textview.MaterialTextView
+        <TextView
             android:id="@+id/tv_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -75,7 +75,7 @@
                 android:layout_height="wrap_content"
                 android:padding="20dp">
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/tv_duration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
                     android:gravity="center"
                     android:layout_height="wrap_content">
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_distance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -97,13 +97,13 @@
                         android:textSize="14sp"
                         />
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=" | "
                         android:textStyle="bold"/>
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_pace"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -138,7 +138,7 @@
             app:cardCornerRadius="10dp"
             app:cardElevation="3dp">
 
-            <com.google.android.material.textview.MaterialTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/workout_details"
@@ -172,13 +172,13 @@
                     android:layout_rowWeight="1"
                     android:gravity="center">
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/workout_duration"
                         android:textSize="14sp" />
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_training_duration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -198,13 +198,13 @@
                     android:layout_rowWeight="1"
                     android:gravity="center">
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/total_duration"
                         android:textSize="14sp" />
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_training_total_duration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -224,13 +224,13 @@
                     android:layout_rowWeight="1"
                     android:gravity="center">
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/distance"
                         android:textSize="14sp" />
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_training_distance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -240,7 +240,7 @@
 
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <androidx.appcompat.widget.AppCompatImageView
+                <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
@@ -259,13 +259,13 @@
                     android:layout_rowWeight="1"
                     android:gravity="center">
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/average_speed"
                         android:textSize="14sp" />
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_training_average_speed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -285,13 +285,13 @@
                     android:layout_rowWeight="1"
                     android:gravity="center">
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/max_speed"
                         android:textSize="14sp" />
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_training_max_speed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -311,13 +311,13 @@
                     android:layout_rowWeight="1"
                     android:gravity="center">
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/average_pace"
                         android:textSize="14sp" />
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_training_average_pace"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -337,13 +337,13 @@
                     android:layout_rowWeight="1"
                     android:gravity="center">
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/max_pace"
                         android:textSize="14sp" />
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_training_max_pace"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

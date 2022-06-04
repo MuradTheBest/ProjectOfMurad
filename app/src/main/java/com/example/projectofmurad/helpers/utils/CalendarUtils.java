@@ -1,4 +1,4 @@
-package com.example.projectofmurad.helpers;
+package com.example.projectofmurad.helpers.utils;
 
 import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
@@ -8,8 +8,6 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
 import androidx.annotation.NonNull;
-
-import com.google.firebase.database.DatabaseReference;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -24,21 +22,15 @@ public abstract class CalendarUtils {
 
     public final static DateTimeFormatter dateFormatOnline = DateTimeFormatter.ofPattern("E, dd.MM.yyyy", Locale.ENGLISH);
     public final static DateTimeFormatter dateFormatLocal = DateTimeFormatter.ofPattern("E, dd.MM.yyyy");
+
     public final static DateTimeFormatter dateTimeFormatOnline = DateTimeFormatter.ofPattern("E, dd.MM.yyyy, HH:mm", Locale.ENGLISH);
     public final static DateTimeFormatter dateTimeFormatLocal = DateTimeFormatter.ofPattern("E, dd.MM.yyyy, HH:mm");
-
-    public final static DateTimeFormatter dateFormatForFBOnline = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.ENGLISH);
 
     public final static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
 
     @NonNull
     public static Locale getLocale() {
         return Locale.getDefault();
-    }
-
-    @NonNull
-    public static DatabaseReference getEventByPrivate_Id(String private_id){
-        return FirebaseUtils.getAllEventsDatabase().child(private_id).getRef();
     }
 
     public static void setLocale(){
@@ -73,12 +65,6 @@ public abstract class CalendarUtils {
         return daysOfWeek;
     }
 
-    /*public static int getWeekNumber(LocalDate date){
-        // Or use a specific locale, or configure your own rules
-        WeekFields weekFields = WeekFields.of(Locale.getDefault());
-        return date.get(weekFields.weekOfMonth());
-    }*/
-
     public static int getWeekNumber(@NonNull LocalDate date){
         Month month = date.getMonth();
 
@@ -89,42 +75,6 @@ public abstract class CalendarUtils {
         }
 
         return count;
-    }
-
-    public static LocalDate getNextOccurrence(@NonNull LocalDate date, int weekNumber){
-        int dayOfWeek = date.getDayOfWeek().getValue();
-
-        LocalDate tmp = date;
-
-        for(int i = 1; i < weekNumber; i++) {
-            tmp = tmp.plusWeeks(1);
-        }
-
-        return tmp;
-    }
-
-    public static LocalDate getFirstDayWithDayOfWeek(LocalDate date, int dayOfWeek){
-        date = date.withDayOfMonth(1);
-        while(date.getDayOfWeek().getValue() != dayOfWeek+1){
-            date = date.plusDays(1);
-        }
-
-        return date;
-    }
-
-    public static LocalDate getNextOccurrenceForLast(@NonNull LocalDate date, int dayOfWeek){
-        int month_length = date.lengthOfMonth();
-        LocalDate tmp = date.withDayOfMonth(month_length);
-
-        while(tmp.getDayOfWeek().getValue() != dayOfWeek+1){
-            tmp = tmp.minusDays(1);
-        }
-
-/*        TemporalField h = WeekFields.SUNDAY_START.dayOfWeek();
-        DayOfWeek.from();
-        tmp.get(h);*/
-
-        return tmp;
     }
 
     public static String DateTimeToTextOnline(@NonNull LocalDateTime dateTime){
@@ -147,8 +97,9 @@ public abstract class CalendarUtils {
         return LocalDate.parse(date, dateFormatOnline);
     }
 
+    @NonNull
     public static String DateToTextForFirebase(@NonNull LocalDate date){
-        return date.format(dateFormatForFBOnline);
+        return date.toString();
     }
 
     public static String TimeToText(@NonNull LocalTime time){

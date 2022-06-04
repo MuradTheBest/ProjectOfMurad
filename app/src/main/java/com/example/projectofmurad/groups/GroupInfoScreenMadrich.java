@@ -19,9 +19,9 @@ import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.calendar.UsersAdapterForFirebase;
 import com.example.projectofmurad.helpers.ColorPickerDialog;
-import com.example.projectofmurad.helpers.FirebaseUtils;
-import com.example.projectofmurad.helpers.Utils;
-import com.example.projectofmurad.helpers.ViewAnimationUtils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.helpers.utils.ViewAnimationUtils;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -189,7 +189,7 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
     private void saveGroup() {
         String name = Utils.getText(et_group_name);
         String description = Utils.getText(et_group_description);
-        String groupKey = Utils.getText(et_group_key);
+        String groupKey = Utils.getInFormalGroupKey(Utils.getText(et_group_key));
         String trainerCode = Utils.getText(et_trainer_code);
         String limit = Utils.getText(et_group_limit);
 
@@ -205,7 +205,7 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
             editTextsFilled = false;
         }
 
-        if(!limit.isEmpty() || Integer.parseInt(limit) > 0 && Integer.parseInt(limit) < group.getUsersNumber()){
+        if(limit.isEmpty() || Integer.parseInt(limit) > 0 && Integer.parseInt(limit) < group.getUsersNumber()){
             et_group_limit.setError("Limit invalid");
             editTextsFilled = false;
         }

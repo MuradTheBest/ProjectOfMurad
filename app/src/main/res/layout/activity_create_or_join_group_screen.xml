@@ -8,7 +8,7 @@
     android:padding="15dp"
     tools:context=".groups.CreateOrJoinGroupScreen">
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         android:id="@+id/tv_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
             android:padding="10dp"
             >
 
-            <com.google.android.material.textview.MaterialTextView
+            <TextView
                 android:id="@+id/tv_create_new_group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -151,7 +151,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/tv_choose_color"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -190,7 +190,7 @@
             android:layout_height="wrap_content"
             android:padding="15dp">
 
-            <com.google.android.material.textview.MaterialTextView
+            <TextView
                 android:id="@+id/tv_join_group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

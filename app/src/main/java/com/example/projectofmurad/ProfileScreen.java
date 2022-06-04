@@ -25,11 +25,11 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.projectofmurad.groups.UserGroupData;
-import com.example.projectofmurad.helpers.CalendarUtils;
-import com.example.projectofmurad.helpers.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.CalendarUtils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
 import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -56,7 +56,7 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class Profile_Screen extends UserSigningActivity {
+public class ProfileScreen extends UserSigningActivity {
 
     private CircleImageView iv_profile_picture;
     private ShimmerFrameLayout shimmer_profile_picture;
@@ -67,10 +67,6 @@ public class Profile_Screen extends UserSigningActivity {
 
     private MaterialCheckBox et_madrich;
 
-    private MaterialButton btn_delete_account;
-    private MaterialButton btn_sign_out;
-
-    private MaterialButton btn_change_password;
     private MaterialButton btn_change_phone;
 
     // constant to compare
@@ -103,7 +99,7 @@ public class Profile_Screen extends UserSigningActivity {
         loadingDialog = new LoadingDialog(this);
 
         if (!FirebaseUtils.isUserLoggedIn()){
-            startActivity(new Intent(Profile_Screen.this, Log_In_Screen.class));
+            startActivity(new Intent(ProfileScreen.this, LogInScreen.class));
         }
 
         et_username = findViewById(R.id.et_username);
@@ -111,7 +107,7 @@ public class Profile_Screen extends UserSigningActivity {
         et_phone = findViewById(R.id.et_phone);
         et_madrich = findViewById(R.id.et_madrich);
 
-        btn_sign_out = findViewById(R.id.btn_sign_out);
+        MaterialButton btn_sign_out = findViewById(R.id.btn_sign_out);
         btn_sign_out.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,15 +117,16 @@ public class Profile_Screen extends UserSigningActivity {
                 unsubscribeFromTopic(new FirebaseUtils.FirebaseCallback() {
                     @Override
                     public void onFirebaseCallback() {
-                        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(Profile_Screen.this,
+                        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(
+                                ProfileScreen.this,
                                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build());
 
                         googleSignInClient.signOut()
                                 .addOnSuccessListener(unused -> {
                                     loadingDialog.dismiss();
                                     FirebaseUtils.getFirebaseAuth().signOut();
-                                    startActivity(Utils.getIntentClearTop(new Intent(Profile_Screen.this,
-                                            Log_In_Screen.class)));
+                                    startActivity(Utils.getIntentClearTop(new Intent(ProfileScreen.this,
+                                            LogInScreen.class)));
                                     finish();
                                 })
                                 .addOnFailureListener(e -> {
@@ -164,7 +161,7 @@ public class Profile_Screen extends UserSigningActivity {
             }
         });
 
-        btn_change_password = findViewById(R.id.btn_change_password);
+        MaterialButton btn_change_password = findViewById(R.id.btn_change_password);
         btn_change_password.setOnClickListener(v ->
                 FirebaseUtils.createReAuthenticateDialog(this,
                         () -> sendPasswordUpdateEmail(FirebaseUtils.getCurrentFirebaseUser().getEmail())));
@@ -177,11 +174,11 @@ public class Profile_Screen extends UserSigningActivity {
 
         shimmer_profile_picture = findViewById(R.id.shimmer_profile_picture);
 
-        btn_delete_account = findViewById(R.id.btn_delete_account);
+        MaterialButton btn_delete_account = findViewById(R.id.btn_delete_account);
         btn_delete_account.setOnClickListener(
-                v -> Utils.createAlertDialog(Profile_Screen.this, null, "Confirm deleting of account",
+                v -> Utils.createAlertDialog(ProfileScreen.this, null, "Confirm deleting of account",
                         R.string.confirm,
-                        (dialog, which) -> FirebaseUtils.createReAuthenticateDialog(Profile_Screen.this, this::deleteAccount),
+                        (dialog, which) -> FirebaseUtils.createReAuthenticateDialog(ProfileScreen.this, this::deleteAccount),
                         R.string.cancel, (dialog, which) -> dialog.dismiss(),
                         null).show());
 
@@ -256,7 +253,7 @@ public class Profile_Screen extends UserSigningActivity {
                 unused -> FirebaseUtils.deleteAll(FirebaseUtils.getDatabase().getReference(), UID,
                         () -> {
                             Toast.makeText(getApplicationContext(), "Account was successfully deleted", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(Profile_Screen.this, Splash_Screen.class));
+                            startActivity(new Intent(ProfileScreen.this, SplashScreen.class));
                         }))
                 .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Account deleting failed", Toast.LENGTH_SHORT).show());
     }
@@ -320,14 +317,15 @@ public class Profile_Screen extends UserSigningActivity {
                     return;
                 }
 
-                FirebaseUtils.isMadrichVerificationCode(Integer.parseInt(code)).observe(Profile_Screen.this,
+                FirebaseUtils.isMadrichVerificationCode(Integer.parseInt(code)).observe(
+                        ProfileScreen.this,
                         isMadrichCode ->
                                 FirebaseUtils.getCurrentUserGroupDataRef().child(UserGroupData.KEY_MADRICH)
                                         .setValue(isMadrichCode)
                                         .addOnSuccessListener(unused -> {
                                                 dialog.dismiss();
                                                 et_madrich.setChecked(isMadrichCode);
-                                                Toast.makeText(Profile_Screen.this,
+                                                Toast.makeText(ProfileScreen.this,
                                                                 isMadrichCode
                                                                 ? "MADRICH privileges were granted"
                                                                 : "Invalid verification code",
@@ -336,7 +334,7 @@ public class Profile_Screen extends UserSigningActivity {
                                         .addOnFailureListener(e -> {
                                                 dialog.dismiss();
                                                 et_madrich.toggle();
-                                                    Toast.makeText(Profile_Screen.this,
+                                                    Toast.makeText(ProfileScreen.this,
                                                             R.string.upps_something_went_wrong,
                                                             Toast.LENGTH_SHORT).show();
                                         })
@@ -360,7 +358,7 @@ public class Profile_Screen extends UserSigningActivity {
                                 })
                                 .addOnFailureListener(e -> {
                                         et_madrich.toggle();
-                                        Toast.makeText(Profile_Screen.this,
+                                        Toast.makeText(ProfileScreen.this,
                                             R.string.upps_something_went_wrong,
                                             Toast.LENGTH_SHORT).show();
                                 }),
@@ -387,7 +385,7 @@ public class Profile_Screen extends UserSigningActivity {
         super.onOptionsItemSelected(item);
         int selectedId = item.getItemId();
 
-        Intent intent = new Intent(Profile_Screen.this, Profile_Screen.class);
+        Intent intent = new Intent(ProfileScreen.this, ProfileScreen.class);
 
         switch (selectedId) {
             case R.id.edit_profile:
@@ -401,8 +399,8 @@ public class Profile_Screen extends UserSigningActivity {
                 }
                 break;
             case android.R.id.home:
-                startActivity(new Intent(Profile_Screen.this,
-                        editMode ? Profile_Screen.class : MainActivity.class));
+                startActivity(new Intent(ProfileScreen.this,
+                        editMode ? ProfileScreen.class : MainActivity.class));
                 break;
         }
 
@@ -455,9 +453,9 @@ public class Profile_Screen extends UserSigningActivity {
                         .addOnSuccessListener(u -> {
                             loadingDialog.dismiss();
                             finish();
-                            startActivity(new Intent(Profile_Screen.this, Profile_Screen.class));
+                            startActivity(new Intent(ProfileScreen.this, ProfileScreen.class));
                         })
-                        .addOnFailureListener(e -> Toast.makeText(Profile_Screen.this, "", Toast.LENGTH_SHORT).show()))
+                        .addOnFailureListener(e -> Toast.makeText(ProfileScreen.this, "", Toast.LENGTH_SHORT).show()))
                 .addOnFailureListener(e -> {});
     }
 
@@ -556,18 +554,13 @@ public class Profile_Screen extends UserSigningActivity {
             result = false;
         }
 
-        /*if(phone.isEmpty() && !CalendarUtils.isPhoneValid(phone)){
-            et_phone.setError("Phone invalid");
-            result = false;
-        }*/
-
         return result;
     }
 
     public void getCurrentUserData() {
         if (!FirebaseUtils.isUserLoggedIn()){
             finish();
-            startActivity(new Intent(Profile_Screen.this, Log_In_Screen.class));
+            startActivity(new Intent(ProfileScreen.this, LogInScreen.class));
             return;
         }
 
@@ -719,35 +712,12 @@ public class Profile_Screen extends UserSigningActivity {
                 }
             }
         }
-
-        /*// Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-        if (requestCode == GOOGLE_REQUEST_CODE) {
-            // The Task returned from this call is always completed, no need to attach
-            // a listener.
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                Log.d("murad", "getting account ");
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                if (account == null){
-                    Log.d("murad", "Google account is null ");
-                    return;
-                }
-                // Signed in successfully, show authenticated UI.
-                googleAuth(account.getIdToken());
-            }
-            catch (ApiException e) {
-                Toast.makeText(this, "Google sign in failed", Toast.LENGTH_SHORT).show();
-                Log.d("murad", "Google sign in failed ", e);
-                Log.d("murad", "Google sign in failed " + e.getMessage());
-                Log.d("murad", "Google sign in failed " + e.getCause());
-            }
-        }*/
     }
 
     @Override
     public void onBackPressed() {
         if (editMode){
-            startActivity(new Intent(Profile_Screen.this, Profile_Screen.class));
+            startActivity(new Intent(ProfileScreen.this, ProfileScreen.class));
         }
         else {
             super.onBackPressed();

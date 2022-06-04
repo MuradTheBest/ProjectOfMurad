@@ -5,11 +5,11 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,15 +21,14 @@ import com.bumptech.glide.Glide;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.groups.UserGroupData;
-import com.example.projectofmurad.helpers.CalendarUtils;
-import com.example.projectofmurad.helpers.FirebaseUtils;
-import com.example.projectofmurad.helpers.Utils;
-import com.example.projectofmurad.helpers.ViewAnimationUtils;
+import com.example.projectofmurad.helpers.utils.CalendarUtils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.helpers.utils.ViewAnimationUtils;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.checkbox.MaterialCheckBox;
-import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -82,15 +81,15 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
     public class UserViewHolderForFirebase extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private final ConstraintLayout constraintLayout;
-        public LinearLayout ll_contact;
+        public final LinearLayout ll_contact;
 
         private final CircleImageView iv_profile_picture;
 
         private final MaterialCheckBox cb_attendance;
 
-        private final MaterialTextView tv_username;
-        private final MaterialTextView tv_email;
-        private final MaterialTextView tv_phone;
+        private final TextView tv_username;
+        private final TextView tv_email;
+        private final TextView tv_phone;
 
         private final AppCompatImageView iv_phone;
         private final AppCompatImageView iv_email;
@@ -100,10 +99,6 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
 
         public UserViewHolderForFirebase(@NonNull View itemView) {
             super(itemView);
-
-            itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(v ->
-                    onUserLongClickListener.onUserLongClick(getAbsoluteAdapterPosition(), getItem(getAbsoluteAdapterPosition())));
 
             ll_contact = itemView.findViewById(R.id.ll_contact);
             constraintLayout = itemView.findViewById(R.id.constraintLayout);
@@ -126,6 +121,10 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
 
             iv_message = itemView.findViewById(R.id.iv_message);
             iv_message.setOnClickListener(this);
+
+            itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(v ->
+                    onUserLongClickListener.onUserLongClick(getBindingAdapterPosition(), getItem(getBindingAdapterPosition())));
         }
 
         @Override
@@ -134,28 +133,19 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
                 expanded = !expanded;
 
                 if(expanded){
-//                    ll_contact.setVisibility(View.VISIBLE);
-
                     ViewAnimationUtils.expand(ll_contact);
 
                     if (getBindingAdapterPosition() != oldPosition){
-                        Log.d(Utils.LOG_TAG, "oldPosition = " + oldPosition);
                         onUserExpandListener.onUserExpand(getBindingAdapterPosition(), oldPosition);
                     }
                     oldPosition = getBindingAdapterPosition();
-
-//                    animateLayout(constraintLayout, 300, Gravity.BOTTOM);
-
                 }
                 else {
-//                    ll_contact.setVisibility(View.GONE);
-//                    animateLayout(constraintLayout, 300, Gravity.TOP);
-
                     ViewAnimationUtils.collapse(ll_contact);
                 }
             }
             else if (v == iv_phone) {
-                String phoneNumber = getItem(getAbsoluteAdapterPosition()).getPhone();
+                String phoneNumber = getItem(getBindingAdapterPosition()).getPhone();
 
                 if (phoneNumber == null || phoneNumber.isEmpty()) {
                     Toast.makeText(context, "This user has no registered phone number", Toast.LENGTH_SHORT).show();
@@ -182,7 +172,7 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
                 }
             }
             else if (v == iv_message) {
-                String phoneNumber = getItem(getAbsoluteAdapterPosition()).getPhone();
+                String phoneNumber = getItem(getBindingAdapterPosition()).getPhone();
 
                 if (phoneNumber == null || phoneNumber.isEmpty()) {
                     Toast.makeText(context, "This user has no registered phone number", Toast.LENGTH_SHORT).show();
@@ -223,7 +213,6 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
         holder.tv_email.setText(model.getEmail());
         holder.tv_phone.setText(model.getPhone());
 
-
         FirebaseUtils.getCurrentGroupUsers().child(model.getUID()).child(UserGroupData.KEY_MADRICH).get().addOnSuccessListener(
                 new OnSuccessListener<DataSnapshot>() {
                     @Override
@@ -241,7 +230,6 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
                 });
 
         if (event_private_id != null) {
-
             FirebaseUtils.getUserTrackingRef(event_private_id, model.getUID()).child("attend").addValueEventListener(
                     new ValueEventListener() {
                         @Override

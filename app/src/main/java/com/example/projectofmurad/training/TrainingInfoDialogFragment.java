@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,11 +21,11 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.example.projectofmurad.tracking.Location;
 import com.example.projectofmurad.tracking.SpeedAndLocation;
+import com.example.projectofmurad.tracking.TrackingFragment;
 import com.example.projectofmurad.tracking.TrackingService;
-import com.example.projectofmurad.tracking.Tracking_Fragment;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -34,7 +35,6 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.textview.MaterialTextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -99,20 +99,20 @@ public class TrainingInfoDialogFragment extends DialogFragment {
     private LineChart lineChart_speed;
     private HashMap<String, SpeedAndLocation> speeds;
 
-    private MaterialTextView tv_name;
-    private MaterialTextView tv_start_date;
-    private MaterialTextView tv_time;
-    private MaterialTextView tv_duration;
-    private MaterialTextView tv_distance;
-    private MaterialTextView tv_pace;
+    private TextView tv_name;
+    private TextView tv_start_date;
+    private TextView tv_time;
+    private TextView tv_duration;
+    private TextView tv_distance;
+    private TextView tv_pace;
 
-    private MaterialTextView tv_training_duration;
-    private MaterialTextView tv_training_total_duration;
-    private MaterialTextView tv_training_distance;
-    private MaterialTextView tv_training_average_speed;
-    private MaterialTextView tv_training_max_speed;
-    private MaterialTextView tv_training_average_pace;
-    private MaterialTextView tv_training_max_pace;
+    private TextView tv_training_duration;
+    private TextView tv_training_total_duration;
+    private TextView tv_training_distance;
+    private TextView tv_training_average_speed;
+    private TextView tv_training_max_speed;
+    private TextView tv_training_average_pace;
+    private TextView tv_training_max_pace;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -128,7 +128,7 @@ public class TrainingInfoDialogFragment extends DialogFragment {
                 if (item.getItemId() == R.id.showTrack) {
                     if (training.getLocations() != null) {
                         Intent intent = new Intent(requireContext(), MainActivity.class);
-                        intent.setAction(Tracking_Fragment.ACTION_MOVE_TO_TRACKING_FRAGMENT_TO_SHOW_TRACK);
+                        intent.setAction(TrackingFragment.ACTION_MOVE_TO_TRACKING_FRAGMENT_TO_SHOW_TRACK);
                         intent.putParcelableArrayListExtra("locations", training.getLocations());
                         startActivity(intent);
                     }

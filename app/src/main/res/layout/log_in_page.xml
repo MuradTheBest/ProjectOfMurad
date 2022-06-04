@@ -4,9 +4,9 @@
 	xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:context=".Log_In_Screen">
+	tools:context=".LogInScreen">
 
-	<androidx.appcompat.widget.AppCompatImageView
+	<ImageView
 		android:id="@+id/vector_ek1"
 		android:layout_width="match_parent"
 		android:layout_height="85dp"
@@ -17,7 +17,7 @@
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_bias="0.0" />
 
-	<View
+	<ImageView
 		android:id="@+id/ellipse_4"
 		android:layout_width="150dp"
 		android:layout_height="150dp"
@@ -30,7 +30,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/vector_ek1"
 		app:layout_constraintVertical_bias="0.0" />
 
-	<com.google.android.material.textview.MaterialTextView
+	<TextView
         android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
@@ -97,7 +97,7 @@
 
 	</com.google.android.material.textfield.TextInputLayout>
 
-	<com.google.android.material.textview.MaterialTextView
+	<TextView
 		android:id="@+id/tv_don_t_have_an_account"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -112,7 +112,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
 		app:layout_constraintVertical_bias="0.28" />
 
-	<com.google.android.material.textview.MaterialTextView
+	<TextView
 		android:id="@+id/tv_sign_up_now"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -142,7 +142,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/et_password"
 		app:layout_constraintVertical_bias="0.0" />
 
-	<com.google.android.material.textview.MaterialTextView
+	<TextView
 		android:id="@+id/tv_forgot_password"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -155,7 +155,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/et_password"
 		app:layout_constraintHorizontal_bias="0.0" />
 
-	<com.google.android.material.textview.MaterialTextView
+	<TextView
 		android:id="@+id/tv_log_in_with"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

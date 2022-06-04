@@ -8,7 +8,7 @@
         android:id="@+id/blankFragment"
         android:name="com.example.projectofmurad.home.HomeFragment"
         android:label="fragment_blank"
-        tools:layout="@layout/fragment_blank_for_viewpager2" >
+        tools:layout="@layout/fragment_home" >
         <action
             android:id="@+id/action_blankFragment_to_tracking_Fragment"
             app:destination="@id/tracking_Fragment" />
@@ -49,7 +49,7 @@
 
     <fragment
         android:id="@+id/tracking_Fragment"
-        android:name="com.example.projectofmurad.tracking.Tracking_Fragment"
+        android:name="com.example.projectofmurad.tracking.TrackingFragment"
         android:label="fragment_tracking_"
         tools:layout="@layout/fragment_tracking_" />
 

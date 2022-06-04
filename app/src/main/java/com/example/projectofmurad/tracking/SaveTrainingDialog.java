@@ -9,7 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialog;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.example.projectofmurad.training.Training;
 
 import java.time.LocalDate;
@@ -18,16 +19,12 @@ public class SaveTrainingDialog extends AppCompatDialog implements RadioGroup.On
 
     private final Training training;
     private final Context context;
-    private final OnAddTrainingListener onAddTrainingListener;
 
-    public SaveTrainingDialog(@NonNull Context context, Training training, OnAddTrainingListener onAddTrainingListener) {
+    public SaveTrainingDialog(@NonNull Context context, Training training) {
         super(context);
 
         this.context = context;
         this.training = training;
-
-//        this.onAddTrainingListener = (OnAddTrainingListener) context;
-        this.onAddTrainingListener = onAddTrainingListener;
 
         Utils.createCustomDialog(this);
         setCancelable(false);
@@ -48,20 +45,14 @@ public class SaveTrainingDialog extends AppCompatDialog implements RadioGroup.On
     public void onCheckedChanged(RadioGroup group, int checkedId) {
         switch (checkedId){
             case R.id.rb_private_training:
-                onAddTrainingListener.onAddTraining(training);
+                FirebaseUtils.getCurrentUserPrivateTrainingsRef().child(training.getPrivateId()).setValue(training);
                 break;
             case R.id.rb_group_training:
-                ChooseEventClickDialog chooseEventDialog
-                        = new ChooseEventClickDialog(context, LocalDate.now(), training, onAddTrainingListener);
-
+                ChooseEventClickDialog chooseEventDialog = new ChooseEventClickDialog(context, LocalDate.now(), training);
                 chooseEventDialog.show();
                 break;
         }
 
         new Handler().postDelayed(this::dismiss, 500);
-    }
-
-    public interface OnAddTrainingListener{
-        void onAddTraining(Training training);
     }
 }

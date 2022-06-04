@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.SET_ALARM" />
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
@@ -36,32 +37,32 @@
             android:name=".groups.GroupInfoScreen"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"
+            android:windowSoftInputMode="adjustPan"
             android:theme="@style/Theme.ProjectOfMurad.NoActionBar" />
         <activity
             android:name=".groups.GroupInfoScreenMadrich"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"
+            android:windowSoftInputMode="adjustPan"
             android:theme="@style/Theme.ProjectOfMurad.NoActionBar" />
         <activity
             android:name=".groups.CreateOrJoinGroupScreen"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".UserSigningActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".calendar.All_Attendances"
+            android:name=".calendar.AllUserAttendancesScreen"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Profile_Screen"
+            android:name=".ProfileScreen"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:screenOrientation="portrait"
@@ -104,22 +105,22 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.ProjectOfMurad.NoActionBar" />
         <activity
-            android:name=".Log_In_Screen"
+            android:name=".LogInScreen"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".groups.ShowGroupsScreen"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustPan"/>
         <activity
-            android:name=".Sign_Up_Screen"
+            android:name=".SignUpScreen"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".Splash_Screen"
+            android:name=".SplashScreen"
             android:exported="true"
             android:launchMode="singleTask"
             android:screenOrientation="portrait">
@@ -143,10 +144,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".calendar.Edit_Event_Screen"
+            android:name=".calendar.AddOrEditEventScreen"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustPan" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

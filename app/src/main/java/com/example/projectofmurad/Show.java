@@ -19,6 +19,11 @@ public enum Show {
         return (value == 2) ? "everyone" : (value == 1) ? "madrichs only" : "no one";
     }
 
+    @NonNull
+    public String print(){
+        return toString().substring(0, 1).toUpperCase() + toString().substring(1).toLowerCase();
+    }
+
     public final int getValue() {
         return value;
     }

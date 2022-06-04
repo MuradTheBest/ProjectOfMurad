@@ -7,19 +7,17 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.EventsAdapterForFirebase;
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
 import com.example.projectofmurad.training.Training;
-import com.example.projectofmurad.training.TrainingAdapter;
+import com.example.projectofmurad.training.TrainingAdapterForFirebase;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-
-import java.util.ArrayList;
+import com.google.firebase.database.Query;
 
 
 /** FirebaseRecyclerAdapter is a class provided by
@@ -33,6 +31,8 @@ public class EventAndTrainingsAdapterForFirebase extends EventsAdapterForFirebas
      * {@link FirebaseRecyclerOptions} for configuration options.
      *
      * @param options
+     * @param context
+     * @param onEventClickListener
      */
 
     public EventAndTrainingsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options,
@@ -45,8 +45,9 @@ public class EventAndTrainingsAdapterForFirebase extends EventsAdapterForFirebas
 
         private final RecyclerView rv_trainings;
 
-        public EventAndTrainingsViewHolderForFirebase(@NonNull View itemView, OnEventClickListener onEventClickListener) {
-            super(itemView, onEventClickListener);
+        public EventAndTrainingsViewHolderForFirebase(@NonNull View itemView) {
+            super(itemView);
+
             rv_trainings = itemView.findViewById(R.id.rv_trainings);
             itemView.setOnClickListener(null);
             itemView.setOnLongClickListener(v -> {
@@ -69,15 +70,18 @@ public class EventAndTrainingsAdapterForFirebase extends EventsAdapterForFirebas
         holderForFirebase.tv_event_end_date_time.setText(String.format(context.getString(R.string.ending_time_s_s),
                 model.getEndDate(), model.getEndTime()));
 
-        FirebaseUtils.getCurrentUserTrainingsForEvent(model.getPrivateId()).observe(
-                (LifecycleOwner) context, new Observer<ArrayList<Training>>() {
-                    @Override
-                    public void onChanged(ArrayList<Training> trainings) {
-                        TrainingAdapter trainingAdapter = new TrainingAdapter(context, model.getColor(), trainings);
-                        holderForFirebase.rv_trainings.setAdapter(trainingAdapter);
-                        holderForFirebase.rv_trainings.setLayoutManager(new LinearLayoutManagerWrapper(context));
-                    }
-                });
+        Query trainings = FirebaseUtils.getCurrentUserTrainingsRefForEvent(model.getPrivateId()).orderByChild(Training.KEY_TRAINING_START);
+
+        FirebaseRecyclerOptions<Training> options = new FirebaseRecyclerOptions.Builder<Training>()
+                .setQuery(trainings, Training.class)
+                .setLifecycleOwner((LifecycleOwner) context)
+                .build();
+
+        TrainingAdapterForFirebase trainingAdapterForFirebase
+                = new TrainingAdapterForFirebase(options, holder.itemView.getContext(), model.getColor());
+
+        holderForFirebase.rv_trainings.setAdapter(trainingAdapterForFirebase);
+        holderForFirebase.rv_trainings.setLayoutManager(new LinearLayoutManagerWrapper(holder.itemView.getContext()));
     }
 
     @NonNull
@@ -85,6 +89,6 @@ public class EventAndTrainingsAdapterForFirebase extends EventsAdapterForFirebas
     public EventAndTrainingsViewHolderForFirebase onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_event_and_trainings, parent, false);
 
-        return new EventAndTrainingsViewHolderForFirebase(view, onEventClickListener);
+        return new EventAndTrainingsViewHolderForFirebase(view);
     }
 }

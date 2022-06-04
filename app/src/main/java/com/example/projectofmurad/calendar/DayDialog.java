@@ -14,26 +14,25 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.CalendarUtils;
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.RecyclerViewSwipeDecorator;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.CalendarUtils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
@@ -60,8 +59,6 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
         this.context = context;
         this.passingDate = passingDate;
 
-        Log.d(Utils.LOG_TAG, "passingDate is " + CalendarUtils.DateToTextOnline(passingDate));
-
         Utils.createCustomDialog(this);
 
         this.eventPrivateId = eventPrivateId;
@@ -85,31 +82,27 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
         String day = String.valueOf(passingDate.getDayOfMonth());
         String full_date = passingDate.format(DateTimeFormatter.ofPattern("E, MMMM yyyy", CalendarUtils.getLocale()));
 
-        MaterialTextView tv_day = findViewById(R.id.tv_day);
+        TextView tv_day = findViewById(R.id.tv_day);
         tv_day.setText(day);
 
-        MaterialTextView tv_full_date = findViewById(R.id.tv_full_date);
+        TextView tv_full_date = findViewById(R.id.tv_full_date);
         tv_full_date.setText(full_date);
 
         rv_events = findViewById(R.id.rv_events);
 
-        MaterialTextView tv_no_events = findViewById(R.id.tv_no_events);
+        TextView tv_no_events = findViewById(R.id.tv_no_events);
         tv_no_events.setVisibility(View.GONE);
 
-        Query eventsDatabase = FirebaseUtils.getEventsDatabase().child(passingDate.toString())
-                .orderByChild(CalendarEvent.KEY_EVENT_START);
+        Query eventsDatabase = FirebaseUtils.getEventsForDateRef(passingDate).orderByChild(CalendarEvent.KEY_EVENT_START);
 
         DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
 
         FirebaseRecyclerOptions<CalendarEvent> options = new FirebaseRecyclerOptions.Builder<CalendarEvent>()
                 .setIndexedQuery(eventsDatabase, allEventsDatabase, CalendarEvent.class)
-                .setLifecycleOwner((LifecycleOwner) context)
                 .build();
 
         eventsAdapter = new EventsAdapterForFirebase(options, passingDate, context, this);
         rv_events.setAdapter(eventsAdapter);
-
-        Log.d("murad", "rv_events.getChildCount() = " + rv_events.getChildCount());
 
         LinearLayoutManagerWrapper layoutManager = new LinearLayoutManagerWrapper(context);
         layoutManager.setOnLayoutCompleteListener(() -> {
@@ -155,11 +148,7 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
         fab_add_event.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //createAddEventDialog(dayText, selectedDate);
-                Intent toAddEvent_Screen = new Intent(context, Edit_Event_Screen.class);
-
-                DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("E, dd.MM.yyyy");
-                Log.d("murad","passingDate " + passingDate.format(simpleDateFormat));
+                Intent toAddEvent_Screen = new Intent(context, AddOrEditEventScreen.class);
 
                 int day = passingDate.getDayOfMonth();
                 int month = passingDate.getMonthValue();
@@ -234,15 +223,10 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
         }
     }
 
-    @Override
-    public void dismiss() {
-        super.dismiss();
-    }
-
     private final Vibrator vibrator;
     private VibrationEffect vibrationEffect;
 
-    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END | ItemTouchHelper.START) {
+    final ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END | ItemTouchHelper.START) {
         @Override
         public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
 //            return super.getSwipeThreshold(viewHolder);
@@ -271,10 +255,6 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
                 case ItemTouchHelper.START:
 
                     eventViewHolder.switch_alarm.performClick();
-
-                    Log.d("murad", "swipe ******************************************************");
-                    Log.d("murad", "swipe  switch_alarm is " + eventViewHolder.switch_alarm.isChecked());
-                    Log.d("murad", "swipe ******************************************************");
                     Snackbar.make(context, rv_events, alarm, Snackbar.LENGTH_LONG)
                             .setAction("Undo", view -> eventViewHolder.switch_alarm.performClick())
                             .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show();
@@ -283,9 +263,6 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
                 case ItemTouchHelper.END :
 
                     eventViewHolder.cb_all_attendances.performClick();
-                    Log.d("murad", "swipe ***********************************************************");
-                    Log.d("murad", "swipe checkbox_all_attendances is " + eventViewHolder.cb_all_attendances.isChecked());
-                    Log.d("murad", "swipe ***********************************************************");
                     Snackbar.make(context, rv_events, attendance, Snackbar.LENGTH_LONG)
                             .setAction("Undo", view -> eventViewHolder.cb_all_attendances.performClick())
                             /*.setGestureInsetBottomIgnored(true)*/
@@ -300,15 +277,16 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
         @Override
         public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
 
-            boolean approved = ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).cb_all_attendances.isChecked();
-            Log.d("murad", "swipe approved is " + approved);
-            boolean alarmSet = ((EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder).switch_alarm.isChecked();
-            Log.d("murad", "swipe alarmSet is " + alarmSet);
+            final EventsAdapterForFirebase.EventViewHolderForFirebase eventViewHolder
+                    = (EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder;
+
+            boolean approved = eventViewHolder.cb_all_attendances.isChecked();
+            boolean alarmSet = eventViewHolder.switch_alarm.isChecked();
 
             alarm = alarmSet ? "Alarm cancelling" : "Alarm setting";
             attendance = approved ? "Attendance disapproving" : "Attendance approving";
 
-            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, (EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder, dX, dY, actionState, isCurrentlyActive)
+            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
                     .addSwipeLeftBackgroundColor(ContextCompat.getColor(context, alarmSet ? R.color.alarm_off : R.color.colorAccent))
                     .addSwipeLeftActionIcon(alarmSet ? R.drawable.ic_baseline_notifications_off_40 : R.drawable.ic_baseline_notifications_active_40)
                     .addSwipeLeftLabel(alarm)
@@ -333,7 +311,7 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
         }
     };
 
-    ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+    final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
 
     @Override
     public void onEventClick(int position, @NonNull CalendarEvent event) {

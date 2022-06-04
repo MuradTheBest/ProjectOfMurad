@@ -1,7 +1,7 @@
 
 package com.example.projectofmurad;
 
-import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
+import static com.example.projectofmurad.helpers.utils.Utils.LOG_TAG;
 
 import android.Manifest;
 import android.content.Intent;
@@ -20,15 +20,15 @@ import androidx.core.content.ContextCompat;
 
 import com.example.projectofmurad.groups.CreateOrJoinGroupScreen;
 import com.example.projectofmurad.groups.ShowGroupsScreen;
-import com.example.projectofmurad.helpers.FirebaseUtils;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.database.DataSnapshot;
 
 import java.util.Objects;
 
-public class Splash_Screen extends AppCompatActivity {
+public class SplashScreen extends AppCompatActivity {
 
     private MaterialButton btn_get_started;
     private ProgressBar progressBar;
@@ -59,7 +59,7 @@ public class Splash_Screen extends AppCompatActivity {
 
     /**
      * Checks intent that the activity receives.
-     * In case if the user is not logged in, user is navigated to {@link Log_In_Screen} in order to sign in.
+     * In case if the user is not logged in, user is navigated to {@link LogInScreen} in order to sign in.
      * <p>
      * If the intent's action is {@link Intent#ACTION_VIEW} and it has data, new activity is started through intent that passes the link from uri.
      * </p>
@@ -82,7 +82,7 @@ public class Splash_Screen extends AppCompatActivity {
         }
 
         if (!FirebaseUtils.isUserLoggedIn()){
-            startActivity(new Intent(Splash_Screen.this, Log_In_Screen.class));
+            startActivity(new Intent(SplashScreen.this, LogInScreen.class));
         }
 
         String link = uri.toString();
@@ -90,7 +90,7 @@ public class Splash_Screen extends AppCompatActivity {
         Log.d(Utils.LOG_TAG, "uri is " + link);
 
         if (link.contains("group-join-link")){
-            Intent i = new Intent(Splash_Screen.this, CreateOrJoinGroupScreen.class);
+            Intent i = new Intent(SplashScreen.this, CreateOrJoinGroupScreen.class);
             i.putExtra(Utils.KEY_LINK, link);
             startActivity(i);
         }
@@ -112,18 +112,18 @@ public class Splash_Screen extends AppCompatActivity {
                         public void onSuccess(DataSnapshot dataSnapshot) {
                             if (dataSnapshot.exists()) {
                                 String key = dataSnapshot.getValue(String.class);
-                                FirebaseUtils.changeGroup(Splash_Screen.this, key);
-                                goToAnotherScreen(new Intent(Splash_Screen.this, MainActivity.class));
+                                FirebaseUtils.changeGroup(SplashScreen.this, key);
+                                goToAnotherScreen(new Intent(SplashScreen.this, MainActivity.class));
                             }
                             else {
-                                goToAnotherScreen(new Intent(Splash_Screen.this, ShowGroupsScreen.class));
+                                goToAnotherScreen(new Intent(SplashScreen.this, ShowGroupsScreen.class));
                             }
                         }
                     })
-                    .addOnFailureListener(e -> goToAnotherScreen(new Intent(Splash_Screen.this, Log_In_Screen.class)));
+                    .addOnFailureListener(e -> goToAnotherScreen(new Intent(SplashScreen.this, LogInScreen.class)));
         }
         else {
-            goToAnotherScreen(new Intent(Splash_Screen.this, Log_In_Screen.class));
+            goToAnotherScreen(new Intent(SplashScreen.this, LogInScreen.class));
         }
 
     }
@@ -163,7 +163,6 @@ public class Splash_Screen extends AppCompatActivity {
             }
 
             requestPermissions(new String[]{permission}, STORAGE_REQUEST_CODE);
-
         }
     }
 

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,14 +16,14 @@ import androidx.lifecycle.Observer;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.ColorPickerDialog;
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LoadingDialog;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
@@ -33,9 +34,9 @@ import petrov.kristiyan.colorpicker.ColorPicker;
 
 public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.OnClickListener {
 
-    private MaterialTextView tv_choose_color;
-    private MaterialTextView tv_username;
-    private MaterialTextView tv_create_new_group;
+    private TextView tv_choose_color;
+    private TextView tv_username;
+    private TextView tv_create_new_group;
 
     private LinearLayoutCompat ll_create_group;
 
@@ -46,7 +47,7 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
 
     private MaterialButton btn_generate_group_key;
 
-    private MaterialTextView tv_join_group;
+    private TextView tv_join_group;
 
     private LinearLayoutCompat ll_join_group;
 
@@ -200,7 +201,7 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
             et_group_key.setError("Key required");
         }
         else {
-            checkKeyToJoinGroup(key);
+            checkKeyToJoinGroup(Utils.getInFormalGroupKey(key));
         }
     }
 
@@ -216,7 +217,8 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
                 }
 
                 for (DataSnapshot group : snapshot.getChildren()){
-                    if (Objects.equals(group.child(Group.KEY_GROUP_KEY).getValue(String.class), key)){
+                    if (Objects.equals(group.child(Group.KEY_GROUP_KEY).getValue(String.class),
+                            Utils.getInFormalGroupKey(key))){
                         createGroupExistsDialog(true);
                         return;
                     }
@@ -315,7 +317,7 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
 
     public void createGroup(){
         String name = Utils.getText(et_new_group_name);
-        String key = Utils.getText(et_new_group_key);
+        String key = Utils.getInFormalGroupKey(Utils.getText(et_new_group_key));
         String trainerCode = Utils.getText(et_new_trainer_code);
         String limit = Utils.getText(et_new_group_limit);
         limit = limit.isEmpty() ? "0" : limit;
@@ -349,7 +351,7 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
         FirebaseUtils.addGroupToCurrentUser(key, isMadrich,
                 () -> {
                     loadingDialog.dismiss();
-                    FirebaseUtils.groups.child(key).child(Group.KEY_USERS_NUMBER).setValue(usersNumber+1);
+                    FirebaseUtils.groups.child(key).child(Group.KEY_USERS_NUMBER).setValue(ServerValue.increment(1));
                     FirebaseUtils.changeGroup(CreateOrJoinGroupScreen.this, key, color);
                     startActivity(new Intent(CreateOrJoinGroupScreen.this, MainActivity.class));
                 },

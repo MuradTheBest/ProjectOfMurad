@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,8 +22,8 @@ import com.bumptech.glide.Glide;
 import com.example.projectofmurad.calendar.AlarmDialog;
 import com.example.projectofmurad.groups.ShowGroupsScreen;
 import com.example.projectofmurad.groups.UserGroupData;
-import com.example.projectofmurad.helpers.FirebaseUtils;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -31,7 +32,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.switchmaterial.SwitchMaterial;
-import com.google.android.material.textview.MaterialTextView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -57,7 +57,6 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
         return inflater.inflate(R.layout.fragment_preferences, container, false);
     }
 
-    private MaterialButton btn_change_group;
     private SwitchMaterial switch_notifications;
     private SwitchMaterial switch_add_event;
     private SwitchMaterial switch_edit_event;
@@ -65,20 +64,17 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
 
     private SwitchMaterial switch_auto_alarm_set;
     private SwitchMaterial switch_auto_alarm_move;
-    private MaterialTextView tv_alarm_before;
+    private TextView tv_alarm_before;
 
     private SharedPreferences sp;
     private SharedPreferences.Editor editor;
 
-    private CardView cv_profile_data;
-
     private CircleImageView iv_profile_picture;
-    private AppCompatImageView iv_go_to_profile;
 
-    private MaterialTextView tv_username;
-    private MaterialTextView tv_email;
-    private MaterialTextView tv_phone;
-    private MaterialTextView tv_madrich;
+    private TextView tv_username;
+    private TextView tv_email;
+    private TextView tv_phone;
+    private TextView tv_madrich;
 
     private SwitchMaterial switch_visible_to_no_one;
     private SwitchMaterial switch_visible_to_madrich;
@@ -90,7 +86,7 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        btn_change_group = view.findViewById(R.id.btn_change_group);
+        MaterialButton btn_change_group = view.findViewById(R.id.btn_change_group);
         btn_change_group.setOnClickListener(v -> startActivity(new Intent(requireContext(), ShowGroupsScreen.class)));
 
         switch_notifications = view.findViewById(R.id.switch_notifications);
@@ -127,11 +123,11 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
         switch_visible_to_all = view.findViewById(R.id.switch_visible_to_all);
         switch_visible_to_all.setOnClickListener(this);
 
-        cv_profile_data = view.findViewById(R.id.cv_profile_data);
-        cv_profile_data.setOnClickListener(v -> startActivity(new Intent(requireContext(), Profile_Screen.class)));
+        CardView cv_profile_data = view.findViewById(R.id.cv_profile_data);
+        cv_profile_data.setOnClickListener(v -> startActivity(new Intent(requireContext(), ProfileScreen.class)));
 
-        iv_go_to_profile = view.findViewById(R.id.iv_go_to_profile);
-        iv_go_to_profile.setOnClickListener(v -> startActivity(new Intent(requireContext(), Profile_Screen.class)));
+        AppCompatImageView iv_go_to_profile = view.findViewById(R.id.iv_go_to_profile);
+        iv_go_to_profile.setOnClickListener(v -> startActivity(new Intent(requireContext(), ProfileScreen.class)));
 
         sp = requireActivity().getSharedPreferences(Utils.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE);
         editor = sp.edit();

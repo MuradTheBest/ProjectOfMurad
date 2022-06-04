@@ -4,15 +4,9 @@
 	xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:context=".Sign_Up_Screen">
+	tools:context=".SignUpScreen">
 
-	<androidx.appcompat.widget.AppCompatImageView
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:src="@drawable/background"
-		android:scaleType="centerCrop" />
-
-	<androidx.appcompat.widget.AppCompatImageView
+	<ImageView
         android:layout_width="match_parent"
 		android:layout_height="85dp"
 		android:background="@drawable/vector_ek2"
@@ -23,7 +17,7 @@
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_bias="0.0" />
 
-	<View
+	<ImageView
 		android:id="@+id/ellipse_5"
 		android:layout_width="150dp"
 		android:layout_height="150dp"
@@ -35,7 +29,7 @@
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_bias="0.154" />
 
-	<com.google.android.material.textview.MaterialTextView
+	<TextView
         android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center_horizontal|center"
@@ -159,13 +153,14 @@
 		android:layout_marginTop="20dp"
 		android:text="Sign up"
 		android:textSize="18sp"
+		app:cornerRadius="10dp"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="@+id/et_confirm_password"
 		app:layout_constraintStart_toStartOf="@+id/et_confirm_password"
 		app:layout_constraintTop_toBottomOf="@+id/et_confirm_password"
 		app:layout_constraintVertical_bias="0.05" />
 
-	<com.google.android.material.textview.MaterialTextView
+	<TextView
 		android:id="@+id/tv_already_have_an_account"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -181,7 +176,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
 		app:layout_constraintVertical_bias="0.0" />
 
-	<com.google.android.material.textview.MaterialTextView
+	<TextView
 		android:id="@+id/tv_sign_in"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -197,7 +192,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/tv_already_have_an_account"
 		app:layout_constraintVertical_bias="0.0" />
 
-	<com.google.android.material.textview.MaterialTextView
+	<TextView
 		android:id="@+id/tv_match"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -212,7 +207,7 @@
 		app:layout_constraintStart_toStartOf="@+id/et_confirm_password"
 		app:layout_constraintTop_toBottomOf="@+id/et_confirm_password" />
 
-	<com.google.android.material.textview.MaterialTextView
+	<TextView
 		android:id="@+id/tv_sign_up_with"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -248,21 +243,6 @@
 			app:icon="@drawable/ic_google"
 			app:iconGravity="textStart"
 			app:iconSize="30dp"
-			app:iconTintMode="multiply" />
-
-		<com.google.android.material.button.MaterialButton
-			android:id="@+id/btn_facebook"
-			android:layout_width="0dp"
-			android:layout_weight="1"
-			android:layout_height="wrap_content"
-			android:layout_marginHorizontal="20dp"
-			android:padding="5dp"
-			app:backgroundTint="@color/white"
-			app:cornerRadius="10dp"
-			app:elevation="3dp"
-			app:icon="@drawable/facebook_icon_transparent"
-			app:iconGravity="textStart"
-			app:iconSize="35dp"
 			app:iconTintMode="multiply" />
 
 		<com.google.android.material.button.MaterialButton

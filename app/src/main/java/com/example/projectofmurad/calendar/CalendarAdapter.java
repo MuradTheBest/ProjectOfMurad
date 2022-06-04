@@ -12,10 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.FirebaseUtils;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -57,15 +56,15 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
     public class CalendarViewHolder extends RecyclerView.ViewHolder {
 
-        private final MaterialTextView dayOfMonth;
+        private final TextView dayOfMonth;
 
-        private final MaterialTextView tv_event_1;
-        private final MaterialTextView tv_event_2;
-        private final MaterialTextView tv_event_3;
-        private final MaterialTextView tv_event_4;
-        private final MaterialTextView tv_event_5;
+        private final TextView tv_event_1;
+        private final TextView tv_event_2;
+        private final TextView tv_event_3;
+        private final TextView tv_event_4;
+        private final TextView tv_event_5;
 
-        private final MaterialTextView tv_more;
+        private final TextView tv_more;
 
         public CalendarViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -90,15 +89,17 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
     @Override
     public void onBindViewHolder(@NonNull CalendarViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        holder.dayOfMonth.setText(" " + daysOfMonth.get(position).getDayOfMonth() + " ");
+        LocalDate date = daysOfMonth.get(position);
 
-        if(daysOfMonth.get(position).getDayOfWeek().equals(DayOfWeek.FRIDAY)) {
+        holder.dayOfMonth.setText(" " + date.getDayOfMonth() + " ");
+
+        if(date.getDayOfWeek().equals(DayOfWeek.FRIDAY)) {
             holder.dayOfMonth.setTextColor(Color.BLUE);
         }
-        if (daysOfMonth.get(position).getDayOfWeek().equals(DayOfWeek.SATURDAY)) {
+        if (date.getDayOfWeek().equals(DayOfWeek.SATURDAY)) {
             holder.dayOfMonth.setTextColor(Color.RED);
         }
-        if (daysOfMonth.get(position).equals(LocalDate.now())){
+        if (date.equals(LocalDate.now())){
 
             holder.dayOfMonth.setBackgroundResource(R.drawable.calendar_cell_text_today_background);
             holder.itemView.setBackgroundResource(R.drawable.calendar_cell_selected_background);
@@ -112,7 +113,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                 holder.dayOfMonth.setTextColor(Color.WHITE);
             }
         }
-        if (daysOfMonth.get(position).getMonthValue() != selectedDate.getMonthValue()){
+        if (date.getMonthValue() != selectedDate.getMonthValue()){
             holder.itemView.setAlpha(0.7f);
             holder.dayOfMonth.setAlpha(0.7f);
         }
@@ -131,9 +132,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         tv_events[3] = holder.tv_event_4;
         tv_events[4] = holder.tv_event_5;
 
-        DatabaseReference eventsDatabase = FirebaseUtils.getEventsDatabase();
-
-        Query query = eventsDatabase.child(daysOfMonth.get(position).toString()).orderByChild(CalendarEvent.KEY_EVENT_START);
+        Query query = FirebaseUtils.getEventsForDateRef(date).orderByChild(CalendarEvent.KEY_EVENT_START);
 
         DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
 

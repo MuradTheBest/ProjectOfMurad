@@ -30,26 +30,23 @@ public class LinearLayoutManagerWrapper extends LinearLayoutManager {
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         try {
             super.onLayoutChildren(recycler, state);
-        } catch (IndexOutOfBoundsException e) {
+        }
+        catch (IndexOutOfBoundsException e) {
             Log.e("murad", "meet a IOOBE in RecyclerView");
         }
     }
 
-    private OnLayoutCompleteCallback mCallback = null;
+    private OnLayoutCompleteCallback onLayoutCompleteCallback = null;
 
-    public void setOnLayoutCompleteListener(OnLayoutCompleteCallback callback) {
-        this.mCallback = callback;
-    }
-
-    public LinearLayoutManagerWrapper addOnLayoutCompleteListener(OnLayoutCompleteCallback callback) {
-        this.mCallback = callback;
+    public LinearLayoutManagerWrapper setOnLayoutCompleteListener(OnLayoutCompleteCallback onLayoutCompleteCallback) {
+        this.onLayoutCompleteCallback = onLayoutCompleteCallback;
         return this;
     }
 
     @Override
     public void onLayoutCompleted(RecyclerView.State state) {
         super.onLayoutCompleted(state);
-        if (mCallback != null) mCallback.onLayoutComplete();
+        if (onLayoutCompleteCallback != null) onLayoutCompleteCallback.onLayoutComplete();
     }
 
     public interface OnLayoutCompleteCallback {

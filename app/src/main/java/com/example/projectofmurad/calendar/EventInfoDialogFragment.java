@@ -12,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,16 +28,15 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.Show;
-import com.example.projectofmurad.training.TrainingsAdapterForFirebase;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.groups.UserGroupData;
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.LoadingDialog;
-import com.example.projectofmurad.helpers.Utils;
-import com.example.projectofmurad.helpers.ViewAnimationUtils;
-import com.example.projectofmurad.notifications.AlarmManagerForToday;
-import com.example.projectofmurad.training.TrainingsAdapter;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.helpers.utils.ViewAnimationUtils;
+import com.example.projectofmurad.notifications.MyAlarmManager;
+import com.example.projectofmurad.training.TrainingsAdapterForFirebase;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.appbar.AppBarLayout;
@@ -45,7 +45,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
-import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -62,7 +61,6 @@ import java.util.ArrayList;
 public class EventInfoDialogFragment extends DialogFragment implements TrainingsAdapterForFirebase.OnShowToOthersListener,
                                                                         UsersAdapterForFirebase.OnUserLongClickListener,
                                                                         UsersAdapterForFirebase.OnUserExpandListener,
-                                                                        TrainingsAdapter.OnTrainingClickListener,
                                                                         CompoundButton.OnCheckedChangeListener,
                                                                         View.OnClickListener {
 
@@ -121,8 +119,7 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
         // Inflate the layout for this fragment
         return inflater.inflate(isShowsDialog
                                 ? R.layout.fragment_event__info_with_collapsing
-                                : R.layout.fragment_event__info_,
-                container, false);
+                                : R.layout.fragment_event__info_, container, false);
     }
 
     private AppBarLayout app_bar_layout;
@@ -133,12 +130,12 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
     private SwitchMaterial switch_alarm;
 
-    private MaterialTextView tv_event_name;
-    private MaterialTextView tv_event_place;
-    private MaterialTextView tv_event_description;
+    private TextView tv_event_name;
+    private TextView tv_event_place;
+    private TextView tv_event_description;
 
-    private MaterialTextView tv_event_start_date_time;
-    private MaterialTextView tv_event_end_date_time;
+    private TextView tv_event_start_date_time;
+    private TextView tv_event_end_date_time;
 
     private ViewPager2 vp_trainings;
 
@@ -210,23 +207,22 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
     }
 
     private void initializeRVUsers() {
-        Query allUserKeys = FirebaseUtils.getCurrentGroupUsers();
+        Query allUserKeys = FirebaseUtils.getCurrentGroupUsers().orderByValue();
         DatabaseReference users = FirebaseUtils.usersDatabase;
 
         FirebaseRecyclerOptions<UserData> userOptions
                 = new FirebaseRecyclerOptions.Builder<UserData>()
-                .setIndexedQuery(allUserKeys, users, UserData.class)
                 .setLifecycleOwner(this)
+                .setIndexedQuery(allUserKeys, users, UserData.class)
                 .build();
 
         userAdapter = new UsersAdapterForFirebase(userOptions, requireContext(),
                 event.getPrivateId(), event.getEnd(), event.getColor(), this, this);
 
-        LinearLayoutManagerWrapper linearLayoutManagerWrapper = new LinearLayoutManagerWrapper(requireContext());
-        linearLayoutManagerWrapper.addOnLayoutCompleteListener(
-                () -> new Handler().postDelayed(this::stopRVUsersShimmer, 500));
+        LinearLayoutManagerWrapper layoutManager = new LinearLayoutManagerWrapper(requireContext());
+        layoutManager.setOnLayoutCompleteListener(() -> new Handler().postDelayed(this::stopRVUsersShimmer, 500));
 
-        rv_users.setLayoutManager(linearLayoutManagerWrapper);
+        rv_users.setLayoutManager(layoutManager);
     }
 
     public void setUpEventData(@NonNull CalendarEvent event){
@@ -304,7 +300,6 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
         Log.d(Utils.LOG_TAG, "snapshot = " + FirebaseUtils.getGroupTrainingsDatabase().child(event.getPrivateId()).child(""));
 
         MutableLiveData<ArrayList<String>> userKeys = new MutableLiveData<>(new ArrayList<>());
-
         userKeys.observe(this, this::initializeTrainingsFirebaseViewPager2);
 
         usersAndTrainings.addValueEventListener(new ValueEventListener() {
@@ -323,17 +318,12 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
                 }
                 userKeys.setValue(keys);
 
-                FirebaseUtils.getCurrentUserTrainingsForEvent(event.getPrivateId()).observe(EventInfoDialogFragment.this,
-                        trainings -> {
-                            if (trainings != null && !trainings.isEmpty()) {
-                                /*ArrayList<String> users = userKeys.getValue();
-                                if (!users.contains(FirebaseUtils.getCurrentUID())) {
-                                    Log.d("snapshot", "current user has results in this event");
-                                    users.add(0, FirebaseUtils.getCurrentUID());
-                                }
-                                userKeys.setValue(users);*/
-
-                                userKeys.getValue().add(0, FirebaseUtils.getCurrentUID());
+                FirebaseUtils.getIfCurrentUserHasTrainingsForEvent(event.getPrivateId()).observe(EventInfoDialogFragment.this,
+                        hasTrainings -> {
+                            if (hasTrainings && !userKeys.getValue().contains(FirebaseUtils.getCurrentUID())) {
+                                ArrayList<String> users = userKeys.getValue();
+                                users.add(0, FirebaseUtils.getCurrentUID());
+                                userKeys.setValue(users);
                             }
                         });
             }
@@ -362,10 +352,10 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
         vp_trainings.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getX() < width / 2) {
+                if (motionEvent.getX() < (float) width / 2) {
                     vp_trainings.setCurrentItem(vp_trainings.getCurrentItem() - 1);
                 }
-                else if (motionEvent.getX() > width / 2) {
+                else if (motionEvent.getX() > (float) width / 2) {
                     vp_trainings.setCurrentItem(vp_trainings.getCurrentItem() + 1);
                 }
                 return false;
@@ -432,7 +422,7 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
     @Override
     public boolean onUserLongClick(int position, @NonNull UserData userData) {
-        Intent intent = new Intent(requireContext(), All_Attendances.class);
+        Intent intent = new Intent(requireContext(), AllUserAttendancesScreen.class);
         intent.putExtra(UserData.KEY_UID, userData.getUID());
         startActivity(intent);
 
@@ -447,14 +437,12 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
                Log.d("murad", "Alarm added");
 
                AlarmDialog alarmDialog = new AlarmDialog(requireContext(), event, switch_alarm, 2, 0);
-
                alarmDialog.show();
            }
            else {
                Log.d("murad", "Alarm deleted");
                Toast.makeText(requireContext(), "Alarm deleted", Toast.LENGTH_SHORT).show();
-//                    Utils.deleteAlarm(event_private_id, event_date, event, db, context);
-               AlarmManagerForToday.cancelAlarm(requireContext(), event);
+               MyAlarmManager.cancelAlarm(requireContext(), event);
            }
         }
         else if(v == btn_copy_event){
@@ -466,7 +454,7 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
             }
         }
         else if(v == btn_edit_event){
-            Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
+            Intent intent = new Intent(requireContext(), AddOrEditEventScreen.class);
             intent.putExtra(CalendarEvent.KEY_EVENT, event);
 
             dismiss();
@@ -543,16 +531,16 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
         bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
 
-        MaterialTextView tv_bottom_sheet_dialog_title = bottomSheetDialog.findViewById(R.id.tv_bottom_sheet_dialog_title);
+        TextView tv_bottom_sheet_dialog_title = bottomSheetDialog.findViewById(R.id.tv_bottom_sheet_dialog_title);
         tv_bottom_sheet_dialog_title.setText("Delete");
 
-        MaterialTextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
+        TextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
         tv_only_this_event.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
             deleteSingleEvent(event.getPrivateId());
         });
 
-        MaterialTextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
+        TextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
         tv_all_events_in_chain.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
             deleteAllEventsInChain(event.getChainId());
@@ -586,16 +574,16 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
         bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
 
-        MaterialTextView tv_bottom_sheet_dialog_title = bottomSheetDialog.findViewById(R.id.tv_bottom_sheet_dialog_title);
+        TextView tv_bottom_sheet_dialog_title = bottomSheetDialog.findViewById(R.id.tv_bottom_sheet_dialog_title);
         tv_bottom_sheet_dialog_title.setText(R.string.copy);
 
-        MaterialTextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
+        TextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
         tv_only_this_event.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
             copySingleEvent(event);
         });
 
-        MaterialTextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
+        TextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
         tv_all_events_in_chain.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
             copyAllEventsInChain(event);
@@ -617,7 +605,7 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
         copy.setFrequency_start(event.getStartDate());
         copy.setFrequency_end(event.getEndDate());
 
-        Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
+        Intent intent = new Intent(requireContext(), AddOrEditEventScreen.class);
         intent.putExtra(CalendarEvent.KEY_EVENT, copy);
 
         startActivity(intent);
@@ -631,7 +619,7 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
         copy.setPrivateId(private_key);
         copy.setChainId(chain_key);
 
-        Intent intent = new Intent(requireContext(), Edit_Event_Screen.class);
+        Intent intent = new Intent(requireContext(), AddOrEditEventScreen.class);
         intent.putExtra(CalendarEvent.KEY_EVENT, copy);
 
         startActivity(intent);
@@ -639,11 +627,6 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-    }
-
-    @Override
-    public void onTrainingClick(int position) {
 
     }
 }

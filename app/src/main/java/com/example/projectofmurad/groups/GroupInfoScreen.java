@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -13,17 +14,16 @@ import com.bumptech.glide.Glide;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.calendar.UsersAdapterForFirebase;
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.LoadingDialog;
-import com.example.projectofmurad.helpers.Utils;
-import com.example.projectofmurad.helpers.ViewAnimationUtils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.helpers.utils.ViewAnimationUtils;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
@@ -40,9 +40,9 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
     protected TextInputLayout et_group_key;
     protected TextInputLayout et_trainer_code;
     protected TextInputLayout et_group_limit;
-    protected MaterialTextView tv_choose_color;
+    protected TextView tv_choose_color;
 
-    protected MaterialTextView tv_group_users_number;
+    protected TextView tv_group_users_number;
     protected RecyclerView rv_users;
     protected ShimmerFrameLayout shimmer_rv_users;
 
@@ -87,7 +87,7 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
 
         Utils.setText(et_group_name, group.getName());
         Utils.setText(et_group_description, group.getDescription());
-        Utils.setText(et_group_key, group.getKey());
+        Utils.setText(et_group_key, Utils.getFormalGroupKey(group.getKey()));
         Utils.setText(et_trainer_code, String.valueOf(group.getMadrichCode()));
         Utils.setText(et_group_limit, String.valueOf(group.getLimit()));
 
@@ -122,16 +122,15 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
 
         FirebaseRecyclerOptions<UserData> userOptions
                 = new FirebaseRecyclerOptions.Builder<UserData>()
-                .setIndexedQuery(userKeys, users,UserData.class)
+                .setIndexedQuery(userKeys, users, UserData.class)
                 .setLifecycleOwner(this)
                 .build();
 
         UsersAdapterForFirebase userAdapter = new UsersAdapterForFirebase(userOptions, this, group.getColor(), this, this);
-
         rv_users.setAdapter(userAdapter);
 
         LinearLayoutManagerWrapper linearLayoutManagerWrapper = new LinearLayoutManagerWrapper(this);
-        linearLayoutManagerWrapper.addOnLayoutCompleteListener(() -> new Handler().postDelayed(this::stopRVUsersShimmer, 500));
+        linearLayoutManagerWrapper.setOnLayoutCompleteListener(() -> new Handler().postDelayed(this::stopRVUsersShimmer, 500));
 
         rv_users.setLayoutManager(linearLayoutManagerWrapper);
     }

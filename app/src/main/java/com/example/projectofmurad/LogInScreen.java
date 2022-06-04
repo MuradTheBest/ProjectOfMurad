@@ -5,20 +5,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.projectofmurad.groups.ShowGroupsScreen;
-import com.example.projectofmurad.helpers.CalendarUtils;
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.CalendarUtils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.android.material.textview.MaterialTextView;
 
 import java.util.Objects;
 
-public class Log_In_Screen extends UserSigningActivity {
+public class LogInScreen extends UserSigningActivity {
 
 	private TextInputLayout et_email_address;
 	private TextInputLayout et_password;
@@ -29,13 +29,13 @@ public class Log_In_Screen extends UserSigningActivity {
 		setContentView(R.layout.log_in_page);
 		Objects.requireNonNull(getSupportActionBar()).hide();
 
-		MaterialTextView tv_sign_up_now = findViewById(R.id.tv_sign_up_now);
-		tv_sign_up_now.setOnClickListener(v -> startActivity(new Intent(this, Sign_Up_Screen.class)));
+		TextView tv_sign_up_now = findViewById(R.id.tv_sign_up_now);
+		tv_sign_up_now.setOnClickListener(v -> startActivity(new Intent(this, SignUpScreen.class)));
 
 		MaterialButton btn_log_in = findViewById(R.id.btn_log_in);
 		btn_log_in.setOnClickListener(v -> checkFields());
 
-		MaterialTextView tv_forgot_password = findViewById(R.id.tv_forgot_password);
+		TextView tv_forgot_password = findViewById(R.id.tv_forgot_password);
 		tv_forgot_password.setOnClickListener(v -> createPasswordResetDialog());
 
 		et_email_address = findViewById(R.id.et_email_address);
@@ -114,7 +114,7 @@ public class Log_In_Screen extends UserSigningActivity {
 				})
 				.addOnFailureListener(e -> {
 					loadingDialog.dismiss();
-					Toast.makeText(Log_In_Screen.this, R.string.failed, Toast.LENGTH_SHORT).show();
+					Toast.makeText(LogInScreen.this, R.string.failed, Toast.LENGTH_SHORT).show();
 				});
 	}
 

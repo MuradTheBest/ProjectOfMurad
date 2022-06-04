@@ -341,7 +341,7 @@ public class RecyclerViewSwipeDecorator {
 
                 int iconSize = 0;
                 int imgLeft = viewHolder.itemView.getRight();
-                int top = 0;
+                int top;
                 if ( swipeLeftActionIconId != 0 && dX < - iconHorizontalMargin ) {
                     Drawable icon = ContextCompat.getDrawable(recyclerView.getContext(), swipeLeftActionIconId);
                     if ( icon != null ) {

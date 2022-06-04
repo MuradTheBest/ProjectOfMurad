@@ -20,11 +20,11 @@ import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.LifecycleService;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.projectofmurad.helpers.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.example.projectofmurad.training.Training;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
@@ -291,29 +291,6 @@ public class TrackingService extends LifecycleService {
         builder.show();
     }
 
-    @Override
-    public void onTaskRemoved(Intent rootIntent){
-        this.getCacheDir().delete();
-       /* Intent restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
-        restartServiceIntent.setPackage(getPackageName());
-        restartServiceIntent.setAction(ACTION_START_TRACKING_SERVICE);
-
-        PendingIntent restartServicePendingIntent = PendingIntent.getService(getApplicationContext(), 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
-        AlarmManager alarmService = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-        alarmService.set(
-                AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime() + 1000,
-                restartServicePendingIntent);*/
-
-        super.onTaskRemoved(rootIntent);
-    }
-
-    /*@Override
-    public boolean stopService(Intent name) {
-
-        return super.stopService(name);
-    }*/
-
     @SuppressLint("MissingPermission")
     private void startLocationUpdates() {
 
@@ -443,7 +420,7 @@ public class TrackingService extends LifecycleService {
 
     public Task<Void> uploadTraining(long start, long end){
 
-        String trainingId = "Training" + FirebaseUtils.getCurrentUserTrainingsRef().push().getKey();
+        String trainingId = "Training" + FirebaseUtils.getCurrentUserPrivateTrainingsRef().push().getKey();
 
         long time = timeData.getValue();
         long totalTime = totalTimeData.getValue();
@@ -468,7 +445,7 @@ public class TrackingService extends LifecycleService {
 
         trainingData.setValue(training);
 
-        return FirebaseUtils.getCurrentUserTrainingsRef().child(trainingId).setValue(training);
+        return FirebaseUtils.getCurrentUserPrivateTrainingsRef().child(trainingId).setValue(training);
     }
 
     public void calculateDistance(@NonNull LatLng previous, @NonNull LatLng current){

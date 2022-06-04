@@ -5,29 +5,29 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.projectofmurad.groups.CreateOrJoinGroupScreen;
-import com.example.projectofmurad.helpers.CalendarUtils;
-import com.example.projectofmurad.helpers.FirebaseUtils;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.CalendarUtils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Objects;
 
-public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
+public class SignUpScreen extends UserSigningActivity implements TextWatcher {
 
     private TextInputLayout et_username;
     private TextInputLayout et_email_address;
     private TextInputLayout et_password;
     private TextInputLayout et_confirm_password;
 
-    private MaterialTextView tv_match;
+    private TextView tv_match;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,8 +35,8 @@ public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
         setContentView(R.layout.sign_up_page);
         Objects.requireNonNull(getSupportActionBar()).hide();
 
-        MaterialTextView tv_sign_in = findViewById(R.id.tv_sign_in);
-        tv_sign_in.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), Log_In_Screen.class)));
+        TextView tv_sign_in = findViewById(R.id.tv_sign_in);
+        tv_sign_in.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), LogInScreen.class)));
 
         et_username = findViewById(R.id.et_username);
         et_email_address = findViewById(R.id.et_email_address);
@@ -55,8 +55,6 @@ public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
 
         btn_google = findViewById(R.id.btn_google);
         btn_google.setOnClickListener(v -> showGoogleSignIn());
-
-        btn_facebook = findViewById(R.id.btn_facebook);
 
         btn_phone = findViewById(R.id.btn_phone);
         btn_phone.setOnClickListener(v -> createPhoneAuthenticationDialog());
@@ -116,13 +114,13 @@ public class Sign_Up_Screen extends UserSigningActivity implements TextWatcher {
                                 })
                                 .addOnFailureListener(e -> {
                                     loadingDialog.dismiss();
-                                    Toast.makeText(Sign_Up_Screen.this, R.string.registration_failed, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(SignUpScreen.this, R.string.registration_failed, Toast.LENGTH_SHORT).show();
                                 });
                     }
                 })
                 .addOnFailureListener(e -> {
                     loadingDialog.dismiss();
-                    Toast.makeText(Sign_Up_Screen.this, R.string.registration_failed, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SignUpScreen.this, R.string.registration_failed, Toast.LENGTH_SHORT).show();
                 });
     }
 

@@ -6,7 +6,7 @@
     android:id="@+id/sv_add_event_screen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".calendar.Edit_Event_Screen" >
+    tools:context=".calendar.AddOrEditEventScreen" >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -101,7 +101,7 @@
                     android:textSize="12sp"
                     app:cornerRadius="10dp" />
 
-                <androidx.appcompat.widget.AppCompatImageView
+                <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
@@ -136,7 +136,7 @@
 
         </LinearLayout>
 
-        <com.google.android.material.textview.MaterialTextView
+        <TextView
             android:id="@+id/btn_repeat"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

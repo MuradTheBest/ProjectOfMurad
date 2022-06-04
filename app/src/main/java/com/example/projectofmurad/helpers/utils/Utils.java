@@ -1,31 +1,20 @@
-package com.example.projectofmurad.helpers;
+package com.example.projectofmurad.helpers.utils;
 
 import android.app.Dialog;
-import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Path;
-import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.AnyRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
@@ -36,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.BuildConfig;
 import com.example.projectofmurad.R;
+import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.material.textfield.TextInputLayout;
@@ -46,7 +36,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -120,7 +109,7 @@ public abstract class Utils {
 
     public static boolean checkIfAlarmSet(String event_private_id, @NonNull SQLiteDatabase db){
         Cursor cursor = db.rawQuery("select * from tbl_alarm where "
-                + Utils.TABLE_AlARM_COL_EVENT_PRIVATE_ID + " = '" + event_private_id + "'",  null);
+                + TABLE_AlARM_COL_EVENT_PRIVATE_ID + " = '" + event_private_id + "'",  null);
 
         boolean alarmSet = cursor.moveToNext();
         cursor.close();
@@ -153,91 +142,10 @@ public abstract class Utils {
         db.execSQL("drop table if exists " + TABLE_AlARM_NAME);
     }
 
-    public static Bitmap getBitmapClippedCircle(@NonNull Bitmap bitmap) {
-
-        final int width = bitmap.getWidth();
-        final int height = bitmap.getHeight();
-        final Bitmap outputBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
-        final Path path = new Path();
-        path.addCircle(
-                (float) (width / 2),
-                (float) (height / 2),
-                (float) Math.min(width, (height / 2)),
-                Path.Direction.CCW);
-
-        final Canvas canvas = new Canvas(outputBitmap);
-        canvas.clipPath(path);
-        canvas.drawBitmap(bitmap, 0, 0, null);
-        return outputBitmap;
-    }
-
-
-    public static void triggerRebirth(@NonNull Context context) {
-        PackageManager packageManager = context.getPackageManager();
-        Intent intent = packageManager.getLaunchIntentForPackage(context.getPackageName());
-        ComponentName componentName = intent.getComponent();
-        Intent mainIntent = Intent.makeRestartActivityTask(componentName);
-        context.startActivity(mainIntent);
-        Runtime.getRuntime().exit(0);
-    }
-
     @ColorInt
     public static int generateRandomColor(){
         Random rnd = new Random();
         return Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-    }
-
-    /**
-     * get uri to drawable or any other resource type if u wish
-     * @param context - context
-     * @param drawableId - drawable res id
-     * @return - uri
-     */
-    public static Uri getUriToDrawable(@NonNull Context context, @AnyRes int drawableId) {
-
-        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
-                + "://" + context.getResources().getResourcePackageName(drawableId)
-                + '/' + context.getResources().getResourceTypeName(drawableId)
-                + '/' + context.getResources().getResourceEntryName(drawableId) );
-    }
-
-    /**
-     * get uri to any resource type Via Context Resource instance
-     * @param context - context
-     * @param resId - resource id
-     * @throws Resources.NotFoundException if the given ID does not exist.
-     * @return - Uri to resource by given id
-     */
-    public static Uri getUriToResource(@NonNull Context context,
-                                       @AnyRes int resId)
-            throws Resources.NotFoundException {
-        /* Return a Resources instance for your application's package. */
-        Resources res = context.getResources();
-        return getUriToResource(res, resId);
-    }
-
-    /**
-     * get uri to any resource type via given Resource Instance
-     * @param res - resources instance
-     * @param resId - resource id
-     * @throws Resources.NotFoundException if the given ID does not exist.
-     * @return - Uri to resource by given id
-     */
-    public static Uri getUriToResource(@NonNull Resources res,
-                                       @AnyRes int resId)
-            throws Resources.NotFoundException {
-        /*
-          Creates a Uri which parses the given encoded URI string.
-          @param uriString an RFC 2396-compliant, encoded URI
-         * @throws NullPointerException if uriString is null
-         * @return Uri for this given uri string
-         */
-        /* return uri */
-        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE +
-                "://" + res.getResourcePackageName(resId)
-                + '/' + res.getResourceTypeName(resId)
-                + '/' + res.getResourceEntryName(resId));
     }
 
     public static void createCustomDialog(@NonNull AppCompatDialog dialog){
@@ -276,19 +184,12 @@ public abstract class Utils {
         speed = convertSpeedToMinPerKm(speed);
 
         String speedText = String.valueOf(speed);
-        Log.d(Utils.LOG_TAG, "speedText " + speedText);
 
         String[] pace = speedText.split("\\.");
 
-        Log.d(Utils.LOG_TAG, "pace = " + Arrays.toString(pace));
-
-        Log.d(Utils.LOG_TAG, "pace[1] = " + pace[1]);
-
         double ratio = Double.parseDouble("0." + pace[1]);
 
-        Log.d(Utils.LOG_TAG, "ratio " + ratio);
         int seconds = (int) (60 * ratio);
-        Log.d(Utils.LOG_TAG, "seconds " + seconds);
 
         int length = String.valueOf(seconds).length();
 
@@ -312,7 +213,7 @@ public abstract class Utils {
 
         speed = 1/speed;
 
-        speed = Utils.round(speed, 2);
+        speed = round(speed, 2);
 
         return speed;
     }
@@ -323,19 +224,10 @@ public abstract class Utils {
         time.setTimeInMillis(before);
         time.roll(Calendar.HOUR_OF_DAY, -2);
 
-        Log.d(LOG_TAG, new Date(before).toString());
-
-        Log.d(LOG_TAG, String.valueOf(before));
-
         before = before/60/1000;
-
-        Log.d(LOG_TAG, String.valueOf(before));
 
         int beforeHour = (int) (before/60);
         int beforeMinute = (int) (before%60);
-
-        Log.d(LOG_TAG, "beforeHour = " + beforeHour);
-        Log.d(LOG_TAG, "beforeMinute = " + beforeMinute);
 
         String beforeText = "";
 
@@ -345,8 +237,6 @@ public abstract class Utils {
         else if(beforeHour > 1){
             beforeText = beforeText + beforeHour + " hours and ";
         }
-
-        Log.d(Utils.LOG_TAG, beforeText);
 
         if (beforeMinute == 1){
             beforeText = beforeText + beforeMinute + " minute";
@@ -412,24 +302,6 @@ public abstract class Utils {
         gd.setShape(GradientDrawable.RECTANGLE);
 
         return gd;
-    }
-
-    public static boolean isVisible(final View view) {
-        if (view == null) {
-            return false;
-        }
-
-        if (!view.isShown()) {
-            return false;
-        }
-
-        final Rect actualPosition = new Rect();
-        boolean isGlobalVisible = view.getGlobalVisibleRect(actualPosition);
-        final Rect screen = new Rect(0, 0,
-                Resources.getSystem().getDisplayMetrics().widthPixels,
-                Resources.getSystem().getDisplayMetrics().heightPixels);
-
-        return isGlobalVisible && actualPosition.intersect(screen);
     }
 
     @NonNull
@@ -504,7 +376,8 @@ public abstract class Utils {
     }
 
     public static void addDefaultTextChangedListener(@NonNull TextInputLayout... textInputLayouts){
-        Arrays.stream(textInputLayouts).forEach(t -> t.getEditText().addTextChangedListener(getDefaultTextChangedListener(t)));
+        Arrays.stream(textInputLayouts).forEach(t ->
+                Objects.requireNonNull(t.getEditText()).addTextChangedListener(getDefaultTextChangedListener(t)));
     }
 
     public static Intent getIntentClearTop(@NonNull Intent intent){
@@ -524,5 +397,15 @@ public abstract class Utils {
 
     public static void setText(@NonNull TextInputLayout textInputLayout, @StringRes int resId){
         Objects.requireNonNull(textInputLayout.getEditText()).setText(resId);
+    }
+
+    @NonNull
+    public static String getFormalGroupKey(@NonNull String key){
+        return key.replace("Group-", "");
+    }
+
+    @NonNull
+    public static String getInFormalGroupKey(@NonNull String key){
+        return "Group-" + key;
     }
 }

@@ -24,24 +24,10 @@ public class UserGroupData {
     public UserGroupData(){}
 
     public UserGroupData(String UID, String groupKey, boolean madrich) {
-
         this.UID = UID;
         this.groupKey = groupKey;
         this.madrich = madrich;
         this.show = Show.MADRICH.getValue();
-    }
-
-    public UserGroupData(String UID, String groupKey, boolean madrich, int show,
-                         boolean subscribedToAddEvent, boolean subscribedToEditEvent,
-                         boolean subscribedToDeleteEvent) {
-
-        this.UID = UID;
-        this.groupKey = groupKey;
-        this.madrich = madrich;
-        this.show = show;
-        this.subscribedToAddEvent = subscribedToAddEvent;
-        this.subscribedToEditEvent = subscribedToEditEvent;
-        this.subscribedToDeleteEvent = subscribedToDeleteEvent;
     }
 
     public boolean isMadrich() {

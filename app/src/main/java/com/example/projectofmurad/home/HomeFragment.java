@@ -1,7 +1,7 @@
 package com.example.projectofmurad.home;
 
 import android.animation.Animator;
-import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,13 +23,17 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.MainViewModel;
-import com.example.projectofmurad.Profile_Screen;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.EventSlidePageAdapter;
-import com.example.projectofmurad.helpers.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.example.projectofmurad.tracking.TrackingService;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -61,12 +65,9 @@ public class HomeFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.blank_fragment_menu, menu);
-        this.menu = menu;
+        inflater.inflate(R.menu.home_fragment_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
-
-    private Menu menu;
 
     // methods to control the operations that will
     // happen when user clicks on the action buttons
@@ -77,26 +78,32 @@ public class HomeFragment extends Fragment {
             case android.R.id.home:
                 if (tabLayout.getSelectedTabPosition() == 1){
                     tabLayout.selectTab(tabLayout.getTabAt(0), true);
-                }
+                }/*
                 else {
-                    startActivity(new Intent(requireContext(), Profile_Screen.class));
-                }
+                    startActivity(new Intent(requireContext(), ProfileScreen.class));
+                }*/
                 break;
             case R.id.to_next_event:
                 if (tabLayout.getSelectedTabPosition() == 0){
                     tabLayout.selectTab(tabLayout.getTabAt(1), true);
-                }
+                }/*
                 else {
-                    startActivity(new Intent(requireContext(), Profile_Screen.class));
-                }
+                    startActivity(new Intent(requireContext(), ProfileScreen.class));
+                }*/
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        menu.findItem(R.id.to_next_event).setVisible(false);
+        super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_blank_for_viewpager2, container, false);
+        return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     public TabLayout tabLayout;
@@ -177,6 +184,7 @@ public class HomeFragment extends Fragment {
         actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
 
         actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_baseline_arrow_back_24);
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
@@ -185,6 +193,31 @@ public class HomeFragment extends Fragment {
                         .load(picture)
                         .error(R.drawable.sample_group_picture)
                         .placeholder(R.drawable.sample_group_picture)
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model,
+                                                        Target<Drawable> target,
+                                                        boolean isFirstResource) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model,
+                                                           Target<Drawable> target,
+                                                           DataSource dataSource,
+                                                           boolean isFirstResource) {
+
+                                int height = resource.getIntrinsicHeight();
+                                int margin = height - Utils.dpToPx(20, requireContext());
+
+                                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) tabLayout.getLayoutParams();
+                                params.topMargin = margin;
+
+                                tabLayout.setLayoutParams(params);
+
+                                return false;
+                            }
+                        })
                         .centerInside().into(iv_group_picture));
 
         progressBar = view.findViewById(R.id.progress_bar);
@@ -356,14 +389,10 @@ public class HomeFragment extends Fragment {
                 fab_add_training.setVisibility(tab.getPosition() == 0 ? View.GONE : View.VISIBLE);
                 fab_add_training2.setVisibility(tab.getPosition() == 0 ? View.GONE : View.VISIBLE);
 
-                actionBar.setHomeAsUpIndicator(tab.getPosition() == 0
-                        ? R.drawable.ic_baseline_person_24
-                        : R.drawable.ic_baseline_arrow_back_24);
+                actionBar.setDisplayHomeAsUpEnabled(tab.getPosition() == 1);
 
-                if (menu != null && menu.findItem(R.id.to_next_event) != null){
-                    menu.findItem(R.id.to_next_event).setIcon(tab.getPosition() == 0
-                            ? R.drawable.ic_baseline_arrow_back_24_180_degrees
-                            : R.drawable.ic_baseline_person_24);
+                if (toolbar.getMenu() != null && toolbar.getMenu().findItem(R.id.to_next_event) != null){
+                    toolbar.getMenu().findItem(R.id.to_next_event).setVisible(tab.getPosition() == 0);
                 }
 
             }
@@ -375,6 +404,7 @@ public class HomeFragment extends Fragment {
             public void onTabReselected(TabLayout.Tab tab) {}
         });
 
+        tabLayout.selectTab(tabLayout.getTabAt(1), true);
         vp_event.setCurrentItem(1, false);
     }
 

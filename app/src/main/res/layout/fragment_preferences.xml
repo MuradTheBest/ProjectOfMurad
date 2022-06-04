@@ -52,7 +52,7 @@
                     app:layout_constraintStart_toEndOf="@+id/iv_profile_picture"
                     app:layout_constraintTop_toTopOf="@+id/iv_profile_picture">
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_username"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
                         app:layout_constraintStart_toEndOf="@+id/iv_profile_picture"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_email"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -73,7 +73,7 @@
                         app:layout_constraintStart_toEndOf="@+id/iv_profile_picture"
                         app:layout_constraintTop_toBottomOf="@+id/tv_username" />
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_phone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -82,7 +82,7 @@
                         app:layout_constraintStart_toEndOf="@+id/iv_profile_picture"
                         app:layout_constraintTop_toBottomOf="@+id/tv_email" />
 
-                    <com.google.android.material.textview.MaterialTextView
+                    <TextView
                         android:id="@+id/tv_madrich"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -95,7 +95,7 @@
 
                 </LinearLayout>
 
-                <androidx.appcompat.widget.AppCompatImageView
+                <ImageView
                     android:id="@+id/iv_go_to_profile"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -234,14 +234,14 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/sd" />
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/tv_alarm_before"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
                     android:text="Alarms will work %s before event's start" />
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"

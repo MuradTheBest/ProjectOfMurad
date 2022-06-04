@@ -37,18 +37,17 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.CalendarUtils;
 import com.example.projectofmurad.helpers.ColorPickerDialog;
-import com.example.projectofmurad.helpers.FirebaseUtils;
 import com.example.projectofmurad.helpers.LoadingDialog;
-import com.example.projectofmurad.helpers.Utils;
-import com.example.projectofmurad.notifications.AlarmManagerForToday;
+import com.example.projectofmurad.helpers.utils.CalendarUtils;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
 import com.example.projectofmurad.notifications.FCMSend;
+import com.example.projectofmurad.notifications.MyAlarmManager;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -66,7 +65,7 @@ import java.util.Objects;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
-public class Edit_Event_Screen extends AppCompatActivity {
+public class AddOrEditEventScreen extends AppCompatActivity {
 
     protected TextInputLayout et_name;
     protected TextInputLayout et_place;
@@ -84,15 +83,13 @@ public class Edit_Event_Screen extends AppCompatActivity {
     protected MaterialButton btn_choose_end_time;
     protected MaterialButton btn_choose_end_date;
 
-    protected MaterialTextView btn_repeat;
+    protected TextView btn_repeat;
 
     protected CalendarEvent event = new CalendarEvent();
 
     protected LocalDateTime startDateTime;
 
     protected LocalDateTime endDateTime;
-
-    protected boolean row_event = true;
 
     protected EventFrequencyViewModel eventFrequencyViewModel;
 
@@ -210,7 +207,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
             selectedColor = event.getColor();
             et_name.setEndIconTintList(ColorStateList.valueOf(event.getColor()));
 
-            switch_alarm.setChecked(AlarmManagerForToday.checkIfAlarmSet(this, event.getPrivateId()));
+            switch_alarm.setChecked(MyAlarmManager.checkIfAlarmSet(this, event.getPrivateId()));
         }
 
         btn_choose_start_date.setText(CalendarUtils.DateToTextLocal(startDateTime.toLocalDate()));
@@ -218,7 +215,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                startDatePickerDialog = new DatePickerDialog(Edit_Event_Screen.this,
+                startDatePickerDialog = new DatePickerDialog(AddOrEditEventScreen.this,
                         /*AlertDialog.THEME_HOLO_LIGHT,*/
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
@@ -266,7 +263,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                endDatePickerDialog = new DatePickerDialog(Edit_Event_Screen.this,
+                endDatePickerDialog = new DatePickerDialog(AddOrEditEventScreen.this,
                         /*android.R.style.ThemeOverlay_Material_Dialog,*/
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
@@ -313,7 +310,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
         btn_choose_start_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startTimePickerDialog = new TimePickerDialog(Edit_Event_Screen.this,
+                startTimePickerDialog = new TimePickerDialog(AddOrEditEventScreen.this,
                         /*AlertDialog.THEME_HOLO_LIGHT,*/
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
@@ -358,7 +355,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
         btn_choose_end_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                endTimePickerDialog = new TimePickerDialog(Edit_Event_Screen.this,
+                endTimePickerDialog = new TimePickerDialog(AddOrEditEventScreen.this,
                         /*android.R.style.ThemeOverlay_Material_Dialog,*/
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
@@ -555,7 +552,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
 
         event.addDefaultParams(selectedColor, name, description, place, startDateTime, endDateTime);
 
-        DatabaseReference eventsDatabase = FirebaseUtils.getEventsDatabase().child(startDateTime.toLocalDate().toString());
+        DatabaseReference eventsDatabase = FirebaseUtils.getEventsForDateRef(startDateTime.toLocalDate());
 
         String chain_key = "Event" + eventsDatabase.push().getKey();
         event.setChainId(chain_key);
@@ -583,7 +580,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
         if(success){
             FCMSend.sendNotificationsToAllUsersWithTopic(this, event, editMode ? Utils.EDIT_EVENT_NOTIFICATION_CODE : Utils.ADD_EVENT_NOTIFICATION_CODE);
             if (switch_alarm.isChecked()){
-                AlarmManagerForToday.addAlarm(this, event, 0);
+                MyAlarmManager.addAlarm(this, event, 0);
             }
         }
 
@@ -629,7 +626,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
         FirebaseUtils.getAllEventsDatabase().child(event.getPrivateId()).setValue(event);
 
         do {
-            eventsDatabase = FirebaseUtils.getEventsDatabase().child(start_date.toString());
+            eventsDatabase = FirebaseUtils.getEventsForDateRef(start_date);
 
             eventsDatabase.child(event.getPrivateId()).child(CalendarEvent.KEY_EVENT_CHAIN_ID).setValue(event.getChainId());
             eventsDatabase.child(event.getPrivateId()).child(CalendarEvent.KEY_EVENT_START).setValue(event.getStart());
@@ -1343,9 +1340,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
                         addEventToFirebaseForTextWithPUSH(event, chain_key);
                     }
 
-                    absolute_end_date = tmp;
-
-//                    tmp = tmp.with(TemporalAdjusters.firstDayOfNextMonth());
+                    //                    tmp = tmp.with(TemporalAdjusters.firstDayOfNextMonth());
 //                    Log.d(Utils.EVENT_TAG, "The first day of next month is " + CalendarUtils.DateToTextForFirebase(tmp));
 
                     tmp = tmp.plusMonths(frequency);
@@ -1384,8 +1379,6 @@ public class Edit_Event_Screen extends AppCompatActivity {
                         eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));*/
 
                     addEventToFirebaseForTextWithPUSH(event, chain_key);
-
-                    absolute_end_date = tmp;
 
                     tmp = tmp.plusMonths(frequency);
 
@@ -1495,8 +1488,6 @@ public class Edit_Event_Screen extends AppCompatActivity {
 
                     addEventToFirebaseForTextWithPUSH(event, chain_key);
 
-                    absolute_end_date = tmp;
-
                     tmp = tmp.plusYears(frequency);
                 }
 
@@ -1532,8 +1523,6 @@ public class Edit_Event_Screen extends AppCompatActivity {
                         eventsDatabase = eventsDatabase.child(CalendarUtils.DateToTextForFirebase(tmp));*/
 
                     addEventToFirebaseForTextWithPUSH(event, chain_key);
-
-                    absolute_end_date = tmp;
 
                     tmp = tmp.plusYears(frequency);
                     Log.d("frequency_dayOfWeek_and_month", "the next month is " + CalendarUtils.DateToTextOnline(tmp));
@@ -1644,8 +1633,6 @@ public class Edit_Event_Screen extends AppCompatActivity {
 
                     addEventToFirebaseForTextWithPUSH(event, chain_key);
 
-                    absolute_end_date = tmp;
-
                     tmp = tmp.plusDays(frequency);
 
                     Log.d(Utils.EVENT_TAG, "___________________________________________________________");
@@ -1751,8 +1738,6 @@ public class Edit_Event_Screen extends AppCompatActivity {
                         addEventToFirebaseForTextWithPUSH(event, chain_key);
                     }
 
-                    absolute_end_date = tmp;
-
                     tmp = tmp.plusMonths(frequency);
                     Log.d(Utils.EVENT_TAG, "The next month is " + CalendarUtils.DateToTextForFirebase(tmp));
 
@@ -1798,8 +1783,6 @@ public class Edit_Event_Screen extends AppCompatActivity {
 
                     addEventToFirebaseForTextWithPUSH(event, chain_key);
 
-                    absolute_end_date = tmp;
-
                     tmp = tmp.plusMonths(frequency);
 
                     Log.d(Utils.EVENT_TAG, "the next month is " + CalendarUtils.DateToTextOnline(tmp));
@@ -1840,8 +1823,6 @@ public class Edit_Event_Screen extends AppCompatActivity {
                     event.updateEndDate(endDate);
 
                     addEventToFirebaseForTextWithPUSH(event, chain_key);
-
-                    absolute_end_date = tmp;
 
                     tmp = tmp.plusYears(frequency);
                 }
@@ -1885,8 +1866,6 @@ public class Edit_Event_Screen extends AppCompatActivity {
                     event.updateEndDate(endDate);
 
                     addEventToFirebaseForTextWithPUSH(event, chain_key);
-
-                    absolute_end_date = tmp;
 
                     tmp = tmp.plusYears(frequency);
                     Log.d("frequency_dayOfWeek_and_month", "the next month is " + CalendarUtils.DateToTextOnline(tmp));
@@ -2019,9 +1998,7 @@ public class Edit_Event_Screen extends AppCompatActivity {
             Log.d(Utils.EVENT_TAG, "event's frequency is " + frequencyType);
             event.setFrequencyType(frequencyType);
         });
-        eventFrequencyViewModel.frequency.observe(this, frequency -> {
-            event.setFrequency(frequency);
-        });
+        eventFrequencyViewModel.frequency.observe(this, frequency -> event.setFrequency(frequency));
         eventFrequencyViewModel.amount.observe(this, amount -> {
             event.setAmount(amount);
             Log.d(Utils.EVENT_TAG, "amount changed");

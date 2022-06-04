@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:paddingHorizontal="15dp"
     android:paddingTop="15dp"
-    tools:context=".calendar.All_Attendances">
+    tools:context=".calendar.AllUserAttendancesScreen">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_events"

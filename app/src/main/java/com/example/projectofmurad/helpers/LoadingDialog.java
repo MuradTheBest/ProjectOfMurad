@@ -3,17 +3,18 @@ package com.example.projectofmurad.helpers;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
 import com.example.projectofmurad.R;
-import com.google.android.material.textview.MaterialTextView;
+import com.example.projectofmurad.helpers.utils.Utils;
 
 public class LoadingDialog extends Dialog {
 
     private String message;
-    private MaterialTextView tv_message;
+    private TextView tv_message;
 
     public LoadingDialog(@NonNull Context context) {
         super(context);

@@ -12,14 +12,14 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.projectofmurad.calendar.CalendarEvent;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.Utils;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
 @SuppressLint("MissingPermission")
-public class AlarmManagerForToday {
+public class MyAlarmManager {
 
     public static final String TAG = "AlarmManagerForToday";
 
@@ -34,6 +34,7 @@ public class AlarmManagerForToday {
         if(cursor.moveToNext()){
             alarmSet = true;
         }
+
         cursor.close();
 
         return alarmSet;
@@ -97,7 +98,7 @@ public class AlarmManagerForToday {
         Date date = new Date(alarm);
 
 //        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
-        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
+        alarmManager.setAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
         if (alarm > System.currentTimeMillis()){
         }
 //        alarmManager.set(AlarmManager.RTC_WAKEUP, alarm, pendingIntent);

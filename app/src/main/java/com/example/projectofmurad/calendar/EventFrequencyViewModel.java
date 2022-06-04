@@ -9,8 +9,8 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.CalendarUtils;
-import com.example.projectofmurad.helpers.Utils;
+import com.example.projectofmurad.helpers.utils.CalendarUtils;
+import com.example.projectofmurad.helpers.utils.Utils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -20,8 +20,8 @@ import java.util.List;
 
 public class EventFrequencyViewModel extends AndroidViewModel {
 
-    public MutableLiveData<CalendarEvent.FrequencyType> frequencyType;
-    public MutableLiveData<Integer> frequency;
+    public final MutableLiveData<CalendarEvent.FrequencyType> frequencyType;
+    public final MutableLiveData<Integer> frequency;
     public MutableLiveData<Integer> amount;
     public MutableLiveData<String> msg;
     public MutableLiveData<LocalDate> end;

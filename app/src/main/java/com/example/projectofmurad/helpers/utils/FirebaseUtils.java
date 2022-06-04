@@ -1,6 +1,6 @@
-package com.example.projectofmurad.helpers;
+package com.example.projectofmurad.helpers.utils;
 
-import static com.example.projectofmurad.helpers.Utils.LOG_TAG;
+import static com.example.projectofmurad.helpers.utils.Utils.LOG_TAG;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -20,6 +20,8 @@ import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.groups.Group;
 import com.example.projectofmurad.groups.UserGroupData;
+import com.example.projectofmurad.helpers.LoadingDialog;
+import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
 import com.example.projectofmurad.training.Training;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -39,6 +41,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -83,7 +86,7 @@ public abstract class FirebaseUtils {
     }
 
     @NonNull
-    public static DatabaseReference getCurrentUserTrainingsRef() {
+    public static DatabaseReference getCurrentUserPrivateTrainingsRef() {
         return getPrivateTrainingsDatabase().child(getCurrentUID());
     }
 
@@ -330,6 +333,26 @@ public abstract class FirebaseUtils {
         return getUserTrainingsForEvent(getCurrentUID(), event_private_id);
     }
 
+    @NonNull
+    public static LiveData<Boolean> getIfCurrentUserHasTrainingsForEvent(String event_private_id){
+        MutableLiveData<Boolean> hasTrainings = new MutableLiveData<>();
+
+        getUserTrainingsRefForEvent(getCurrentUID(), event_private_id).addValueEventListener(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        hasTrainings.setValue(snapshot.exists());
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+        return hasTrainings;
+    }
+
     public interface FirebaseCallback {
         void onFirebaseCallback();
     }
@@ -339,8 +362,13 @@ public abstract class FirebaseUtils {
     }
 
     @NonNull
+    public static DatabaseReference getEventsForDateRef(@NonNull LocalDate localDate) {
+        return getEventsDatabase().child(localDate.toString());
+    }
+
+    @NonNull
     public static DatabaseReference getCurrentUserDataRef(){
-        return usersDatabase.child(getCurrentUID()).getRef();
+        return getUserDataByUIDRef(getCurrentUID()).getRef();
     }
 
     @NonNull

@@ -4,20 +4,21 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
 import com.example.projectofmurad.training.Training;
-import com.example.projectofmurad.training.TrainingAdapter;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.example.projectofmurad.training.TrainingAdapterForFirebase;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.database.Query;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,10 +31,6 @@ public class PrivateTrainingsFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     public PrivateTrainingsFragment() {
         // Required empty public constructor
@@ -63,36 +60,49 @@ public class PrivateTrainingsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            // TODO: Rename and change types of parameters
+            String mParam1 = getArguments().getString(ARG_PARAM1);
+            String mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_private_trainings, container, false);
     }
 
+    ProgressBar progressBar;
+    TextView tv_there_are_no_private_trainings;
     RecyclerView rv_private_training;
-    ProgressViewModel progressViewModel;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        progressBar = view.findViewById(R.id.progressBar);
+        tv_there_are_no_private_trainings = view.findViewById(R.id.tv_there_are_no_private_trainings);
         rv_private_training = view.findViewById(R.id.rv_private_training);
 
-        progressViewModel = new ViewModelProvider(requireActivity()).get(ProgressViewModel.class);
-        progressViewModel.getPrivateTrainings().observe(getViewLifecycleOwner(), this::setupRV);
-    }
+        Query trainings = FirebaseUtils.getCurrentUserPrivateTrainingsRef().orderByChild(Training.KEY_TRAINING_START);
 
-    public void setupRV(List<Training> trainings){
-        TrainingAdapter trainingAdapter = new TrainingAdapter(requireContext(), requireContext().getColor(R.color.colorAccent),
-                (ArrayList<Training>) trainings);
+        FirebaseRecyclerOptions<Training> options = new FirebaseRecyclerOptions.Builder<Training>()
+                .setLifecycleOwner(this)
+                .setQuery(trainings, Training.class)
+                .build();
+
+        TrainingAdapterForFirebase trainingAdapter
+                = new TrainingAdapterForFirebase(options, requireContext(), FirebaseUtils.CURRENT_GROUP_COLOR);
 
         rv_private_training.setAdapter(trainingAdapter);
-        rv_private_training.setLayoutManager(new LinearLayoutManagerWrapper(requireContext()));
+        LinearLayoutManagerWrapper layoutManager = new LinearLayoutManagerWrapper(requireContext());
+        layoutManager.setOnLayoutCompleteListener(
+                () -> {
+                    boolean isShowingItems = trainingAdapter.getItemCount() > 0;
+                    progressBar.setVisibility(View.GONE);
+                    tv_there_are_no_private_trainings.setVisibility(isShowingItems ? View.GONE : View.VISIBLE);
+                    rv_private_training.setVisibility(isShowingItems ? View.VISIBLE : View.INVISIBLE);
+                });
+        rv_private_training.setLayoutManager(layoutManager);
     }
 }
