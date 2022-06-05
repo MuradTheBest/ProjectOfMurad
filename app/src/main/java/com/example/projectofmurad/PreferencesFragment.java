@@ -409,7 +409,7 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
             }
             else {
 
-                SwitchMaterial switchCompat = (SwitchMaterial) v;
+                SwitchMaterial switchMaterial = (SwitchMaterial) v;
 
                 String topic = (v == switch_add_event ? FCMSend.getTopic(FCMSend.ADD_EVENT_TOPIC)
                         : (v == switch_edit_event) ? FCMSend.getTopic(FCMSend.EDIT_EVENT_TOPIC)
@@ -419,16 +419,16 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                         : (v == switch_edit_event) ? "subscribedToEditEvent"
                         : "subscribedToDeleteEvent";
 
-                String subscribedMsg = (v == switch_add_event ? "You will be notified when there will be new event added"
+                String subscribedMsg = (v == switch_add_event) ? "You will be notified when there will be new event added"
                         : (v == switch_edit_event) ? "You will be notified when any event will be edited"
-                        : "You will be notified when any event will be deleted");
+                        : "You will be notified when any event will be deleted";
 
-                String unsubscribedMsg = (v == switch_add_event ? "You will stop being notified when there will be new event added"
+                String unsubscribedMsg = (v == switch_add_event) ? "You will stop being notified when there will be new event added"
                         : (v == switch_edit_event) ? "You will stop being notified when any event will be edited"
-                        : "You will stop being notified when any event will be deleted");
+                        : "You will stop being notified when any event will be deleted";
 
 
-                if (switchCompat.isChecked()) {
+                if (switchMaterial.isChecked()) {
                     FirebaseUtils.getFirebaseMessaging().subscribeToTopic(topic).addOnCompleteListener(
                             new OnCompleteListener<Void>() {
                                 @Override
@@ -441,7 +441,7 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                                     else {
 //                                        Toast.makeText(getContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
                                         Utils.showToast(getContext(), "Ups... Something went wrong");
-                                        switchCompat.toggle();
+                                        switchMaterial.toggle();
                                     }
                                 }
                             });
@@ -459,19 +459,19 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                                     else {
 //                                        Toast.makeText(getContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
                                         Utils.showToast(getContext(), "Ups... Something went wrong");
-                                        switchCompat.toggle();
+                                        switchMaterial.toggle();
                                     }
                                 }
                             });
                 }
 
-                FirebaseUtils.getCurrentUserDataRef().child(subscription).setValue(switchCompat.isChecked()).addOnCompleteListener(
+                FirebaseUtils.getCurrentUserDataRef().child(subscription).setValue(switchMaterial.isChecked()).addOnCompleteListener(
                         new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
 
-                                    if(switchCompat.isChecked()){
+                                    if(switchMaterial.isChecked()){
 //                                        Toast.makeText(getContext(), subscribedMsg, Toast.LENGTH_SHORT).show();
                                         Utils.showToast(getContext(), subscribedMsg);
                                     }
@@ -484,7 +484,7 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                                 else {
                                     Utils.showToast(getContext(), "Ups... Something went wrong");
 //                                    Toast.makeText(getContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
-                                    switchCompat.toggle();
+                                    switchMaterial.toggle();
                                 }
                             }
                         });

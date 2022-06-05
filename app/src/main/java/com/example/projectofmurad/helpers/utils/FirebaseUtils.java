@@ -117,7 +117,7 @@ public abstract class FirebaseUtils {
 
     @NonNull
     public static DatabaseReference getCurrentGroupDatabase() {
-        Log.d(LOG_TAG, getDatabase().getReference(CURRENT_GROUP_KEY).toString());
+        Log.d(LOG_TAG, getGroupDatabase(CURRENT_GROUP_KEY).toString());
         return getGroupDatabase(CURRENT_GROUP_KEY);
     }
 

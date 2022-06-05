@@ -48,10 +48,6 @@ public class TrackingService extends LifecycleService {
     public static final String ACTION_PAUSE_TRACKING_SERVICE = Utils.APPLICATION_ID + "action_pause_tracking";
     public static final String ACTION_FINISH_TRACKING_SERVICE = Utils.APPLICATION_ID + "action_finish_tracking";
 
-    public static final String ACTION_AUTO_RESUME_TRACKING_SERVICE = Utils.APPLICATION_ID + "action_auto_resume_tracking";
-    public static final String ACTION_AUTO_PAUSE_TRACKING_SERVICE = Utils.APPLICATION_ID + "action_auto_pause_tracking";
-    public static final String ACTION_AUTO_RESUME_OR_PAUSE_TRACKING_SERVICE = Utils.APPLICATION_ID + "action_auto_resume_or_pause_tracking";
-
     public static final String ACTION_MOVE_TO_TRACKING_FRAGMENT = Utils.APPLICATION_ID + "action_move_to_tracking_fragment";
     public static final int CODE_FOR_RESULT = 5000;
 

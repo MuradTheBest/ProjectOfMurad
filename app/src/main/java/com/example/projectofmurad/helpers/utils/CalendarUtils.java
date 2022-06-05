@@ -106,10 +106,6 @@ public abstract class CalendarUtils {
         return time.format(timeFormat);
     }
 
-    public static LocalTime TextToTime(String time){
-        return LocalTime.parse(time, timeFormat);
-    }
-
     public static boolean isEmailValid(String email){
         return Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }

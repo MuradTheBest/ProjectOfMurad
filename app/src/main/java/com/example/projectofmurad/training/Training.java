@@ -38,8 +38,6 @@ public class Training implements Serializable {
     private String description;
     private String place;
 
-    //ToDo change dates and times to long
-
     private long start;
 
     private long time;

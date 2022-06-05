@@ -242,7 +242,7 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
                     });
 
             holder.cb_attendance.setEnabled(FirebaseUtils.isCurrentUID(model.getUID()) && end > System.currentTimeMillis());
-            holder.cb_attendance.setAlpha(holder.cb_attendance.isEnabled() ? 1f : 0.7f);
+            holder.cb_attendance.setAlpha(holder.cb_attendance.isEnabled() ? 1f : 0.6f);
         }
         else {
             holder.cb_attendance.setVisibility(View.GONE);

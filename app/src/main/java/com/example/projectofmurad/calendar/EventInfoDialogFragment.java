@@ -17,9 +17,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
@@ -28,6 +29,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.Show;
+import com.example.projectofmurad.UserAttendancesFragment;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.groups.UserGroupData;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
@@ -110,7 +112,7 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
         setShowsDialog(isShowsDialog);
 
         if (isShowsDialog){
-            setStyle(STYLE_NO_TITLE, android.R.style.Theme_DeviceDefault_Light);
+            setStyle(STYLE_NORMAL, R.style.FullScreenDialogTheme);
         }
     }
 
@@ -138,6 +140,8 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
     private TextView tv_event_end_date_time;
 
     private ViewPager2 vp_trainings;
+
+    private LinearLayoutCompat ll_manage_event;
 
     private MaterialButton btn_copy_event;
     private MaterialButton btn_edit_event;
@@ -189,6 +193,8 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
             app_bar_layout = view.findViewById(R.id.app_bar_layout);
             collapsing_toolbar_layout = view.findViewById(R.id.collapsing_toolbar_layout);
+
+            ll_manage_event = view.findViewById(R.id.ll_manage_event);
 
             btn_copy_event.setOnClickListener(this);
             btn_edit_event.setOnClickListener(this);
@@ -258,7 +264,6 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
             app_bar_layout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
                 @Override
                 public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-
                     boolean isContentHide = collapsing_toolbar_layout.getScrimVisibleHeightTrigger()
                             + Math.abs(verticalOffset) > collapsing_toolbar_layout.getHeight();
 
@@ -266,28 +271,24 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
                     collapsing_toolbar_layout.setTitle(isContentHide ? event.getName() : null);
                 }
             });
+
+            FirebaseUtils.isMadrich().observe(this, isMadrich -> {
+                btn_copy_event.setVisibility(isMadrich ? View.VISIBLE : View.GONE);
+                btn_edit_event.setVisibility(isMadrich ? View.VISIBLE : View.GONE);
+                btn_delete_event.setVisibility(isMadrich ? View.VISIBLE : View.GONE);
+            });
         }
         else {
-            FirebaseUtils.isMadrich().observe(this, new Observer<Boolean>() {
+            cv_event.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
-                public void onChanged(Boolean isMadrich) {
-                    if (!isMadrich){
-                        return;
+                public boolean onLongClick(View v) {
+                    if (getChildFragmentManager().findFragmentByTag(EventInfoDialogFragment.TAG) == null){
+                        EventInfoDialogFragment event_info_dialogFragment = EventInfoDialogFragment.newInstance(event, true);
+                        event_info_dialogFragment.show(getChildFragmentManager(), EventInfoDialogFragment.TAG);
                     }
-
-                    cv_event.setOnLongClickListener(new View.OnLongClickListener() {
-                        @Override
-                        public boolean onLongClick(View v) {
-                            if (getChildFragmentManager().findFragmentByTag(EventInfoDialogFragment.TAG) == null){
-                                EventInfoDialogFragment event_info_dialogFragment = EventInfoDialogFragment.newInstance(event, true);
-                                event_info_dialogFragment.show(getChildFragmentManager(), EventInfoDialogFragment.TAG);
-                            }
-                            return false;
-                        }
-                    });
+                    return false;
                 }
             });
-
         }
 
         switch_alarm.setChecked(Utils.checkIfAlarmSet(event.getPrivateId(), Utils.openOrCreateDatabase(requireContext())));
@@ -296,8 +297,6 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
         Query usersAndTrainings = FirebaseUtils.getGroupTrainingsDatabase().child(event.getPrivateId())
                 .orderByChild(UserGroupData.KEY_SHOW).equalTo(Show.ALL.getValue());
-
-        Log.d(Utils.LOG_TAG, "snapshot = " + FirebaseUtils.getGroupTrainingsDatabase().child(event.getPrivateId()).child(""));
 
         MutableLiveData<ArrayList<String>> userKeys = new MutableLiveData<>(new ArrayList<>());
         userKeys.observe(this, this::initializeTrainingsFirebaseViewPager2);
@@ -422,16 +421,18 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
     @Override
     public boolean onUserLongClick(int position, @NonNull UserData userData) {
-        Intent intent = new Intent(requireContext(), AllUserAttendancesScreen.class);
-        intent.putExtra(UserData.KEY_UID, userData.getUID());
-        startActivity(intent);
+        FragmentManager fm = getParentFragmentManager();
+        if (fm.findFragmentByTag(UserAttendancesFragment.TAG) == null){
+            UserAttendancesFragment userAttendancesFragment
+                    = UserAttendancesFragment.newInstance(userData.getUID(), userData.getUsername(), true);
+            userAttendancesFragment.show(fm, UserAttendancesFragment.TAG);
+        }
 
         return false;
     }
 
     @Override
     public void onClick(View v) {
-
         if (v == switch_alarm){
            if (switch_alarm.isChecked()){
                Log.d("murad", "Alarm added");
@@ -485,7 +486,6 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
                 createDeleteDialog();
             }
         }
-
     }
 
     public void startRVUsersShimmer() {

@@ -1,8 +1,10 @@
 package com.example.projectofmurad.calendar;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.GradientDrawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -44,7 +47,7 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
     protected LocalDate selectedDate;
     protected final OnEventClickListener onEventClickListener;
     protected final Context context;
-    protected String selected_UID;
+    protected String selectedUID;
     protected final SQLiteDatabase db;
 
     public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, LocalDate selectedDate,
@@ -57,13 +60,13 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         this.db = Utils.openOrCreateDatabase(context);
     }
 
-    public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, String selected_UID,
+    public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, String selectedUID,
                                     @NonNull Context context, OnEventClickListener onEventClickListener) {
 
         super(options);
         this.onEventClickListener = onEventClickListener;
         this.context = context;
-        this.selected_UID = selected_UID;
+        this.selectedUID = selectedUID;
         this.db = Utils.openOrCreateDatabase(context);
     }
 
@@ -99,7 +102,7 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             tv_hyphen = itemView.findViewById(R.id.tv_hyphen);
             tv_event_end_date_time = itemView.findViewById(R.id.tv_event_end_date_time);
 
-            cb_all_attendances = itemView.findViewById(R.id.checkbox__all_attendances);
+            cb_all_attendances = itemView.findViewById(R.id.cb_all_attendances);
             cb_all_attendances.setOnClickListener(this);
 
             itemView.setOnClickListener(v ->
@@ -108,6 +111,7 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
         @Override
         public void onClick(View view) {
+            Log.d(Utils.LOG_TAG, "snapshots "  + getSnapshots());
             CalendarEvent event = getItem(getBindingAdapterPosition());
 
             if (view == switch_alarm){
@@ -141,9 +145,8 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         holder.tv_event_place.setTextColor(textColor);
         holder.tv_event_description.setTextColor(textColor);
         holder.tv_event_start_date_time.setTextColor(textColor);
-        holder.tv_hyphen.setTextColor(textColor);
         holder.tv_event_end_date_time.setTextColor(textColor);
-        holder.cb_all_attendances.setTextColor(textColor);
+        holder.cb_all_attendances.setButtonTintList(ColorStateList.valueOf(textColor));
 
         GradientDrawable gd = Utils.getGradientBackground(model.getColor());
         holder.constraintLayout.setBackground(gd);
@@ -153,6 +156,8 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         holder.tv_event_description.setText(model.getDescription());
 
         if (selectedDate != null) {
+            holder.tv_hyphen.setTextColor(textColor);
+
             if(model.getStartDate().equals(model.getEndDate())){
                 holder.tv_event_start_date_time.setText(model.getStartTime());
                 holder.tv_event_end_date_time.setText(model.getEndTime());
@@ -166,29 +171,21 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             else{
                 holder.tv_hyphen.setText(R.string.all_day);
             }
+
+            if (model.isAllDay()){
+                holder.tv_hyphen.setText(R.string.all_day);
+            }
+        }
+        else {
+            holder.tv_event_start_date_time.setText(String.format(getString(R.string.starting_time_s_s),
+                    model.getStartDate(), model.getStartTime()));
+            holder.tv_event_end_date_time.setText(String.format(getString(R.string.ending_time_s_s),
+                    model.getEndDate(), model.getEndTime()));
         }
 
-        if(model.getStartDate().equals(model.getEndDate())){
-            holder.tv_event_start_date_time.setText(model.getStartTime());
-            holder.tv_event_end_date_time.setText(model.getEndTime());
-        }
-        else if(model.receiveStartDate().equals(selectedDate)){
-            holder.tv_event_start_date_time.setText(model.getStartTime());
-        }
-        else if(model.receiveEndDate().equals(selectedDate)){
-            holder.tv_event_end_date_time.setText(model.getEndTime());
-        }
-        else{
-            holder.tv_hyphen.setText(R.string.all_day);
-        }
-
-        if (model.isAllDay()){
-            holder.tv_hyphen.setText(R.string.all_day);
-        }
-
-        if (selected_UID != null){
+        if (selectedUID != null){
             DatabaseReference ref = FirebaseUtils.getAttendanceDatabase().child(model.getPrivateId())
-                    .child(selected_UID).child("attend");
+                    .child(selectedUID).child("attend");
 
             ref.addValueEventListener(new ValueEventListener() {
                 @Override
@@ -203,12 +200,10 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             });
         }
 
-        if (selected_UID != null){
-            holder.cb_all_attendances.setVisibility(View.VISIBLE);
-        }
-        else {
-            holder.cb_all_attendances.setVisibility(View.GONE);
-        }
+        holder.cb_all_attendances.setEnabled(FirebaseUtils.isCurrentUID(selectedUID) && model.getEnd() > System.currentTimeMillis());
+        holder.cb_all_attendances.setAlpha(holder.cb_all_attendances.isEnabled() ? 1f : 0.6f);
+
+        holder.cb_all_attendances.setVisibility(selectedUID == null ? View.GONE : View.VISIBLE);
 
         holder.switch_alarm.setChecked(Utils.checkIfAlarmSet(model.getPrivateId(), db));
     }
@@ -216,7 +211,9 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
     @NonNull
     @Override
     public EventViewHolderForFirebase onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_event_info, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(selectedUID == null ?
+                        R.layout.row_event_info :
+                        R.layout.row_event_info_attendance, parent, false);
 
         return new EventViewHolderForFirebase(view);
     }
@@ -238,5 +235,9 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
     @Override
     public long getItemId(int position) {
         return position;
+    }
+
+    public String getString(@StringRes int resId) {
+        return context.getString(resId);
     }
 }

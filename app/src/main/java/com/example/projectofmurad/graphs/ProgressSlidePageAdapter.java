@@ -7,6 +7,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.example.projectofmurad.UserAttendancesFragment;
+import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+
 public class ProgressSlidePageAdapter extends FragmentStateAdapter {
 
     private static final int NUM_PAGES = 2;
@@ -28,7 +31,7 @@ public class ProgressSlidePageAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         switch (position){
             case 0:
-                return new GroupTrainingsFragment();
+                return UserAttendancesFragment.newInstance(FirebaseUtils.getCurrentUID(), null, false);
             case 1:
                 return new PrivateTrainingsFragment();
             default:

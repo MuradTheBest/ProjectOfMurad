@@ -17,7 +17,7 @@
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="15dp"
+        android:padding="10dp"
         android:foreground="?android:attr/selectableItemBackground">
 
         <com.google.android.material.switchmaterial.SwitchMaterial
@@ -60,8 +60,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="horizontal"
+            android:gravity="start"
+            android:orientation="vertical"
             android:layout_marginHorizontal="10dp"
             app:layout_constraintEnd_toStartOf="@+id/switch_alarm"
             app:layout_constraintHorizontal_bias="0.0"
@@ -76,14 +76,6 @@
                 android:textSize="14sp" />
 
             <TextView
-                android:id="@+id/tv_hyphen"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="start"
-                android:text=" - "
-                android:textSize="16sp" />
-
-            <TextView
                 android:id="@+id/tv_event_end_date_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -94,28 +86,29 @@
 
         <TextView
             android:id="@+id/tv_event_place"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:gravity="start"
             android:text="Place"
             android:textSize="16sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/linearLayout"
+            android:layout_marginHorizontal="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/cb_all_attendances"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
         <CheckBox
             android:id="@+id/cb_all_attendances"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:checked="false"
             android:gravity="center"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/tv_event_place"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/switch_alarm"
-            app:layout_constraintTop_toBottomOf="@+id/switch_alarm"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@+id/switch_alarm" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

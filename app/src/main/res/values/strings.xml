@@ -144,4 +144,6 @@
     <string name="group_training">Group training</string>
     <string name="there_are_no_group_trainings_that_you_did">There are no group trainings that you did</string>
     <string name="to_next_event">To next event</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
