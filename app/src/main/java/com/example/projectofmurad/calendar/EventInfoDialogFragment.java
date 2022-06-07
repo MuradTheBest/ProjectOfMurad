@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,15 +23,14 @@ import com.example.projectofmurad.UserAttendancesFragment;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.LoadingDialog;
+import com.example.projectofmurad.notifications.MyAlarmManager;
 import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.utils.Utils;
 import com.example.projectofmurad.utils.ViewAnimationUtils;
-import com.example.projectofmurad.notifications.MyAlarmManager;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -334,12 +332,7 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
            }
         }
         else if(v == btn_copy_event){
-            if (event.isSingle()){
-                copySingleEvent(event);
-            }
-            else {
-                createCopyDialog();
-            }
+            copySingleEvent(event);
         }
         else if(v == btn_edit_event){
             Intent intent = new Intent(requireContext(), AddOrEditEventScreen.class);
@@ -361,17 +354,7 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
             startActivity(Intent.createChooser(intent, "Choose app"));
         }
         else if(v == btn_delete_event){
-
-            Log.d(Utils.LOG_TAG, "event  is " + event.toString());
-
-            Toast.makeText(requireContext(), "Event was deleted successfully", Toast.LENGTH_SHORT).show();
-
-            if (event.isSingle()){
-                deleteSingleEvent(event.getPrivateId());
-            }
-            else {
-                createDeleteDialog();
-            }
+            deleteSingleEvent(event.getPrivateId());
         }
     }
 
@@ -385,30 +368,6 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
         shimmer_rv_users.stopShimmer();
         shimmer_rv_users.setVisibility(View.GONE);
         rv_users.setVisibility(View.VISIBLE);
-    }
-
-    public void createDeleteDialog(){
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
-        bottomSheetDialog.setDismissWithAnimation(true);
-
-        bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
-
-        TextView tv_bottom_sheet_dialog_title = bottomSheetDialog.findViewById(R.id.tv_bottom_sheet_dialog_title);
-        tv_bottom_sheet_dialog_title.setText("Delete");
-
-        TextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
-        tv_only_this_event.setOnClickListener(v -> {
-            bottomSheetDialog.dismiss();
-            deleteSingleEvent(event.getPrivateId());
-        });
-
-        TextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
-        tv_all_events_in_chain.setOnClickListener(v -> {
-            bottomSheetDialog.dismiss();
-            deleteAllEventsInChain(event.getChainId());
-        });
-
-        bottomSheetDialog.show();
     }
 
     public void deleteSingleEvent(@NonNull String private_key){
@@ -430,42 +389,12 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
                         .setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT)));
     }
 
-    public void createCopyDialog(){
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
-        bottomSheetDialog.setDismissWithAnimation(true);
-
-        bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
-
-        TextView tv_bottom_sheet_dialog_title = bottomSheetDialog.findViewById(R.id.tv_bottom_sheet_dialog_title);
-        tv_bottom_sheet_dialog_title.setText(R.string.copy);
-
-        TextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
-        tv_only_this_event.setOnClickListener(v -> {
-            bottomSheetDialog.dismiss();
-            copySingleEvent(event);
-        });
-
-        TextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
-        tv_all_events_in_chain.setOnClickListener(v -> {
-            bottomSheetDialog.dismiss();
-            copyAllEventsInChain(event);
-        });
-
-        bottomSheetDialog.show();
-    }
-
     public void copySingleEvent(@NonNull CalendarEvent event){
         String private_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
 
         CalendarEvent copy = event.copy();
 
         copy.setPrivateId(private_key);
-        copy.setChainId(private_key);
-
-        copy.clearFrequencyData();
-
-        copy.updateChainStartDate(event.receiveStartDate());
-        copy.updateChainEndDate(event.receiveEndDate());
 
         Intent intent = new Intent(requireContext(), AddOrEditEventScreen.class);
         intent.putExtra(CalendarEvent.KEY_EVENT, copy);
@@ -473,17 +402,4 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
         startActivity(intent);
     }
 
-    public void copyAllEventsInChain(@NonNull CalendarEvent event) {
-        String private_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
-        String chain_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
-
-        CalendarEvent copy = event.copy();
-        copy.setPrivateId(private_key);
-        copy.setChainId(chain_key);
-
-        Intent intent = new Intent(requireContext(), AddOrEditEventScreen.class);
-        intent.putExtra(CalendarEvent.KEY_EVENT, copy);
-
-        startActivity(intent);
-    }
 }

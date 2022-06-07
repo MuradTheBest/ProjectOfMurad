@@ -22,6 +22,7 @@ import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.DayDialog;
+import com.example.projectofmurad.groups.Group;
 import com.example.projectofmurad.utils.Utils;
 
 public class AlarmReceiver extends BroadcastReceiver {
@@ -95,6 +96,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         i.putExtra("isAlarm", true);
         i.putExtra(CalendarEvent.KEY_EVENT_PRIVATE_ID, event.getPrivateId());
         i.putExtra(CalendarEvent.KEY_EVENT_START, event.getStart());
+        i.putExtra(Group.KEY_GROUP_KEY, event.getGroupKey());
         i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         Log.d("murad", event.toString());
 
@@ -102,7 +104,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, requestCode /* Request code */, i,
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-
 
         String notification_tag = event.getPrivateId();
 

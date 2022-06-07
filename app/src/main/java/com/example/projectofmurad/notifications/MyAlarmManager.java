@@ -12,6 +12,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.projectofmurad.calendar.CalendarEvent;
+import com.example.projectofmurad.groups.Group;
 import com.example.projectofmurad.utils.Utils;
 
 import java.util.Calendar;
@@ -60,6 +61,7 @@ public class MyAlarmManager {
         }
 
         intent.putExtra(CalendarEvent.KEY_EVENT, event);
+        intent.putExtra(Group.KEY_GROUP_KEY, event.getGroupKey());
 
         SQLiteDatabase db = Utils.openOrCreateDatabase(context);
         int requestCode = Utils.addAlarm(event.getPrivateId(), event.getStartDateTime(), db);

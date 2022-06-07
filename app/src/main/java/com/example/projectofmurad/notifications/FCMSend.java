@@ -87,10 +87,6 @@ public class FCMSend {
             json.put("to", "/topics/" + topic);
             JSONObject notification = new JSONObject();
 
-            if(!event.isSingle()){
-                msg = "chain ";
-            }
-
             text = "Event " + msg + event.getName() + text;
 
             notification.put("tag", event.getPrivateId());
@@ -103,7 +99,7 @@ public class FCMSend {
             data.put("type", type);
             data.put("text", text);
             data.put("color", new Gson().toJson(event.getColor()));
-            data.put("group", FirebaseUtils.CURRENT_GROUP_KEY);
+            data.put(Group.KEY_GROUP_KEY, event.getGroupKey());
             data.put(CalendarEvent.KEY_EVENT, event.toJson());
             data.put(KEY_SENDER_UID, FirebaseUtils.getCurrentUID());
 

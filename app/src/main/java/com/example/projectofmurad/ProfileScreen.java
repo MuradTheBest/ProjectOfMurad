@@ -121,20 +121,13 @@ public class ProfileScreen extends UserSigningActivity {
                                 ProfileScreen.this,
                                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build());
 
-                        googleSignInClient.signOut()
-                                .addOnSuccessListener(unused -> {
-                                    loadingDialog.dismiss();
-                                    FirebaseUtils.getFirebaseAuth().signOut();
-                                    startActivity(Utils.getIntentClearTop(new Intent(ProfileScreen.this,
-                                            LogInScreen.class)));
-                                    finish();
-                                })
-                                .addOnFailureListener(e -> {
-                                    loadingDialog.dismiss();
-                                    Toast.makeText(getApplicationContext(),
-                                            R.string.upps_something_went_wrong,
-                                            Toast.LENGTH_SHORT).show();
-                                });
+                        googleSignInClient.signOut();
+
+                        loadingDialog.dismiss();
+
+                        FirebaseUtils.getFirebaseAuth().signOut();
+                        startActivity(Utils.getIntentClearTop(new Intent(ProfileScreen.this, LogInScreen.class)));
+                        finish();
                     }
                 });
 

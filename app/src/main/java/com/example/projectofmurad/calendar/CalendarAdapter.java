@@ -132,7 +132,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         tv_events[3] = holder.tv_event_4;
         tv_events[4] = holder.tv_event_5;
 
-        Query query = FirebaseUtils.getEventsForDateRef(date).orderByChild(CalendarEvent.KEY_EVENT_START);
+        Query query = FirebaseUtils.getEventsForDateRef(date).orderByValue();
 
         DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
 

@@ -13,7 +13,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
@@ -23,7 +22,6 @@ public abstract class CalendarUtils {
     public final static DateTimeFormatter dateFormatOnline = DateTimeFormatter.ofPattern("E, dd.MM.yyyy", Locale.ENGLISH);
     public final static DateTimeFormatter dateFormatLocal = DateTimeFormatter.ofPattern("E, dd.MM.yyyy");
 
-    public final static DateTimeFormatter dateTimeFormatOnline = DateTimeFormatter.ofPattern("E, dd.MM.yyyy, HH:mm", Locale.ENGLISH);
     public final static DateTimeFormatter dateTimeFormatLocal = DateTimeFormatter.ofPattern("E, dd.MM.yyyy, HH:mm");
 
     public final static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
@@ -42,18 +40,6 @@ public abstract class CalendarUtils {
     }
 
     @NonNull
-    public static String[] getNarrowDaysOfWeek(){
-        String[] daysOfWeek = new String[7];
-
-        for(int i = 0; i < DayOfWeek.values().length; i++) {
-            DayOfWeek d = DayOfWeek.of(i+1);
-            daysOfWeek[i] = d.getDisplayName(TextStyle.NARROW, getLocale());
-        }
-
-        return daysOfWeek;
-    }
-
-    @NonNull
     public static String[] getShortDaysOfWeek(){
         String[] daysOfWeek = new String[7];
 
@@ -63,22 +49,6 @@ public abstract class CalendarUtils {
         }
 
         return daysOfWeek;
-    }
-
-    public static int getWeekNumber(@NonNull LocalDate date){
-        Month month = date.getMonth();
-
-        int count = 0;
-        while(date.getMonth().equals(month)){
-            count++;
-            date = date.minusWeeks(1);
-        }
-
-        return count;
-    }
-
-    public static String DateTimeToTextOnline(@NonNull LocalDateTime dateTime){
-        return dateTime.format(dateTimeFormatOnline);
     }
 
     public static String DateTimeToTextLocal(@NonNull LocalDateTime dateTime){
@@ -91,15 +61,6 @@ public abstract class CalendarUtils {
 
     public static String DateToTextLocal(@NonNull LocalDate date){
         return date.format(dateFormatLocal.withLocale(getLocale()));
-    }
-
-    public static LocalDate TextToDateForFirebase(String date){
-        return LocalDate.parse(date, dateFormatOnline);
-    }
-
-    @NonNull
-    public static String DateToTextForFirebase(@NonNull LocalDate date){
-        return date.toString();
     }
 
     public static String TimeToText(@NonNull LocalTime time){

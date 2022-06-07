@@ -45,7 +45,7 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
             return;
         }
 
-        String groupKey = remoteMessage.getData().get("group");
+        String groupKey = remoteMessage.getData().get(Group.KEY_GROUP_KEY);
 
         if (groupKey == null){
             Log.d(FCM_TAG, "groupKey is empty");
@@ -79,7 +79,7 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
         String tag = remoteMessage.getNotification().getTag();
         String text = remoteMessage.getData().get("text");
         int type = Integer.parseInt(remoteMessage.getData().getOrDefault("type", "0"));
-        String groupKey = remoteMessage.getData().get("group");
+        String groupKey = remoteMessage.getData().get(Group.KEY_GROUP_KEY);
 
         String CHANNEL_ID = "Events Notifications";
 

@@ -94,7 +94,7 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
         TextView tv_no_events = findViewById(R.id.tv_no_events);
         tv_no_events.setVisibility(View.GONE);
 
-        Query eventsDatabase = FirebaseUtils.getEventsForDateRef(passingDate).orderByChild(CalendarEvent.KEY_EVENT_START);
+        Query eventsDatabase = FirebaseUtils.getEventsForDateRef(passingDate).orderByValue();
 
         DatabaseReference allEventsDatabase = FirebaseUtils.getAllEventsDatabase();
 

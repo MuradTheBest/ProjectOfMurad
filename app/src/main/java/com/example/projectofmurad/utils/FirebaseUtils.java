@@ -282,7 +282,7 @@ public abstract class FirebaseUtils {
     public static LiveData<UserData> getCurrentUserData(){
         MutableLiveData<UserData> userData = new MutableLiveData<>();
 
-        getCurrentUserDataRef().addListenerForSingleValueEvent(new ValueEventListener() {
+        getCurrentUserDataRef().addValueEventListener(new ValueEventListener() {
 
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {

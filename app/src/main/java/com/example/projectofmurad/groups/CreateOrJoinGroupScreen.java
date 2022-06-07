@@ -87,6 +87,7 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
             @Override
             public void afterTextChanged(Editable s) {
                 btn_generate_group_key.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
+                Utils.setText(et_new_group_key, s.toString().trim());
             }
         });
 
