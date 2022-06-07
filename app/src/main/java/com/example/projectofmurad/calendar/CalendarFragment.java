@@ -19,21 +19,17 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.MainViewModel;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.MyGridLayoutManager;
-import com.example.projectofmurad.helpers.utils.CalendarUtils;
-import com.example.projectofmurad.helpers.utils.FirebaseUtils;
-import com.example.projectofmurad.helpers.utils.Utils;
-import com.example.projectofmurad.notifications.FCMSend;
-import com.example.projectofmurad.notifications.MyAlarmManager;
+import com.example.projectofmurad.utils.CalendarUtils;
+import com.example.projectofmurad.utils.Utils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
@@ -93,7 +89,7 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
 
         LocalDate today = LocalDate.now();
 
-        calendarRecyclerView = view.findViewById(R.id.calendarRecyclerView);
+        calendarRecyclerView = view.findViewById(R.id.rv_calendar);
 
         tv_date = view.findViewById(R.id.tv_date);
         tv_date.setOnClickListener(new View.OnClickListener() {
@@ -116,11 +112,6 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
 
         ll_calendar_view = view.findViewById(R.id.ll_calendar_view);
 
-        Log.d("murad","today is " + CalendarUtils.DateToTextOnline(today));
-
-        MaterialButton btn_auto_event = view.findViewById(R.id.btn_auto_event);
-        btn_auto_event.setOnClickListener(v -> sendAlarm());
-
         MaterialButton btn_previous_month = view.findViewById(R.id.btn_previous_month);
         btn_previous_month.setOnClickListener(v -> setMonthView(selectedDate.minusMonths(1)));
 
@@ -130,6 +121,7 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
         initAllDaysOfWeek();
 
         mainViewModel.getEventDate().observe(getViewLifecycleOwner(), this::setMonthView);
+        mainViewModel.getEventPrivateId().observe(getViewLifecycleOwner(), this::showEvent);
 
         MaterialToolbar materialToolbar = view.findViewById(R.id.materialToolbar);
         materialToolbar.setOnMenuItemClickListener(item -> {
@@ -146,30 +138,6 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
             mainViewModel.resetEventPrivateId();
             Log.d(Utils.LOG_TAG, "event_private_id is NOT null");
         }
-    }
-
-    public void sendAlarm() {
-        CalendarEvent calendarEvent = new CalendarEvent();
-        calendarEvent.setName("Sample Event");
-        calendarEvent.setPlace("Sample Place");
-        calendarEvent.setDescription("Sample Description");
-        calendarEvent.setColor(Utils.generateRandomColor());
-        calendarEvent.setPrivateId("sample_event_private_id");
-        calendarEvent.setChainId("sample_event_private_id");
-        calendarEvent.updateStartDate(LocalDate.now());
-        calendarEvent.updateStartTime(LocalTime.now().plusMinutes(1));
-        calendarEvent.updateEndDate(LocalDate.now());
-        calendarEvent.updateEndTime(LocalTime.now().plusMinutes(1).plusHours(1));
-        Log.d("murad", calendarEvent.toString());
-
-        MyAlarmManager.addAlarm(requireContext(), calendarEvent, 0);
-        FirebaseUtils.getEventsForDateRef(calendarEvent.receiveStartDate())
-                .child(calendarEvent.getPrivateId()).setValue(calendarEvent);
-
-        FirebaseUtils.getAllEventsDatabase().child(calendarEvent.getPrivateId()).setValue(calendarEvent);
-
-        FCMSend.sendNotificationsToAllUsersWithTopic(requireContext(), calendarEvent, Utils.ADD_EVENT_NOTIFICATION_CODE);
-
     }
 
     private void initAllDaysOfWeek(){
@@ -227,12 +195,7 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
         CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth, selectedDate, this);
         calendarRecyclerView.setAdapter(calendarAdapter);
 
-        MyGridLayoutManager gridLayoutManager = new MyGridLayoutManager(requireContext(), 7);
-
-        gridLayoutManager.setOnLayoutCompleteListener(
-                () -> mainViewModel.getEventPrivateId().observe(getViewLifecycleOwner(), CalendarFragment.this::showEvent));
-
-        calendarRecyclerView.setLayoutManager(gridLayoutManager);
+        calendarRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 7));
         calendarRecyclerView.setHasFixedSize(true);
 
         animate(ll_calendar_view);

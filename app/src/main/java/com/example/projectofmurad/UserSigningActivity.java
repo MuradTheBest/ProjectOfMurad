@@ -1,6 +1,6 @@
 package com.example.projectofmurad;
 
-import static com.example.projectofmurad.helpers.utils.Utils.LOG_TAG;
+import static com.example.projectofmurad.utils.Utils.LOG_TAG;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,11 +15,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.projectofmurad.helpers.utils.CalendarUtils;
-import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.utils.CalendarUtils;
+import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
-import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.utils.Utils;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -44,10 +44,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * Super class of all activities that require user's interaction with {@link FirebaseAuth}
  */
-public class UserSigningActivity extends AppCompatActivity {
+public abstract class UserSigningActivity extends AppCompatActivity {
 
     protected MaterialButton btn_google;
-    protected MaterialButton btn_facebook;
     protected MaterialButton btn_phone;
 
     protected LoadingDialog loadingDialog;

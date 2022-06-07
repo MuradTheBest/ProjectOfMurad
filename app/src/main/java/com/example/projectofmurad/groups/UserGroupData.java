@@ -1,25 +1,15 @@
 package com.example.projectofmurad.groups;
 
-import com.example.projectofmurad.Show;
-
 public class UserGroupData {
 
     private String UID;
     private String groupKey;
     private boolean madrich;
-    private int show;
     private boolean subscribedToAddEvent;
     private boolean subscribedToEditEvent;
     private boolean subscribedToDeleteEvent;
 
-    public static final String KEY_USER_GROUP_DATA = "userGroupData";
-    public static final String KEY_UID = "uid";
-    public static final String KEY_GROUP_KEY = "groupKey";
     public static final String KEY_MADRICH = "madrich";
-    public static final String KEY_SHOW = "show";
-    public static final String KEY_SUBSCRIBED_TO_ADD_EVENT = "subscribedToAddEvent";
-    public static final String KEY_SUBSCRIBED_TO_EDIT_EVENT = "subscribedToEditEvent";
-    public static final String KEY_SUBSCRIBED_TO_DELETE_EVENT = "subscribedToDeleteEvent";
 
     public UserGroupData(){}
 
@@ -27,7 +17,6 @@ public class UserGroupData {
         this.UID = UID;
         this.groupKey = groupKey;
         this.madrich = madrich;
-        this.show = Show.MADRICH.getValue();
     }
 
     public boolean isMadrich() {
@@ -36,14 +25,6 @@ public class UserGroupData {
 
     public void setMadrich(boolean madrich) {
         this.madrich = madrich;
-    }
-
-    public int getShow() {
-        return show;
-    }
-
-    public void setShow(int show) {
-        this.show = show;
     }
 
     public String getUID() {

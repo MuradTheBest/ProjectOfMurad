@@ -25,11 +25,11 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.projectofmurad.groups.UserGroupData;
-import com.example.projectofmurad.helpers.utils.CalendarUtils;
-import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.utils.CalendarUtils;
+import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
-import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.utils.Utils;
 import com.example.projectofmurad.notifications.FCMSend;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -157,7 +157,7 @@ public class ProfileScreen extends UserSigningActivity {
                     s.append("-");
                 }
                 length = s.length();
-                btn_change_phone.setVisibility(phone.contentEquals(s) ? View.VISIBLE : View.GONE);
+                btn_change_phone.setVisibility(phone.contentEquals(s) ? View.GONE : View.VISIBLE);
             }
         });
 
@@ -253,7 +253,7 @@ public class ProfileScreen extends UserSigningActivity {
                 unused -> FirebaseUtils.deleteAll(FirebaseUtils.getDatabase().getReference(), UID,
                         () -> {
                             Toast.makeText(getApplicationContext(), "Account was successfully deleted", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(ProfileScreen.this, SplashScreen.class));
+                            startActivity(Utils.getIntentClearTop(new Intent(ProfileScreen.this, SplashScreen.class)));
                         }))
                 .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Account deleting failed", Toast.LENGTH_SHORT).show());
     }
@@ -327,7 +327,7 @@ public class ProfileScreen extends UserSigningActivity {
                                                 et_madrich.setChecked(isMadrichCode);
                                                 Toast.makeText(ProfileScreen.this,
                                                                 isMadrichCode
-                                                                ? "MADRICH privileges were granted"
+                                                                ? "Madrich privileges were granted"
                                                                 : "Invalid verification code",
                                                         Toast.LENGTH_SHORT).show();
                                         })
@@ -351,7 +351,8 @@ public class ProfileScreen extends UserSigningActivity {
         Utils.createAlertDialog(this, null,
                 "Are you sure about losing madrich privileges?",
                 R.string.yes, (dialog, which) ->
-                        FirebaseUtils.getCurrentUserGroupDataRef().setValue(false)
+                        FirebaseUtils.getCurrentUserGroupDataRef().child(UserGroupData.KEY_MADRICH)
+                                .setValue(false)
                                 .addOnSuccessListener(unused -> {
                                         et_madrich.setChecked(false);
                                         Toast.makeText(this, "MADRICH privileges were taken", Toast.LENGTH_SHORT).show();
@@ -389,9 +390,9 @@ public class ProfileScreen extends UserSigningActivity {
 
         switch (selectedId) {
             case R.id.edit_profile:
-                finish();
                 intent.putExtra("mode", true);
                 startActivity(intent);
+                finish();
                 break;
             case R.id.save_profile:
                 if(checkInput()){
@@ -558,9 +559,9 @@ public class ProfileScreen extends UserSigningActivity {
     }
 
     public void getCurrentUserData() {
-        if (!FirebaseUtils.isUserLoggedIn()){
+        if (!FirebaseUtils.isUserLoggedIn()) {
+            startActivity(Utils.getIntentClearTop(new Intent(ProfileScreen.this, LogInScreen.class)));
             finish();
-            startActivity(new Intent(ProfileScreen.this, LogInScreen.class));
             return;
         }
 

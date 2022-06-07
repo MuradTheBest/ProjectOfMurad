@@ -4,10 +4,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatImageView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -16,9 +16,9 @@ import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.calendar.UsersAdapterForFirebase;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.LoadingDialog;
-import com.example.projectofmurad.helpers.utils.FirebaseUtils;
-import com.example.projectofmurad.helpers.utils.Utils;
-import com.example.projectofmurad.helpers.utils.ViewAnimationUtils;
+import com.example.projectofmurad.utils.FirebaseUtils;
+import com.example.projectofmurad.utils.Utils;
+import com.example.projectofmurad.utils.ViewAnimationUtils;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -33,7 +33,7 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
     protected Group group;
 
     protected CollapsingToolbarLayout collapsing_toolbar_layout;
-    protected AppCompatImageView iv_group_picture;
+    protected ImageView iv_group_picture;
     protected MaterialToolbar toolbar;
     protected TextInputLayout et_group_name;
     protected TextInputLayout et_group_description;
@@ -87,7 +87,7 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
 
         Utils.setText(et_group_name, group.getName());
         Utils.setText(et_group_description, group.getDescription());
-        Utils.setText(et_group_key, Utils.getFormalGroupKey(group.getKey()));
+        Utils.setText(et_group_key, group.getKey());
         Utils.setText(et_trainer_code, String.valueOf(group.getMadrichCode()));
         Utils.setText(et_group_limit, String.valueOf(group.getLimit()));
 

@@ -1,4 +1,4 @@
-package com.example.projectofmurad.helpers.utils;
+package com.example.projectofmurad.utils;
 
 import android.transition.AutoTransition;
 import android.transition.ChangeBounds;

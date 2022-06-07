@@ -22,13 +22,12 @@ import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.DayDialog;
-import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.utils.Utils;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
     public final static String TAG = MyAlarmManager.TAG;
 
-    public final static String ACTION_SHOW_NOTIFICATION = Utils.APPLICATION_ID + "show_notification";
     public final static String ACTION_STOP_VIBRATION = Utils.APPLICATION_ID + "stop_vibration";
 
     public final static int ALARM_NOTIFICATION_ID = 500;

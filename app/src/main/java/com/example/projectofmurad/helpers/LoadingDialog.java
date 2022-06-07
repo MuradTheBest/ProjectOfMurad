@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.utils.Utils;
 
 public class LoadingDialog extends Dialog {
 

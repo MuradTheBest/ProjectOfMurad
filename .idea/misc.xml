@@ -151,6 +151,7 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_password_24.xml" value="0.1445" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_person_24.xml" value="0.119" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_repeat_24.xml" value="0.18076923076923077" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_settings_24.xml" value="0.1" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_baseline_show_chart_24.xml" value="0.118" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_launcher_background.xml" value="0.119" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/drawable/ic_search_black_24dp.xml" value="0.1445" />
@@ -210,6 +211,7 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/event_info.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/event_info_expanded.xml" value="0.6549865229110512" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/event_info_expanded_with_card_view.xml" value="0.33" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_alarms.xml" value="0.1" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_blank.xml" value="0.2" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_blank_for_viewpager2.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_blank_for_viewpager2_and_motion_layout.xml" value="0.1" />
@@ -232,7 +234,7 @@
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_private_trainings.xml" value="0.2" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_tables_.xml" value="0.14" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_there_is_no_event.xml" value="0.16794871794871793" />
-        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_tracking_.xml" value="0.25" />
+        <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_tracking_.xml" value="0.18" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_training__info__dialog.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/fragment_user_attendances.xml" value="0.25" />
         <entry key="..\:/Users/murad/StudioProjects/ProjectOfMurad/app/src/main/res/layout/loading_dialog.xml" value="0.22" />

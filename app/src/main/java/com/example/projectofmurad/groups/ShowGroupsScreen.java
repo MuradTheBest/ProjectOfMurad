@@ -6,31 +6,25 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
+import android.os.*;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.helpers.RecyclerViewSwipeDecorator;
-import com.example.projectofmurad.helpers.utils.FirebaseUtils;
-import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.utils.FirebaseUtils;
+import com.example.projectofmurad.utils.Utils;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DatabaseReference;
@@ -146,6 +140,7 @@ public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapterF
                                 "To change current group?",
                                 R.string.yes, (dialog, which) -> {
                                         FirebaseUtils.changeGroup(getApplicationContext(), group.getKey(), group.getColor());
+                                        FirebaseUtils.getCurrentUserDataRef().child(UserData.KEY_CURRENT_GROUP).setValue(group.getKey());
                                         startActivity(new Intent(getApplicationContext(), MainActivity.class));
                                 },
                                 R.string.no, (dialog, which) -> dialog.dismiss(),

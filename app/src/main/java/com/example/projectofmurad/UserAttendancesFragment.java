@@ -3,6 +3,7 @@ package com.example.projectofmurad;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,8 @@ import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.EventInfoDialogFragment;
 import com.example.projectofmurad.calendar.EventsAdapterForFirebase;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
-import com.example.projectofmurad.helpers.utils.FirebaseUtils;
+import com.example.projectofmurad.utils.FirebaseUtils;
+import com.example.projectofmurad.utils.Utils;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.database.DataSnapshot;
@@ -36,11 +38,9 @@ import com.google.firebase.database.ValueEventListener;
 public class UserAttendancesFragment extends DialogFragment implements EventsAdapterForFirebase.OnEventClickListener{
 
     public static final String TAG = "UserAttendancesFragment";
-    public static final String ARG_IS_SHOWS_DIALOG = "isShowsDialog";
 
     private String UID;
     private String username;
-    private boolean isShowsDialog;
 
     public UserAttendancesFragment() {
         // Required empty public constructor
@@ -52,17 +52,14 @@ public class UserAttendancesFragment extends DialogFragment implements EventsAda
      *
      * @param UID uid of selected user.
      * @param username username of selected user
-     * @param isShowsDialog if to show as a dialog or fragment
-     *
-     * @return A new instance of fragment AlarmsFragment.
+     * @return A new instance of fragment UserAttendancesFragment.
      */
     @NonNull
-    public static UserAttendancesFragment newInstance(String UID, String username, boolean isShowsDialog) {
+    public static UserAttendancesFragment newInstance(String UID, String username) {
         UserAttendancesFragment fragment = new UserAttendancesFragment();
         Bundle args = new Bundle();
         args.putString(UserData.KEY_UID, UID);
         args.putString(UserData.KEY_USERNAME, username);
-        args.putBoolean(ARG_IS_SHOWS_DIALOG, isShowsDialog);
         fragment.setArguments(args);
         return fragment;
     }
@@ -73,13 +70,16 @@ public class UserAttendancesFragment extends DialogFragment implements EventsAda
         if (getArguments() != null) {
             UID = getArguments().getString(UserData.KEY_UID);
             username = getArguments().getString(UserData.KEY_USERNAME);
-            isShowsDialog = getArguments().getBoolean(ARG_IS_SHOWS_DIALOG);
+            setShowsDialog(true);
+        }
+        else {
+            UID = FirebaseUtils.getCurrentUID();
+            setShowsDialog(false);
         }
 
         allEventsAmount = new MutableLiveData<>(0L);
         attendingEventsAmount = new MutableLiveData<>(0L);
 
-        setShowsDialog(isShowsDialog);
         setStyle(STYLE_NORMAL, R.style.FullScreenDialogTheme);
         setCancelable(true);
 
@@ -145,6 +145,7 @@ public class UserAttendancesFragment extends DialogFragment implements EventsAda
 
             }
         });
+
         attendingEvents.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -239,6 +240,9 @@ public class UserAttendancesFragment extends DialogFragment implements EventsAda
         long count = attendingEventsAmount.getValue();
         long all = allEventsAmount.getValue();
         double attendance = (double) count/all;
+
+        Log.d(Utils.LOG_TAG, "count = " + count);
+        Log.d(Utils.LOG_TAG, "all = " + all);
 
         if (FirebaseUtils.isCurrentUID(UID)){
             tv_relative_attendance.setText("Your relative attendance: " + (int) (attendance*100) + "%");

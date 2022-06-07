@@ -1,44 +1,33 @@
 package com.example.projectofmurad.calendar;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.CompositePageTransformer;
-import androidx.viewpager2.widget.MarginPageTransformer;
-import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.Show;
 import com.example.projectofmurad.UserAttendancesFragment;
 import com.example.projectofmurad.UserData;
-import com.example.projectofmurad.groups.UserGroupData;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.LoadingDialog;
-import com.example.projectofmurad.helpers.utils.FirebaseUtils;
-import com.example.projectofmurad.helpers.utils.Utils;
-import com.example.projectofmurad.helpers.utils.ViewAnimationUtils;
+import com.example.projectofmurad.utils.FirebaseUtils;
+import com.example.projectofmurad.utils.Utils;
+import com.example.projectofmurad.utils.ViewAnimationUtils;
 import com.example.projectofmurad.notifications.MyAlarmManager;
-import com.example.projectofmurad.training.TrainingsAdapterForFirebase;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.appbar.AppBarLayout;
@@ -47,23 +36,16 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
 
 /**
  * A simple {@link DialogFragment} subclass.
  * Use the {@link EventInfoDialogFragment#newInstance(CalendarEvent, boolean)} factory method to
  * create an instance of this fragment.
  */
-public class EventInfoDialogFragment extends DialogFragment implements TrainingsAdapterForFirebase.OnShowToOthersListener,
-                                                                        UsersAdapterForFirebase.OnUserLongClickListener,
+public class EventInfoDialogFragment extends DialogFragment implements UsersAdapterForFirebase.OnUserLongClickListener,
                                                                         UsersAdapterForFirebase.OnUserExpandListener,
-                                                                        CompoundButton.OnCheckedChangeListener,
                                                                         View.OnClickListener {
 
     public static final String ARG_IS_SHOWS_DIALOG = "isShowsDialog";
@@ -76,7 +58,6 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
     private RecyclerView rv_users;
 
     private ShimmerFrameLayout shimmer_rv_users;
-    private ShimmerFrameLayout shimmer_vp_user_and_training;
 
     public EventInfoDialogFragment() {
         // Required empty public constructor
@@ -139,10 +120,6 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
     private TextView tv_event_start_date_time;
     private TextView tv_event_end_date_time;
 
-    private ViewPager2 vp_trainings;
-
-    private LinearLayoutCompat ll_manage_event;
-
     private MaterialButton btn_copy_event;
     private MaterialButton btn_edit_event;
     private MaterialButton btn_share_event;
@@ -166,12 +143,9 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
             ((UsersAdapterForFirebase.UserViewHolderForFirebase) holder).expanded = false;
         });
 
-        shimmer_vp_user_and_training = view.findViewById(R.id.shimmer_vp_user_and_training);
-
         cv_event = view.findViewById(R.id.cv_event);
 
         switch_alarm = view.findViewById(R.id.switch_alarm);
-        switch_alarm.setOnCheckedChangeListener(this);
         switch_alarm.setOnClickListener(this);
 
         tv_event_name = view.findViewById(R.id.tv_event_name);
@@ -180,8 +154,6 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
         tv_event_start_date_time = view.findViewById(R.id.tv_event_start_date_time);
         tv_event_end_date_time = view.findViewById(R.id.tv_event_end_date_time);
-
-        vp_trainings = view.findViewById(R.id.vp_trainings);
 
         btn_copy_event = view.findViewById(R.id.btn_copy_event);
         btn_edit_event = view.findViewById(R.id.btn_edit_event);
@@ -193,8 +165,6 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
             app_bar_layout = view.findViewById(R.id.app_bar_layout);
             collapsing_toolbar_layout = view.findViewById(R.id.collapsing_toolbar_layout);
-
-            ll_manage_event = view.findViewById(R.id.ll_manage_event);
 
             btn_copy_event.setOnClickListener(this);
             btn_edit_event.setOnClickListener(this);
@@ -294,93 +264,6 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
         switch_alarm.setChecked(Utils.checkIfAlarmSet(event.getPrivateId(), Utils.openOrCreateDatabase(requireContext())));
 
         setUpAllUsersRecyclerView(false);
-
-        Query usersAndTrainings = FirebaseUtils.getGroupTrainingsDatabase().child(event.getPrivateId())
-                .orderByChild(UserGroupData.KEY_SHOW).equalTo(Show.ALL.getValue());
-
-        MutableLiveData<ArrayList<String>> userKeys = new MutableLiveData<>(new ArrayList<>());
-        userKeys.observe(this, this::initializeTrainingsFirebaseViewPager2);
-
-        usersAndTrainings.addValueEventListener(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ArrayList<String> keys = new ArrayList<>();
-                for (DataSnapshot user : snapshot.getChildren()) {
-                    Log.d(Utils.LOG_TAG, "snapshot = " + user.hasChild(UserGroupData.KEY_SHOW));
-                    Log.d(Utils.LOG_TAG, "snapshot = " + user.getRef());
-                    Log.d(Utils.LOG_TAG, "snapshot = " + user.child(UserGroupData.KEY_SHOW).getValue(int.class));
-//                    if (user.child(UserGroupData.KEY_SHOW).getValue(int.class) == Show.ALL.getValue()){
-                    keys.add(user.getKey());
-//                    }
-
-                }
-                userKeys.setValue(keys);
-
-                FirebaseUtils.getIfCurrentUserHasTrainingsForEvent(event.getPrivateId()).observe(EventInfoDialogFragment.this,
-                        hasTrainings -> {
-                            if (hasTrainings && !userKeys.getValue().contains(FirebaseUtils.getCurrentUID())) {
-                                ArrayList<String> users = userKeys.getValue();
-                                users.add(0, FirebaseUtils.getCurrentUID());
-                                userKeys.setValue(users);
-                            }
-                        });
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        });
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    public void initializeTrainingsFirebaseViewPager2(@NonNull ArrayList<String> UIDs){
-
-        TrainingsAdapterForFirebase trainingsAdapterForFirebase = new TrainingsAdapterForFirebase(requireContext(), UIDs,
-                event.getPrivateId(), event.getColor(), this);
-
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-
-        if (getParentFragment() != null) {
-            getParentFragment().requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        }
-        else {
-            requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        }
-        int width = displayMetrics.widthPixels;
-
-        vp_trainings.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getX() < (float) width / 2) {
-                    vp_trainings.setCurrentItem(vp_trainings.getCurrentItem() - 1);
-                }
-                else if (motionEvent.getX() > (float) width / 2) {
-                    vp_trainings.setCurrentItem(vp_trainings.getCurrentItem() + 1);
-                }
-                return false;
-            }
-        });
-
-        vp_trainings.setAdapter(trainingsAdapterForFirebase);
-        vp_trainings.setClipToPadding(false);
-        vp_trainings.setClipChildren(false);
-        vp_trainings.setOffscreenPageLimit(3);
-        vp_trainings.getChildAt(0).setOverScrollMode(RecyclerView.OVER_SCROLL_NEVER);
-        vp_trainings.setNestedScrollingEnabled(true);
-
-        CompositePageTransformer compositePageTransformer = new CompositePageTransformer();
-        compositePageTransformer.addTransformer(new MarginPageTransformer(10));
-        compositePageTransformer.addTransformer((page, position) -> {
-            float r = 1 - Math.abs(position);
-            page.setScaleY(0.85f + r * 0.15f);
-        });
-
-        vp_trainings.setPageTransformer(compositePageTransformer);
-
-        int currentUserPosition = -1;
-        if (currentUserPosition > -1)
-            vp_trainings.setCurrentItem(currentUserPosition, true);
-
     }
 
     public void setUpAllUsersRecyclerView(boolean attend){
@@ -421,12 +304,19 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
     @Override
     public boolean onUserLongClick(int position, @NonNull UserData userData) {
-        FragmentManager fm = getParentFragmentManager();
-        if (fm.findFragmentByTag(UserAttendancesFragment.TAG) == null){
-            UserAttendancesFragment userAttendancesFragment
-                    = UserAttendancesFragment.newInstance(userData.getUID(), userData.getUsername(), true);
-            userAttendancesFragment.show(fm, UserAttendancesFragment.TAG);
-        }
+        FirebaseUtils.isMadrich().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isMadrich) {
+                if (isMadrich) {
+                    FragmentManager fm = getParentFragmentManager();
+                    if (fm.findFragmentByTag(UserAttendancesFragment.TAG) == null){
+                        UserAttendancesFragment userAttendancesFragment
+                                = UserAttendancesFragment.newInstance(userData.getUID(), userData.getUsername());
+                        userAttendancesFragment.show(fm, UserAttendancesFragment.TAG);
+                    }
+                }
+            }
+        });
 
         return false;
     }
@@ -435,13 +325,10 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
     public void onClick(View v) {
         if (v == switch_alarm){
            if (switch_alarm.isChecked()){
-               Log.d("murad", "Alarm added");
-
-               AlarmDialog alarmDialog = new AlarmDialog(requireContext(), event, switch_alarm, 2, 0);
+               AlarmDialog alarmDialog = new AlarmDialog(requireContext(), event, switch_alarm);
                alarmDialog.show();
            }
            else {
-               Log.d("murad", "Alarm deleted");
                Toast.makeText(requireContext(), "Alarm deleted", Toast.LENGTH_SHORT).show();
                MyAlarmManager.cancelAlarm(requireContext(), event);
            }
@@ -498,31 +385,6 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
         shimmer_rv_users.stopShimmer();
         shimmer_rv_users.setVisibility(View.GONE);
         rv_users.setVisibility(View.VISIBLE);
-    }
-
-    public void startVPTrainingsShimmer() {
-        vp_trainings.setVisibility(View.INVISIBLE);
-        shimmer_vp_user_and_training.setVisibility(View.VISIBLE);
-        shimmer_vp_user_and_training.startShimmer();
-
-        new Handler().postDelayed(this::stopVPTrainingsShimmer, 500);
-    }
-
-    public void stopVPTrainingsShimmer(){
-        shimmer_vp_user_and_training.stopShimmer();
-        shimmer_vp_user_and_training.setVisibility(View.GONE);
-        vp_trainings.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onShowToOthers(int toWho) {
-        FirebaseUtils.getCurrentUserTrainingsRefForEvent(event.getPrivateId()).getParent()
-                        .child(UserGroupData.KEY_SHOW).setValue(toWho)
-                        .addOnSuccessListener(unused -> Toast.makeText(requireContext(),
-                                           "Now your results are visible to " + Show.values()[toWho].toString(),
-                                                Toast.LENGTH_SHORT).show());
-
-        startVPTrainingsShimmer();
     }
 
     public void createDeleteDialog(){
@@ -602,8 +464,8 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
 
         copy.clearFrequencyData();
 
-        copy.setFrequency_start(event.getStartDate());
-        copy.setFrequency_end(event.getEndDate());
+        copy.updateChainStartDate(event.receiveStartDate());
+        copy.updateChainEndDate(event.receiveEndDate());
 
         Intent intent = new Intent(requireContext(), AddOrEditEventScreen.class);
         intent.putExtra(CalendarEvent.KEY_EVENT, copy);
@@ -623,10 +485,5 @@ public class EventInfoDialogFragment extends DialogFragment implements Trainings
         intent.putExtra(CalendarEvent.KEY_EVENT, copy);
 
         startActivity(intent);
-    }
-
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
     }
 }

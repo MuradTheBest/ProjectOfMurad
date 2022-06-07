@@ -1,20 +1,16 @@
-package com.example.projectofmurad.helpers.utils;
-
-import static com.example.projectofmurad.helpers.utils.Utils.LOG_TAG;
+package com.example.projectofmurad.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.bumptech.glide.Glide;
 import com.example.projectofmurad.MyApplication;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
@@ -22,9 +18,6 @@ import com.example.projectofmurad.groups.Group;
 import com.example.projectofmurad.groups.UserGroupData;
 import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
-import com.example.projectofmurad.training.Training;
-import com.facebook.shimmer.ShimmerFrameLayout;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
@@ -86,11 +79,6 @@ public abstract class FirebaseUtils {
     }
 
     @NonNull
-    public static DatabaseReference getCurrentUserPrivateTrainingsRef() {
-        return getPrivateTrainingsDatabase().child(getCurrentUID());
-    }
-
-    @NonNull
     public static DatabaseReference getUserTrackingRef(String event_private_id, String UID){
         return getAttendanceDatabase().child(event_private_id).child(UID);
     }
@@ -117,7 +105,7 @@ public abstract class FirebaseUtils {
 
     @NonNull
     public static DatabaseReference getCurrentGroupDatabase() {
-        Log.d(LOG_TAG, getGroupDatabase(CURRENT_GROUP_KEY).toString());
+        Log.d(Utils.LOG_TAG, getGroupDatabase(CURRENT_GROUP_KEY).toString());
         return getGroupDatabase(CURRENT_GROUP_KEY);
     }
 
@@ -264,93 +252,12 @@ public abstract class FirebaseUtils {
 
     @NonNull
     public static DatabaseReference getAllEventsDatabase(){
-        return getCurrentGroupDatabase().child("AllEvents").getRef();
+        return getCurrentGroupDatabase().child("All Events").getRef();
     }
 
     @NonNull
     public static DatabaseReference getAttendanceDatabase(){
         return getCurrentGroupDatabase().child("Attendance").getRef();
-    }
-
-    @NonNull
-    public static DatabaseReference getGroupTrainingsDatabase(){
-        return getCurrentGroupDatabase().child("Group Trainings").getRef();
-    }
-
-    @NonNull
-    public static DatabaseReference getPrivateTrainingsDatabase(){
-        return getDatabase().getReference("Private Trainings").getRef();
-    }
-
-    @NonNull
-    public static DatabaseReference getUserTrainingsRefForEvent(String UID, String eventPrivateId){
-        return getGroupTrainingsDatabase().child(eventPrivateId).child(UID).child("Trainings");
-    }
-
-    @NonNull
-    public static DatabaseReference getCurrentUserTrainingsRefForEvent(String eventPrivateId){
-        return getUserTrainingsRefForEvent(getCurrentUID(), eventPrivateId);
-    }
-
-    @NonNull
-    public static Task<Void> addTrainingForEvent(String eventPrivateId, @NonNull Training training) {
-        getCurrentUserGroupDataRef().child(UserGroupData.KEY_SHOW).get().addOnSuccessListener(
-                dataSnapshot -> getCurrentUserTrainingsRefForEvent(eventPrivateId).getParent()
-                        .child(UserGroupData.KEY_SHOW).setValue(dataSnapshot.getValue(int.class)));
-        return getCurrentUserTrainingsRefForEvent(eventPrivateId).child(training.getPrivateId()).setValue(training);
-    }
-
-    @NonNull
-    public static LiveData<ArrayList<Training>> getUserTrainingsForEvent(String UID, String event_private_id) {
-        MutableLiveData<ArrayList<Training>> trainings = new MutableLiveData<>();
-
-        getUserTrainingsRefForEvent(UID, event_private_id).orderByChild("start").addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                        ArrayList<Training> trainingArrayList = new ArrayList<>();
-
-                        for (DataSnapshot training : snapshot.getChildren()){
-                            Training t = training.getValue(Training.class);
-                            trainingArrayList.add(t);
-                        }
-
-                        trainings.setValue(trainingArrayList);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-
-        return trainings;
-    }
-
-    @NonNull
-    public static LiveData<ArrayList<Training>> getCurrentUserTrainingsForEvent(String event_private_id){
-        return getUserTrainingsForEvent(getCurrentUID(), event_private_id);
-    }
-
-    @NonNull
-    public static LiveData<Boolean> getIfCurrentUserHasTrainingsForEvent(String event_private_id){
-        MutableLiveData<Boolean> hasTrainings = new MutableLiveData<>();
-
-        getUserTrainingsRefForEvent(getCurrentUID(), event_private_id).addValueEventListener(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        hasTrainings.setValue(snapshot.exists());
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-
-        return hasTrainings;
     }
 
     public interface FirebaseCallback {
@@ -468,38 +375,12 @@ public abstract class FirebaseUtils {
         return getCurrentFirebaseUser().getUid();
     }
 
-    public static boolean isCurrentUID(@NonNull String UID){
+    public static boolean isCurrentUID(String UID){
         return Objects.equals(getCurrentUID(), UID);
     }
 
     public static boolean isUserLoggedIn(){
         return getCurrentFirebaseUser() != null;
-    }
-
-    public static void getProfilePictureFromFB(String UID, Context context, ImageView imageView){
-        getProfilePictureFromFB(UID, context, imageView, null);
-    }
-
-    public static void getProfilePictureFromFB(String UID, Context context, @NonNull ImageView imageView, ShimmerFrameLayout shimmerFrameLayout){
-        imageView.setVisibility(View.INVISIBLE);
-
-        usersDatabase.child(UID).child(UserData.KEY_PICTURE).get().addOnSuccessListener(
-                new OnSuccessListener<DataSnapshot>() {
-                    @Override
-                    public void onSuccess(DataSnapshot dataSnapshot) {
-                        Glide.with(context).load(dataSnapshot.getValue(String.class))
-                                .error(R.drawable.sample_profile_picture)
-                                .placeholder(R.drawable.sample_profile_picture)
-                                .centerCrop().into(imageView);
-
-                        imageView.setVisibility(View.VISIBLE);
-
-                        if (shimmerFrameLayout != null){
-                            shimmerFrameLayout.stopShimmer();
-                            shimmerFrameLayout.setVisibility(View.GONE);
-                        }
-                    }
-                });
     }
 
     @NonNull

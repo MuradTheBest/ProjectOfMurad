@@ -1,7 +1,5 @@
 package com.example.projectofmurad;
 
-import static com.example.projectofmurad.helpers.utils.Utils.LOG_TAG;
-
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -14,7 +12,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,25 +20,23 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
-
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.CalendarFragment;
 import com.example.projectofmurad.calendar.DayDialog;
 import com.example.projectofmurad.groups.Group;
-import com.example.projectofmurad.helpers.utils.CalendarUtils;
-import com.example.projectofmurad.helpers.utils.FirebaseUtils;
-import com.example.projectofmurad.helpers.utils.Utils;
 import com.example.projectofmurad.notifications.AlarmReceiver;
 import com.example.projectofmurad.notifications.MyAlarmManager;
-import com.example.projectofmurad.tracking.Location;
 import com.example.projectofmurad.tracking.TrackingService;
-import com.example.projectofmurad.tracking.TrackingFragment;
+import com.example.projectofmurad.utils.CalendarUtils;
+import com.example.projectofmurad.utils.FirebaseUtils;
+import com.example.projectofmurad.utils.Utils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+
+import static com.example.projectofmurad.utils.Utils.LOG_TAG;
 
 public class MainActivity extends AppCompatActivity implements NavController.OnDestinationChangedListener {
 
@@ -93,27 +88,6 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
     public void checkIntent(@NonNull Intent gotten_intent){
         switch (gotten_intent.getAction()) {
             case TrackingService.ACTION_MOVE_TO_TRACKING_FRAGMENT:
-
-                if (gotten_intent.getExtras() != null){
-                    double latitude = gotten_intent.getDoubleExtra("latitude", 0);
-                    double longitude = gotten_intent.getDoubleExtra("longitude", 0);
-
-                    Location location = new Location(latitude, longitude);
-
-                    mainViewModel.setLocation(location);
-                }
-
-                moveToTrackingFragment();
-                break;
-            case TrackingFragment.ACTION_MOVE_TO_TRACKING_FRAGMENT_TO_SHOW_TRACK:
-                Log.d("murad", "Going to Tracking_Fragment");
-
-                if (gotten_intent.getExtras() != null){
-                    ArrayList<Location> locations = gotten_intent.getParcelableArrayListExtra("locations");
-
-                    mainViewModel.setLocations(locations);
-                }
-
                 moveToTrackingFragment();
                 break;
             case CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT:
@@ -208,9 +182,6 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
 
             animate(bottomNavigationView, Gravity.TOP, 300);
 //            animate((ViewGroup) containerView, Gravity.TOP, 300);
-        }
-        else if (bottomNavigationView.getSelectedItemId() == R.id.blankFragment) {
-            mainViewModel.setScrollUp(true);
         }
         else {
             super.onBackPressed();

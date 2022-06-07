@@ -3,6 +3,7 @@ package com.example.projectofmurad;
 import androidx.annotation.NonNull;
 
 public class UserData {
+
     private String UID;
     private String email;
     private String username;
@@ -10,16 +11,10 @@ public class UserData {
     private String picture;
     private String currentGroup;
 
-    public final static String KEY_USER_DATA = "userData";
     public final static String KEY_UID = "uid";
-    public final static String KEY_EMAIL = "email";
     public final static String KEY_USERNAME = "username";
     public final static String KEY_PHONE = "phone";
-    public final static String KEY_PICTURE = "picture";
     public static final String KEY_CURRENT_GROUP = "currentGroup";
-
-    public final static String KEY_SUBSCRIBED_TO_AUTO_ALARM_SET = "key_user_subscribedToAutoAlarmSet";
-    public final static String KEY_SUBSCRIBED_TO_AUTO_ALARM_MOVE = "key_user_subscribedToAutoAlarmMove";
 
     public UserData(){}
 

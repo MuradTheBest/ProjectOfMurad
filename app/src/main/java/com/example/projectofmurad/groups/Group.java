@@ -18,23 +18,11 @@ public class Group implements Serializable {
     public static final String KEY_GROUP = "key_group";
     public static final String KEY_NAME = "name";
     public static final String KEY_GROUP_KEY = "key";
-    public static final String KEY_DESCRIPTION = "description";
-    public static final String KEY_COLOR = "color";
     public static final String KEY_MADRICH_CODE = "madrichCode";
-    public static final String KEY_LIMIT = "limit";
     public static final String KEY_USERS_NUMBER = "usersNumber";
     public static final String KEY_PICTURE = "picture";
 
     public Group() {}
-
-    public Group(String name, String key, String description, int madrichCode, int color, int limit) {
-        this.name = name;
-        this.key = key;
-        this.description = description;
-        this.madrichCode = madrichCode;
-        this.limit = limit;
-        this.color = color;
-    }
 
     public Group(String name, String key, String description, int madrichCode, int color, int usersNumber, int limit) {
         this.name = name;

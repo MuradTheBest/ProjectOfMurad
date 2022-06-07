@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-<!--    <item
-        android:id="@+id/tables_Fragment"
-        android:title="@string/tables"
-        android:icon="@drawable/ic_baseline_table_view_24" /> -->
-
     <item
-        android:id="@+id/graph_Fragment"
-        android:title="Progress"
-        android:icon="@drawable/ic_baseline_show_chart_24" />
+        android:id="@+id/attendance_Fragment"
+        android:title="@string/attendance"
+        android:icon="@drawable/ic_baseline_assignment_turned_in_40" />
 
     <item
         android:id="@+id/calendar_Fragment"

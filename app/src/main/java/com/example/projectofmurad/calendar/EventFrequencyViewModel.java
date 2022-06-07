@@ -9,8 +9,8 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.utils.CalendarUtils;
-import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.utils.CalendarUtils;
+import com.example.projectofmurad.utils.Utils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

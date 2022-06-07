@@ -6,9 +6,9 @@ import android.content.DialogInterface;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
-import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.utils.Utils;
 
-public class MyAlertDialogBuilder extends AlertDialog.Builder /*MaterialAlertDialogBuilder*/ {
+public class MyAlertDialogBuilder extends AlertDialog.Builder {
     /**
      * Click listeners
      */

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.GradientDrawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +16,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.utils.FirebaseUtils;
-import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.utils.FirebaseUtils;
+import com.example.projectofmurad.utils.Utils;
 import com.example.projectofmurad.notifications.MyAlarmManager;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -111,11 +110,9 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
         @Override
         public void onClick(View view) {
-            Log.d(Utils.LOG_TAG, "snapshots "  + getSnapshots());
             CalendarEvent event = getItem(getBindingAdapterPosition());
 
             if (view == switch_alarm){
-
                 if (switch_alarm.isChecked()){
                     AlarmDialog alarmDialog = new AlarmDialog(context, event, switch_alarm);
                     alarmDialog.show();
@@ -179,6 +176,7 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         else {
             holder.tv_event_start_date_time.setText(String.format(getString(R.string.starting_time_s_s),
                     model.getStartDate(), model.getStartTime()));
+
             holder.tv_event_end_date_time.setText(String.format(getString(R.string.ending_time_s_s),
                     model.getEndDate(), model.getEndTime()));
         }

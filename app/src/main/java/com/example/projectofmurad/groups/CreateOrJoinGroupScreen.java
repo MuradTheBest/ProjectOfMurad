@@ -17,8 +17,8 @@ import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.ColorPickerDialog;
 import com.example.projectofmurad.helpers.LoadingDialog;
-import com.example.projectofmurad.helpers.utils.FirebaseUtils;
-import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.utils.FirebaseUtils;
+import com.example.projectofmurad.utils.Utils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DataSnapshot;
@@ -201,7 +201,7 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
             et_group_key.setError("Key required");
         }
         else {
-            checkKeyToJoinGroup(Utils.getInFormalGroupKey(key));
+            checkKeyToJoinGroup(key);
         }
     }
 
@@ -217,8 +217,7 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
                 }
 
                 for (DataSnapshot group : snapshot.getChildren()){
-                    if (Objects.equals(group.child(Group.KEY_GROUP_KEY).getValue(String.class),
-                            Utils.getInFormalGroupKey(key))){
+                    if (Objects.equals(group.child(Group.KEY_GROUP_KEY).getValue(String.class), key)){
                         createGroupExistsDialog(true);
                         return;
                     }
@@ -291,7 +290,7 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
 
                         if (code.isEmpty()) code = "0";
 
-                        joinGroup(key, g.getColor(), g.getUsersNumber(), g.getMadrichCode() == Integer.parseInt(code));
+                        joinGroup(key, g.getColor(), g.getMadrichCode() == Integer.parseInt(code));
                         return;
                     }
                 }
@@ -317,7 +316,7 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
 
     public void createGroup(){
         String name = Utils.getText(et_new_group_name);
-        String key = Utils.getInFormalGroupKey(Utils.getText(et_new_group_key));
+        String key = Utils.getText(et_new_group_key);
         String trainerCode = Utils.getText(et_new_trainer_code);
         String limit = Utils.getText(et_new_group_limit);
         limit = limit.isEmpty() ? "0" : limit;
@@ -346,7 +345,7 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
 
     }
 
-    public void joinGroup(String key, int color, int usersNumber, boolean isMadrich){
+    public void joinGroup(String key, int color, boolean isMadrich){
 
         FirebaseUtils.addGroupToCurrentUser(key, isMadrich,
                 () -> {

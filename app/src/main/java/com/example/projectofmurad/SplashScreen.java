@@ -1,8 +1,6 @@
 
 package com.example.projectofmurad;
 
-import static com.example.projectofmurad.helpers.utils.Utils.LOG_TAG;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,20 +11,20 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-
 import com.example.projectofmurad.groups.CreateOrJoinGroupScreen;
 import com.example.projectofmurad.groups.ShowGroupsScreen;
-import com.example.projectofmurad.helpers.utils.FirebaseUtils;
-import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.utils.FirebaseUtils;
+import com.example.projectofmurad.utils.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.database.DataSnapshot;
 
 import java.util.Objects;
+
+import static com.example.projectofmurad.utils.Utils.LOG_TAG;
 
 public class SplashScreen extends AppCompatActivity {
 

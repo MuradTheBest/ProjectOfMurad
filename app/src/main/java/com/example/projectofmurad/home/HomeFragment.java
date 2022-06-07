@@ -1,18 +1,9 @@
 package com.example.projectofmurad.home;
 
-import android.animation.Animator;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+import android.view.*;
 import android.widget.ProgressBar;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -21,7 +12,6 @@ import androidx.appcompat.widget.AppCompatImageView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -32,9 +22,9 @@ import com.example.projectofmurad.MainViewModel;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.EventSlidePageAdapter;
-import com.example.projectofmurad.helpers.utils.FirebaseUtils;
-import com.example.projectofmurad.helpers.utils.Utils;
 import com.example.projectofmurad.tracking.TrackingService;
+import com.example.projectofmurad.utils.FirebaseUtils;
+import com.example.projectofmurad.utils.Utils;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -78,18 +68,12 @@ public class HomeFragment extends Fragment {
             case android.R.id.home:
                 if (tabLayout.getSelectedTabPosition() == 1){
                     tabLayout.selectTab(tabLayout.getTabAt(0), true);
-                }/*
-                else {
-                    startActivity(new Intent(requireContext(), ProfileScreen.class));
-                }*/
+                }
                 break;
             case R.id.to_next_event:
                 if (tabLayout.getSelectedTabPosition() == 0){
                     tabLayout.selectTab(tabLayout.getTabAt(1), true);
-                }/*
-                else {
-                    startActivity(new Intent(requireContext(), ProfileScreen.class));
-                }*/
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -115,25 +99,10 @@ public class HomeFragment extends Fragment {
 
     private FloatingActionButton fab_add_training;
 
-    private FloatingActionButton fab_add_training2;
-    private FloatingActionButton fab_add_private_training2;
-    private FloatingActionButton fab_add_group_training2;
-
     private MainViewModel mainViewModel;
 
     private ProgressBar progressBar;
     private AppCompatImageView iv_group_picture;
-
-    private Animation rotate_open_anim;
-    private Animation rotate_close_anim;
-
-    private Animation from_bottom_anim;
-    private Animation to_bottom_anim;
-
-    private Animation from_end_anim;
-    private Animation to_end_anim;
-
-    private boolean expand;
 
     private ActionBar actionBar;
 
@@ -155,11 +124,9 @@ public class HomeFragment extends Fragment {
                 if (tabLayout.getSelectedTabPosition() == 1){
                     if (!isContentHide && mainViewModel.getNextEvent().getValue() != null){
                         fab_add_training.show();
-                        fab_add_training2.hide();
                     }
                     else {
                         fab_add_training.hide();
-                        fab_add_training2.show();
                     }
                 }
 
@@ -279,92 +246,12 @@ public class HomeFragment extends Fragment {
         fab_add_training.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TrackingService.trainingType.setValue(TrackingService.GROUP_TRAINING);
                 CalendarEvent event = mainViewModel.getNextEvent().getValue();
                 TrackingService.eventPrivateId.setValue(event.getPrivateId());
                 ((MainActivity) requireActivity()).moveToTrackingFragment();
             }
         });
 
-        fab_add_training2 = view.findViewById(R.id.fab_add_training2);
-        fab_add_training2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                expand = !expand;
-                setVisibility(expand);
-                setAnimation(expand);
-                setClickable(expand);
-            }
-        });
-
-        fab_add_training2.addOnHideAnimationListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                if (expand){
-                    expand = false;
-                    setVisibility(false);
-                    setAnimation(false);
-                }
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {}
-
-            @Override
-            public void onAnimationCancel(Animator animation) {}
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {}
-        });
-
-        fab_add_training2.hide();
-
-        fab_add_private_training2 = view.findViewById(R.id.fab_add_private_training2);
-        fab_add_private_training2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TrackingService.trainingType.setValue(TrackingService.PRIVATE_TRAINING);
-                ((MainActivity) requireActivity()).moveToTrackingFragment();
-            }
-        });
-
-        fab_add_group_training2 = view.findViewById(R.id.fab_add_group_training2);
-        fab_add_group_training2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TrackingService.trainingType.setValue(TrackingService.GROUP_TRAINING);
-                ((MainActivity) requireActivity()).moveToTrackingFragment();
-            }
-        });
-
-        initializeAnimations();
-    }
-
-    private void initializeAnimations(){
-        rotate_open_anim = AnimationUtils.loadAnimation(requireContext(),R.anim.rotate_open_anim);
-        rotate_close_anim = AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_close_anim);
-
-        from_bottom_anim = AnimationUtils.loadAnimation(requireContext(), R.anim.from_bottom_anim);
-        to_bottom_anim = AnimationUtils.loadAnimation(requireContext(), R.anim.to_bottom_anim);
-
-        from_end_anim = AnimationUtils.loadAnimation(requireContext(), R.anim.from_end_anim);
-        to_end_anim = AnimationUtils.loadAnimation(requireContext(), R.anim.to_end_anim);
-    }
-
-    private void setVisibility(boolean expand){
-        fab_add_private_training2.setVisibility(expand ? View.VISIBLE : View.INVISIBLE);
-        fab_add_group_training2.setVisibility(expand ? View.VISIBLE : View.INVISIBLE);
-    }
-
-    private void setAnimation(boolean expand){
-        fab_add_training.startAnimation(expand ? rotate_open_anim : rotate_close_anim);
-        fab_add_private_training2.startAnimation(expand ? from_bottom_anim : to_bottom_anim);
-        fab_add_group_training2.startAnimation(expand ? from_end_anim : to_end_anim);
-    }
-
-    private void setClickable(boolean clickable){
-        fab_add_private_training2.setClickable(clickable);
-        fab_add_group_training2.setClickable(clickable);
     }
 
     private void setPagerAdapter() {
@@ -387,7 +274,6 @@ public class HomeFragment extends Fragment {
             public void onTabSelected(TabLayout.Tab tab) {
 
                 fab_add_training.setVisibility(tab.getPosition() == 0 ? View.GONE : View.VISIBLE);
-                fab_add_training2.setVisibility(tab.getPosition() == 0 ? View.GONE : View.VISIBLE);
 
                 actionBar.setDisplayHomeAsUpEnabled(tab.getPosition() == 1);
 

@@ -1,6 +1,5 @@
 package com.example.projectofmurad.calendar;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.transition.AutoTransition;
@@ -30,8 +29,8 @@ import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.helpers.utils.CalendarUtils;
-import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.utils.CalendarUtils;
+import com.example.projectofmurad.utils.Utils;
 import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -118,8 +117,6 @@ public class EventFrequencyDialogFragment extends DialogFragment implements
 
     public LocalDate startDate;
 
-    public Dialog dialog;
-
     public DatePicker date_picker_end;
 
     public Button btn_ok;
@@ -159,7 +156,8 @@ public class EventFrequencyDialogFragment extends DialogFragment implements
             this.startDate = LocalDate.of(year, month, day);
         }
 
-        getDialog().getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow;
+        setShowsDialog(true);
+
     }
 
     @Nullable

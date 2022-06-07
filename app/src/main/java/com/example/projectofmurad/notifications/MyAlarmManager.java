@@ -12,10 +12,9 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.projectofmurad.calendar.CalendarEvent;
-import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.utils.Utils;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 @SuppressLint("MissingPermission")
@@ -48,8 +47,6 @@ public class MyAlarmManager {
         String beforeText = "";
 
         if (before != 0){
-//            LocalTime timeBefore = CalendarEvent.getTime(before);
-
             beforeText = Utils.longToTimeText(before);
         }
 
@@ -63,13 +60,6 @@ public class MyAlarmManager {
         }
 
         intent.putExtra(CalendarEvent.KEY_EVENT, event);
-
-        Log.d(TAG, "===============================================================================================");
-        Log.d(TAG, "Setting alarm");
-        Log.d(TAG, " ");
-        Log.d(TAG, "The event " + event.getName() + " started. \n" +
-                "It will finish on " + event.getEndDateTime());
-        Log.d(TAG, "" + event.getColor());
 
         SQLiteDatabase db = Utils.openOrCreateDatabase(context);
         int requestCode = Utils.addAlarm(event.getPrivateId(), event.getStartDateTime(), db);
@@ -95,21 +85,15 @@ public class MyAlarmManager {
 
         long alarm = calendar.getTimeInMillis() - before;
 
-        Date date = new Date(alarm);
-
-//        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
-        alarmManager.setAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
         if (alarm > System.currentTimeMillis()){
+            alarmManager.setAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
         }
-//        alarmManager.set(AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
     }
 
     public static void cancelAlarm(@NonNull Context context, @NonNull CalendarEvent event){
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmReceiver.class);
-
-//        CalendarEvent event = findCalendarEventById(event_private_id);
 
         intent.putExtra("notification_body", "The event " + event.getName() + " started. " +
                 "It will finish on " + event.getEndDateTime());
@@ -121,14 +105,6 @@ public class MyAlarmManager {
         int requestCode = Utils.deleteAlarm(event.getPrivateId(), db);
 
         if (requestCode > 0){
-            Log.d(TAG, "===============================================================================================");
-            Log.d(TAG, "Cancelling alarm");
-            Log.d(TAG, " ");
-            Log.d(TAG, "The event " + event.getName() + " started. \n" +
-                    "It will finish at " + event.getEndTime());
-            Log.d(TAG, "" + event.getColor());
-            Log.d(TAG, "===============================================================================================");
-
             PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_IMMUTABLE);
 
             alarmManager.cancel(pendingIntent);

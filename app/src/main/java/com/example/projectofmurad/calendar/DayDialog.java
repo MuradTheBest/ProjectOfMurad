@@ -21,15 +21,16 @@ import androidx.appcompat.app.AppCompatDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.RecyclerViewSwipeDecorator;
-import com.example.projectofmurad.helpers.utils.CalendarUtils;
-import com.example.projectofmurad.helpers.utils.FirebaseUtils;
-import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.utils.CalendarUtils;
+import com.example.projectofmurad.utils.FirebaseUtils;
+import com.example.projectofmurad.utils.Utils;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -168,6 +169,9 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
 //                dismiss();
             }
         });
+
+        FirebaseUtils.isMadrich().observe((LifecycleOwner) context,
+                isMadrich -> fab_add_event.setVisibility(isMadrich ? View.VISIBLE : View.GONE));
 
         itemTouchHelper.attachToRecyclerView(rv_events);
     }

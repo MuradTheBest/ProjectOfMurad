@@ -25,17 +25,11 @@
         android:label="fragment_preferences"
         tools:layout="@layout/fragment_preferences" />
 
-<!--    <fragment
-        android:id="@+id/tables_Fragment"
-        android:name="com.example.projectofmurad.table.Tables_Fragment"
-        android:label="fragment_tables_"
-        tools:layout="@layout/fragment_tables_" /> -->
-
     <fragment
-        android:id="@+id/graph_Fragment"
-        android:name="com.example.projectofmurad.graphs.Graph_Fragment"
-        android:label="fragment_graph_"
-        tools:layout="@layout/fragment_graph_" />
+        android:id="@+id/attendance_Fragment"
+        android:name="com.example.projectofmurad.UserAttendancesFragment"
+        android:label="fragment_attendance_"
+        tools:layout="@layout/fragment_user_attendances" />
 
     <fragment
         android:id="@+id/calendar_Fragment"

@@ -15,8 +15,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.groups.Group;
-import com.example.projectofmurad.helpers.utils.FirebaseUtils;
-import com.example.projectofmurad.helpers.utils.Utils;
+import com.example.projectofmurad.utils.FirebaseUtils;
+import com.example.projectofmurad.utils.Utils;
 import com.google.gson.Gson;
 
 import org.jetbrains.annotations.Contract;
@@ -87,7 +87,7 @@ public class FCMSend {
             json.put("to", "/topics/" + topic);
             JSONObject notification = new JSONObject();
 
-            if(event.getFrequency() != 1 && event.getFrequencyType().equals("end")){
+            if(!event.isSingle()){
                 msg = "chain ";
             }
 

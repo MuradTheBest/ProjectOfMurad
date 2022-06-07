@@ -1,4 +1,4 @@
-package com.example.projectofmurad.helpers.utils;
+package com.example.projectofmurad.utils;
 
 import android.app.Dialog;
 import android.content.ContentValues;
@@ -19,15 +19,12 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatDialog;
 import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.BuildConfig;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.MyAlertDialogBuilder;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.jetbrains.annotations.Contract;
@@ -36,8 +33,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Random;
 
@@ -64,9 +59,6 @@ public abstract class Utils {
     public final static String TABLE_AlARM_COL_ALARM_ID = "alarm_id";
     public final static String TABLE_AlARM_COL_EVENT_PRIVATE_ID = "event_private_id";
     public final static String TABLE_AlARM_COL_EVENT_DATE_TIME = "event_date_time";
-    public final static String TABLE_AlARM_COL_ALARM_ALREADY_SET = "alarmAlreadySet";
-
-    public final static String TABLE_AlARM_COL_NOTIFICATION_ID = "notification_id";
 
 
     public static SQLiteDatabase openOrCreateDatabase(@NonNull Context context){
@@ -78,15 +70,7 @@ public abstract class Utils {
                 " tbl_alarm(alarm_id integer primary key autoincrement, event_private_id text, event_date_time text)");
     }
 
-    public static void deleteAllTables(@NonNull SQLiteDatabase db) {
-        db.execSQL("drop table if exists tbl_alarm");
-    }
-
     public static int addAlarm(@NonNull String event_private_id, String event_dateTime, @NonNull SQLiteDatabase db){
-        System.out.println(event_private_id);
-
-        //Todo create screen will all set alarms
-
         ContentValues cv = new ContentValues();
         cv.put(TABLE_AlARM_COL_EVENT_PRIVATE_ID, event_private_id);
         cv.put(TABLE_AlARM_COL_EVENT_DATE_TIME, event_dateTime);
@@ -131,26 +115,10 @@ public abstract class Utils {
         return alarm_id;
     }
 
-    public static void deleteAllAlarms(@NonNull SQLiteDatabase db){
-        Cursor cursor = db.rawQuery("select * from " + TABLE_AlARM_NAME, null);
-        while (cursor.moveToNext()){
-            int alarm_id = cursor.getInt(0);
-        }
-
-        cursor.close();
-
-        db.execSQL("drop table if exists " + TABLE_AlARM_NAME);
-    }
-
     @ColorInt
     public static int generateRandomColor(){
         Random rnd = new Random();
         return Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-    }
-
-    public static void createCustomDialog(@NonNull AppCompatDialog dialog){
-        dialog.getWindow().getAttributes().windowAnimations = R.style.MyAnimationWindow; //style id
-        dialog.getWindow().setBackgroundDrawableResource(R.drawable.round_picker_dialog_background);
     }
 
     @NonNull
@@ -172,50 +140,6 @@ public abstract class Utils {
         BigDecimal bd = BigDecimal.valueOf(value);
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
-    }
-
-    @NonNull
-    public static String convertSpeedToPace(double speed){
-
-        if (speed == 0){
-            return "00'00" + '"' + "/km";
-        }
-
-        speed = convertSpeedToMinPerKm(speed);
-
-        String speedText = String.valueOf(speed);
-
-        String[] pace = speedText.split("\\.");
-
-        double ratio = Double.parseDouble("0." + pace[1]);
-
-        int seconds = (int) (60 * ratio);
-
-        int length = String.valueOf(seconds).length();
-
-        if (length > 2){
-            length = 2;
-        }
-        pace[1] = String.valueOf(seconds).substring(0, length);
-
-        int[] result = new int[2];
-        result[0] = Integer.parseInt(pace[0]);
-        result[1] = Integer.parseInt(pace[1]);
-
-        return String.format(Locale.getDefault(), "%02d'%02d" + '"' + "/km", result[0], result[1]);
-    }
-
-    public static double convertSpeedToMinPerKm(double speed){
-        if (speed == 0)
-            return 0;
-
-        speed /= 60;
-
-        speed = 1/speed;
-
-        speed = round(speed, 2);
-
-        return speed;
     }
 
     @NonNull
@@ -287,7 +211,7 @@ public abstract class Utils {
      * nd the color opposite to contrast text color for such a background.
      * It will be used as background for {@link RecyclerView} items.
      * @param color Background color of {@link RecyclerView} item.
-     * @return
+     * @return customGradientDrawable
      */
     @NonNull
     public static GradientDrawable getGradientBackground(@ColorInt int color) {
@@ -302,16 +226,6 @@ public abstract class Utils {
         gd.setShape(GradientDrawable.RECTANGLE);
 
         return gd;
-    }
-
-    @NonNull
-    public static LatLngBounds getLatLngBounds(@NonNull List<LatLng> latLngs){
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (LatLng latLng : latLngs){
-            builder.include(latLng);
-        }
-
-        return builder.build();
     }
 
     public static int dpToPx(float dp, @NonNull Context context) {
@@ -397,15 +311,5 @@ public abstract class Utils {
 
     public static void setText(@NonNull TextInputLayout textInputLayout, @StringRes int resId){
         Objects.requireNonNull(textInputLayout.getEditText()).setText(resId);
-    }
-
-    @NonNull
-    public static String getFormalGroupKey(@NonNull String key){
-        return key.replace("Group-", "");
-    }
-
-    @NonNull
-    public static String getInFormalGroupKey(@NonNull String key){
-        return "Group-" + key;
     }
 }
