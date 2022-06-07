@@ -1,6 +1,5 @@
 package com.example.projectofmurad.calendar;
 
-import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -106,7 +105,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CalendarViewHolder holder, @SuppressLint("RecyclerView") int position) {
+    public void onBindViewHolder(@NonNull CalendarViewHolder holder, int position) {
+        position = holder.getBindingAdapterPosition();
         LocalDate date = daysOfMonth.get(position);
 
         holder.dayOfMonth.setText(" " + date.getDayOfMonth() + " ");

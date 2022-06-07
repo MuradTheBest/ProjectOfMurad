@@ -43,7 +43,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * The type Day dialog.
  */
-public class DayDialog extends AppCompatDialog implements EventsAdapterForFirebase.OnEventClickListener{
+public class DayDialog extends AppCompatDialog implements EventsAdapter.OnEventClickListener{
 
     /**
      * The Passing date.
@@ -53,7 +53,7 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
     private FloatingActionButton fab_add_event;
 
     private RecyclerView rv_events;
-    private EventsAdapterForFirebase eventsAdapter;
+    private EventsAdapter eventsAdapter;
 
     /**
      * The constant ACTION_TO_SHOW_EVENT.
@@ -123,7 +123,7 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
                 .setIndexedQuery(eventsDatabase, allEventsDatabase, CalendarEvent.class)
                 .build();
 
-        eventsAdapter = new EventsAdapterForFirebase(options, passingDate, context, this);
+        eventsAdapter = new EventsAdapter(options, passingDate, context, this);
         rv_events.setAdapter(eventsAdapter);
 
         LinearLayoutManagerWrapper layoutManager = new LinearLayoutManagerWrapper(context);
@@ -279,8 +279,8 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
         @Override
         public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
 
-            final EventsAdapterForFirebase.EventViewHolderForFirebase eventViewHolder
-                    = (EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder;
+            final EventsAdapter.EventViewHolder eventViewHolder
+                    = (EventsAdapter.EventViewHolder) viewHolder;
 
             vibrator.vibrate(vibrationEffect);
 
@@ -310,8 +310,8 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
         @Override
         public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
 
-            final EventsAdapterForFirebase.EventViewHolderForFirebase eventViewHolder
-                    = (EventsAdapterForFirebase.EventViewHolderForFirebase) viewHolder;
+            final EventsAdapter.EventViewHolder eventViewHolder
+                    = (EventsAdapter.EventViewHolder) viewHolder;
 
             boolean approved = eventViewHolder.cb_all_attendances.isChecked();
             boolean alarmSet = eventViewHolder.switch_alarm.isChecked();

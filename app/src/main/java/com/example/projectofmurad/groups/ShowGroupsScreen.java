@@ -35,7 +35,7 @@ import java.util.Objects;
 /**
  * The type Show groups screen.
  */
-public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapterForFirebase.OnGroupLongClickListener {
+public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapter.OnGroupLongClickListener {
 
     /**
      * The Tv username.
@@ -58,7 +58,7 @@ public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapterF
     /**
      * The Group adapter for firebase.
      */
-    GroupAdapterForFirebase groupAdapterForFirebase;
+    GroupAdapter groupAdapter;
 
     /**
      * The Loading dialog.
@@ -93,12 +93,12 @@ public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapterF
                 .setIndexedQuery(currentUserGroups, groups, Group.class)
                 .build();
 
-        groupAdapterForFirebase = new GroupAdapterForFirebase(options, this, this);
-        rv_groups.setAdapter(groupAdapterForFirebase);
+        groupAdapter = new GroupAdapter(options, this, this);
+        rv_groups.setAdapter(groupAdapter);
 
         rv_groups.setLayoutManager(new LinearLayoutManagerWrapper(this).setOnLayoutCompleteListener(
                 () -> new Handler().postDelayed(() -> {
-                    if (groupAdapterForFirebase.getItemCount() > 0) {
+                    if (groupAdapter.getItemCount() > 0) {
                         progressBar.setVisibility(View.GONE);
                         rv_groups.setVisibility(View.VISIBLE);
                     }
@@ -144,10 +144,10 @@ public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapterF
                 vibrator.vibrate(vibrationEffect);
             }
 
-            GroupAdapterForFirebase.GroupViewHolderForFirebase groupViewHolder =
-                    (GroupAdapterForFirebase.GroupViewHolderForFirebase) viewHolder;
+            GroupAdapter.GroupViewHolder groupViewHolder =
+                    (GroupAdapter.GroupViewHolder) viewHolder;
 
-            Group group = groupAdapterForFirebase.getItem(groupViewHolder.getAbsoluteAdapterPosition());
+            Group group = groupAdapter.getItem(groupViewHolder.getAbsoluteAdapterPosition());
 
             switch (direction) {
                 case ItemTouchHelper.START:

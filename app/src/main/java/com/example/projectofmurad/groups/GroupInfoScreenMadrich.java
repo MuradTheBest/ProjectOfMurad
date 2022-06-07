@@ -17,7 +17,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import com.bumptech.glide.Glide;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
-import com.example.projectofmurad.calendar.UsersAdapterForFirebase;
+import com.example.projectofmurad.calendar.UsersAdapter;
 import com.example.projectofmurad.helpers.ColorPickerDialog;
 import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.utils.Utils;
@@ -37,8 +37,8 @@ import petrov.kristiyan.colorpicker.ColorPicker;
  * The type Group info screen madrich.
  */
 public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLongClickListener,
-        UsersAdapterForFirebase.OnUserExpandListener,
-        UsersAdapterForFirebase.OnUserLongClickListener {
+        UsersAdapter.OnUserExpandListener,
+        UsersAdapter.OnUserLongClickListener {
 
     private Menu menu;
 

@@ -42,8 +42,8 @@ import com.google.firebase.database.Query;
  * Use the {@link EventInfoDialogFragment#newInstance(CalendarEvent, boolean)} factory method to
  * create an instance of this fragment.
  */
-public class EventInfoDialogFragment extends DialogFragment implements UsersAdapterForFirebase.OnUserLongClickListener,
-                                                                        UsersAdapterForFirebase.OnUserExpandListener,
+public class EventInfoDialogFragment extends DialogFragment implements UsersAdapter.OnUserLongClickListener,
+                                                                        UsersAdapter.OnUserExpandListener,
                                                                         View.OnClickListener {
 
     /**
@@ -134,7 +134,7 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
 
     private LoadingDialog loadingDialog;
 
-    private UsersAdapterForFirebase userAdapter;
+    private UsersAdapter userAdapter;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -146,8 +146,8 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
         shimmer_rv_users = view.findViewById(R.id.shimmer_rv_users_home_fragment);
 
         rv_users.addRecyclerListener(holder -> {
-            ((UsersAdapterForFirebase.UserViewHolderForFirebase) holder).ll_contact.setVisibility(View.GONE);
-            ((UsersAdapterForFirebase.UserViewHolderForFirebase) holder).expanded = false;
+            ((UsersAdapter.UserViewHolder) holder).ll_contact.setVisibility(View.GONE);
+            ((UsersAdapter.UserViewHolder) holder).expanded = false;
         });
 
         cv_event = view.findViewById(R.id.cv_event);
@@ -199,7 +199,7 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
                 .setIndexedQuery(allUserKeys, users, UserData.class)
                 .build();
 
-        userAdapter = new UsersAdapterForFirebase(userOptions, requireContext(),
+        userAdapter = new UsersAdapter(userOptions, requireContext(),
                 event.getPrivateId(), event.getEnd(), event.getColor(), this, this);
 
         LinearLayoutManagerWrapper layoutManager = new LinearLayoutManagerWrapper(requireContext());
@@ -309,8 +309,8 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
     @Override
     public void onUserExpand(int position, int oldPosition) {
         if (oldPosition > -1){
-            UsersAdapterForFirebase.UserViewHolderForFirebase oldCollapsedItem
-                    = ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition));
+            UsersAdapter.UserViewHolder oldCollapsedItem
+                    = ((UsersAdapter.UserViewHolder) rv_users.findViewHolderForAdapterPosition(oldPosition));
 
             if (oldCollapsedItem != null){
                 ViewAnimationUtils.collapse(oldCollapsedItem.ll_contact);
@@ -405,21 +405,6 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
         loadingDialog.show();
 
         FirebaseUtils.deleteAll(FirebaseUtils.getCurrentGroupDatabase(), private_key,
-                () -> startActivity(new Intent(requireContext(), MainActivity.class)
-                        .setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT)));
-    }
-
-    /**
-     * Delete all events in chain.
-     *
-     * @param chain_key the chain key
-     */
-    public void deleteAllEventsInChain(String chain_key){
-        loadingDialog.setMessage("Deleting events in the chain");
-        loadingDialog.show();
-
-        FirebaseUtils.deleteAll(FirebaseUtils.getAllEventsDatabase().orderByChild("chainId").equalTo(chain_key),
-                CalendarEvent.KEY_EVENT_PRIVATE_ID,
                 () -> startActivity(new Intent(requireContext(), MainActivity.class)
                         .setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT)));
     }

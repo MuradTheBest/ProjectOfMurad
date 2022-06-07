@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
-import com.example.projectofmurad.calendar.UsersAdapterForFirebase;
+import com.example.projectofmurad.calendar.UsersAdapter;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.utils.FirebaseUtils;
@@ -30,8 +30,8 @@ import com.google.firebase.database.Query;
 /**
  * The type Group info screen.
  */
-public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterForFirebase.OnUserExpandListener,
-        UsersAdapterForFirebase.OnUserLongClickListener {
+public class GroupInfoScreen extends AppCompatActivity implements UsersAdapter.OnUserExpandListener,
+        UsersAdapter.OnUserLongClickListener {
 
     /**
      * The Group.
@@ -182,7 +182,7 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
                 .setLifecycleOwner(this)
                 .build();
 
-        UsersAdapterForFirebase userAdapter = new UsersAdapterForFirebase(userOptions, this, group.getColor(), this, this);
+        UsersAdapter userAdapter = new UsersAdapter(userOptions, this, group.getColor(), this, this);
         rv_users.setAdapter(userAdapter);
 
         LinearLayoutManagerWrapper linearLayoutManagerWrapper = new LinearLayoutManagerWrapper(this);
@@ -212,8 +212,8 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
     @Override
     public void onUserExpand(int position, int oldPosition) {
         if (oldPosition > -1) {
-            UsersAdapterForFirebase.UserViewHolderForFirebase oldCollapsedItem
-                    = ((UsersAdapterForFirebase.UserViewHolderForFirebase) rv_users.findViewHolderForAdapterPosition(oldPosition));
+            UsersAdapter.UserViewHolder oldCollapsedItem
+                    = ((UsersAdapter.UserViewHolder) rv_users.findViewHolderForAdapterPosition(oldPosition));
 
             if (oldCollapsedItem != null){
                 ViewAnimationUtils.collapse(oldCollapsedItem.ll_contact);

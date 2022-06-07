@@ -11,14 +11,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.R;
+import com.example.projectofmurad.notifications.MyAlarmManager;
 import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.utils.Utils;
-import com.example.projectofmurad.notifications.MyAlarmManager;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.checkbox.MaterialCheckBox;
@@ -36,14 +35,8 @@ import java.time.LocalDate;
  * FirebaseUI. it provides functions to bind, adapt and show
  * database contents in a Recycler View
  */
-public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEvent, EventsAdapterForFirebase.EventViewHolderForFirebase> {
+public class EventsAdapter extends FirebaseRecyclerAdapter<CalendarEvent, EventsAdapter.EventViewHolder> {
 
-    /**
-     * Initialize a {@link RecyclerView.Adapter} that listens to a Firebase query. See
-     * {@link FirebaseRecyclerOptions} for configuration options.
-     *
-     * @param options
-     */
     protected LocalDate selectedDate;
     /**
      * The On event click listener.
@@ -70,8 +63,8 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
      * @param context              the context
      * @param onEventClickListener the on event click listener
      */
-    public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, LocalDate selectedDate,
-                                    @NonNull Context context, OnEventClickListener onEventClickListener) {
+    public EventsAdapter(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, LocalDate selectedDate,
+                         @NonNull Context context, OnEventClickListener onEventClickListener) {
 
         super(options);
         this.onEventClickListener = onEventClickListener;
@@ -88,8 +81,8 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
      * @param context              the context
      * @param onEventClickListener the on event click listener
      */
-    public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, String selectedUID,
-                                    @NonNull Context context, OnEventClickListener onEventClickListener) {
+    public EventsAdapter(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, String selectedUID,
+                         @NonNull Context context, OnEventClickListener onEventClickListener) {
 
         super(options);
         this.onEventClickListener = onEventClickListener;
@@ -101,7 +94,7 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
     /**
      * The type Event view holder for firebase.
      */
-    public class EventViewHolderForFirebase extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class EventViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         /**
          * The Constraint layout.
@@ -149,7 +142,7 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
          *
          * @param itemView the item view
          */
-        public EventViewHolderForFirebase(@NonNull View itemView) {
+        public EventViewHolder(@NonNull View itemView) {
             super(itemView);
 
             constraintLayout = itemView.findViewById(R.id.constraintLayout);
@@ -198,7 +191,7 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull EventViewHolderForFirebase holder, int position, @NonNull CalendarEvent model) {
+    protected void onBindViewHolder(@NonNull EventViewHolder holder, int position, @NonNull CalendarEvent model) {
         int textColor = Utils.getContrastColor(model.getColor());
 
         holder.switch_alarm.setTextColor(textColor);
@@ -238,10 +231,10 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
             }
         }
         else {
-            holder.tv_event_start_date_time.setText(String.format(getString(R.string.starting_time_s_s),
+            holder.tv_event_start_date_time.setText(String.format(context.getString(R.string.starting_time_s_s),
                     model.getStartDate(), model.getStartTime()));
 
-            holder.tv_event_end_date_time.setText(String.format(getString(R.string.ending_time_s_s),
+            holder.tv_event_end_date_time.setText(String.format(context.getString(R.string.ending_time_s_s),
                     model.getEndDate(), model.getEndTime()));
         }
 
@@ -272,12 +265,12 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
 
     @NonNull
     @Override
-    public EventViewHolderForFirebase onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(selectedUID == null ?
                         R.layout.row_event_info :
                         R.layout.row_event_info_attendance, parent, false);
 
-        return new EventViewHolderForFirebase(view);
+        return new EventViewHolder(view);
     }
 
     /**
@@ -308,14 +301,4 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         return position;
     }
 
-    /**
-     * Gets string.
-     *
-     * @param resId the res id
-     *
-     * @return the string
-     */
-    public String getString(@StringRes int resId) {
-        return context.getString(resId);
-    }
 }

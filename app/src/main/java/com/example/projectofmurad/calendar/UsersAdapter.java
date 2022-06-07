@@ -38,8 +38,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * The type Users adapter for firebase.
  */
-public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
-        UsersAdapterForFirebase.UserViewHolderForFirebase> {
+public class UsersAdapter extends FirebaseRecyclerAdapter<UserData,
+        UsersAdapter.UserViewHolder> {
 
     private final String event_private_id;
     private final long end;
@@ -58,9 +58,9 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
      * @param onUserLongClickListener the on user long click listener
      * @param onUserExpandListener    the on user expand listener
      */
-    public UsersAdapterForFirebase(@NonNull FirebaseRecyclerOptions<UserData> options, Context context, int color,
-                                   OnUserLongClickListener onUserLongClickListener,
-                                   OnUserExpandListener onUserExpandListener) {
+    public UsersAdapter(@NonNull FirebaseRecyclerOptions<UserData> options, Context context, int color,
+                        OnUserLongClickListener onUserLongClickListener,
+                        OnUserExpandListener onUserExpandListener) {
 
         this(options, context, null, 0, color, onUserLongClickListener, onUserExpandListener);
     }
@@ -77,10 +77,10 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
      * @param onUserLongClickListener the on user long click listener
      * @param onUserExpandListener    the on user expand listener
      */
-    public UsersAdapterForFirebase(@NonNull FirebaseRecyclerOptions<UserData> options, Context context,
-                                   String event_private_id, long end, int color,
-                                   OnUserLongClickListener onUserLongClickListener,
-                                   OnUserExpandListener onUserExpandListener) {
+    public UsersAdapter(@NonNull FirebaseRecyclerOptions<UserData> options, Context context,
+                        String event_private_id, long end, int color,
+                        OnUserLongClickListener onUserLongClickListener,
+                        OnUserExpandListener onUserExpandListener) {
         super(options);
         this.event_private_id = event_private_id;
         this.end = end;
@@ -93,7 +93,7 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
     /**
      * The type User view holder for firebase.
      */
-    public class UserViewHolderForFirebase extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class UserViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private final ConstraintLayout constraintLayout;
         /**
@@ -123,7 +123,7 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
          *
          * @param itemView the item view
          */
-        public UserViewHolderForFirebase(@NonNull View itemView) {
+        public UserViewHolder(@NonNull View itemView) {
             super(itemView);
 
             ll_contact = itemView.findViewById(R.id.ll_contact);
@@ -212,7 +212,7 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
     }
 
     @Override
-    public void onBindViewHolder(@NonNull UserViewHolderForFirebase holder, int position, @NonNull UserData model) {
+    public void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull UserData model) {
 
         int textColor = Utils.getContrastColor(color);
         GradientDrawable gd = Utils.getGradientBackground(color);
@@ -283,10 +283,10 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
 
     @NonNull
     @Override
-    public UserViewHolderForFirebase onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_user, parent, false);
 
-        return new UserViewHolderForFirebase(view);
+        return new UserViewHolder(view);
     }
 
     /**

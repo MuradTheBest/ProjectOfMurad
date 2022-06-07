@@ -27,7 +27,7 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
  * FirebaseUI. it provides functions to bind, adapt and show
  * database contents in a Recycler View
  */
-public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, GroupAdapterForFirebase.GroupViewHolderForFirebase> {
+public class GroupAdapter extends FirebaseRecyclerAdapter<Group, GroupAdapter.GroupViewHolder> {
 
     private final Context context;
     private final OnGroupLongClickListener onGroupLongClickListener;
@@ -40,8 +40,8 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
      * @param context                  the context
      * @param onGroupLongClickListener the on group long click listener
      */
-    public GroupAdapterForFirebase(@NonNull FirebaseRecyclerOptions<Group> options, @NonNull Context context,
-                                   OnGroupLongClickListener onGroupLongClickListener) {
+    public GroupAdapter(@NonNull FirebaseRecyclerOptions<Group> options, @NonNull Context context,
+                        OnGroupLongClickListener onGroupLongClickListener) {
 
         super(options);
         this.context = context;
@@ -51,7 +51,7 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
     /**
      * The type Group view holder for firebase.
      */
-    public class GroupViewHolderForFirebase extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class GroupViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         /**
          * The Constraint layout.
@@ -78,7 +78,7 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
          *
          * @param itemView the item view
          */
-        public GroupViewHolderForFirebase(@NonNull View itemView) {
+        public GroupViewHolder(@NonNull View itemView) {
             super(itemView);
 
             constraintLayout = itemView.findViewById(R.id.constraintLayout);
@@ -118,7 +118,7 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull GroupViewHolderForFirebase holder, int position, @NonNull Group model) {
+    protected void onBindViewHolder(@NonNull GroupViewHolder holder, int position, @NonNull Group model) {
         int textColor = Utils.getContrastColor(model.getColor());
 
         GradientDrawable gd = Utils.getGradientBackground(model.getColor());
@@ -161,9 +161,9 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
 
     @NonNull
     @Override
-    public GroupViewHolderForFirebase onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public GroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_group, parent, false);
-        return new GroupViewHolderForFirebase(view);
+        return new GroupViewHolder(view);
     }
 
     /**

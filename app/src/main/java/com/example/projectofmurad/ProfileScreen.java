@@ -702,34 +702,6 @@ public class ProfileScreen extends UserSigningActivity {
         return new String(updatedArr);
     }
 
-    /**
-     * Add char with sub string string.
-     *
-     * @param str      the str
-     * @param ch       the ch
-     * @param position the position
-     *
-     * @return the string
-     */
-    public String addCharWithSubString(@NonNull String str, char ch, int position) {
-        return str.substring(0, position) + ch + str.substring(position);
-    }
-
-    /**
-     * Add char with string builder string.
-     *
-     * @param str      the str
-     * @param ch       the ch
-     * @param position the position
-     *
-     * @return the string
-     */
-    public String addCharWithStringBuilder(String str, char ch, int position) {
-        StringBuilder sb = new StringBuilder(str);
-        sb.insert(position, ch);
-        return sb.toString();
-    }
-
     // this function is triggered when
     // the Select Image Button is clicked
     private void chooseProfilePicture() {

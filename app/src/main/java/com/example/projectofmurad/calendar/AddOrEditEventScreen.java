@@ -20,7 +20,6 @@ import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.RelativeLayout;
@@ -39,7 +38,6 @@ import com.example.projectofmurad.notifications.MyAlarmManager;
 import com.example.projectofmurad.utils.CalendarUtils;
 import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.utils.Utils;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
@@ -376,7 +374,7 @@ public class AddOrEditEventScreen extends AppCompatActivity {
     // method to inflate the options menu when
     // the user opens the menu for the first timeData
     @Override
-    public boolean onCreateOptionsMenu( Menu menu ) {
+    public boolean onCreateOptionsMenu(Menu menu ) {
         getMenuInflater().inflate(R.menu.event_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
@@ -493,12 +491,7 @@ public class AddOrEditEventScreen extends AppCompatActivity {
         toCalendar_Screen.putExtra("month", month);
         toCalendar_Screen.putExtra("year", year);
 
-        if (success) {
-            startActivity(toCalendar_Screen);
-        }
-        else {
-            createBottomSheetDialog();
-        }
+        startActivity(toCalendar_Screen);
     }
 
     /**
@@ -556,22 +549,6 @@ public class AddOrEditEventScreen extends AppCompatActivity {
         }
 
         return editTextsFilled;
-    }
-
-    /**
-     * Create bottom sheet dialog.
-     */
-    public void createBottomSheetDialog() {
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.Theme_Design_Light_BottomSheetDialog);
-        bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog_event_frequency);
-        bottomSheetDialog.setTitle("Repeat");
-        bottomSheetDialog.setCancelable(true);
-
-        Button btn_error = bottomSheetDialog.findViewById(R.id.btn_error);
-        btn_error.setOnClickListener(v -> bottomSheetDialog.dismiss());
-
-        bottomSheetDialog.setDismissWithAnimation(true);
-        bottomSheetDialog.show();
     }
 
     /**

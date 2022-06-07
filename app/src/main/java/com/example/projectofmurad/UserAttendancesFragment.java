@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.EventInfoDialogFragment;
-import com.example.projectofmurad.calendar.EventsAdapterForFirebase;
+import com.example.projectofmurad.calendar.EventsAdapter;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.utils.Utils;
@@ -35,7 +35,7 @@ import com.google.firebase.database.ValueEventListener;
 /**
  * A simple {@link DialogFragment} subclass.
  */
-public class UserAttendancesFragment extends DialogFragment implements EventsAdapterForFirebase.OnEventClickListener{
+public class UserAttendancesFragment extends DialogFragment implements EventsAdapter.OnEventClickListener{
 
     /**
      * The constant TAG.
@@ -127,7 +127,7 @@ public class UserAttendancesFragment extends DialogFragment implements EventsAda
     /**
      * The Events adapter.
      */
-    EventsAdapterForFirebase eventsAdapter;
+    EventsAdapter eventsAdapter;
 
     /**
      * The All events amount.
@@ -208,7 +208,7 @@ public class UserAttendancesFragment extends DialogFragment implements EventsAda
                 .setQuery(events, CalendarEvent.class)
                 .build();
 
-        eventsAdapter = new EventsAdapterForFirebase(options, FirebaseUtils.getCurrentUID(), requireContext(), this);
+        eventsAdapter = new EventsAdapter(options, FirebaseUtils.getCurrentUID(), requireContext(), this);
 
         LinearLayoutManagerWrapper layoutManager = new LinearLayoutManagerWrapper(requireContext());
         layoutManager.setOnLayoutCompleteListener(() -> new Handler().postDelayed(this::stopRVEventsShimmer, 500));
