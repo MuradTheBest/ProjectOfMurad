@@ -38,10 +38,22 @@ import java.util.ArrayList;
  */
 public class CalendarFragment extends Fragment implements CalendarAdapter.OnCalendarCellClickListener {
 
+    /**
+     * The constant SELECTED_DATE_DAY.
+     */
     public static final String SELECTED_DATE_DAY = "selected_date_day";
+    /**
+     * The constant SELECTED_DATE_MONTH.
+     */
     public static final String SELECTED_DATE_MONTH = "selected_date_month";
+    /**
+     * The constant SELECTED_DATE_YEAR.
+     */
     public static final String SELECTED_DATE_YEAR = "selected_date_year";
 
+    /**
+     * The constant ACTION_MOVE_TO_CALENDAR_FRAGMENT.
+     */
     public static final String ACTION_MOVE_TO_CALENDAR_FRAGMENT = "action_move_to_calendar_fragment";
 
     private TextView tv_date;
@@ -59,6 +71,9 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
 
     private final String[] days = CalendarUtils.getShortDaysOfWeek();
 
+    /**
+     * Instantiates a new Calendar fragment.
+     */
     public CalendarFragment() {
         // Required empty public constructor
     }
@@ -163,6 +178,11 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
         tv_Saturday.setText(days[5]);
     }
 
+    /**
+     * Animate.
+     *
+     * @param viewGroup the view group
+     */
     public void animate(ViewGroup viewGroup) {
 
         if (previousDate.getMonthValue() == selectedDate.getMonthValue()) {
@@ -316,6 +336,12 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
 
     private DayDialog dayDialogFragment;
 
+    /**
+     * Create day dialog.
+     *
+     * @param passingDate      the passing date
+     * @param event_private_id the event private id
+     */
     public void createDayDialog(LocalDate passingDate, String event_private_id){
 
         if (dayDialogFragment == null || !dayDialogFragment.isShowing()){

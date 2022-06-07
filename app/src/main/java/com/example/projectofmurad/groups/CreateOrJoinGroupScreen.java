@@ -32,6 +32,9 @@ import java.util.regex.Pattern;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
+/**
+ * The type Create or join group screen.
+ */
 public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.OnClickListener {
 
     private TextView tv_choose_color;
@@ -166,6 +169,11 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
         colorPicker.show();
     }
 
+    /**
+     * Create group.
+     *
+     * @param view the view
+     */
     public void createGroup(View view){
         String name = Utils.getText(et_new_group_name);
         String key = Utils.getText(et_new_group_key);
@@ -195,6 +203,11 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
         }
     }
 
+    /**
+     * Join group.
+     *
+     * @param view the view
+     */
     public void joinGroup(View view){
         String key = Utils.getText(et_group_key);
 
@@ -306,6 +319,11 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
         });
     }
 
+    /**
+     * Create group exists dialog.
+     *
+     * @param exists the exists
+     */
     public void createGroupExistsDialog(boolean exists){
         loadingDialog.dismiss();
         Utils.createAlertDialog(this, null,
@@ -315,6 +333,9 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
                 null).show();
     }
 
+    /**
+     * Create group.
+     */
     public void createGroup(){
         String name = Utils.getText(et_new_group_name);
         String key = Utils.getText(et_new_group_key);
@@ -346,6 +367,13 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
 
     }
 
+    /**
+     * Join group.
+     *
+     * @param key       the key
+     * @param color     the color
+     * @param isMadrich the is madrich
+     */
     public void joinGroup(String key, int color, boolean isMadrich){
 
         FirebaseUtils.addGroupToCurrentUser(key, isMadrich,

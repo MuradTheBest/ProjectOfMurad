@@ -56,6 +56,9 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+/**
+ * The type Profile screen.
+ */
 public class ProfileScreen extends UserSigningActivity {
 
     private CircleImageView iv_profile_picture;
@@ -69,7 +72,10 @@ public class ProfileScreen extends UserSigningActivity {
 
     private MaterialButton btn_change_phone;
 
-    // constant to compare
+    /**
+     * The constant SELECT_PICTURE.
+     */
+// constant to compare
     // the activity result code
     public final static int SELECT_PICTURE = 200;
 
@@ -80,6 +86,9 @@ public class ProfileScreen extends UserSigningActivity {
     private MaterialButton btn_log_in_with_google;
     private MaterialButton google_checked;
 
+    /**
+     * The Length.
+     */
     protected int length = 0;
 
     @Override
@@ -234,6 +243,9 @@ public class ProfileScreen extends UserSigningActivity {
         getCurrentUserData();
     }
 
+    /**
+     * Delete account.
+     */
     public void deleteAccount(){
 
         FirebaseUtils.getCurrentUserProfilePictureRef().delete();
@@ -251,6 +263,9 @@ public class ProfileScreen extends UserSigningActivity {
                 .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Account deleting failed", Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Create google unlink dialog.
+     */
     public void createGoogleUnlinkDialog(){
 
         Utils.createAlertDialog(this,
@@ -287,6 +302,9 @@ public class ProfileScreen extends UserSigningActivity {
                 null).show();
     }
 
+    /**
+     * Create madrich verification dialog.
+     */
     public void createMadrichVerificationDialog(){
         View view = LayoutInflater.from(this).inflate(R.layout.madrich_verification_dialog, null);
 
@@ -340,6 +358,9 @@ public class ProfileScreen extends UserSigningActivity {
         builder.show();
     }
 
+    /**
+     * Create stop being madrich dialog.
+     */
     public void createStopBeingMadrichDialog(){
         Utils.createAlertDialog(this, null,
                 "Are you sure about losing madrich privileges?",
@@ -401,6 +422,11 @@ public class ProfileScreen extends UserSigningActivity {
         return true;
     }
 
+    /**
+     * Unsubscribe from topic.
+     *
+     * @param onFirebaseCallback the on firebase callback
+     */
     public void unsubscribeFromTopic(FirebaseUtils.FirebaseCallback onFirebaseCallback) {
         FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.getTopic(FCMSend.ADD_EVENT_TOPIC))
                 .addOnSuccessListener(unused1 -> FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.getTopic(FCMSend.EDIT_EVENT_TOPIC))
@@ -415,10 +441,18 @@ public class ProfileScreen extends UserSigningActivity {
                                                 }))));
     }
 
+    /**
+     * On save profile click.
+     */
     public void onSaveProfileClick() {
         FirebaseUtils.getCurrentUserData().observe(this, this::updateUserData);
     }
 
+    /**
+     * Update user data.
+     *
+     * @param userData the user data
+     */
     public void updateUserData(@NonNull UserData userData){
         loadingDialog.setMessage("Updating the data...");
         loadingDialog.show();
@@ -437,6 +471,11 @@ public class ProfileScreen extends UserSigningActivity {
         }
     }
 
+    /**
+     * Upload user.
+     *
+     * @param userData the user data
+     */
     public void uploadUser(@NonNull UserData userData){
         UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder();
         builder.setDisplayName(userData.getUsername());
@@ -453,6 +492,12 @@ public class ProfileScreen extends UserSigningActivity {
                 .addOnFailureListener(e -> {});
     }
 
+    /**
+     * Upload profile picture.
+     *
+     * @param userData the user data
+     * @param imageUri the image uri
+     */
     public void uploadProfilePicture(UserData userData, @NonNull Uri imageUri){
 
         FirebaseUtils.getCurrentUserProfilePictureRef().putFile(imageUri)
@@ -473,6 +518,9 @@ public class ProfileScreen extends UserSigningActivity {
                 });
     }
 
+    /**
+     * Check phone number.
+     */
     public void checkPhoneNumber() {
         String phone = Utils.getText(et_phone);
 
@@ -531,6 +579,11 @@ public class ProfileScreen extends UserSigningActivity {
                 });
     }
 
+    /**
+     * Check input boolean.
+     *
+     * @return the boolean
+     */
     public boolean checkInput(){
 
         boolean result = true;
@@ -551,6 +604,9 @@ public class ProfileScreen extends UserSigningActivity {
         return result;
     }
 
+    /**
+     * Gets current user data.
+     */
     public void getCurrentUserData() {
         if (!FirebaseUtils.isUserLoggedIn()) {
             startActivity(Utils.getIntentClearTop(new Intent(ProfileScreen.this, LogInScreen.class)));
@@ -628,6 +684,15 @@ public class ProfileScreen extends UserSigningActivity {
         super.onSaveInstanceState(outState);
     }
 
+    /**
+     * Add char string.
+     *
+     * @param str      the str
+     * @param ch       the ch
+     * @param position the position
+     *
+     * @return the string
+     */
     public String addChar(@NonNull String str, char ch, int position) {
         int len = str.length();
         char[] updatedArr = new char[len + 1];
@@ -637,10 +702,28 @@ public class ProfileScreen extends UserSigningActivity {
         return new String(updatedArr);
     }
 
+    /**
+     * Add char with sub string string.
+     *
+     * @param str      the str
+     * @param ch       the ch
+     * @param position the position
+     *
+     * @return the string
+     */
     public String addCharWithSubString(@NonNull String str, char ch, int position) {
         return str.substring(0, position) + ch + str.substring(position);
     }
 
+    /**
+     * Add char with string builder string.
+     *
+     * @param str      the str
+     * @param ch       the ch
+     * @param position the position
+     *
+     * @return the string
+     */
     public String addCharWithStringBuilder(String str, char ch, int position) {
         StringBuilder sb = new StringBuilder(str);
         sb.insert(position, ch);

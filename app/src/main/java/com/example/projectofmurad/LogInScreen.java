@@ -18,6 +18,9 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Objects;
 
+/**
+ * The type Log in screen.
+ */
 public class LogInScreen extends UserSigningActivity {
 
 	private TextInputLayout et_email_address;
@@ -102,6 +105,12 @@ public class LogInScreen extends UserSigningActivity {
 		builder.show();
 	}
 
+	/**
+	 * Login.
+	 *
+	 * @param email    the email
+	 * @param password the password
+	 */
 	public void login(String email, String password){
 		loadingDialog.setMessage(R.string.logging_in_please_wait);
 		loadingDialog.show();

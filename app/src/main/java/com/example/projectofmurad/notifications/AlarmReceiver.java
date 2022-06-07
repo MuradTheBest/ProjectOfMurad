@@ -25,12 +25,24 @@ import com.example.projectofmurad.calendar.DayDialog;
 import com.example.projectofmurad.groups.Group;
 import com.example.projectofmurad.utils.Utils;
 
+/**
+ * The type Alarm receiver.
+ */
 public class AlarmReceiver extends BroadcastReceiver {
 
+    /**
+     * The constant TAG.
+     */
     public final static String TAG = MyAlarmManager.TAG;
 
+    /**
+     * The constant ACTION_STOP_VIBRATION.
+     */
     public final static String ACTION_STOP_VIBRATION = Utils.APPLICATION_ID + "stop_vibration";
 
+    /**
+     * The constant ALARM_NOTIFICATION_ID.
+     */
     public final static int ALARM_NOTIFICATION_ID = 500;
 
     @SuppressLint("MissingPermission")
@@ -46,6 +58,12 @@ public class AlarmReceiver extends BroadcastReceiver {
         }
     }
 
+    /**
+     * Stop vibration.
+     *
+     * @param context the context
+     * @param intent  the intent
+     */
     @SuppressLint("MissingPermission")
     public void stopVibration(@NonNull Context context, @NonNull Intent intent){
 
@@ -69,7 +87,13 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         Utils.deleteAlarm(event_private_id, db);
     }
-    
+
+    /**
+     * Show notification.
+     *
+     * @param context the context
+     * @param intent  the intent
+     */
     @SuppressLint({"MissingPermission", "NotificationTrampoline"})
     public void showNotification(@NonNull Context context, @NonNull Intent intent){
 

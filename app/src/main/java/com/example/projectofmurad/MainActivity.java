@@ -38,6 +38,9 @@ import java.util.Date;
 
 import static com.example.projectofmurad.utils.Utils.LOG_TAG;
 
+/**
+ * The type Main activity.
+ */
 public class MainActivity extends AppCompatActivity implements NavController.OnDestinationChangedListener {
 
     private View containerView;
@@ -75,6 +78,9 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
 
     }
 
+    /**
+     * Move to tracking fragment.
+     */
     public void moveToTrackingFragment() {
         bottomNavigationView.setSelectedItemId(R.id.tracking_Fragment);
     }
@@ -85,6 +91,11 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
         checkIntent(intent);
     }
 
+    /**
+     * Check intent.
+     *
+     * @param gotten_intent the gotten intent
+     */
     public void checkIntent(@NonNull Intent gotten_intent){
         switch (gotten_intent.getAction()) {
             case TrackingService.ACTION_MOVE_TO_TRACKING_FRAGMENT:
@@ -151,6 +162,13 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
         bottomNavigationView.setSelectedItemId(R.id.calendar_Fragment);
     }
 
+    /**
+     * Animate.
+     *
+     * @param viewGroup the view group
+     * @param gravity   the gravity
+     * @param duration  the duration
+     */
     public void animate(ViewGroup viewGroup, int gravity, int duration){
         AutoTransition trans = new AutoTransition();
         trans.setDuration(100);

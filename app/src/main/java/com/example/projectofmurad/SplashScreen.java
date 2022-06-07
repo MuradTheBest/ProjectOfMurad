@@ -26,10 +26,16 @@ import java.util.Objects;
 
 import static com.example.projectofmurad.utils.Utils.LOG_TAG;
 
+/**
+ * The type Splash screen.
+ */
 public class SplashScreen extends AppCompatActivity {
 
     private MaterialButton btn_get_started;
     private ProgressBar progressBar;
+    /**
+     * The constant STORAGE_REQUEST_CODE.
+     */
     public final static int STORAGE_REQUEST_CODE = 10000;
 
     @Override
@@ -95,11 +101,19 @@ public class SplashScreen extends AppCompatActivity {
 
     }
 
+    /**
+     * Start loading.
+     */
     public void startLoading(){
         progressBar.setVisibility(View.VISIBLE);
         btn_get_started.setText(R.string.setting_the_data);
     }
 
+    /**
+     * Check group.
+     *
+     * @param view the view
+     */
     public void checkGroup(View view){
         startLoading();
 
@@ -126,6 +140,11 @@ public class SplashScreen extends AppCompatActivity {
 
     }
 
+    /**
+     * Go to another screen.
+     *
+     * @param intent the intent
+     */
     public void goToAnotherScreen(Intent intent){
         new Handler().postDelayed(() -> {
             startActivity(intent);
@@ -139,6 +158,9 @@ public class SplashScreen extends AppCompatActivity {
         checkPermissions();
     }
 
+    /**
+     * Check permissions.
+     */
     public void checkPermissions(){
         String[] permissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
 

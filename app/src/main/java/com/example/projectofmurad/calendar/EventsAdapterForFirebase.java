@@ -31,9 +31,11 @@ import com.google.firebase.database.ValueEventListener;
 import java.time.LocalDate;
 
 
-/** FirebaseRecyclerAdapter is a class provided by
-   FirebaseUI. it provides functions to bind, adapt and show
-   database contents in a Recycler View */
+/**
+ * FirebaseRecyclerAdapter is a class provided by
+ * FirebaseUI. it provides functions to bind, adapt and show
+ * database contents in a Recycler View
+ */
 public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEvent, EventsAdapterForFirebase.EventViewHolderForFirebase> {
 
     /**
@@ -42,13 +44,32 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
      *
      * @param options
      */
-
     protected LocalDate selectedDate;
+    /**
+     * The On event click listener.
+     */
     protected final OnEventClickListener onEventClickListener;
+    /**
+     * The Context.
+     */
     protected final Context context;
+    /**
+     * The Selected uid.
+     */
     protected String selectedUID;
+    /**
+     * The Db.
+     */
     protected final SQLiteDatabase db;
 
+    /**
+     * Instantiates a new Events adapter for firebase.
+     *
+     * @param options              the options
+     * @param selectedDate         the selected date
+     * @param context              the context
+     * @param onEventClickListener the on event click listener
+     */
     public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, LocalDate selectedDate,
                                     @NonNull Context context, OnEventClickListener onEventClickListener) {
 
@@ -59,6 +80,14 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         this.db = Utils.openOrCreateDatabase(context);
     }
 
+    /**
+     * Instantiates a new Events adapter for firebase.
+     *
+     * @param options              the options
+     * @param selectedUID          the selected uid
+     * @param context              the context
+     * @param onEventClickListener the on event click listener
+     */
     public EventsAdapterForFirebase(@NonNull FirebaseRecyclerOptions<CalendarEvent> options, String selectedUID,
                                     @NonNull Context context, OnEventClickListener onEventClickListener) {
 
@@ -69,22 +98,57 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         this.db = Utils.openOrCreateDatabase(context);
     }
 
+    /**
+     * The type Event view holder for firebase.
+     */
     public class EventViewHolderForFirebase extends RecyclerView.ViewHolder implements View.OnClickListener{
 
+        /**
+         * The Constraint layout.
+         */
         public final ConstraintLayout constraintLayout;
 
+        /**
+         * The Switch alarm.
+         */
         public final SwitchMaterial switch_alarm;
 
+        /**
+         * The Tv event name.
+         */
         public final TextView tv_event_name;
+        /**
+         * The Tv event place.
+         */
         public final TextView tv_event_place;
+        /**
+         * The Tv event description.
+         */
         public final TextView tv_event_description;
 
+        /**
+         * The Tv event start date time.
+         */
         public final TextView tv_event_start_date_time;
+        /**
+         * The Tv hyphen.
+         */
         public final TextView tv_hyphen;
+        /**
+         * The Tv event end date time.
+         */
         public final TextView tv_event_end_date_time;
 
+        /**
+         * The Cb all attendances.
+         */
         public final MaterialCheckBox cb_all_attendances;
 
+        /**
+         * Instantiates a new Event view holder for firebase.
+         *
+         * @param itemView the item view
+         */
         public EventViewHolderForFirebase(@NonNull View itemView) {
             super(itemView);
 
@@ -216,7 +280,16 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         return new EventViewHolderForFirebase(view);
     }
 
+    /**
+     * The interface On event click listener.
+     */
     public interface OnEventClickListener {
+        /**
+         * On event click.
+         *
+         * @param position      the position
+         * @param calendarEvent the calendar event
+         */
         void onEventClick(int position, CalendarEvent calendarEvent);
     }
 
@@ -235,6 +308,13 @@ public class EventsAdapterForFirebase extends FirebaseRecyclerAdapter<CalendarEv
         return position;
     }
 
+    /**
+     * Gets string.
+     *
+     * @param resId the res id
+     *
+     * @return the string
+     */
     public String getString(@StringRes int resId) {
         return context.getString(resId);
     }

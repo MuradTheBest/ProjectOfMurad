@@ -22,9 +22,11 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 
 
-/** FirebaseRecyclerAdapter is a class provided by
-   FirebaseUI. it provides functions to bind, adapt and show
-   database contents in a Recycler View */
+/**
+ * FirebaseRecyclerAdapter is a class provided by
+ * FirebaseUI. it provides functions to bind, adapt and show
+ * database contents in a Recycler View
+ */
 public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, GroupAdapterForFirebase.GroupViewHolderForFirebase> {
 
     private final Context context;
@@ -34,9 +36,9 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
      * Initialize a {@link RecyclerView.Adapter} that listens to a Firebase query. See
      * {@link FirebaseRecyclerOptions} for configuration options.
      *
-     * @param options
-     * @param context
-     * @param onGroupLongClickListener
+     * @param options                  the options
+     * @param context                  the context
+     * @param onGroupLongClickListener the on group long click listener
      */
     public GroupAdapterForFirebase(@NonNull FirebaseRecyclerOptions<Group> options, @NonNull Context context,
                                    OnGroupLongClickListener onGroupLongClickListener) {
@@ -46,16 +48,36 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
         this.onGroupLongClickListener = onGroupLongClickListener;
     }
 
+    /**
+     * The type Group view holder for firebase.
+     */
     public class GroupViewHolderForFirebase extends RecyclerView.ViewHolder implements View.OnClickListener {
 
+        /**
+         * The Constraint layout.
+         */
         final ConstraintLayout constraintLayout;
 
+        /**
+         * The Tv group name.
+         */
         final TextView tv_group_name;
+        /**
+         * The Tv group description.
+         */
         final TextView tv_group_description;
+        /**
+         * The Tv users.
+         */
         final TextView tv_users;
 
         private boolean isMadrich;
 
+        /**
+         * Instantiates a new Group view holder for firebase.
+         *
+         * @param itemView the item view
+         */
         public GroupViewHolderForFirebase(@NonNull View itemView) {
             super(itemView);
 
@@ -76,10 +98,20 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
             context.startActivity(intent);
         }
 
+        /**
+         * Is madrich boolean.
+         *
+         * @return the boolean
+         */
         public boolean isMadrich() {
             return isMadrich;
         }
 
+        /**
+         * Sets madrich.
+         *
+         * @param madrich the madrich
+         */
         public void setMadrich(boolean madrich) {
             isMadrich = madrich;
         }
@@ -134,7 +166,17 @@ public class GroupAdapterForFirebase extends FirebaseRecyclerAdapter<Group, Grou
         return new GroupViewHolderForFirebase(view);
     }
 
+    /**
+     * The interface On group long click listener.
+     */
     public interface OnGroupLongClickListener{
+        /**
+         * On group long click boolean.
+         *
+         * @param group the group
+         *
+         * @return the boolean
+         */
         boolean onGroupLongClick(Group group);
     }
 

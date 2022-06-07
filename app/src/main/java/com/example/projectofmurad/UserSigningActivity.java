@@ -46,13 +46,28 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class UserSigningActivity extends AppCompatActivity {
 
+    /**
+     * The Btn google.
+     */
     protected MaterialButton btn_google;
+    /**
+     * The Btn phone.
+     */
     protected MaterialButton btn_phone;
 
+    /**
+     * The Loading dialog.
+     */
     protected LoadingDialog loadingDialog;
 
+    /**
+     * The Length.
+     */
     protected int length = 0;
 
+    /**
+     * The constant GOOGLE_REQUEST_CODE.
+     */
     protected final static int GOOGLE_REQUEST_CODE = 4000;
 
     @Override
@@ -62,6 +77,9 @@ public abstract class UserSigningActivity extends AppCompatActivity {
         loadingDialog = new LoadingDialog(this);
     }
 
+    /**
+     * Create phone authentication dialog.
+     */
     protected void createPhoneAuthenticationDialog(){
         View view = LayoutInflater.from(this).inflate(R.layout.phone_verification_dialog, null);
 
@@ -114,6 +132,11 @@ public abstract class UserSigningActivity extends AppCompatActivity {
         builder.show();
     }
 
+    /**
+     * Phone auth.
+     *
+     * @param phone the phone
+     */
     protected void phoneAuth(String phone){
 
         PhoneAuthOptions options = PhoneAuthOptions.newBuilder(FirebaseUtils.getFirebaseAuth())
@@ -167,6 +190,12 @@ public abstract class UserSigningActivity extends AppCompatActivity {
         PhoneAuthProvider.verifyPhoneNumber(options);
     }
 
+    /**
+     * Create sms verification dialog.
+     *
+     * @param verificationId the verification id
+     * @param phone          the phone
+     */
     protected void createSMSVerificationDialog(String verificationId, String phone){
         View view = LayoutInflater.from(this).inflate(R.layout.sms_verification_dialog, null);
 
@@ -199,6 +228,11 @@ public abstract class UserSigningActivity extends AppCompatActivity {
         builder.show();
     }
 
+    /**
+     * Sign in with phone auth credential.
+     *
+     * @param phoneAuthCredential the phone auth credential
+     */
     protected void signInWithPhoneAuthCredential(PhoneAuthCredential phoneAuthCredential) {
         loadingDialog.setMessage(getString(R.string.logging_in_please_wait));
         loadingDialog.show();
@@ -206,6 +240,9 @@ public abstract class UserSigningActivity extends AppCompatActivity {
         FirebaseUtils.getFirebaseAuth().signInWithCredential(phoneAuthCredential).addOnCompleteListener(authCompleteListener);
     }
 
+    /**
+     * The Auth complete listener.
+     */
     protected final OnCompleteListener<AuthResult> authCompleteListener = new OnCompleteListener<AuthResult>() {
         @Override
         public void onComplete(@NonNull Task<AuthResult> task) {
@@ -241,6 +278,9 @@ public abstract class UserSigningActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * Show google sign in.
+     */
     protected void showGoogleSignIn(){
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -285,6 +325,11 @@ public abstract class UserSigningActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Google auth.
+     *
+     * @param idToken the id token
+     */
     protected void googleAuth(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
 
@@ -294,6 +339,11 @@ public abstract class UserSigningActivity extends AppCompatActivity {
         FirebaseUtils.getFirebaseAuth().signInWithCredential(credential).addOnCompleteListener(authCompleteListener);
     }
 
+    /**
+     * Send password update email.
+     *
+     * @param email the email
+     */
     protected void sendPasswordUpdateEmail(String email) {
         loadingDialog.setMessage("Sending password reset mail...");
         loadingDialog.show();

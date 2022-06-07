@@ -46,8 +46,14 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
                                                                         UsersAdapterForFirebase.OnUserExpandListener,
                                                                         View.OnClickListener {
 
+    /**
+     * The constant ARG_IS_SHOWS_DIALOG.
+     */
     public static final String ARG_IS_SHOWS_DIALOG = "isShowsDialog";
 
+    /**
+     * The constant TAG.
+     */
     public static final String TAG = "EventInfoDialogFragment";
 
     private CalendarEvent event;
@@ -57,6 +63,9 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
 
     private ShimmerFrameLayout shimmer_rv_users;
 
+    /**
+     * Instantiates a new Event info dialog fragment.
+     */
     public EventInfoDialogFragment() {
         // Required empty public constructor
     }
@@ -65,7 +74,7 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param event Event which details are shown.
+     * @param event         Event which details are shown.
      * @param isShowsDialog Determines if to show the fragment like normal or dialog.
      *
      * @return A new instance of fragment EventInfoDialogFragment.
@@ -199,6 +208,11 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
         rv_users.setLayoutManager(layoutManager);
     }
 
+    /**
+     * Set up event data.
+     *
+     * @param event the event
+     */
     public void setUpEventData(@NonNull CalendarEvent event){
 
         tv_event_name.setText(event.getName());
@@ -264,6 +278,11 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
         setUpAllUsersRecyclerView(false);
     }
 
+    /**
+     * Set up all users recycler view.
+     *
+     * @param attend the attend
+     */
     public void setUpAllUsersRecyclerView(boolean attend){
         startRVUsersShimmer();
 
@@ -358,18 +377,29 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
         }
     }
 
+    /**
+     * Start rv users shimmer.
+     */
     public void startRVUsersShimmer() {
         rv_users.setVisibility(View.INVISIBLE);
         shimmer_rv_users.setVisibility(View.VISIBLE);
         shimmer_rv_users.startShimmer();
     }
 
+    /**
+     * Stop rv users shimmer.
+     */
     public void stopRVUsersShimmer() {
         shimmer_rv_users.stopShimmer();
         shimmer_rv_users.setVisibility(View.GONE);
         rv_users.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Delete single event.
+     *
+     * @param private_key the private key
+     */
     public void deleteSingleEvent(@NonNull String private_key){
         loadingDialog.setMessage("Deleting event");
         loadingDialog.show();
@@ -379,6 +409,11 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
                         .setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT)));
     }
 
+    /**
+     * Delete all events in chain.
+     *
+     * @param chain_key the chain key
+     */
     public void deleteAllEventsInChain(String chain_key){
         loadingDialog.setMessage("Deleting events in the chain");
         loadingDialog.show();
@@ -389,6 +424,11 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
                         .setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT)));
     }
 
+    /**
+     * Copy single event.
+     *
+     * @param event the event
+     */
     public void copySingleEvent(@NonNull CalendarEvent event){
         String private_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
 

@@ -32,16 +32,37 @@ import com.google.firebase.database.Query;
 
 import java.util.Objects;
 
+/**
+ * The type Show groups screen.
+ */
 public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapterForFirebase.OnGroupLongClickListener {
 
+    /**
+     * The Tv username.
+     */
     TextView tv_username;
+    /**
+     * The Rv groups.
+     */
     RecyclerView rv_groups;
+    /**
+     * The Progress bar.
+     */
     ProgressBar progressBar;
 
+    /**
+     * The Fab create or join group.
+     */
     FloatingActionButton fab_create_or_join_group;
 
+    /**
+     * The Group adapter for firebase.
+     */
     GroupAdapterForFirebase groupAdapterForFirebase;
 
+    /**
+     * The Loading dialog.
+     */
     LoadingDialog loadingDialog;
 
     @Override
@@ -99,6 +120,9 @@ public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapterF
     private Vibrator vibrator;
     private VibrationEffect vibrationEffect;
 
+    /**
+     * The Simple callback.
+     */
     final ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,
             ItemTouchHelper.END | ItemTouchHelper.START) {
 
@@ -223,6 +247,9 @@ public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapterF
                 });
     }
 
+    /**
+     * The Item touch helper.
+     */
     final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
 
     @Override

@@ -54,7 +54,7 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
 
         if (Objects.equals(remoteMessage.getData().get(FCMSend.KEY_SENDER_UID), FirebaseUtils.getCurrentUID())) {
             Log.d(FCM_TAG, "sender is current user");
-//            return;
+            return;
         }
 
         if (!Objects.equals(remoteMessage.getData().get(FCMSend.KEY_RECEIVER_UID), FirebaseUtils.getCurrentUID())) {

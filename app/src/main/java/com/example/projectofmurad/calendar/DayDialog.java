@@ -40,8 +40,14 @@ import com.google.firebase.database.Query;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * The type Day dialog.
+ */
 public class DayDialog extends AppCompatDialog implements EventsAdapterForFirebase.OnEventClickListener{
 
+    /**
+     * The Passing date.
+     */
     public final LocalDate passingDate;
 
     private FloatingActionButton fab_add_event;
@@ -49,12 +55,22 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
     private RecyclerView rv_events;
     private EventsAdapterForFirebase eventsAdapter;
 
+    /**
+     * The constant ACTION_TO_SHOW_EVENT.
+     */
     public static final String ACTION_TO_SHOW_EVENT = Utils.APPLICATION_ID + "to show event";
 
     private final String eventPrivateId;
 
     private final Context context;
 
+    /**
+     * Instantiates a new Day dialog.
+     *
+     * @param context        the context
+     * @param passingDate    the passing date
+     * @param eventPrivateId the event private id
+     */
     public DayDialog(@NonNull Context context, LocalDate passingDate, String eventPrivateId) {
         super(context);
         this.context = context;
@@ -70,6 +86,11 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
         }
     }
 
+    /**
+     * Gets passing date.
+     *
+     * @return the passing date
+     */
     public LocalDate getPassingDate() {
         return passingDate;
     }
@@ -192,6 +213,11 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
         eventsAdapter.stopListening();
     }
 
+    /**
+     * Show event.
+     *
+     * @param eventPrivateId the event private id
+     */
     public void showEvent(String eventPrivateId){
 
         Log.d(Utils.LOG_TAG, "mainViewModel event_private_id in DayDialog is " + eventPrivateId);
@@ -230,6 +256,9 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
     private final Vibrator vibrator;
     private VibrationEffect vibrationEffect;
 
+    /**
+     * The Simple callback.
+     */
     final ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.END | ItemTouchHelper.START) {
         @Override
         public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
@@ -315,6 +344,9 @@ public class DayDialog extends AppCompatDialog implements EventsAdapterForFireba
         }
     };
 
+    /**
+     * The Item touch helper.
+     */
     final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
 
     @Override

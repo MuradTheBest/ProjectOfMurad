@@ -51,6 +51,9 @@ import java.util.Calendar;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
+/**
+ * The type Add or edit event screen.
+ */
 public class AddOrEditEventScreen extends AppCompatActivity {
 
     private TextInputLayout et_name;
@@ -85,7 +88,13 @@ public class AddOrEditEventScreen extends AppCompatActivity {
     private TimePickerDialog startTimePickerDialog;
     private TimePickerDialog endTimePickerDialog;
 
+    /**
+     * The X.
+     */
     int x;
+    /**
+     * The Y.
+     */
     int y;
 
     private int selectedColor;
@@ -409,6 +418,11 @@ public class AddOrEditEventScreen extends AppCompatActivity {
         circularReveal.start();
     }
 
+    /**
+     * Animate.
+     *
+     * @param viewGroup the view group
+     */
     public void animate(ViewGroup viewGroup) {
         AutoTransition trans = new AutoTransition();
 //        trans.setDuration(100);
@@ -426,6 +440,9 @@ public class AddOrEditEventScreen extends AppCompatActivity {
 
     }
 
+    /**
+     * On add event click.
+     */
     public void onAddEventClick() {
         String name = Utils.getText(et_name);
         String description = Utils.getText(et_description);
@@ -443,6 +460,9 @@ public class AddOrEditEventScreen extends AppCompatActivity {
         }
     }
 
+    /**
+     * Upload event.
+     */
     public void uploadEvent() {
         String name = Utils.getText(et_name);
         String description = Utils.getText(et_description);
@@ -481,6 +501,11 @@ public class AddOrEditEventScreen extends AppCompatActivity {
         }
     }
 
+    /**
+     * Add event to firebase.
+     *
+     * @param event the event
+     */
     public void addEventToFirebase(@NonNull CalendarEvent event) {
 
         LocalDate start_date = event.receiveStartDate();
@@ -533,6 +558,9 @@ public class AddOrEditEventScreen extends AppCompatActivity {
         return editTextsFilled;
     }
 
+    /**
+     * Create bottom sheet dialog.
+     */
     public void createBottomSheetDialog() {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.Theme_Design_Light_BottomSheetDialog);
         bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog_event_frequency);
@@ -546,6 +574,9 @@ public class AddOrEditEventScreen extends AppCompatActivity {
         bottomSheetDialog.show();
     }
 
+    /**
+     * Create color picker dialog.
+     */
     protected void createColorPickerDialog() {
         ColorPickerDialog colorPicker = new ColorPickerDialog(this);
 
@@ -570,6 +601,11 @@ public class AddOrEditEventScreen extends AppCompatActivity {
         colorPicker.show();
     }
 
+    /**
+     * Absolute delete single event.
+     *
+     * @param private_key the private key
+     */
     public void absoluteDeleteSingleEvent(String private_key) {
         loadingDialog.setMessage("Editing event");
         loadingDialog.show();

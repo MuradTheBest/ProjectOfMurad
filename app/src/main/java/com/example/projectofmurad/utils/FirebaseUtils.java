@@ -44,76 +44,163 @@ import java.util.Objects;
  */
 public abstract class FirebaseUtils {
 
+    /**
+     * Get firebase auth firebase auth.
+     *
+     * @return the firebase auth
+     */
     @NonNull
     public static FirebaseAuth getFirebaseAuth(){
         return FirebaseAuth.getInstance();
     }
 
+    /**
+     * Get database firebase database.
+     *
+     * @return the firebase database
+     */
     @NonNull
     public static FirebaseDatabase getDatabase(){
         return FirebaseDatabase.getInstance();
     }
 
+    /**
+     * Gets firebase messaging.
+     *
+     * @return the firebase messaging
+     */
     @NonNull
     public static FirebaseMessaging getFirebaseMessaging() {
         return FirebaseMessaging.getInstance();
     }
 
+    /**
+     * Gets firebase storage.
+     *
+     * @return the firebase storage
+     */
     @NonNull
     public static StorageReference getFirebaseStorage() {
         return FirebaseStorage.getInstance().getReference();
     }
 
+    /**
+     * Get current firebase user firebase user.
+     *
+     * @return the firebase user
+     */
     public static FirebaseUser getCurrentFirebaseUser(){
         return getFirebaseAuth().getCurrentUser();
     }
 
+    /**
+     * Gets profile pictures ref.
+     *
+     * @return the profile pictures ref
+     */
     @NonNull
     public static StorageReference getProfilePicturesRef() {
         return getFirebaseStorage().child("Profile pictures");
     }
 
+    /**
+     * Gets current user profile picture ref.
+     *
+     * @return the current user profile picture ref
+     */
     @NonNull
     public static StorageReference getCurrentUserProfilePictureRef() {
         return getProfilePicturesRef().child(getCurrentUID());
     }
 
+    /**
+     * Get user tracking ref database reference.
+     *
+     * @param event_private_id the event private id
+     * @param UID              the uid
+     *
+     * @return the database reference
+     */
     @NonNull
     public static DatabaseReference getUserTrackingRef(String event_private_id, String UID){
         return getAttendanceDatabase().child(event_private_id).child(UID);
     }
 
+    /**
+     * Get current user tracking ref database reference.
+     *
+     * @param event_private_id the event private id
+     *
+     * @return the database reference
+     */
     @NonNull
     public static DatabaseReference getCurrentUserTrackingRef(String event_private_id){
         return getUserTrackingRef(event_private_id, getCurrentUID());
     }
 
+    /**
+     * The constant groups.
+     */
     public static final DatabaseReference groups = getDatabase().getReference("Groups").getRef();
+    /**
+     * The constant groupDatabases.
+     */
     public static final DatabaseReference groupDatabases = getDatabase().getReference("Group Databases").getRef();
 
+    /**
+     * The constant CURRENT_GROUP_KEY.
+     */
     public static String CURRENT_GROUP_KEY = MyApplication.getContext()
             .getSharedPreferences(Utils.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
             .getString(UserData.KEY_CURRENT_GROUP, "");
 
+    /**
+     * The constant CURRENT_GROUP_COLOR.
+     */
     public static int CURRENT_GROUP_COLOR = MyApplication.getContext()
             .getSharedPreferences(Utils.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
             .getInt(CURRENT_GROUP_KEY, MyApplication.getContext().getColor(R.color.colorAccent));
 
+    /**
+     * Is current group boolean.
+     *
+     * @param key the key
+     *
+     * @return the boolean
+     */
     public static boolean isCurrentGroup(String key){
         return Objects.equals(CURRENT_GROUP_KEY, key);
     }
 
+    /**
+     * Gets current group database.
+     *
+     * @return the current group database
+     */
     @NonNull
     public static DatabaseReference getCurrentGroupDatabase() {
         Log.d(Utils.LOG_TAG, getGroupDatabase(CURRENT_GROUP_KEY).toString());
         return getGroupDatabase(CURRENT_GROUP_KEY);
     }
 
+    /**
+     * Gets group database.
+     *
+     * @param groupKey the group key
+     *
+     * @return the group database
+     */
     @NonNull
     public static DatabaseReference getGroupDatabase(String groupKey) {
         return groupDatabases.child(groupKey).getRef();
     }
 
+    /**
+     * Change group.
+     *
+     * @param context the context
+     * @param key     the key
+     */
     public static void changeGroup(@NonNull Context context, String key) {
         SharedPreferences sp = context.getSharedPreferences(Utils.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
@@ -124,6 +211,13 @@ public abstract class FirebaseUtils {
         CURRENT_GROUP_KEY = key;
     }
 
+    /**
+     * Change group.
+     *
+     * @param context    the context
+     * @param key        the key
+     * @param groupColor the group color
+     */
     public static void changeGroup(@NonNull Context context, String key, int groupColor) {
         SharedPreferences sp = context.getSharedPreferences(Utils.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
@@ -136,6 +230,11 @@ public abstract class FirebaseUtils {
         CURRENT_GROUP_COLOR = groupColor;
     }
 
+    /**
+     * Gets current group name.
+     *
+     * @return the current group name
+     */
     @NonNull
     public static LiveData<String> getCurrentGroupName() {
         MutableLiveData<String> currentGroupName = new MutableLiveData<>();
@@ -157,6 +256,11 @@ public abstract class FirebaseUtils {
         return currentGroupName;
     }
 
+    /**
+     * Gets current group picture.
+     *
+     * @return the current group picture
+     */
     @NonNull
     public static LiveData<String> getCurrentGroupPicture() {
         MutableLiveData<String> currentGroupPicture = new MutableLiveData<>();
@@ -178,26 +282,56 @@ public abstract class FirebaseUtils {
         return currentGroupPicture;
     }
 
+    /**
+     * Check current group task.
+     *
+     * @return the task
+     */
     @NonNull
     public static Task<DataSnapshot> checkCurrentGroup() {
         return getCurrentUserDataRef().child(UserData.KEY_CURRENT_GROUP).get();
     }
 
+    /**
+     * Get current group users database reference.
+     *
+     * @return the database reference
+     */
     @NonNull
     public static DatabaseReference getCurrentGroupUsers(){
         return getCurrentGroupDatabase().child("Users");
     }
 
+    /**
+     * Get user group data ref database reference.
+     *
+     * @param UID the uid
+     *
+     * @return the database reference
+     */
     @NonNull
     public static DatabaseReference getUserGroupDataRef(String UID){
         return getCurrentGroupUsers().child(UID);
     }
 
+    /**
+     * Get current user group data ref database reference.
+     *
+     * @return the database reference
+     */
     @NonNull
     public static DatabaseReference getCurrentUserGroupDataRef(){
         return getUserGroupDataRef(getCurrentUID());
     }
 
+    /**
+     * Add group to current user.
+     *
+     * @param groupKey                the group key
+     * @param isMadrich               the is madrich
+     * @param firebaseCallback        the firebase callback
+     * @param firebaseFailureCallback the firebase failure callback
+     */
     public static void addGroupToCurrentUser(String groupKey, boolean isMadrich,
                                              FirebaseCallback firebaseCallback,
                                              @NonNull FirebaseFailureCallback firebaseFailureCallback){
@@ -213,6 +347,11 @@ public abstract class FirebaseUtils {
                 .addOnFailureListener(firebaseFailureCallback::onFirebaseFailure);
     }
 
+    /**
+     * Get current user groups live data.
+     *
+     * @return the live data
+     */
     @NonNull
     public static LiveData<List<String>> getCurrentUserGroups(){
         MutableLiveData<List<String>> groups = new MutableLiveData<>();
@@ -243,41 +382,90 @@ public abstract class FirebaseUtils {
         return groups;
     }
 
+    /**
+     * The constant usersDatabase.
+     */
     public static final DatabaseReference usersDatabase = getDatabase().getReference("Users").getRef();
 
+    /**
+     * Gets events database.
+     *
+     * @return the events database
+     */
     @NonNull
     public static DatabaseReference getEventsDatabase() {
         return getCurrentGroupDatabase().child("Events").getRef();
     }
 
+    /**
+     * Get all events database database reference.
+     *
+     * @return the database reference
+     */
     @NonNull
     public static DatabaseReference getAllEventsDatabase(){
         return getCurrentGroupDatabase().child("All Events").getRef();
     }
 
+    /**
+     * Get attendance database database reference.
+     *
+     * @return the database reference
+     */
     @NonNull
     public static DatabaseReference getAttendanceDatabase(){
         return getCurrentGroupDatabase().child("Attendance").getRef();
     }
 
+    /**
+     * The interface Firebase callback.
+     */
     public interface FirebaseCallback {
+        /**
+         * On firebase callback.
+         */
         void onFirebaseCallback();
     }
 
+    /**
+     * The interface Firebase failure callback.
+     */
     public interface FirebaseFailureCallback {
+        /**
+         * On firebase failure.
+         *
+         * @param e the e
+         */
         void onFirebaseFailure(Exception e);
     }
 
+    /**
+     * Gets events for date ref.
+     *
+     * @param localDate the local date
+     *
+     * @return the events for date ref
+     */
     @NonNull
     public static DatabaseReference getEventsForDateRef(@NonNull LocalDate localDate) {
         return getEventsDatabase().child(localDate.toString());
     }
 
+    /**
+     * Get current user data ref database reference.
+     *
+     * @return the database reference
+     */
     @NonNull
     public static DatabaseReference getCurrentUserDataRef(){
         return getUserDataByUIDRef(getCurrentUID()).getRef();
     }
 
+    /**
+     * Get current user data live data.
+     *
+     * @return the live data
+     */
     @NonNull
     public static LiveData<UserData> getCurrentUserData(){
         MutableLiveData<UserData> userData = new MutableLiveData<>();
@@ -301,6 +489,11 @@ public abstract class FirebaseUtils {
         return userData;
     }
 
+    /**
+     * Get current user group data live data.
+     *
+     * @return the live data
+     */
     @NonNull
     public static LiveData<UserGroupData> getCurrentUserGroupData(){
         MutableLiveData<UserGroupData> userGroupData = new MutableLiveData<>();
@@ -324,6 +517,11 @@ public abstract class FirebaseUtils {
         return userGroupData;
     }
 
+    /**
+     * Get current username live data.
+     *
+     * @return the live data
+     */
     @NonNull
     public static LiveData<String> getCurrentUsername(){
         MutableLiveData<String> username = new MutableLiveData<>();
@@ -345,6 +543,11 @@ public abstract class FirebaseUtils {
         return username;
     }
 
+    /**
+     * Is madrich live data.
+     *
+     * @return the live data
+     */
     @NonNull
     public static LiveData<Boolean> isMadrich(){
         MutableLiveData<Boolean> isMadrich = new MutableLiveData<>();
@@ -365,24 +568,55 @@ public abstract class FirebaseUtils {
         return isMadrich;
     }
 
+    /**
+     * Get user data by uid ref database reference.
+     *
+     * @param UID the uid
+     *
+     * @return the database reference
+     */
     @NonNull
     public static DatabaseReference getUserDataByUIDRef(String UID){
         return usersDatabase.child(UID).getRef();
     }
 
+    /**
+     * Get current uid string.
+     *
+     * @return the string
+     */
     @NonNull
     public static String getCurrentUID(){
         return getCurrentFirebaseUser().getUid();
     }
 
+    /**
+     * Is current uid boolean.
+     *
+     * @param UID the uid
+     *
+     * @return the boolean
+     */
     public static boolean isCurrentUID(String UID){
         return Objects.equals(getCurrentUID(), UID);
     }
 
+    /**
+     * Is user logged in boolean.
+     *
+     * @return the boolean
+     */
     public static boolean isUserLoggedIn(){
         return getCurrentFirebaseUser() != null;
     }
 
+    /**
+     * Is madrich verification code live data.
+     *
+     * @param code the code
+     *
+     * @return the live data
+     */
     @NonNull
     public static LiveData<Boolean> isMadrichVerificationCode(int code){
         MutableLiveData<Boolean> isMadrichCode = new MutableLiveData<>();
@@ -395,8 +629,9 @@ public abstract class FirebaseUtils {
 
     /**
      * Deletes all the data in {@link FirebaseDatabase} with this key starting from rootRef and deeper.
-     * @param rootRef Starting location for deleting
-     * @param key Key of location which value has to be deleted
+     *
+     * @param rootRef          Starting location for deleting
+     * @param key              Key of location which value has to be deleted
      * @param firebaseCallback Callback that will happen when deleting will be finished
      */
     public static void deleteAll(@NonNull Query rootRef, String key, FirebaseCallback firebaseCallback){
@@ -447,6 +682,12 @@ public abstract class FirebaseUtils {
         }
     }
 
+    /**
+     * Create re authenticate dialog.
+     *
+     * @param context          the context
+     * @param firebaseCallback the firebase callback
+     */
     public static void createReAuthenticateDialog(Context context, FirebaseCallback firebaseCallback){
         View view = LayoutInflater.from(context).inflate(R.layout.reauthenticate_dialog, null);
 
@@ -491,6 +732,14 @@ public abstract class FirebaseUtils {
         }
     }
 
+    /**
+     * Re authenticate.
+     *
+     * @param context          the context
+     * @param email            the email
+     * @param password         the password
+     * @param firebaseCallback the firebase callback
+     */
     public static void reAuthenticate(Context context, String email, String password, FirebaseCallback firebaseCallback){
         LoadingDialog loadingDialog = new LoadingDialog(context);
         loadingDialog.setMessage(context.getString(R.string.logging_in_please_wait));

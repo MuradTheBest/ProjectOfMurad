@@ -23,6 +23,9 @@ public class ThereIsNoEventFragment extends Fragment {
 
     private String text;
 
+    /**
+     * Instantiates a new There is no event fragment.
+     */
     public ThereIsNoEventFragment() {
         // Required empty public constructor
     }
@@ -35,7 +38,6 @@ public class ThereIsNoEventFragment extends Fragment {
      *
      * @return A new instance of fragment ThereIsNoEventFragment.
      */
-
     @NonNull
     public static ThereIsNoEventFragment newInstance(String text) {
         ThereIsNoEventFragment fragment = new ThereIsNoEventFragment();

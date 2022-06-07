@@ -35,6 +35,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+/**
+ * The type Users adapter for firebase.
+ */
 public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
         UsersAdapterForFirebase.UserViewHolderForFirebase> {
 
@@ -46,6 +49,15 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
     private final Context context;
     private int oldPosition = -1;
 
+    /**
+     * Instantiates a new Users adapter for firebase.
+     *
+     * @param options                 the options
+     * @param context                 the context
+     * @param color                   the color
+     * @param onUserLongClickListener the on user long click listener
+     * @param onUserExpandListener    the on user expand listener
+     */
     public UsersAdapterForFirebase(@NonNull FirebaseRecyclerOptions<UserData> options, Context context, int color,
                                    OnUserLongClickListener onUserLongClickListener,
                                    OnUserExpandListener onUserExpandListener) {
@@ -57,13 +69,13 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
      * Initialize a {@link RecyclerView.Adapter} that listens to a Firebase query. See
      * {@link FirebaseRecyclerOptions} for configuration options.
      *
-     * @param options
-     * @param context
-     * @param event_private_id
-     * @param end
-     * @param color
-     * @param onUserLongClickListener
-     * @param onUserExpandListener
+     * @param options                 the options
+     * @param context                 the context
+     * @param event_private_id        the event private id
+     * @param end                     the end
+     * @param color                   the color
+     * @param onUserLongClickListener the on user long click listener
+     * @param onUserExpandListener    the on user expand listener
      */
     public UsersAdapterForFirebase(@NonNull FirebaseRecyclerOptions<UserData> options, Context context,
                                    String event_private_id, long end, int color,
@@ -78,9 +90,15 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
         this.context = context;
     }
 
+    /**
+     * The type User view holder for firebase.
+     */
     public class UserViewHolderForFirebase extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private final ConstraintLayout constraintLayout;
+        /**
+         * The Ll contact.
+         */
         public final LinearLayout ll_contact;
 
         private final CircleImageView iv_profile_picture;
@@ -95,8 +113,16 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
         private final AppCompatImageView iv_email;
         private final AppCompatImageView iv_message;
 
+        /**
+         * The Expanded.
+         */
         public boolean expanded = false;
 
+        /**
+         * Instantiates a new User view holder for firebase.
+         *
+         * @param itemView the item view
+         */
         public UserViewHolderForFirebase(@NonNull View itemView) {
             super(itemView);
 
@@ -263,11 +289,31 @@ public class UsersAdapterForFirebase extends FirebaseRecyclerAdapter<UserData,
         return new UserViewHolderForFirebase(view);
     }
 
+    /**
+     * The interface On user long click listener.
+     */
     public interface OnUserLongClickListener {
+        /**
+         * On user long click boolean.
+         *
+         * @param position the position
+         * @param userData the user data
+         *
+         * @return the boolean
+         */
         boolean onUserLongClick(int position, UserData userData);
     }
 
+    /**
+     * The interface On user expand listener.
+     */
     public interface OnUserExpandListener {
+        /**
+         * On user expand.
+         *
+         * @param position    the position
+         * @param oldPosition the old position
+         */
         void onUserExpand(int position, int oldPosition);
     }
 

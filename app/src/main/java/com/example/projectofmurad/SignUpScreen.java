@@ -20,6 +20,9 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Objects;
 
+/**
+ * The type Sign up screen.
+ */
 public class SignUpScreen extends UserSigningActivity implements TextWatcher {
 
     private TextInputLayout et_username;
@@ -60,6 +63,9 @@ public class SignUpScreen extends UserSigningActivity implements TextWatcher {
         btn_phone.setOnClickListener(v -> createPhoneAuthenticationDialog());
     }
 
+    /**
+     * Check fields.
+     */
     public void checkFields() {
         String username = Utils.getText(et_username);
         String email = Utils.getText(et_email_address);
@@ -95,6 +101,13 @@ public class SignUpScreen extends UserSigningActivity implements TextWatcher {
         }
     }
 
+    /**
+     * Create user.
+     *
+     * @param email    the email
+     * @param username the username
+     * @param password the password
+     */
     public void createUser(String email, String username, String password){
         loadingDialog.setMessage(R.string.registering_please_wait);
         loadingDialog.show();

@@ -11,11 +11,19 @@ import androidx.annotation.StringRes;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.utils.Utils;
 
+/**
+ * The type Loading dialog.
+ */
 public class LoadingDialog extends Dialog {
 
     private String message;
     private TextView tv_message;
 
+    /**
+     * Instantiates a new Loading dialog.
+     *
+     * @param context the context
+     */
     public LoadingDialog(@NonNull Context context) {
         super(context);
 
@@ -32,7 +40,12 @@ public class LoadingDialog extends Dialog {
         tv_message.setText(message);
     }
 
-   public void setMessage(String message){
+    /**
+     * Set message.
+     *
+     * @param message the message
+     */
+    public void setMessage(String message){
         if (isShowing()) {
             tv_message.setText(message);
         }
@@ -41,7 +54,12 @@ public class LoadingDialog extends Dialog {
         }
     }
 
-   public void setMessage(@StringRes int message){
+    /**
+     * Set message.
+     *
+     * @param message the message
+     */
+    public void setMessage(@StringRes int message){
        setMessage(getContext().getString(message));
    }
 }

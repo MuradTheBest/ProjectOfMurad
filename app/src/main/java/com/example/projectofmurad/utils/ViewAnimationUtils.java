@@ -6,8 +6,17 @@ import android.view.animation.Transformation;
 
 import androidx.annotation.NonNull;
 
+/**
+ * The type View animation utils.
+ */
 public abstract class ViewAnimationUtils {
 
+    /**
+     * Expand or collapse.
+     *
+     * @param v                the v
+     * @param expandOrCollapse the expand or collapse
+     */
     public static void expandOrCollapse(@NonNull final View v, boolean expandOrCollapse) {
         if (expandOrCollapse){
             expand(v);
@@ -17,6 +26,11 @@ public abstract class ViewAnimationUtils {
         }
     }
 
+    /**
+     * Expand.
+     *
+     * @param v the v
+     */
     public static void expand(@NonNull final View v) {
         if (v.getVisibility() == View.VISIBLE) {
             return;
@@ -49,6 +63,11 @@ public abstract class ViewAnimationUtils {
         v.startAnimation(a);
     }
 
+    /**
+     * Collapse.
+     *
+     * @param v the v
+     */
     public static void collapse(@NonNull final View v) {
         if (v.getVisibility() == View.GONE){
             return;

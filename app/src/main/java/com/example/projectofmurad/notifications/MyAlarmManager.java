@@ -18,11 +18,25 @@ import com.example.projectofmurad.utils.Utils;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+/**
+ * The type My alarm manager.
+ */
 @SuppressLint("MissingPermission")
 public class MyAlarmManager {
 
+    /**
+     * The constant TAG.
+     */
     public static final String TAG = "AlarmManagerForToday";
 
+    /**
+     * Check if alarm set boolean.
+     *
+     * @param context        the context
+     * @param eventPrivateId the event private id
+     *
+     * @return the boolean
+     */
     public static boolean checkIfAlarmSet(@NonNull Context context, String eventPrivateId){
         boolean alarmSet = false;
 
@@ -40,6 +54,13 @@ public class MyAlarmManager {
         return alarmSet;
     }
 
+    /**
+     * Add alarm.
+     *
+     * @param context the context
+     * @param event   the event
+     * @param before  the before
+     */
     public static void addAlarm(@NonNull Context context, @NonNull CalendarEvent event, long before){
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -92,6 +113,12 @@ public class MyAlarmManager {
         }
     }
 
+    /**
+     * Cancel alarm.
+     *
+     * @param context the context
+     * @param event   the event
+     */
     public static void cancelAlarm(@NonNull Context context, @NonNull CalendarEvent event){
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

@@ -26,20 +26,48 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The type Fcm send.
+ */
 public class FCMSend {
 
     private static final String BASE_URL = "https://fcm.googleapis.com/fcm/send";
     private static final String SERVER_KEY = "key=AAAA9qIrU5w:APA91bFxWrluzt2DFIyXvykPNcyOtCA1jPXS1GAlATo_BpV1NiIb8H8GZsdeZkT8vwHbG2Navlxg_te5aKNQbF5z54YPuaP_unmzdaDIWIid4AISDG3NTNwN2rczNME9qPiFX5Agej7R";
 
+    /**
+     * The constant FCM_TAG.
+     */
     public static final String FCM_TAG = "fcm";
 
+    /**
+     * The constant ADD_EVENT_TOPIC.
+     */
     public final static String ADD_EVENT_TOPIC = "add_event_topic";
+    /**
+     * The constant EDIT_EVENT_TOPIC.
+     */
     public final static String EDIT_EVENT_TOPIC = "edit_event_topic";
+    /**
+     * The constant DELETE_EVENT_TOPIC.
+     */
     public final static String DELETE_EVENT_TOPIC = "delete_event_topic";
 
+    /**
+     * The constant KEY_SENDER_UID.
+     */
     public final static String KEY_SENDER_UID = "sender_uid";
+    /**
+     * The constant KEY_RECEIVER_UID.
+     */
     public final static String KEY_RECEIVER_UID = "receiver_uid";
 
+    /**
+     * Gets topic.
+     *
+     * @param type the type
+     *
+     * @return the topic
+     */
     @NonNull
     @Contract(pure = true)
     public static String getTopic(String type) {
@@ -139,6 +167,12 @@ public class FCMSend {
         }
     }
 
+    /**
+     * Send notification about group.
+     *
+     * @param context the context
+     * @param group   the group
+     */
     public static void sendNotificationAboutGroup(Context context, @NonNull Group group){
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -206,6 +240,13 @@ public class FCMSend {
         }
     }
 
+    /**
+     * Send notification about user.
+     *
+     * @param context the context
+     * @param group   the group
+     * @param UID     the uid
+     */
     public static void sendNotificationAboutUser(Context context, @NonNull Group group, String UID){
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -273,6 +314,13 @@ public class FCMSend {
         }
     }
 
+    /**
+     * Send notifications to all users with topic.
+     *
+     * @param context          the context
+     * @param event            the event
+     * @param notificationType the notification type
+     */
     public static void sendNotificationsToAllUsersWithTopic(Context context, CalendarEvent event, int notificationType){
         FirebaseUtils.getCurrentGroupName().observe((LifecycleOwner) context, groupName -> sendNotificationToTopic(context, event, groupName, notificationType));
     }

@@ -30,18 +30,42 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
+/**
+ * The type Tracking service.
+ */
 public class TrackingService extends LifecycleService {
 
+    /**
+     * The constant ACTION_START_TRACKING_SERVICE.
+     */
     public static final String ACTION_START_TRACKING_SERVICE = Utils.APPLICATION_ID + "action_start_tracking";
 
+    /**
+     * The constant ACTION_MOVE_TO_TRACKING_FRAGMENT.
+     */
     public static final String ACTION_MOVE_TO_TRACKING_FRAGMENT = Utils.APPLICATION_ID + "action_move_to_tracking_fragment";
 
+    /**
+     * The constant CODE_FOR_RESULT.
+     */
     public static final int CODE_FOR_RESULT = 5000;
 
+    /**
+     * The constant TRACKING_CHANNEL_ID.
+     */
     public final static String TRACKING_CHANNEL_ID = Utils.APPLICATION_ID + "tracking_channel_id";
+    /**
+     * The constant TRACKING_NOTIFICATION_ID.
+     */
     public static final int TRACKING_NOTIFICATION_ID = 1423430;
+    /**
+     * The constant POWER_MODE_CHANGED_NOTIFICATION_ID.
+     */
     public static final int POWER_MODE_CHANGED_NOTIFICATION_ID = 4321;
 
+    /**
+     * The constant TAG.
+     */
     public static final String TAG = "tracking";
 
     private FusedLocationProviderClient fusedLocationProviderClient;
@@ -93,7 +117,13 @@ public class TrackingService extends LifecycleService {
 
     private NotificationCompat.Builder notificationBuilder;
 
+    /**
+     * The constant eventPrivateId.
+     */
     public static MutableLiveData<String> eventPrivateId = new MutableLiveData<>(null);
+    /**
+     * The constant isRunning.
+     */
     public static MutableLiveData<Boolean> isRunning = new MutableLiveData<>(false);
 
     @Override
@@ -140,6 +170,9 @@ public class TrackingService extends LifecycleService {
         return super.onStartCommand(intent, flags, startId);
     }
 
+    /**
+     * Send turn off power saving notification.
+     */
     public void sendTurnOffPowerSavingNotification(){
         Intent i = new Intent(this, MainActivity.class);
 

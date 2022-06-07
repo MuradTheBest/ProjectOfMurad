@@ -8,8 +8,16 @@ import com.example.projectofmurad.R;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
+/**
+ * The type Color picker dialog.
+ */
 public class ColorPickerDialog extends ColorPicker {
 
+    /**
+     * Instantiates a new Color picker dialog.
+     *
+     * @param context the context
+     */
     public ColorPickerDialog(Activity context) {
         super(context);
 

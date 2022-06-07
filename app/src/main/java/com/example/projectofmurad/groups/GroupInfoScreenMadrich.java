@@ -33,11 +33,15 @@ import java.util.Objects;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
+/**
+ * The type Group info screen madrich.
+ */
 public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLongClickListener,
         UsersAdapterForFirebase.OnUserExpandListener,
         UsersAdapterForFirebase.OnUserLongClickListener {
 
     private Menu menu;
+
 
     // constant to compare
     // the activity result code
@@ -294,6 +298,11 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
         return false;
     }
 
+    /**
+     * Edit.
+     *
+     * @param edit the edit
+     */
     public void edit(boolean edit) {
         ViewAnimationUtils.expandOrCollapse(et_group_name, edit);
 

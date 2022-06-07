@@ -27,25 +27,70 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
+/**
+ * The type Group info screen.
+ */
 public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterForFirebase.OnUserExpandListener,
         UsersAdapterForFirebase.OnUserLongClickListener {
 
+    /**
+     * The Group.
+     */
     protected Group group;
 
+    /**
+     * The Collapsing toolbar layout.
+     */
     protected CollapsingToolbarLayout collapsing_toolbar_layout;
+    /**
+     * The Iv group picture.
+     */
     protected ImageView iv_group_picture;
+    /**
+     * The Toolbar.
+     */
     protected MaterialToolbar toolbar;
+    /**
+     * The Et group name.
+     */
     protected TextInputLayout et_group_name;
+    /**
+     * The Et group description.
+     */
     protected TextInputLayout et_group_description;
+    /**
+     * The Et group key.
+     */
     protected TextInputLayout et_group_key;
+    /**
+     * The Et trainer code.
+     */
     protected TextInputLayout et_trainer_code;
+    /**
+     * The Et group limit.
+     */
     protected TextInputLayout et_group_limit;
+    /**
+     * The Tv choose color.
+     */
     protected TextView tv_choose_color;
 
+    /**
+     * The Tv group users number.
+     */
     protected TextView tv_group_users_number;
+    /**
+     * The Rv users.
+     */
     protected RecyclerView rv_users;
+    /**
+     * The Shimmer rv users.
+     */
     protected ShimmerFrameLayout shimmer_rv_users;
 
+    /**
+     * The Loading dialog.
+     */
     protected LoadingDialog loadingDialog;
 
     @Override
@@ -79,6 +124,9 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
         Log.d(Utils.LOG_TAG, getLocalClassName());
     }
 
+    /**
+     * Gets group data.
+     */
     protected void getGroupData() {
         int contrastColor = Utils.getContrastColor(group.getColor());
         collapsing_toolbar_layout.setCollapsedTitleTextColor(contrastColor);
@@ -105,6 +153,11 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
         setupUsersRecyclerView();
     }
 
+    /**
+     * Enable everything.
+     *
+     * @param enable the enable
+     */
     protected void enableEverything(boolean enable) {
         et_group_name.setEnabled(enable);
         et_group_description.setEnabled(enable);
@@ -114,6 +167,9 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
         et_trainer_code.setVisibility(enable ? View.VISIBLE : View.GONE);
     }
 
+    /**
+     * Setup users recycler view.
+     */
     protected void setupUsersRecyclerView(){
         startRVUsersShimmer();
 
@@ -135,12 +191,18 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapterFo
         rv_users.setLayoutManager(linearLayoutManagerWrapper);
     }
 
+    /**
+     * Start rv users shimmer.
+     */
     protected void startRVUsersShimmer() {
         rv_users.setVisibility(View.INVISIBLE);
         shimmer_rv_users.setVisibility(View.VISIBLE);
         shimmer_rv_users.startShimmer();
     }
 
+    /**
+     * Stop rv users shimmer.
+     */
     protected void stopRVUsersShimmer() {
         shimmer_rv_users.stopShimmer();
         shimmer_rv_users.setVisibility(View.GONE);

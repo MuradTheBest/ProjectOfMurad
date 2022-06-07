@@ -59,6 +59,9 @@ import java.util.HashMap;
 
 import static com.example.projectofmurad.utils.Utils.LOG_TAG;
 
+/**
+ * The type Tracking fragment.
+ */
 @SuppressLint("MissingPermission")
 public class TrackingFragment extends Fragment implements
         GoogleMap.OnMyLocationButtonClickListener,
@@ -69,6 +72,9 @@ public class TrackingFragment extends Fragment implements
     private GoogleMap map;
 
 
+    /**
+     * The Options.
+     */
     GoogleMapOptions options;
 
     private FusedLocationProviderClient fusedLocationProviderClient;
@@ -183,6 +189,9 @@ public class TrackingFragment extends Fragment implements
         startActivity(Intent.createChooser(intent, "Share via"));
     }
 
+    /**
+     * Start tracking.
+     */
     public void startTracking(){
         if (TrackingService.eventPrivateId.getValue() == null){
             Utils.createAlertDialog(requireContext(), "No event connected to training",
@@ -225,6 +234,9 @@ public class TrackingFragment extends Fragment implements
         requireActivity().startService(intent);
     }
 
+    /**
+     * Finish tracking.
+     */
     public void finishTracking(){
         btn_start_tracking.setVisibility(View.VISIBLE);
         ll_help_or_finish_training.setVisibility(View.GONE);
@@ -244,6 +256,11 @@ public class TrackingFragment extends Fragment implements
         }
     }
 
+    /**
+     * Create power saving dialog.
+     *
+     * @param on the on
+     */
     public void createPowerSavingDialog(boolean on){
         MyAlertDialogBuilder builder = new MyAlertDialogBuilder(requireContext());
         builder.setTitle(on ? "Stop tracking" : "Start tracking");
@@ -300,6 +317,9 @@ public class TrackingFragment extends Fragment implements
 
     }
 
+    /**
+     * The Value event listener.
+     */
     final ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -414,7 +434,14 @@ public class TrackingFragment extends Fragment implements
                 });
     }
 
-    //makes bitmap circle
+    /**
+     * Gets bitmap clipped circle.
+     *
+     * @param bitmap the bitmap
+     *
+     * @return the bitmap clipped circle
+     */
+//makes bitmap circle
     public Bitmap getBitmapClippedCircle(@NonNull Bitmap bitmap) {
 
         final int width = bitmap.getWidth();
@@ -434,6 +461,9 @@ public class TrackingFragment extends Fragment implements
         return outputBitmap;
     }
 
+    /**
+     * Gets my location.
+     */
     public void getMyLocation() {
 
         Task<Location> task = fusedLocationProviderClient.getLastLocation();
@@ -472,6 +502,11 @@ public class TrackingFragment extends Fragment implements
     private final String[] permissions = new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION};
 
+    /**
+     * Check permissions boolean.
+     *
+     * @return the boolean
+     */
     public boolean checkPermissions(){
         boolean hasPermissions = true;
 
@@ -489,6 +524,11 @@ public class TrackingFragment extends Fragment implements
         return hasPermissions;
     }
 
+    /**
+     * Check background location permission boolean.
+     *
+     * @return the boolean
+     */
     @RequiresApi(api = Build.VERSION_CODES.Q)
     public boolean checkBackgroundLocationPermission(){
         boolean hasPermissions = true;

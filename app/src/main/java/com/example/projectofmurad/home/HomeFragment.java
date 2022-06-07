@@ -43,6 +43,9 @@ import java.util.Calendar;
  */
 public class HomeFragment extends Fragment {
 
+    /**
+     * Instantiates a new Home fragment.
+     */
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -90,7 +93,13 @@ public class HomeFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
+    /**
+     * The Tab layout.
+     */
     public TabLayout tabLayout;
+    /**
+     * The Toolbar.
+     */
     public MaterialToolbar toolbar;
 
     private CollapsingToolbarLayout collapsingToolbarLayout;

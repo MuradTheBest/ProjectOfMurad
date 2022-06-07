@@ -4,6 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+/**
+ * The type Event slide page adapter.
+ */
 public class EventSlidePageAdapter extends FragmentStateAdapter {
 
     private static final int NUM_PAGES = 2;
@@ -11,6 +14,13 @@ public class EventSlidePageAdapter extends FragmentStateAdapter {
     private final CalendarEvent next_event;
     private final CalendarEvent last_event;
 
+    /**
+     * Instantiates a new Event slide page adapter.
+     *
+     * @param fragment   the fragment
+     * @param next_event the next event
+     * @param last_event the last event
+     */
     public EventSlidePageAdapter(@NonNull Fragment fragment, CalendarEvent next_event, CalendarEvent last_event) {
         super(fragment);
 

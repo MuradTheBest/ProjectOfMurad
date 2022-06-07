@@ -18,6 +18,9 @@ import com.example.projectofmurad.utils.Utils;
 import com.example.projectofmurad.notifications.MyAlarmManager;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+/**
+ * The type Alarm dialog.
+ */
 public class AlarmDialog extends AppCompatDialog {
 
     private final Context context;
@@ -28,6 +31,13 @@ public class AlarmDialog extends AppCompatDialog {
 
     private TimePickerDialog timePickerDialog;
 
+    /**
+     * Instantiates a new Alarm dialog.
+     *
+     * @param context      the context
+     * @param event        the event
+     * @param switch_alarm the switch alarm
+     */
     public AlarmDialog(Context context, CalendarEvent event, SwitchMaterial switch_alarm) {
         super(context);
 

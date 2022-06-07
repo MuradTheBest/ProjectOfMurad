@@ -25,6 +25,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+/**
+ * The type Calendar adapter.
+ */
 public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder> {
 
     private final ArrayList<LocalDate> daysOfMonth;
@@ -34,6 +37,13 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
     private int oldPosition;
 
+    /**
+     * Instantiates a new Calendar adapter.
+     *
+     * @param daysOfMonth                 the days of month
+     * @param selectedDate                the selected date
+     * @param onCalendarCellClickListener the on calendar cell click listener
+     */
     public CalendarAdapter(@NonNull ArrayList<LocalDate> daysOfMonth,
                            LocalDate selectedDate,
                            OnCalendarCellClickListener onCalendarCellClickListener) {
@@ -54,6 +64,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         return new CalendarViewHolder(view);
     }
 
+    /**
+     * The type Calendar view holder.
+     */
     public class CalendarViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView dayOfMonth;
@@ -66,6 +79,11 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
         private final TextView tv_more;
 
+        /**
+         * Instantiates a new Calendar view holder.
+         *
+         * @param itemView the item view
+         */
         public CalendarViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -210,7 +228,17 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
     }
 
+    /**
+     * The interface On calendar cell click listener.
+     */
     public interface OnCalendarCellClickListener {
+        /**
+         * On calendar cell click.
+         *
+         * @param position     the position
+         * @param oldPosition  the old position
+         * @param selectedDate the selected date
+         */
         void onCalendarCellClick(int position, int oldPosition, LocalDate selectedDate);
     }
 

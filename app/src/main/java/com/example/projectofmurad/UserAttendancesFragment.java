@@ -37,11 +37,17 @@ import com.google.firebase.database.ValueEventListener;
  */
 public class UserAttendancesFragment extends DialogFragment implements EventsAdapterForFirebase.OnEventClickListener{
 
+    /**
+     * The constant TAG.
+     */
     public static final String TAG = "UserAttendancesFragment";
 
     private String UID;
     private String username;
 
+    /**
+     * Instantiates a new User attendances fragment.
+     */
     public UserAttendancesFragment() {
         // Required empty public constructor
     }
@@ -50,8 +56,9 @@ public class UserAttendancesFragment extends DialogFragment implements EventsAda
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param UID uid of selected user.
+     * @param UID      uid of selected user.
      * @param username username of selected user
+     *
      * @return A new instance of fragment UserAttendancesFragment.
      */
     @NonNull
@@ -93,18 +100,51 @@ public class UserAttendancesFragment extends DialogFragment implements EventsAda
         return inflater.inflate(R.layout.fragment_user_attendances, container, false);
     }
 
+    /**
+     * The Progress bar.
+     */
     ProgressBar progressBar;
+    /**
+     * The Tv relative attendance.
+     */
     TextView tv_relative_attendance;
+    /**
+     * The Tv there are no events.
+     */
     TextView tv_there_are_no_events;
+    /**
+     * The Tv there are no attending events.
+     */
     TextView tv_there_are_no_attending_events;
+    /**
+     * The Rv events.
+     */
     RecyclerView rv_events;
+    /**
+     * The Switch only attend.
+     */
     SwitchMaterial switch_only_attend;
+    /**
+     * The Events adapter.
+     */
     EventsAdapterForFirebase eventsAdapter;
 
+    /**
+     * The All events amount.
+     */
     MutableLiveData<Long> allEventsAmount;
+    /**
+     * The Attending events amount.
+     */
     MutableLiveData<Long> attendingEventsAmount;
 
+    /**
+     * The All events.
+     */
     DatabaseReference allEvents;
+    /**
+     * The Attending events.
+     */
     Query attendingEvents;
 
     @Override
@@ -176,6 +216,9 @@ public class UserAttendancesFragment extends DialogFragment implements EventsAda
         rv_events.setLayoutManager(layoutManager);
     }
 
+    /**
+     * Sets up all events recycler view.
+     */
     public void setUpAllEventsRecyclerView() {
         startRVEventsShimmer();
 
@@ -191,6 +234,9 @@ public class UserAttendancesFragment extends DialogFragment implements EventsAda
         rv_events.setAdapter(eventsAdapter);
     }
 
+    /**
+     * Sets up attend events recycler view.
+     */
     public void setUpAttendEventsRecyclerView() {
         startRVEventsShimmer();
 
@@ -214,6 +260,9 @@ public class UserAttendancesFragment extends DialogFragment implements EventsAda
         }
     }
 
+    /**
+     * Start rv events shimmer.
+     */
     public void startRVEventsShimmer() {
         rv_events.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.VISIBLE);
@@ -222,6 +271,9 @@ public class UserAttendancesFragment extends DialogFragment implements EventsAda
         tv_there_are_no_attending_events.setVisibility(View.GONE);
     }
 
+    /**
+     * Stop rv events shimmer.
+     */
     public void stopRVEventsShimmer() {
         progressBar.setVisibility(View.GONE);
         rv_events.setVisibility(View.VISIBLE);
@@ -236,6 +288,9 @@ public class UserAttendancesFragment extends DialogFragment implements EventsAda
         }
     }
 
+    /**
+     * Get user relative attendance.
+     */
     public void getUserRelativeAttendance(){
         long count = attendingEventsAmount.getValue();
         long all = allEventsAmount.getValue();

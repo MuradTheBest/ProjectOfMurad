@@ -33,6 +33,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class PreferencesFragment extends Fragment implements View.OnClickListener{
 
 
+    /**
+     * Instantiates a new Preferences fragment.
+     */
     public PreferencesFragment() {
         // Required empty public constructor
     }
@@ -110,6 +113,11 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                 || userGroupData.isSubscribedToDeleteEvent());
     }
 
+    /**
+     * Get user data.
+     *
+     * @param userData the user data
+     */
     public void getUserData(@NonNull UserData userData){
 
         switch_add_event.setEnabled(switch_notifications.isChecked());

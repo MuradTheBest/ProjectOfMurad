@@ -23,7 +23,6 @@ import com.example.projectofmurad.R;
 /**
  * A simple utility class to add a background and/or an icon while swiping a RecyclerView item left or right.
  */
-
 public class RecyclerViewSwipeDecorator {
 
     private Canvas canvas;
@@ -65,12 +64,13 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Create a @RecyclerViewSwipeDecorator
-     * @param canvas The canvas which RecyclerView is drawing its children
-     * @param recyclerView The RecyclerView to which ItemTouchHelper is attached to
-     * @param viewHolder The ViewHolder which is being interacted by the User or it was interacted and simply animating to its original position
-     * @param dX The amount of horizontal displacement caused by user's action
-     * @param dY The amount of vertical displacement caused by user's action
-     * @param actionState The type of interaction on the View. Is either ACTION_STATE_DRAG or ACTION_STATE_SWIPE.
+     *
+     * @param canvas            The canvas which RecyclerView is drawing its children
+     * @param recyclerView      The RecyclerView to which ItemTouchHelper is attached to
+     * @param viewHolder        The ViewHolder which is being interacted by the User or it was interacted and simply animating to its original position
+     * @param dX                The amount of horizontal displacement caused by user's action
+     * @param dY                The amount of vertical displacement caused by user's action
+     * @param actionState       The type of interaction on the View. Is either ACTION_STATE_DRAG or ACTION_STATE_SWIPE.
      * @param isCurrentlyActive True if this view is currently being controlled by the user or false it is simply animating back to its original state
      */
     public RecyclerViewSwipeDecorator(Canvas canvas, @NonNull RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
@@ -85,6 +85,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the background color for either (left/right) swipe directions
+     *
      * @param backgroundColor The resource id of the background color to be set
      */
     public void setBackgroundColor(int backgroundColor) {
@@ -94,6 +95,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the action icon for either (left/right) swipe directions
+     *
      * @param actionIconId The resource id of the icon to be set
      */
     public void setActionIconId(int actionIconId) {
@@ -103,6 +105,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the tint color for either (left/right) action icons
+     *
      * @param color a color in ARGB format (e.g. 0xFF0000FF for blue)
      */
     public void setActionIconTint(int color) {
@@ -112,6 +115,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the background color for left swipe direction
+     *
      * @param swipeLeftBackgroundColor The resource id of the background color to be set
      */
     public void setSwipeLeftBackgroundColor(int swipeLeftBackgroundColor) {
@@ -120,6 +124,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the action icon for left swipe direction
+     *
      * @param swipeLeftActionIconId The resource id of the icon to be set
      */
     public void setSwipeLeftActionIconId(int swipeLeftActionIconId) {
@@ -128,6 +133,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the tint color for action icon drawn while swiping left
+     *
      * @param color a color in ARGB format (e.g. 0xFF0000FF for blue)
      */
     public void setSwipeLeftActionIconTint(int color) {
@@ -136,6 +142,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the background color for right swipe direction
+     *
      * @param swipeRightBackgroundColor The resource id of the background color to be set
      */
     public void setSwipeRightBackgroundColor(int swipeRightBackgroundColor) {
@@ -144,6 +151,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the action icon for right swipe direction
+     *
      * @param swipeRightActionIconId The resource id of the icon to be set
      */
     public void setSwipeRightActionIconId(int swipeRightActionIconId) {
@@ -152,6 +160,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the tint color for action icon drawn while swiping right
+     *
      * @param color a color in ARGB format (e.g. 0xFF0000FF for blue)
      */
     public void setSwipeRightActionIconTint(int color) {
@@ -160,6 +169,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the label shown when swiping right
+     *
      * @param label a String
      */
     public void setSwipeRightLabel(String label) {
@@ -168,6 +178,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the size of the text shown when swiping right
+     *
      * @param unit TypedValue (default is COMPLEX_UNIT_SP)
      * @param size the size value
      */
@@ -178,6 +189,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the color of the text shown when swiping right
+     *
      * @param color the color to be set
      */
     public void setSwipeRightTextColor(int color) {
@@ -186,6 +198,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the Typeface of the text shown when swiping right
+     *
      * @param typeface the Typeface to be set
      */
     public void setSwipeRightTypeface(Typeface typeface) {
@@ -194,6 +207,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the horizontal margin of the icon in DPs (default is 16dp)
+     *
      * @param iconHorizontalMargin the margin in pixels
      *
      * @deprecated in RecyclerViewSwipeDecorator 1.2, use {@link #setIconHorizontalMargin(int, int)} instead.
@@ -205,7 +219,8 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the horizontal margin of the icon in the given unit (default is 16dp)
-     * @param unit TypedValue
+     *
+     * @param unit                 TypedValue
      * @param iconHorizontalMargin the margin in the given unit
      */
     public void setIconHorizontalMargin(int unit, int iconHorizontalMargin) {
@@ -214,6 +229,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the label shown when swiping left
+     *
      * @param label a String
      */
     public void setSwipeLeftLabel(String label) {
@@ -222,6 +238,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the size of the text shown when swiping left
+     *
      * @param unit TypedValue (default is COMPLEX_UNIT_SP)
      * @param size the size value
      */
@@ -232,6 +249,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the color of the text shown when swiping left
+     *
      * @param color the color to be set
      */
     public void setSwipeLeftTextColor(int color) {
@@ -240,6 +258,7 @@ public class RecyclerViewSwipeDecorator {
 
     /**
      * Set the Typeface of the text shown when swiping left
+     *
      * @param typeface the Typeface to be set
      */
     public void setSwipeLeftTypeface(Typeface typeface) {
@@ -389,12 +408,13 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Create a builder for a RecyclerViewsSwipeDecorator
-         * @param canvas The canvas which RecyclerView is drawing its children
-         * @param recyclerView The RecyclerView to which ItemTouchHelper is attached to
-         * @param viewHolder The ViewHolder which is being interacted by the User or it was interacted and simply animating to its original position
-         * @param dX The amount of horizontal displacement caused by user's action
-         * @param dY The amount of vertical displacement caused by user's action
-         * @param actionState The type of interaction on the View. Is either ACTION_STATE_DRAG or ACTION_STATE_SWIPE.
+         *
+         * @param canvas            The canvas which RecyclerView is drawing its children
+         * @param recyclerView      The RecyclerView to which ItemTouchHelper is attached to
+         * @param viewHolder        The ViewHolder which is being interacted by the User or it was interacted and simply animating to its original position
+         * @param dX                The amount of horizontal displacement caused by user's action
+         * @param dY                The amount of vertical displacement caused by user's action
+         * @param actionState       The type of interaction on the View. Is either ACTION_STATE_DRAG or ACTION_STATE_SWIPE.
          * @param isCurrentlyActive True if this view is currently being controlled by the user or false it is simply animating back to its original state
          */
         public Builder(Canvas canvas, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
@@ -411,7 +431,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Add a background color to both swiping directions
+         *
          * @param color A single color value in the form 0xAARRGGBB
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder addBackgroundColor(int color) {
@@ -421,7 +443,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Add an action icon to both swiping directions
+         *
          * @param drawableId The resource id of the icon to be set
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder addActionIcon(int drawableId) {
@@ -431,7 +455,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Set the tint color for either (left/right) action icons
+         *
          * @param color a color in ARGB format (e.g. 0xFF0000FF for blue)
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder setActionIconTint(int color) {
@@ -441,7 +467,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Add a background color while swiping right
+         *
          * @param color A single color value in the form 0xAARRGGBB
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder addSwipeRightBackgroundColor(int color) {
@@ -451,7 +479,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Add an action icon while swiping right
+         *
          * @param drawableId The resource id of the icon to be set
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder addSwipeRightActionIcon(int drawableId) {
@@ -461,7 +491,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Set the tint color for action icon shown while swiping right
+         *
          * @param color a color in ARGB format (e.g. 0xFF0000FF for blue)
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder setSwipeRightActionIconTint(int color) {
@@ -471,7 +503,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Add a label to be shown while swiping right
+         *
          * @param label The string to be shown as label
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder addSwipeRightLabel(String label) {
@@ -481,7 +515,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Set the color of the label to be shown while swiping right
+         *
          * @param color the color to be set
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder setSwipeRightLabelColor(int color) {
@@ -491,8 +527,10 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Set the size of the label to be shown while swiping right
+         *
          * @param unit the unit to convert from
          * @param size the size to be set
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder setSwipeRightLabelTextSize(int unit, float size) {
@@ -502,7 +540,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Set the Typeface of the label to be shown while swiping right
+         *
          * @param typeface the Typeface to be set
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder setSwipeRightLabelTypeface(Typeface typeface) {
@@ -512,7 +552,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Adds a background color while swiping left
+         *
          * @param color A single color value in the form 0xAARRGGBB
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder addSwipeLeftBackgroundColor(int color) {
@@ -522,7 +564,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Add an action icon while swiping left
+         *
          * @param drawableId The resource id of the icon to be set
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder addSwipeLeftActionIcon(int drawableId) {
@@ -532,7 +576,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Set the tint color for action icon shown while swiping left
+         *
          * @param color a color in ARGB format (e.g. 0xFF0000FF for blue)
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder setSwipeLeftActionIconTint(int color) {
@@ -542,7 +588,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Add a label to be shown while swiping left
+         *
          * @param label The string to be shown as label
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder addSwipeLeftLabel(String label) {
@@ -552,7 +600,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Set the color of the label to be shown while swiping left
+         *
          * @param color the color to be set
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder setSwipeLeftLabelColor(int color) {
@@ -562,8 +612,10 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Set the size of the label to be shown while swiping left
+         *
          * @param unit the unit to convert from
          * @param size the size to be set
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder setSwipeLeftLabelTextSize(int unit, float size) {
@@ -573,7 +625,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Set the Typeface of the label to be shown while swiping left
+         *
          * @param typeface the Typeface to be set
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          */
         public Builder setSwipeLeftLabelTypeface(Typeface typeface) {
@@ -583,7 +637,9 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Set the horizontal margin of the icon in DPs (default is 16dp)
+         *
          * @param pixels margin in pixels
+         *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
          *
          * @deprecated in RecyclerViewSwipeDecorator 1.2, use {@link #setIconHorizontalMargin(int, int)} instead.
@@ -596,7 +652,8 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Set the horizontal margin of the icon in the given unit (default is 16dp)
-         * @param unit TypedValue
+         *
+         * @param unit                 TypedValue
          * @param iconHorizontalMargin the margin in the given unit
          *
          * @return This instance of @RecyclerViewSwipeDecorator.Builder
@@ -608,6 +665,7 @@ public class RecyclerViewSwipeDecorator {
 
         /**
          * Create a RecyclerViewSwipeDecorator
+         *
          * @return The created @RecyclerViewSwipeDecorator
          */
         public RecyclerViewSwipeDecorator create() {

@@ -8,6 +8,9 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.example.projectofmurad.utils.Utils;
 
+/**
+ * The type My alert dialog builder.
+ */
 public class MyAlertDialogBuilder extends AlertDialog.Builder {
     /**
      * Click listeners
@@ -30,11 +33,25 @@ public class MyAlertDialogBuilder extends AlertDialog.Builder {
     private boolean mNegativeButtonDismiss = true;
     private boolean mNeutralButtonDismiss = true;
 
+    /**
+     * Instantiates a new My alert dialog builder.
+     *
+     * @param context the context
+     */
     public MyAlertDialogBuilder(Context context) {
         super(context);
         setCancelable(false);
     }
 
+    /**
+     * Sets negative button.
+     *
+     * @param text     the text
+     * @param listener the listener
+     * @param dismiss  the dismiss
+     *
+     * @return the negative button
+     */
     public MyAlertDialogBuilder setNegativeButton(CharSequence text, DialogInterface.OnClickListener listener, boolean dismiss) {
         if (dismiss){
             setNegativeButton(text, listener);
@@ -47,6 +64,15 @@ public class MyAlertDialogBuilder extends AlertDialog.Builder {
         return this;
     }
 
+    /**
+     * Sets neutral button.
+     *
+     * @param text     the text
+     * @param listener the listener
+     * @param dismiss  the dismiss
+     *
+     * @return the neutral button
+     */
     public MyAlertDialogBuilder setNeutralButton(CharSequence text, DialogInterface.OnClickListener listener, boolean dismiss) {
         if (dismiss) {
             setNeutralButton(text, listener);
@@ -59,6 +85,15 @@ public class MyAlertDialogBuilder extends AlertDialog.Builder {
         return this;
     }
 
+    /**
+     * Sets positive button.
+     *
+     * @param text     the text
+     * @param listener the listener
+     * @param dismiss  the dismiss
+     *
+     * @return the positive button
+     */
     public MyAlertDialogBuilder setPositiveButton(CharSequence text, DialogInterface.OnClickListener listener, boolean dismiss) {
         if (dismiss) {
             setNeutralButton(text, listener);
@@ -71,16 +106,43 @@ public class MyAlertDialogBuilder extends AlertDialog.Builder {
         return this;
     }
 
+    /**
+     * Sets negative button.
+     *
+     * @param textId    the text id
+     * @param listener  the listener
+     * @param toDismiss the to dismiss
+     *
+     * @return the negative button
+     */
     public MyAlertDialogBuilder setNegativeButton(int textId, DialogInterface.OnClickListener listener, boolean toDismiss) {
         setNegativeButton(getContext().getString(textId), listener, toDismiss);
         return this;
     }
 
+    /**
+     * Sets neutral button.
+     *
+     * @param textId    the text id
+     * @param listener  the listener
+     * @param toDismiss the to dismiss
+     *
+     * @return the neutral button
+     */
     public MyAlertDialogBuilder setNeutralButton(int textId, DialogInterface.OnClickListener listener, boolean toDismiss) {
         setNeutralButton(getContext().getString(textId), listener, toDismiss);
         return this;
     }
 
+    /**
+     * Sets positive button.
+     *
+     * @param textId    the text id
+     * @param listener  the listener
+     * @param toDismiss the to dismiss
+     *
+     * @return the positive button
+     */
     public MyAlertDialogBuilder setPositiveButton(int textId, DialogInterface.OnClickListener listener, boolean toDismiss) {
         setPositiveButton(getContext().getString(textId), listener, toDismiss);
         return this;
