@@ -133,13 +133,21 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                 switch_add_event.setEnabled(switch_notifications.isChecked());
                 switch_edit_event.setEnabled(switch_notifications.isChecked());
                 switch_delete_event.setEnabled(switch_notifications.isChecked());
+
+                switch_add_event.setChecked(!switch_notifications.isChecked());
+                switch_edit_event.setChecked(!switch_notifications.isChecked());
+                switch_delete_event.setChecked(!switch_notifications.isChecked());
+
+                switch_add_event.performClick();
+                switch_edit_event.performClick();
+                switch_delete_event.performClick();
             }
             else {
                 SwitchMaterial switchMaterial = (SwitchMaterial) v;
 
-                String topic = (v == switch_add_event ? FCMSend.getTopic(FCMSend.ADD_EVENT_TOPIC)
-                        : (v == switch_edit_event) ? FCMSend.getTopic(FCMSend.EDIT_EVENT_TOPIC)
-                        : FCMSend.getTopic(FCMSend.DELETE_EVENT_TOPIC));
+                String topic = (v == switch_add_event ? FCMSend.ADD_EVENT_TOPIC
+                        : (v == switch_edit_event) ? FCMSend.EDIT_EVENT_TOPIC
+                        : FCMSend.DELETE_EVENT_TOPIC);
 
                 String subscription = (v == switch_add_event) ? "subscribedToAddEvent"
                         : (v == switch_edit_event) ? "subscribedToEditEvent"

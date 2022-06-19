@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.GradientDrawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -165,7 +166,7 @@ public class EventsAdapter extends FirebaseRecyclerAdapter<CalendarEvent, Events
             cb_all_attendances.setOnClickListener(this);
 
             itemView.setOnClickListener(v ->
-                    onEventClickListener.onEventClick(getBindingAdapterPosition(), getItem(getBindingAdapterPosition())));
+                    onEventClickListener.onEventClick(getItem(getBindingAdapterPosition())));
         }
 
         @Override
@@ -250,6 +251,12 @@ public class EventsAdapter extends FirebaseRecyclerAdapter<CalendarEvent, Events
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     holder.cb_all_attendances.setChecked(snapshot.exists() && snapshot.getValue(boolean.class));
+                    holder.cb_all_attendances.setEnabled(FirebaseUtils.isCurrentUID(selectedUID) && model.getEnd() > System.currentTimeMillis());
+                    holder.cb_all_attendances.setAlpha(holder.cb_all_attendances.isEnabled() ? 1f : 0.6f);
+                    holder.cb_all_attendances.setVisibility(selectedUID == null ? View.GONE : View.VISIBLE);
+
+                    Log.d(Utils.EVENT_TAG, "currenUid " + FirebaseUtils.getCurrentUID());
+                    Log.d(Utils.EVENT_TAG, "selectedUID " + selectedUID);
                 }
 
                 @Override
@@ -258,10 +265,6 @@ public class EventsAdapter extends FirebaseRecyclerAdapter<CalendarEvent, Events
                 }
             });
         }
-
-        holder.cb_all_attendances.setEnabled(FirebaseUtils.isCurrentUID(selectedUID) && model.getEnd() > System.currentTimeMillis());
-        holder.cb_all_attendances.setAlpha(holder.cb_all_attendances.isEnabled() ? 1f : 0.6f);
-        holder.cb_all_attendances.setVisibility(selectedUID == null ? View.GONE : View.VISIBLE);
 
         holder.switch_alarm.setChecked(Utils.checkIfAlarmSet(model.getPrivateId(), db));
     }
@@ -283,10 +286,9 @@ public class EventsAdapter extends FirebaseRecyclerAdapter<CalendarEvent, Events
         /**
          * On event click.
          *
-         * @param position      the position
          * @param calendarEvent the calendar event
          */
-        void onEventClick(int position, CalendarEvent calendarEvent);
+        void onEventClick(CalendarEvent calendarEvent);
     }
 
     @Override

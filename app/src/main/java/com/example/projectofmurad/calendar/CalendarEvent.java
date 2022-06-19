@@ -3,6 +3,7 @@ package com.example.projectofmurad.calendar;
 import androidx.annotation.NonNull;
 
 import com.example.projectofmurad.utils.CalendarUtils;
+import com.example.projectofmurad.utils.FirebaseUtils;
 import com.google.gson.Gson;
 
 import java.io.Serializable;
@@ -73,6 +74,7 @@ public class CalendarEvent implements Serializable {
     public CalendarEvent() {
         this.frequency = 1;
         this.frequencyType = FrequencyType.DAY_BY_END;
+        this.groupKey = FirebaseUtils.CURRENT_GROUP_KEY;
     }
 
     /**
@@ -99,6 +101,7 @@ public class CalendarEvent implements Serializable {
         this.end = getMillis(endDateTime);
         this.color = color;
         this.allDay = allDay;
+        this.groupKey = FirebaseUtils.CURRENT_GROUP_KEY;
     }
 
     /**
@@ -151,6 +154,7 @@ public class CalendarEvent implements Serializable {
 
         this.range = end - start;
         this.color = color;
+        this.groupKey = FirebaseUtils.CURRENT_GROUP_KEY;
     }
 
     /**

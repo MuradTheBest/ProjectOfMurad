@@ -2,8 +2,14 @@ package com.example.projectofmurad.home;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ProgressBar;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -12,6 +18,7 @@ import androidx.appcompat.widget.AppCompatImageView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -25,6 +32,7 @@ import com.example.projectofmurad.calendar.EventSlidePageAdapter;
 import com.example.projectofmurad.tracking.TrackingService;
 import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.utils.Utils;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -256,8 +264,24 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 CalendarEvent event = mainViewModel.getNextEvent().getValue();
-                TrackingService.eventPrivateId.setValue(event.getPrivateId());
-                ((MainActivity) requireActivity()).moveToTrackingFragment();
+                FirebaseUtils.getCurrentUserTrackingRef(event.getPrivateId()).child("attend").get().addOnSuccessListener(
+                        new OnSuccessListener<DataSnapshot>() {
+                            @Override
+                            public void onSuccess(DataSnapshot dataSnapshot) {
+                                boolean attend = dataSnapshot.exists() && dataSnapshot.getValue(boolean.class);
+                                if (attend){
+                                    TrackingService.eventPrivateId.setValue(event.getPrivateId());
+                                    ((MainActivity) requireActivity()).moveToTrackingFragment();
+                                }
+                                else {
+                                    Utils.createAlertDialog(requireContext(),
+                                            "Not attending to event",
+                                            "You have to attend to the event in order to start tracking",
+                                            "OK", (dialog, which) -> dialog.dismiss(),
+                                            null, null, null);
+                                }
+                            }
+                        });
             }
         });
 

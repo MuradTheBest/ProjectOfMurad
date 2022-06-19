@@ -157,7 +157,7 @@ public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapter.
                                 "It is currently selected group",
                                 getString(R.string.ok), (dialog, which) -> dialog.dismiss(),
                                 null, null,
-                                null).show();
+                                null);
                     }
                     else {
                         Utils.createAlertDialog(ShowGroupsScreen.this, null,
@@ -168,7 +168,7 @@ public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapter.
                                         startActivity(new Intent(getApplicationContext(), MainActivity.class));
                                 },
                                 R.string.no, (dialog, which) -> dialog.dismiss(),
-                                null).show();
+                                null);
                     }
 
                     break;
@@ -259,7 +259,7 @@ public class ShowGroupsScreen extends AppCompatActivity implements GroupAdapter.
                 getString(R.string.yes),
                 (dialog, which) -> FirebaseUtils.createReAuthenticateDialog(ShowGroupsScreen.this, () -> leaveGroup(group)),
                 getString(R.string.no), (dialog, which) -> dialog.dismiss(),
-                null).show();
+                null);
 
         return false;
     }

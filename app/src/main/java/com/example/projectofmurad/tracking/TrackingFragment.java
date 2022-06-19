@@ -166,10 +166,12 @@ public class TrackingFragment extends Fragment implements
                     .addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            boolean isAskingForHelp = snapshot.exists() && snapshot.getValue(boolean.class);
-                            btn_help.getBackground().setTint(isAskingForHelp ? requireContext().getColor(R.color.colorAccent) : Color.RED);
-                            btn_help.setText(isAskingForHelp ? "Asked" : "Help!");
-                            btn_help.setTextColor(isAskingForHelp ? Color.WHITE : Color.BLACK);
+                            if (getActivity() != null && getContext() != null){
+                                boolean isAskingForHelp = snapshot.exists() && snapshot.getValue(boolean.class);
+                                btn_help.getBackground().setTint(isAskingForHelp ? requireContext().getColor(R.color.colorAccent) : Color.RED);
+                                btn_help.setText(isAskingForHelp ? "Asked" : "Help!");
+                                btn_help.setTextColor(isAskingForHelp ? Color.WHITE : Color.BLACK);
+                            }
                         }
 
                         @Override
@@ -202,8 +204,7 @@ public class TrackingFragment extends Fragment implements
             Utils.createAlertDialog(requireContext(), "No event connected to training",
                     "You have to first choose event in order to start tracking",
                     "Ok", (dialog, which) -> dialog.dismiss(),
-                    null, null, null)
-                    .show();
+                    null, null, null);
             return;
         }
 
@@ -374,7 +375,9 @@ public class TrackingFragment extends Fragment implements
                                     }
 
                                     //to check if the fragment was changed
+                                    Log.d(LOG_TAG, "checking activity");
                                     if (getActivity() != null){
+                                        Log.d(LOG_TAG, "trying");
                                         getUserBitmap(UID, picture, markerOptions);
                                     }
                                 }
@@ -399,6 +402,8 @@ public class TrackingFragment extends Fragment implements
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource,
                                                 @Nullable Transition<? super Bitmap> transition) {
+
+                        Log.d(LOG_TAG, "getting bitmap");
 
                         float scale = getResources().getDisplayMetrics().density;
 

@@ -5,12 +5,9 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
-import android.transition.AutoTransition;
-import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,13 +20,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
+import com.example.projectofmurad.groups.GroupInfoScreen;
 import com.example.projectofmurad.groups.UserGroupData;
 import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.utils.Utils;
 import com.example.projectofmurad.utils.ViewAnimationUtils;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -220,7 +217,8 @@ public class UsersAdapter extends FirebaseRecyclerAdapter<UserData,
         GradientDrawable gd = Utils.getGradientBackground(color);
 
         if (FirebaseUtils.isCurrentUID(model.getUID())){
-            gd.setStroke(Utils.dpToPx(4, context), FirebaseUtils.CURRENT_GROUP_COLOR);
+            gd.setStroke(Utils.dpToPx(4, context),
+                    context instanceof GroupInfoScreen ? context.getColor(R.color.colorAccent) : FirebaseUtils.CURRENT_GROUP_COLOR);
         }
 
         gd.setCornerRadius(Utils.dpToPx(10, context));
@@ -241,19 +239,27 @@ public class UsersAdapter extends FirebaseRecyclerAdapter<UserData,
         holder.tv_email.setText(model.getEmail());
         holder.tv_phone.setText(model.getPhone());
 
-        FirebaseUtils.getCurrentGroupUsers().child(model.getUID()).child(UserGroupData.KEY_MADRICH).get().addOnSuccessListener(
-                new OnSuccessListener<DataSnapshot>() {
+        FirebaseUtils.getCurrentGroupUsers().child(model.getUID()).child(UserGroupData.KEY_MADRICH).addValueEventListener(
+                new ValueEventListener() {
                     @Override
-                    public void onSuccess(DataSnapshot snapshot) {
-                        if (snapshot.exists() && snapshot.getValue(boolean.class)) {
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists() && snapshot.getValue(boolean.class)){
                             holder.iv_profile_picture.getLayoutParams().height = Utils.dpToPx(55, context);
                             holder.iv_profile_picture.getLayoutParams().width = Utils.dpToPx(55, context);
 
-                            holder.iv_profile_picture.setBorderColor(FirebaseUtils.CURRENT_GROUP_COLOR);
+                            holder.iv_profile_picture.setBorderColor(context instanceof GroupInfoScreen
+                                    ? context.getColor(R.color.colorAccent)
+                                    : FirebaseUtils.CURRENT_GROUP_COLOR);
                             holder.iv_profile_picture.setBorderWidth(Utils.dpToPx(2, context));
 
-                            animate(holder.constraintLayout);
+                            holder.iv_profile_picture.invalidate();
+                            holder.iv_profile_picture.requestLayout();
                         }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
                     }
                 });
 
@@ -281,19 +287,6 @@ public class UsersAdapter extends FirebaseRecyclerAdapter<UserData,
                 .error(R.drawable.sample_profile_picture)
                 .placeholder(R.drawable.sample_profile_picture)
                 .centerCrop().into(holder.iv_profile_picture);
-    }
-
-    /**
-     * Animate.
-     *
-     * @param viewGroup the view group
-     */
-    public void animate(ViewGroup viewGroup){
-        AutoTransition trans = new AutoTransition();
-        trans.setDuration(100);
-        trans.setInterpolator(new AccelerateDecelerateInterpolator());
-
-        TransitionManager.beginDelayedTransition(viewGroup, trans);
     }
 
     @NonNull

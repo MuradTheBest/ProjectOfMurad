@@ -360,7 +360,7 @@ public abstract class UserSigningActivity extends AppCompatActivity {
                     Utils.createAlertDialog(UserSigningActivity.this, null,
                             "Password reset mail was sent to your email",
                             getString(R.string.ok), (dialog, which) -> dialog.dismiss(),
-                            null, null, null).show();
+                            null, null, null);
                 }
                 else {
                     Toast.makeText(getApplicationContext(),"Error occurred",Toast.LENGTH_LONG).show();

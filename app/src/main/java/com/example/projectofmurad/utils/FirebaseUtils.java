@@ -649,11 +649,6 @@ public abstract class FirebaseUtils {
                 });
     }
 
-    /**
-     *
-     * @param snapshot
-     * @param key
-     */
     private static void deleteData(@NonNull DataSnapshot snapshot, String key){
         if (!snapshot.exists() && !snapshot.hasChildren()) return;
 
@@ -664,21 +659,6 @@ public abstract class FirebaseUtils {
                 data.getRef().removeValue();
             }
             deleteData(data, key);
-        }
-    }
-
-    private static void deleteData2(@NonNull DataSnapshot snapshot, String key){
-        if (!snapshot.exists() && !snapshot.hasChildren()) return;
-
-        Log.d("snapshot", snapshot.getRef().toString());
-
-        if (Objects.equals(snapshot.getKey(), key)){
-            snapshot.getRef().removeValue();
-            return;
-        }
-
-        for (DataSnapshot data : snapshot.getChildren()) {
-            deleteData2(data, key);
         }
     }
 

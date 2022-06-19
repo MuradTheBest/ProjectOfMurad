@@ -212,7 +212,7 @@ public class SplashScreen extends AppCompatActivity {
                         "You have to grant permission. Otherwise you can't use the app",
                         R.string.ok, (dialog, which) -> checkPermissions(),
                         R.string.no, (dialog, which) -> System.exit(0),
-                        null).show();
+                        null);
             }
         }
     }

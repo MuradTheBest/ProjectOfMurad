@@ -195,6 +195,8 @@ public class DayDialog extends AppCompatDialog implements EventsAdapter.OnEventC
                 isMadrich -> fab_add_event.setVisibility(isMadrich ? View.VISIBLE : View.GONE));
 
         itemTouchHelper.attachToRecyclerView(rv_events);
+
+        getCurrentFocus();
     }
 
     // Function to tell the app to start getting
@@ -348,7 +350,7 @@ public class DayDialog extends AppCompatDialog implements EventsAdapter.OnEventC
     final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
 
     @Override
-    public void onEventClick(int position, @NonNull CalendarEvent event) {
+    public void onEventClick(@NonNull CalendarEvent event) {
         FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
 
         if (fm.findFragmentByTag(EventInfoDialogFragment.TAG) == null){

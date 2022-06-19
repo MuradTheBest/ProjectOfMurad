@@ -396,11 +396,11 @@ public class RecyclerViewSwipeDecorator {
                 }
             }
         } catch(Exception e) {
-            Log.e(this.getClass().getName(), e.getMessage());
+            Log.e(getClass().getName(), e.getMessage());
         }
     }
 
-    /**
+    /**QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ21211    `
      * A Builder for the RecyclerViewSwipeDecorator class
      */
     public static class Builder {

@@ -2,7 +2,6 @@ package com.example.projectofmurad.groups;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -15,7 +14,6 @@ import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.calendar.UsersAdapter;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
-import com.example.projectofmurad.helpers.LoadingDialog;
 import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.utils.Utils;
 import com.example.projectofmurad.utils.ViewAnimationUtils;
@@ -88,11 +86,6 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapter.O
      */
     protected ShimmerFrameLayout shimmer_rv_users;
 
-    /**
-     * The Loading dialog.
-     */
-    protected LoadingDialog loadingDialog;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,8 +113,6 @@ public class GroupInfoScreen extends AppCompatActivity implements UsersAdapter.O
         group = (Group) getIntent().getSerializableExtra(Group.KEY_GROUP);
 
         getGroupData();
-
-        Log.d(Utils.LOG_TAG, getLocalClassName());
     }
 
     /**

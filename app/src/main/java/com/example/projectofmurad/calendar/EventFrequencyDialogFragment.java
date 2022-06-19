@@ -3,7 +3,6 @@ package com.example.projectofmurad.calendar;
 import android.content.Context;
 import android.os.Bundle;
 import android.transition.AutoTransition;
-import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,7 +18,6 @@ import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
@@ -81,11 +79,6 @@ public class EventFrequencyDialogFragment extends DialogFragment implements
      * The Et times.
      */
     public TextInputEditText et_times;
-
-    /**
-     * The Tv event frequency info.
-     */
-    public TextView tv_event_frequency_info;
 
     /**
      * The Rg repeat for month.
@@ -356,8 +349,6 @@ public class EventFrequencyDialogFragment extends DialogFragment implements
 
         initAllToggleButtons();
 
-        tv_event_frequency_info = view.findViewById(R.id.tv_event_frequency_info);
-
         rg_repeat_for_month = view.findViewById(R.id.rg_repeat_for_month);
         rg_repeat_for_month.setVisibility(View.GONE);
 //        rg_repeat_for_month.setOnCheckedChangeListener(this);
@@ -614,17 +605,8 @@ public class EventFrequencyDialogFragment extends DialogFragment implements
         AutoTransition trans = new AutoTransition();
         trans.setDuration(100);
         trans.setInterpolator(new AccelerateDecelerateInterpolator());
-        //trans.setInterpolator(new DecelerateInterpolator());
-        //trans.setInterpolator(new FastOutSlowInInterpolator());
 
-        ChangeBounds changeBounds = new ChangeBounds();
-        changeBounds.setDuration(300);
-        changeBounds.setInterpolator(new AccelerateDecelerateInterpolator());
-
-//        TransitionManager.beginDelayedTransition(viewGroup, trans);
-        TransitionManager.beginDelayedTransition(viewGroup, changeBounds);
-
-
+        TransitionManager.beginDelayedTransition(viewGroup, trans);
     }
 
     // method onCheckedChanged for RadioGroup

@@ -19,6 +19,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -375,6 +376,10 @@ public abstract class Utils {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
     }
 
+    public static boolean ifShowsDialog(Context context){
+        return context instanceof AppCompatActivity && !((AppCompatActivity) context).hasWindowFocus();
+    }
+
     /**
      * Creates custom {@link AlertDialog} based on provided parameters
      *
@@ -387,13 +392,20 @@ public abstract class Utils {
      * @param onNBClickListener {@link DialogInterface.OnClickListener} for negative button
      * @param onCancelListener  {@link DialogInterface.OnCancelListener}
      *
-     * @return Dialog created from supplied data that will be shown
      */
-    @NonNull
-    public static AlertDialog createAlertDialog(Context context, String title, String message,
+    public static void createAlertDialog(Context context, String title, String message,
                                                 String pBText, DialogInterface.OnClickListener onPBClickListener,
                                                 String nBText, DialogInterface.OnClickListener onNBClickListener,
                                                 DialogInterface.OnCancelListener onCancelListener) {
+        if (ifShowsDialog(context)){
+            Log.d("dialog", "the context already shows dialog");
+            return;
+        }
+        else {
+            Log.d("dialog", "the context doesnt show dialog");
+        }
+
+        Log.d("dialog", "the context doesnt show dialog");
 
         MyAlertDialogBuilder builder = new MyAlertDialogBuilder(context);
         builder.setTitle(title);
@@ -401,8 +413,7 @@ public abstract class Utils {
         builder.setPositiveButton(pBText, onPBClickListener);
         builder.setNegativeButton(nBText, onNBClickListener);
         builder.setOnCancelListener(onCancelListener);
-
-        return builder.create();
+        builder.create();
     }
 
     /**
@@ -417,15 +428,13 @@ public abstract class Utils {
      * @param onNBClickListener the on nb click listener
      * @param onCancelListener  the on cancel listener
      *
-     * @return the alert dialog
      */
-    @NonNull
-    public static AlertDialog createAlertDialog(Context context, String title, String message,
+    public static void createAlertDialog(Context context, String title, String message,
                                                 @StringRes int pBTextInt, DialogInterface.OnClickListener onPBClickListener,
                                                 @StringRes int nBTextInt, DialogInterface.OnClickListener onNBClickListener,
                                                 DialogInterface.OnCancelListener onCancelListener){
 
-        return createAlertDialog(context, title, message,
+        createAlertDialog(context, title, message,
                 context.getString(pBTextInt), onPBClickListener,
                 context.getString(nBTextInt), onNBClickListener,
                 onCancelListener);

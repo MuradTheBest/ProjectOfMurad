@@ -35,39 +35,39 @@ public class EventFrequencyViewModel extends AndroidViewModel {
     /**
      * The Amount.
      */
-    public MutableLiveData<Integer> amount;
+    public final MutableLiveData<Integer> amount;
     /**
      * The Msg.
      */
-    public MutableLiveData<String> msg;
+    public final MutableLiveData<String> msg;
     /**
      * The End.
      */
-    public MutableLiveData<LocalDate> end;
+    public final MutableLiveData<LocalDate> end;
     /**
      * The Last.
      */
-    public MutableLiveData<Boolean> last;
+    public final MutableLiveData<Boolean> last;
     /**
      * The Day.
      */
-    public MutableLiveData<Integer> day;
+    public final MutableLiveData<Integer> day;
     /**
      * The Day of week position.
      */
-    public MutableLiveData<Integer> dayOfWeekPosition;
+    public final MutableLiveData<Integer> dayOfWeekPosition;
     /**
      * The Days of week.
      */
-    public MutableLiveData<List<Boolean>> daysOfWeek;
+    public final MutableLiveData<List<Boolean>> daysOfWeek;
     /**
      * The Week number.
      */
-    public MutableLiveData<Integer> weekNumber;
+    public final MutableLiveData<Integer> weekNumber;
     /**
      * The Month.
      */
-    public MutableLiveData<Integer> month;
+    public final MutableLiveData<Integer> month;
 
     /**
      * Instantiates a new Event frequency view model.
@@ -88,14 +88,6 @@ public class EventFrequencyViewModel extends AndroidViewModel {
         this.daysOfWeek = new MutableLiveData<>();
         this.weekNumber = new MutableLiveData<>();
         this.month = new MutableLiveData<>();
-    }
-
-    /**
-     * Clear frequency type.
-     */
-    public void clearFrequencyType() {
-        this.frequencyType.setValue(CalendarEvent.FrequencyType.DAY_BY_END);
-        this.frequency.setValue(1);
     }
 
     /**
@@ -179,7 +171,7 @@ public class EventFrequencyViewModel extends AndroidViewModel {
                 days_of_week += ", " + DayOfWeek.of(i+1).getDisplayName(TextStyle.FULL, CalendarUtils.getLocale());
             }
         }
-        days_of_week.replaceFirst(", ", "");
+        days_of_week = days_of_week.replaceFirst(", ", "");
         this.msg.setValue("Every " + selected_frequency + " weeks on " + days_of_week + " " + selected_amount + " times");
     }
 

@@ -208,7 +208,7 @@ public class UserAttendancesFragment extends DialogFragment implements EventsAda
                 .setQuery(events, CalendarEvent.class)
                 .build();
 
-        eventsAdapter = new EventsAdapter(options, FirebaseUtils.getCurrentUID(), requireContext(), this);
+        eventsAdapter = new EventsAdapter(options, UID, requireContext(), this);
 
         LinearLayoutManagerWrapper layoutManager = new LinearLayoutManagerWrapper(requireContext());
         layoutManager.setOnLayoutCompleteListener(() -> new Handler().postDelayed(this::stopRVEventsShimmer, 500));
@@ -251,7 +251,7 @@ public class UserAttendancesFragment extends DialogFragment implements EventsAda
     }
 
     @Override
-    public void onEventClick(int position, @NonNull CalendarEvent event) {
+    public void onEventClick(@NonNull CalendarEvent event) {
         FragmentManager fm = getParentFragmentManager();
 
         if (fm.findFragmentByTag(EventInfoDialogFragment.TAG) == null){

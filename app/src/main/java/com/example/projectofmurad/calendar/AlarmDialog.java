@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.widget.RadioGroup;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -58,15 +57,9 @@ public class AlarmDialog extends AppCompatDialog {
                 new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-
                         switch_alarm.setChecked(true);
 
-                        Log.d("murad", "switch_alarm is " + " not " + " null");
-                        Log.d("murad", "switch_alarm.isChecked() is " + switch_alarm.isChecked());
-
                         long before = (hourOfDay*60L + minute)*60*1000;
-
-                        Log.d(Utils.LOG_TAG, String.valueOf(before));
 
                         MyAlarmManager.addAlarm(getContext(), event, before);
 
@@ -77,7 +70,7 @@ public class AlarmDialog extends AppCompatDialog {
         Utils.createCustomDialog(timePickerDialog);
 
         timePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE,
-                "Cancel", (dialog, which) -> switch_alarm.setChecked(false));
+                getContext().getString(R.string.cancel), (dialog, which) -> switch_alarm.setChecked(false));
 
         RadioGroup rg_alarm = findViewById(R.id.rg_alarm);
         rg_alarm.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {

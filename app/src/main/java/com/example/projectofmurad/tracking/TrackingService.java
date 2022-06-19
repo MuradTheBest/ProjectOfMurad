@@ -63,11 +63,6 @@ public class TrackingService extends LifecycleService {
      */
     public static final int POWER_MODE_CHANGED_NOTIFICATION_ID = 4321;
 
-    /**
-     * The constant TAG.
-     */
-    public static final String TAG = "tracking";
-
     private FusedLocationProviderClient fusedLocationProviderClient;
 
     private final LocationCallback locationCallback = new LocationCallback() {
@@ -79,9 +74,6 @@ public class TrackingService extends LifecycleService {
                 finishLocationUpdates();
                 return;
             }
-
-//            double latitude = locationResult.getLastLocation().getLatitude();
-//            double longitude = locationResult.getLastLocation().getLongitude();
 
             double latitude = Utils.round(locationResult.getLastLocation().getLatitude(), 4);
             double longitude = Utils.round(locationResult.getLastLocation().getLongitude(), 4);
@@ -252,6 +244,9 @@ public class TrackingService extends LifecycleService {
         stopSelf();
 
         notificationManager.cancel(TRACKING_NOTIFICATION_ID);
+
+        FirebaseUtils.getCurrentUserTrackingRef(eventPrivateId.getValue()).child("latitude").removeValue();
+        FirebaseUtils.getCurrentUserTrackingRef(eventPrivateId.getValue()).child("longitude").removeValue();
     }
 
     @Override

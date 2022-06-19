@@ -29,6 +29,8 @@ public class ColorPickerDialog extends ColorPicker {
         getNegativeButton().setVisibility(View.GONE);
     }
 
+
+
     @Override
     public ColorPicker setOnFastChooseColorListener(OnFastChooseColorListener listener) {
         super.setOnFastChooseColorListener(listener);

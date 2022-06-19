@@ -19,10 +19,11 @@ import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.calendar.UsersAdapter;
 import com.example.projectofmurad.helpers.ColorPickerDialog;
+import com.example.projectofmurad.helpers.LoadingDialog;
+import com.example.projectofmurad.notifications.FCMSend;
 import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.utils.Utils;
 import com.example.projectofmurad.utils.ViewAnimationUtils;
-import com.example.projectofmurad.notifications.FCMSend;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
@@ -51,10 +52,17 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
     public final static int SELECT_PICTURE = 200;
     private Uri selectedImageUri;
 
+    /**
+     * The Loading dialog.
+     */
+    protected LoadingDialog loadingDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+
+        loadingDialog = new LoadingDialog(this);
 
         et_group_name.setOnLongClickListener(this);
         et_group_description.setOnLongClickListener(this);
@@ -336,7 +344,7 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
                 R.string.yes, (dialog, which) -> FirebaseUtils.createReAuthenticateDialog(
                         GroupInfoScreenMadrich.this, () -> removeUser(userData)),
                 R.string.no, (dialog, which) -> dialog.dismiss(),
-                null).show();
+                null);
 
         return false;
     }

@@ -24,6 +24,7 @@ import com.example.projectofmurad.UserAttendancesFragment;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.helpers.LinearLayoutManagerWrapper;
 import com.example.projectofmurad.helpers.LoadingDialog;
+import com.example.projectofmurad.notifications.FCMSend;
 import com.example.projectofmurad.notifications.MyAlarmManager;
 import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.utils.Utils;
@@ -389,11 +390,12 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
             Toast.makeText(requireContext(), "Event was deleted successfully", Toast.LENGTH_SHORT).show();
 
             if (event.isSingle()){
-                deleteSingleEvent(event.getPrivateId());
+                deleteSingleEvent(event);
             }
             else {
                 createDeleteDialog();
             }
+
         }
     }
 
@@ -432,7 +434,7 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
         TextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
         tv_only_this_event.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
-            deleteSingleEvent(event.getPrivateId());
+            deleteSingleEvent(event);
         });
 
         TextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
@@ -447,15 +449,18 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
     /**
      * Delete single event.
      *
-     * @param private_key the private key
+     * @param event the event
      */
-    public void deleteSingleEvent(@NonNull String private_key){
+    public void deleteSingleEvent(@NonNull CalendarEvent event){
         loadingDialog.setMessage("Deleting event");
         loadingDialog.show();
 
-        FirebaseUtils.deleteAll(FirebaseUtils.getCurrentGroupDatabase(), private_key,
-                () -> startActivity(new Intent(requireContext(), MainActivity.class)
-                        .setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT)));
+        FirebaseUtils.deleteAll(FirebaseUtils.getCurrentGroupDatabase(), event.getPrivateId(),
+                () -> {
+                        startActivity(new Intent(requireContext(), MainActivity.class)
+                            .setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT));
+                        FCMSend.sendNotificationsToAllUsersWithTopic(requireContext(), event, Utils.DELETE_EVENT_NOTIFICATION_CODE);
+                });
     }
 
     /**
@@ -478,6 +483,8 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
 
                         startActivity(new Intent(requireContext(), MainActivity.class)
                                 .setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT));
+
+                        FCMSend.sendNotificationsToAllUsersWithTopic(requireContext(), event, Utils.DELETE_EVENT_NOTIFICATION_CODE);
                     }
 
                     @Override

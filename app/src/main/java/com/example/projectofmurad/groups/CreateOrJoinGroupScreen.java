@@ -268,7 +268,7 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
                                 null, "You are already in group with this key",
                                 getString(R.string.ok), (dialog, which) -> dialog.dismiss(),
                                 null, null,
-                                null).show();
+                                null);
                         return;
                     }
                 }
@@ -296,7 +296,7 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
                                     "This group is full",
                                     getString(R.string.ok), (dialog, which) -> dialog.dismiss(),
                                     null, null,
-                                    null).show();
+                                    null);
                             return;
                         }
 
@@ -336,7 +336,7 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
                 "Group with this key " + (exists ? "already exists" : "doesn't exist"),
                 getString(R.string.ok), (dialog, which) -> dialog.dismiss(),
                 null, null,
-                null).show();
+                null);
     }
 
     /**

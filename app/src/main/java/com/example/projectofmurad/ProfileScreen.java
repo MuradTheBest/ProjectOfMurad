@@ -182,7 +182,7 @@ public class ProfileScreen extends UserSigningActivity {
                         R.string.confirm,
                         (dialog, which) -> FirebaseUtils.createReAuthenticateDialog(ProfileScreen.this, this::deleteAccount),
                         R.string.cancel, (dialog, which) -> dialog.dismiss(),
-                        null).show());
+                        null));
 
 
         et_madrich.setOnClickListener(new View.OnClickListener() {
@@ -299,7 +299,7 @@ public class ProfileScreen extends UserSigningActivity {
                     }
                 },
                 R.string.cancel, (dialog, which) -> dialog.dismiss(),
-                null).show();
+                null);
     }
 
     /**
@@ -377,7 +377,7 @@ public class ProfileScreen extends UserSigningActivity {
                                             R.string.upps_something_went_wrong,
                                             Toast.LENGTH_SHORT).show();
                                 }),
-                R.string.no, (dialog, which) -> et_madrich.setChecked(true), null).show();
+                R.string.no, (dialog, which) -> et_madrich.setChecked(true), null);
     }
 
     @Override
@@ -428,9 +428,9 @@ public class ProfileScreen extends UserSigningActivity {
      * @param onFirebaseCallback the on firebase callback
      */
     public void unsubscribeFromTopic(FirebaseUtils.FirebaseCallback onFirebaseCallback) {
-        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.getTopic(FCMSend.ADD_EVENT_TOPIC));
-        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.getTopic(FCMSend.EDIT_EVENT_TOPIC));
-        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.getTopic(FCMSend.DELETE_EVENT_TOPIC));
+        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.ADD_EVENT_TOPIC);
+        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.EDIT_EVENT_TOPIC);
+        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.DELETE_EVENT_TOPIC);
 
         FirebaseUtils.getCurrentUserGroups().observe(this,
                 keys -> {

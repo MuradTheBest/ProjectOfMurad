@@ -9,11 +9,8 @@ import android.content.res.ColorStateList;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.transition.AutoTransition;
-import android.transition.ChangeBounds;
-import android.transition.Slide;
 import android.transition.TransitionManager;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -116,8 +113,6 @@ public class AddOrEditEventScreen extends AppCompatActivity {
 
     private int selectedColor;
 
-    private SQLiteDatabase db;
-
     @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +121,7 @@ public class AddOrEditEventScreen extends AppCompatActivity {
         setContentView(R.layout.activity_add_or_edit_event_screen);
 
         loadingDialog = new LoadingDialog(this);
-        db = Utils.openOrCreateDatabase(this);
+        SQLiteDatabase db = Utils.openOrCreateDatabase(this);
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_close_24);
@@ -496,19 +491,8 @@ public class AddOrEditEventScreen extends AppCompatActivity {
      */
     public void animate(ViewGroup viewGroup) {
         AutoTransition trans = new AutoTransition();
-//        trans.setDuration(100);
         trans.setInterpolator(new AccelerateDecelerateInterpolator());
-        //trans.setInterpolator(new DecelerateInterpolator());
-        //trans.setInterpolator(new FastOutSlowInInterpolator());
-
-        ChangeBounds changeBounds = new ChangeBounds();
-        changeBounds.setDuration(300);
-        changeBounds.setInterpolator(new AccelerateDecelerateInterpolator());
-
-        Slide slide = new Slide(Gravity.TOP);
         TransitionManager.beginDelayedTransition(viewGroup, trans);
-//        TransitionManager.beginDelayedTransition(viewGroup, trans);
-
     }
 
     /**

@@ -14,43 +14,43 @@ public abstract class ViewAnimationUtils {
     /**
      * Expand or collapse.
      *
-     * @param v                the v
+     * @param view                the v
      * @param expandOrCollapse the expand or collapse
      */
-    public static void expandOrCollapse(@NonNull final View v, boolean expandOrCollapse) {
+    public static void expandOrCollapse(@NonNull final View view, boolean expandOrCollapse) {
         if (expandOrCollapse){
-            expand(v);
+            expand(view);
         }
         else {
-            collapse(v);
+            collapse(view);
         }
     }
 
     /**
      * Expand.
      *
-     * @param v the v
+     * @param view the view
      */
-    public static void expand(@NonNull final View v) {
-        if (v.getVisibility() == View.VISIBLE) {
+    public static void expand(@NonNull final View view) {
+        if (view.getVisibility() == View.VISIBLE) {
             return;
         }
 
-        v.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+        view.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
 
-        final int targetHeight = v.getMeasuredHeight();
+        final int targetHeight = view.getMeasuredHeight();
 
-        v.getLayoutParams().height = 0;
-        v.setVisibility(View.VISIBLE);
+        view.getLayoutParams().height = 0;
+        view.setVisibility(View.VISIBLE);
 
         Animation a = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
-                v.getLayoutParams().height = (interpolatedTime == 1)
+                view.getLayoutParams().height = (interpolatedTime == 1)
                         ? targetHeight
                         : (int) (targetHeight * interpolatedTime);
-                v.requestLayout();
+                view.requestLayout();
             }
 
             @Override
@@ -59,31 +59,31 @@ public abstract class ViewAnimationUtils {
             }
         };
 
-        a.setDuration(((int) (targetHeight / v.getContext().getResources().getDisplayMetrics().density))*4);
-        v.startAnimation(a);
+        a.setDuration(((int) (targetHeight / view.getContext().getResources().getDisplayMetrics().density))*4);
+        view.startAnimation(a);
     }
 
     /**
      * Collapse.
      *
-     * @param v the v
+     * @param view the view
      */
-    public static void collapse(@NonNull final View v) {
-        if (v.getVisibility() == View.GONE){
+    public static void collapse(@NonNull final View view) {
+        if (view.getVisibility() == View.GONE){
             return;
         }
 
-        final int initialHeight = v.getMeasuredHeight();
+        final int initialHeight = view.getMeasuredHeight();
 
         Animation a = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
                 if(interpolatedTime == 1){
-                    v.setVisibility(View.GONE);
+                    view.setVisibility(View.GONE);
                 }
                 else{
-                    v.getLayoutParams().height = initialHeight - (int) (initialHeight * interpolatedTime);
-                    v.requestLayout();
+                    view.getLayoutParams().height = initialHeight - (int) (initialHeight * interpolatedTime);
+                    view.requestLayout();
                 }
             }
 
@@ -93,7 +93,7 @@ public abstract class ViewAnimationUtils {
             }
         };
 
-        a.setDuration(((int) (initialHeight / v.getContext().getResources().getDisplayMetrics().density)) * 4);
-        v.startAnimation(a);
+        a.setDuration(((int) (initialHeight / view.getContext().getResources().getDisplayMetrics().density)) * 4);
+        view.startAnimation(a);
     }
 }

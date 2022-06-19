@@ -136,15 +136,6 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     /**
-     * Sets ready.
-     *
-     * @param ready the ready
-     */
-    public void setReady(int ready) {
-        this.ready.setValue(ready);
-    }
-
-    /**
      * Reset ready.
      */
     public void resetReady() {

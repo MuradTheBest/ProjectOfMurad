@@ -41,15 +41,15 @@ public class FCMSend {
     /**
      * The constant ADD_EVENT_TOPIC.
      */
-    public final static String ADD_EVENT_TOPIC = "add_event_topic";
+    public final static String ADD_EVENT_TOPIC = FirebaseUtils.CURRENT_GROUP_KEY + "%add_event_topic";
     /**
      * The constant EDIT_EVENT_TOPIC.
      */
-    public final static String EDIT_EVENT_TOPIC = "edit_event_topic";
+    public final static String EDIT_EVENT_TOPIC = FirebaseUtils.CURRENT_GROUP_KEY + "%edit_event_topic";
     /**
      * The constant DELETE_EVENT_TOPIC.
      */
-    public final static String DELETE_EVENT_TOPIC = "delete_event_topic";
+    public final static String DELETE_EVENT_TOPIC = FirebaseUtils.CURRENT_GROUP_KEY + "%delete_event_topic";
 
     /**
      * The constant KEY_SENDER_UID.
@@ -60,23 +60,10 @@ public class FCMSend {
      */
     public final static String KEY_RECEIVER_UID = "receiver_uid";
 
-    /**
-     * Gets topic.
-     *
-     * @param type the type
-     *
-     * @return the topic
-     */
-    @NonNull
-    public static String getTopic(String type) {
-        return FirebaseUtils.CURRENT_GROUP_KEY + "|" + type;
-    }
-
     private static void sendNotificationToTopic(@NonNull Context context, @NonNull CalendarEvent event, String title, int type){
         Log.d(FCM_TAG, "******************************************************************************************");
-        Log.d(FCM_TAG, "sending notification to server");
+        Log.d(FCM_TAG, "sending notification about event to server");
         Log.d(FCM_TAG, "******************************************************************************************");
-
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -91,8 +78,7 @@ public class FCMSend {
             case Utils.ADD_EVENT_NOTIFICATION_CODE:
                 topic = ADD_EVENT_TOPIC;
                 text = " was added";
-                body = "It will start at " + event.getStartDateTime()
-                        + " and end at " + event.getEndDateTime();
+                body = "It will start at " + event.getStartDateTime() + " and end at " + event.getEndDateTime();
                 break;
             case Utils.EDIT_EVENT_NOTIFICATION_CODE:
                 topic = EDIT_EVENT_TOPIC;

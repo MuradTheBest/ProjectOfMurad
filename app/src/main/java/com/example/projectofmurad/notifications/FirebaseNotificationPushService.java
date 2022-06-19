@@ -39,7 +39,7 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
         Log.d(FCM_TAG, "remote message from server received");
         Log.d(FCM_TAG, "******************************************************************************************");
 
-        if (FirebaseUtils.isUserLoggedIn()){
+        if (!FirebaseUtils.isUserLoggedIn()){
             return;
         }
 
@@ -60,7 +60,7 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
             return;
         }
 
-        if (!Objects.equals(remoteMessage.getData().get(FCMSend.KEY_RECEIVER_UID), FirebaseUtils.getCurrentUID())) {
+        if (remoteMessage.getData().containsKey(FCMSend.KEY_RECEIVER_UID) && !remoteMessage.getData().get(FCMSend.KEY_RECEIVER_UID).equals(FirebaseUtils.getCurrentUID())) {
             Log.d(FCM_TAG, "remoteMessage contains receiver uid however current user is not receiver");
             return;
         }
@@ -143,7 +143,7 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
         }
 
         notificationBuilder.setContentIntent(pintentToShowEvent)
-                .setFullScreenIntent(pintentToShowEvent, false);
+                .setFullScreenIntent(pintentToShowEvent, true);
 
         return notificationBuilder;
     }
