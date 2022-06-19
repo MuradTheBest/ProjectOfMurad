@@ -1,5 +1,7 @@
 package com.example.projectofmurad.tracking;
 
+import static com.example.projectofmurad.utils.Utils.LOG_TAG;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -23,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -30,6 +33,7 @@ import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -40,13 +44,16 @@ import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.utils.Utils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMapOptions;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -56,8 +63,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
-
-import static com.example.projectofmurad.utils.Utils.LOG_TAG;
 
 /**
  * The type Tracking fragment.
@@ -140,7 +145,7 @@ public class TrackingFragment extends Fragment implements
         iv_share_location.setOnClickListener(v -> fusedLocationProviderClient.getLastLocation()
                 .addOnSuccessListener(TrackingFragment.this::shareMyLocation)
                 .addOnFailureListener(e -> Toast.makeText(requireContext(),
-                        "Can;t get your current location",
+                        "Can't get your current location",
                         Toast.LENGTH_SHORT).show()));
 
         btn_start_tracking = view.findViewById(R.id.btn_start_tracking);
@@ -209,7 +214,6 @@ public class TrackingFragment extends Fragment implements
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Log.d(LOG_TAG, "checkBackgroundLocationPermission from startTracking");
             if (!checkBackgroundLocationPermission()){
                 return;
             }
@@ -269,7 +273,6 @@ public class TrackingFragment extends Fragment implements
                 : "In order to continue you have to turn off power saving mode");
 
         builder.setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss());
-
         builder.show();
     }
 
@@ -279,7 +282,6 @@ public class TrackingFragment extends Fragment implements
         return false;
     }
 
-    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
 
@@ -371,11 +373,8 @@ public class TrackingFragment extends Fragment implements
                                         markerOptions.alpha(0.5f);
                                     }
 
-                                    Log.d(LOG_TAG, "ready to create bitmap");
-
                                     //to check if the fragment was changed
                                     if (getActivity() != null){
-                                        Log.d(LOG_TAG, "creating bitmap");
                                         getUserBitmap(UID, picture, markerOptions);
                                     }
                                 }
@@ -403,8 +402,6 @@ public class TrackingFragment extends Fragment implements
 
                         float scale = getResources().getDisplayMetrics().density;
 
-                        Log.d(LOG_TAG, "creating bitmap");
-
                         int pixels = (int) (40 * scale + 0.5f);
 
                         Bitmap bitmap = Bitmap.createScaledBitmap(resource, pixels, pixels, true);
@@ -412,8 +409,6 @@ public class TrackingFragment extends Fragment implements
                         if (bitmap != null){
                             bitmap = getBitmapClippedCircle(bitmap);
                             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
-
-                            Log.d(LOG_TAG, "creating bitmap");
 
                             Marker old_marker = markers.get(UID);
 
@@ -466,36 +461,30 @@ public class TrackingFragment extends Fragment implements
      */
     public void getMyLocation() {
 
-        Task<Location> task = fusedLocationProviderClient.getLastLocation();
-        task.addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                try {
-                    LatLng current_location  = new LatLng(location.getLatitude(), location.getLongitude());
-//                    map.moveCamera(CameraUpdateFactory.newLatLng(current_location));
-                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(current_location,  18));
-//                    map.moveCamera(CameraUpdateFactory.zoomBy(1f));
-//                    map.clear();
-//                    map.addMarker(new MarkerOptions().position(current_location).title("Current Location"));
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    getMyLocation();
-                }
-            }
+        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(
+               new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        try {
+                            LatLng current_location  = new LatLng(location.getLatitude(), location.getLongitude());
+                            map.animateCamera(CameraUpdateFactory.newLatLngZoom(current_location,  18));
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                            getMyLocation();
+                        }
+                    }
         });
     }
 
     @Override
     public void onMyLocationClick(@NonNull Location location) {
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(location.getLatitude(), location.getLongitude()), 18));
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 18));
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        Log.d(LOG_TAG, "checking permissions from onStart");
         checkPermissions();
     }
 

@@ -26,7 +26,6 @@ public class LoadingDialog extends Dialog {
      */
     public LoadingDialog(@NonNull Context context) {
         super(context);
-
         Utils.createCustomDialog(this);
     }
 

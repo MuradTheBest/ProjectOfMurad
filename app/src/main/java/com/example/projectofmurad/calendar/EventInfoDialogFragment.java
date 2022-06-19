@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,11 +32,15 @@ import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 /**
  * A simple {@link DialogFragment} subclass.
@@ -351,7 +356,12 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
            }
         }
         else if(v == btn_copy_event){
-            copySingleEvent(event);
+            if (event.isSingle()){
+                copySingleEvent(event);
+            }
+            else {
+                createCopyDialog();
+            }
         }
         else if(v == btn_edit_event){
             Intent intent = new Intent(requireContext(), AddOrEditEventScreen.class);
@@ -373,7 +383,17 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
             startActivity(Intent.createChooser(intent, "Choose app"));
         }
         else if(v == btn_delete_event){
-            deleteSingleEvent(event.getPrivateId());
+
+            Log.d(Utils.LOG_TAG, "event  is " + event.toString());
+
+            Toast.makeText(requireContext(), "Event was deleted successfully", Toast.LENGTH_SHORT).show();
+
+            if (event.isSingle()){
+                deleteSingleEvent(event.getPrivateId());
+            }
+            else {
+                createDeleteDialog();
+            }
         }
     }
 
@@ -396,6 +416,35 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
     }
 
     /**
+     * Create delete dialog.
+     */
+    public void createDeleteDialog(){
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
+        bottomSheetDialog.setDismissWithAnimation(true);
+
+        bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
+
+        TextView tv_bottom_sheet_dialog_title = bottomSheetDialog.findViewById(R.id.tv_bottom_sheet_dialog_title);
+        tv_bottom_sheet_dialog_title.setText("Delete");
+
+        Log.d(Utils.LOG_TAG, event.toString());
+
+        TextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
+        tv_only_this_event.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            deleteSingleEvent(event.getPrivateId());
+        });
+
+        TextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
+        tv_all_events_in_chain.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            deleteAllEventsInChain(event.getChainId());
+        });
+
+        bottomSheetDialog.show();
+    }
+
+    /**
      * Delete single event.
      *
      * @param private_key the private key
@@ -410,6 +459,62 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
     }
 
     /**
+     * Delete all events in chain.
+     *
+     * @param chain_key the chain key
+     */
+    public void deleteAllEventsInChain(String chain_key){
+        loadingDialog.setMessage("Deleting all events in the chain");
+        loadingDialog.show();
+
+        FirebaseUtils.getAllEventsDatabase().orderByChild("chainId").equalTo(chain_key).addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot event : snapshot.getChildren()){
+                            String private_key = event.getKey();
+                            FirebaseUtils.deleteAll(FirebaseUtils.getCurrentGroupDatabase(), private_key, null);
+                        }
+
+                        startActivity(new Intent(requireContext(), MainActivity.class)
+                                .setAction(CalendarFragment.ACTION_MOVE_TO_CALENDAR_FRAGMENT));
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+    }
+
+    /**
+     * Create copy dialog.
+     */
+    public void createCopyDialog(){
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
+        bottomSheetDialog.setDismissWithAnimation(true);
+
+        bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
+
+        TextView tv_bottom_sheet_dialog_title = bottomSheetDialog.findViewById(R.id.tv_bottom_sheet_dialog_title);
+        tv_bottom_sheet_dialog_title.setText(R.string.copy);
+
+        TextView tv_only_this_event = bottomSheetDialog.findViewById(R.id.tv_only_this_event);
+        tv_only_this_event.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            copySingleEvent(event);
+        });
+
+        TextView tv_all_events_in_chain = bottomSheetDialog.findViewById(R.id.tv_all_events_in_chain);
+        tv_all_events_in_chain.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            copyAllEventsInChain(event);
+        });
+
+        bottomSheetDialog.show();
+    }
+
+    /**
      * Copy single event.
      *
      * @param event the event
@@ -420,6 +525,12 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
         CalendarEvent copy = event.copy();
 
         copy.setPrivateId(private_key);
+        copy.setChainId(private_key);
+
+        copy.clearFrequencyData();
+
+        copy.updateChainStartDate(copy.receiveStartDate());
+        copy.updateChainEndDate(copy.receiveEndDate());
 
         Intent intent = new Intent(requireContext(), AddOrEditEventScreen.class);
         intent.putExtra(CalendarEvent.KEY_EVENT, copy);
@@ -427,4 +538,23 @@ public class EventInfoDialogFragment extends DialogFragment implements UsersAdap
         startActivity(intent);
     }
 
+    /**
+     * Copy all events in chain.
+     *
+     * @param event the event
+     */
+    public void copyAllEventsInChain(@NonNull CalendarEvent event) {
+        String private_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
+        String chain_key = "Event" + FirebaseUtils.getAllEventsDatabase().push().getKey();
+
+        CalendarEvent copy = event.copy();
+
+        copy.setPrivateId(private_key);
+        copy.setChainId(chain_key);
+
+        Intent intent = new Intent(requireContext(), AddOrEditEventScreen.class);
+        intent.putExtra(CalendarEvent.KEY_EVENT, copy);
+
+        startActivity(intent);
+    }
 }

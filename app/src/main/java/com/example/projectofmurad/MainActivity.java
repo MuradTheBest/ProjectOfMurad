@@ -1,7 +1,6 @@
 package com.example.projectofmurad;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.transition.AutoTransition;
@@ -12,6 +11,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +20,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
+
 import com.example.projectofmurad.calendar.CalendarEvent;
 import com.example.projectofmurad.calendar.CalendarFragment;
 import com.example.projectofmurad.calendar.DayDialog;
@@ -36,8 +37,6 @@ import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 
-import static com.example.projectofmurad.utils.Utils.LOG_TAG;
-
 /**
  * The type Main activity.
  */
@@ -52,8 +51,6 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.d(LOG_TAG, FirebaseUtils.CURRENT_GROUP_KEY);
-
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         containerView = findViewById(R.id.fragmentContainerView);
@@ -64,11 +61,6 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
         navController.addOnDestinationChangedListener(this);
 
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
-
-        CalendarUtils.setLocale();
-
-        SQLiteDatabase db = Utils.openOrCreateDatabase(this);
-        Utils.createAllTables(db);
 
         Intent gotten_intent = getIntent();
 
@@ -173,8 +165,6 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
         AutoTransition trans = new AutoTransition();
         trans.setDuration(100);
         trans.setInterpolator(new AccelerateDecelerateInterpolator());
-        //trans.setInterpolator(new DecelerateInterpolator());
-        //trans.setInterpolator(new FastOutSlowInInterpolator());
         if (gravity == Gravity.TOP) {
             Slide slide = new Slide(Gravity.TOP);
             slide.setDuration(duration);
@@ -199,7 +189,6 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
             bottomNavigationView.setVisibility(View.VISIBLE);
 
             animate(bottomNavigationView, Gravity.TOP, 300);
-//            animate((ViewGroup) containerView, Gravity.TOP, 300);
         }
         else {
             super.onBackPressed();
@@ -218,7 +207,6 @@ public class MainActivity extends AppCompatActivity implements NavController.OnD
 
             animate(bottomNavigationView, Gravity.BOTTOM, 300);
             handler.postDelayed(() -> animate((ViewGroup) containerView, Gravity.BOTTOM, 300), 400);
-
         }
         else if (bottomNavigationView.getVisibility() == View.GONE){
             bottomNavigationView.setVisibility(View.VISIBLE);

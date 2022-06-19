@@ -4,7 +4,7 @@
     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:hint="Verification Code"
+    android:hint="@string/verification_code"
     android:textColor="@color/colorAccent"
     android:textSize="20sp"
     android:paddingVertical="5dp"

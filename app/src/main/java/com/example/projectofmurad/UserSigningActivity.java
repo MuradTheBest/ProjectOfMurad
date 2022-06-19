@@ -197,7 +197,7 @@ public abstract class UserSigningActivity extends AppCompatActivity {
      * @param phone          the phone
      */
     protected void createSMSVerificationDialog(String verificationId, String phone){
-        View view = LayoutInflater.from(this).inflate(R.layout.sms_verification_dialog, null);
+        View view = getLayoutInflater().inflate(R.layout.sms_verification_dialog, null);
 
         MyAlertDialogBuilder builder = new MyAlertDialogBuilder(this);
 

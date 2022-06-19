@@ -123,8 +123,10 @@ public abstract class Utils {
      * @param db the db
      */
     public static void createAllTables(@NonNull SQLiteDatabase db){
-        db.execSQL("create table if not exists " +
-                " tbl_alarm(alarm_id integer primary key autoincrement, event_private_id text, event_date_time text)");
+        db.execSQL("create table if not exists " + TABLE_AlARM_NAME + "(" +
+                TABLE_AlARM_COL_ALARM_ID + " integer primary key autoincrement, " +
+                TABLE_AlARM_COL_EVENT_PRIVATE_ID + " text," +
+                " event_date_time text)");
     }
 
     /**
@@ -335,7 +337,7 @@ public abstract class Utils {
      */
     @ColorInt
     public static int getContrastBackgroundColor(@ColorInt int color) {
-        return (color != Color.WHITE) ? Color.LTGRAY : Color.DKGRAY;
+        return (color == Color.WHITE) ? Color.DKGRAY : Color.LTGRAY;
     }
 
     /**
@@ -350,7 +352,6 @@ public abstract class Utils {
     @NonNull
     public static GradientDrawable getGradientBackground(@ColorInt int color) {
         int textColor = getContrastColor(color);
-
         int gradientColor = getContrastBackgroundColor(textColor);
 
         GradientDrawable gd = new GradientDrawable(
@@ -431,7 +432,6 @@ public abstract class Utils {
     }
 
     @NonNull
-    @Contract("_ -> new")
     private static TextWatcher getDefaultTextChangedListener(TextInputLayout textInputLayout){
         return new TextWatcher() {
             @Override

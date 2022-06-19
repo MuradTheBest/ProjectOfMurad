@@ -19,7 +19,6 @@ import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.utils.Utils;
 import com.google.gson.Gson;
 
-import org.jetbrains.annotations.Contract;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -69,7 +68,6 @@ public class FCMSend {
      * @return the topic
      */
     @NonNull
-    @Contract(pure = true)
     public static String getTopic(String type) {
         return FirebaseUtils.CURRENT_GROUP_KEY + "|" + type;
     }

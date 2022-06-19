@@ -2,22 +2,13 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/blankFragment" >
+    app:startDestination="@id/homeFragment" >
 
     <fragment
-        android:id="@+id/blankFragment"
+        android:id="@+id/homeFragment"
         android:name="com.example.projectofmurad.home.HomeFragment"
-        android:label="fragment_blank"
-        tools:layout="@layout/fragment_home" >
-        <action
-            android:id="@+id/action_blankFragment_to_tracking_Fragment"
-            app:destination="@id/tracking_Fragment" />
-
-    </fragment>
-
-    <action
-        android:id="@+id/action_blankFragment_to_calendar_Fragment"
-        app:destination="@id/calendar_Fragment" />
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/preferences_Fragment"
@@ -35,11 +26,7 @@
         android:id="@+id/calendar_Fragment"
         android:name="com.example.projectofmurad.calendar.CalendarFragment"
         android:label="fragment_calendar_"
-        tools:layout="@layout/fragment_calendar" >
-        <action
-            android:id="@+id/action_calendar_Fragment_to_tracking_Fragment"
-            app:destination="@id/tracking_Fragment" />
-    </fragment>
+        tools:layout="@layout/fragment_calendar" />
 
     <fragment
         android:id="@+id/tracking_Fragment"

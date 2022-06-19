@@ -1,11 +1,6 @@
 package com.example.projectofmurad.utils;
 
-import android.transition.AutoTransition;
-import android.transition.ChangeBounds;
-import android.transition.TransitionManager;
 import android.util.Patterns;
-import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 
@@ -13,6 +8,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
@@ -26,6 +22,7 @@ public abstract class CalendarUtils {
      * The constant dateFormatOnline.
      */
     public final static DateTimeFormatter dateFormatOnline = DateTimeFormatter.ofPattern("E, dd.MM.yyyy", Locale.ENGLISH);
+
     /**
      * The constant dateFormatLocal.
      */
@@ -63,6 +60,23 @@ public abstract class CalendarUtils {
     }
 
     /**
+     * Get narrow days of week string [ ].
+     *
+     * @return the string [ ]
+     */
+    @NonNull
+    public static String[] getNarrowDaysOfWeek(){
+        String[] daysOfWeek = new String[7];
+
+        for(int i = 0; i < DayOfWeek.values().length; i++) {
+            DayOfWeek d = DayOfWeek.of(i+1);
+            daysOfWeek[i] = d.getDisplayName(TextStyle.NARROW, getLocale());
+        }
+
+        return daysOfWeek;
+    }
+
+    /**
      * Get short days of week string [ ].
      *
      * @return the string [ ]
@@ -77,6 +91,25 @@ public abstract class CalendarUtils {
         }
 
         return daysOfWeek;
+    }
+
+    /**
+     * Get week number int.
+     *
+     * @param date the date
+     *
+     * @return the int
+     */
+    public static int getWeekNumber(@NonNull LocalDate date){
+        Month month = date.getMonth();
+
+        int count = 0;
+        while(date.getMonth().equals(month)){
+            count++;
+            date = date.minusWeeks(1);
+        }
+
+        return count;
     }
 
     /**
@@ -143,25 +176,5 @@ public abstract class CalendarUtils {
      */
     public static boolean isPhoneValid(String phone){
         return Patterns.PHONE.matcher(phone).matches();
-    }
-
-    /**
-     * Animate.
-     *
-     * @param viewGroup the view group
-     */
-    public static void animate(ViewGroup viewGroup){
-        AutoTransition trans = new AutoTransition();
-        trans.setDuration(100);
-        trans.setInterpolator(new AccelerateDecelerateInterpolator());
-        //trans.setInterpolator(new DecelerateInterpolator());
-        //trans.setInterpolator(new FastOutSlowInInterpolator());
-
-        ChangeBounds changeBounds = new ChangeBounds();
-        changeBounds.setDuration(300);
-        changeBounds.setInterpolator(new AccelerateDecelerateInterpolator());
-
-//        TransitionManager.beginDelayedTransition(viewGroup, trans);
-        TransitionManager.beginDelayedTransition(viewGroup, changeBounds);
     }
 }

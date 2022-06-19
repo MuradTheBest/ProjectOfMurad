@@ -6,13 +6,11 @@
         android:title="@string/save_changes"
         android:visible="false"
         android:icon="@drawable/ic_baseline_done_24"
-        app:showAsAction="always"
-        />
+        app:showAsAction="always" />
 
     <item android:id="@+id/delete_group"
         android:title="@string/delete"
         android:icon="@drawable/ic_baseline_delete_24"
-        app:showAsAction="always"
-        />
+        app:showAsAction="always" />
 
 </menu>

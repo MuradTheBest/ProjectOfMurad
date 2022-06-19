@@ -31,11 +31,6 @@ import com.example.projectofmurad.utils.Utils;
 public class AlarmReceiver extends BroadcastReceiver {
 
     /**
-     * The constant TAG.
-     */
-    public final static String TAG = MyAlarmManager.TAG;
-
-    /**
      * The constant ACTION_STOP_VIBRATION.
      */
     public final static String ACTION_STOP_VIBRATION = Utils.APPLICATION_ID + "stop_vibration";
@@ -45,7 +40,6 @@ public class AlarmReceiver extends BroadcastReceiver {
      */
     public final static int ALARM_NOTIFICATION_ID = 500;
 
-    @SuppressLint("MissingPermission")
     @Override
     public void onReceive(@NonNull Context context, @NonNull Intent intent) {
         if (intent.getAction() != null){
@@ -141,7 +135,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         NotificationCompat.Action action = new NotificationCompat.Action(null, "Stop", pintent_stop_alarm);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "CHANNEL_ID");
-        builder.setSmallIcon(R.drawable.ic_baseline_directions_bike_24)
+        builder.setSmallIcon(R.drawable.alarm_icon)
                 .setContentTitle("Alarm for event")
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(body).setSummaryText("Event alarm"))
                 .setColor(color)

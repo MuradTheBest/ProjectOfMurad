@@ -6,7 +6,7 @@
     android:layout_height="600dp"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="5dp"
+    android:padding="10dp"
     android:background="@drawable/round_dialog_background"
     android:backgroundTint="@android:color/transparent">
 
@@ -40,10 +40,8 @@
         android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_full_date"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_full_date" />
 
     <TextView
         android:id="@+id/tv_no_events"
@@ -71,18 +69,5 @@
         app:srcCompat="@android:drawable/ic_input_add"
         android:tint="@android:color/transparent"
         android:contentDescription="Add event" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_cancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:text="Cancel"
-        android:textSize="10sp"
-        android:layout_margin="5dp"
-        app:cornerRadius="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/rv_events"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

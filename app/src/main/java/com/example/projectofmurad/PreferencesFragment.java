@@ -17,9 +17,9 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.example.projectofmurad.groups.ShowGroupsScreen;
 import com.example.projectofmurad.groups.UserGroupData;
+import com.example.projectofmurad.notifications.FCMSend;
 import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.utils.Utils;
-import com.example.projectofmurad.notifications.FCMSend;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
@@ -38,11 +38,6 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
      */
     public PreferencesFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -100,8 +95,6 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
     }
 
     private void getUserGroupData(@NonNull UserGroupData userGroupData) {
-        Log.d(Utils.LOG_TAG, userGroupData.toString());
-
         tv_madrich.setVisibility(userGroupData.isMadrich() ? View.VISIBLE : View.GONE);
 
         switch_add_event.setChecked(userGroupData.isSubscribedToAddEvent());
@@ -111,6 +104,10 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
         switch_notifications.setChecked(userGroupData.isSubscribedToAddEvent()
                 || userGroupData.isSubscribedToEditEvent()
                 || userGroupData.isSubscribedToDeleteEvent());
+
+        switch_add_event.setEnabled(switch_notifications.isChecked());
+        switch_edit_event.setEnabled(switch_notifications.isChecked());
+        switch_delete_event.setEnabled(switch_notifications.isChecked());
     }
 
     /**
@@ -119,14 +116,10 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
      * @param userData the user data
      */
     public void getUserData(@NonNull UserData userData){
-
-        switch_add_event.setEnabled(switch_notifications.isChecked());
-        switch_edit_event.setEnabled(switch_notifications.isChecked());
-        switch_delete_event.setEnabled(switch_notifications.isChecked());
-
         Glide.with(this).load(userData.getPicture())
                 .error(R.drawable.sample_profile_picture)
-                .placeholder(R.drawable.sample_profile_picture).centerCrop().into(iv_profile_picture);
+                .placeholder(R.drawable.sample_profile_picture)
+                .centerCrop().into(iv_profile_picture);
 
         tv_username.setText(userData.getUsername());
         tv_email.setText(userData.getEmail());
@@ -137,20 +130,11 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
     public void onClick(View v) {
         if (v instanceof SwitchMaterial){
             if (v == switch_notifications){
-                switch_add_event.setChecked(switch_notifications.isChecked());
-                switch_edit_event.setChecked(switch_notifications.isChecked());
-                switch_delete_event.setChecked(switch_notifications.isChecked());
-
                 switch_add_event.setEnabled(switch_notifications.isChecked());
                 switch_edit_event.setEnabled(switch_notifications.isChecked());
                 switch_delete_event.setEnabled(switch_notifications.isChecked());
-
-                switch_add_event.callOnClick();
-                switch_edit_event.callOnClick();
-                switch_delete_event.callOnClick();
             }
             else {
-
                 SwitchMaterial switchMaterial = (SwitchMaterial) v;
 
                 String topic = (v == switch_add_event ? FCMSend.getTopic(FCMSend.ADD_EVENT_TOPIC)
@@ -177,12 +161,11 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()){
                                         FirebaseUtils.getCurrentUserGroupDataRef().child(subscription).setValue(true);
-//                                        Toast.makeText(getContext(), subscribedMsg, Toast.LENGTH_SHORT).show();
                                         Utils.showToast(getContext(), subscribedMsg);
                                     }
                                     else {
-//                                        Toast.makeText(getContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
                                         Utils.showToast(getContext(), "Ups... Something went wrong");
+                                        Log.d(Utils.LOG_TAG, task.getException().getMessage());
                                         switchMaterial.toggle();
                                     }
                                 }
@@ -195,12 +178,11 @@ public class PreferencesFragment extends Fragment implements View.OnClickListene
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()){
                                         FirebaseUtils.getCurrentUserGroupDataRef().child(subscription).setValue(false);
-//                                        Toast.makeText(getContext(), unsubscribedMsg, Toast.LENGTH_SHORT).show();
                                         Utils.showToast(getContext(), unsubscribedMsg);
                                     }
                                     else {
-//                                        Toast.makeText(getContext(), "Ups... Something went wrong", Toast.LENGTH_SHORT).show();
                                         Utils.showToast(getContext(), "Ups... Something went wrong");
+                                        Log.d(Utils.LOG_TAG, task.getException().getMessage());
                                         switchMaterial.toggle();
                                     }
                                 }

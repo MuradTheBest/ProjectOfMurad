@@ -37,6 +37,9 @@ import java.time.LocalDate;
  */
 public class EventsAdapter extends FirebaseRecyclerAdapter<CalendarEvent, EventsAdapter.EventViewHolder> {
 
+    /**
+     * The Selected date.
+     */
     protected LocalDate selectedDate;
     /**
      * The On event click listener.
@@ -203,6 +206,7 @@ public class EventsAdapter extends FirebaseRecyclerAdapter<CalendarEvent, Events
         holder.cb_all_attendances.setButtonTintList(ColorStateList.valueOf(textColor));
 
         GradientDrawable gd = Utils.getGradientBackground(model.getColor());
+        gd.setCornerRadius(Utils.dpToPx(10, context));
         holder.constraintLayout.setBackground(gd);
 
         holder.tv_event_name.setText(model.getName());
@@ -257,7 +261,6 @@ public class EventsAdapter extends FirebaseRecyclerAdapter<CalendarEvent, Events
 
         holder.cb_all_attendances.setEnabled(FirebaseUtils.isCurrentUID(selectedUID) && model.getEnd() > System.currentTimeMillis());
         holder.cb_all_attendances.setAlpha(holder.cb_all_attendances.isEnabled() ? 1f : 0.6f);
-
         holder.cb_all_attendances.setVisibility(selectedUID == null ? View.GONE : View.VISIBLE);
 
         holder.switch_alarm.setChecked(Utils.checkIfAlarmSet(model.getPrivateId(), db));

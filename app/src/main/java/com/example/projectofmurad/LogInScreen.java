@@ -105,13 +105,13 @@ public class LogInScreen extends UserSigningActivity {
 		builder.show();
 	}
 
-	/**
-	 * Login.
-	 *
-	 * @param email    the email
-	 * @param password the password
-	 */
-	public void login(String email, String password){
+    /**
+     * Login.
+     *
+     * @param email    the email
+     * @param password the password
+     */
+    public void login(String email, String password){
 		loadingDialog.setMessage(R.string.logging_in_please_wait);
 		loadingDialog.show();
 

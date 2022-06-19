@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scrollview_frequency"
     android:layout_width="match_parent"
@@ -22,27 +23,7 @@
             android:orientation="horizontal"
             android:weightSum="2"
             android:showDividers="middle"
-            android:divider="@color/gray"
-            >
-
-            <!--            <Button
-                            android:id="@+id/btn_cancel"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:text="Cancel"
-                            android:textSize="16dp"
-                            style="?android:attr/buttonBarButtonStyle"
-                            />
-
-                        <Button
-                            android:id="@+id/btn_ok"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:text="Ok"
-                            android:textSize="16dp"
-                            style="?android:attr/buttonBarButtonStyle" />-->
+            android:divider="@color/gray">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_cancel"
@@ -154,71 +135,6 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
-
-                <!--        <com.google.android.material.chip.ChipGroup
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1">
-
-                            <com.google.android.material.chip.Chip
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"/>
-
-
-
-                        </com.google.android.material.chip.ChipGroup>-->
-
-                <!--
-                        <com.google.android.material.chip.ChipGroup
-                            android:id="@+id/rg_repeat_for_month"
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            app:singleSelection="true"
-                            android:layout_margin="5dp"
-                            android:layout_weight="1"
-                            app:singleLine="false"
-                            android:layout_gravity="center"
-                            app:selectionRequired="true"
-                            android:weightSum="4">
-
-                            <com.google.android.material.chip.Chip
-                                android:id="@+id/rb_with_day_and_month"
-                                style="@style/radioButton"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Oon 8 day"
-                                android:textSize="16dp" />
-
-                            <com.google.android.material.chip.Chip
-                                android:id="@+id/rb_with_last_day_and_month"
-                                style="@style/radioButton"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Oon last day"
-                                android:textSize="16dp" />
-
-                            <com.google.android.material.chip.Chip
-                                android:id="@+id/rb_with_dayOfWeek_and_month"
-                                style="@style/radioButton"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Oon 2 Tuesday"
-                                android:textSize="16dp" />
-
-                            <com.google.android.material.chip.Chip
-                                android:id="@+id/rb_with_last_dayOfWeek_and_month"
-                                style="@style/radioButton"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Oon last Tuesday"
-                                android:textSize="16dp" />
-
-                        </com.google.android.material.chip.ChipGroup>
-                -->
 
                 <RadioGroup
                     android:id="@+id/rg_repeat_for_month"
@@ -482,16 +398,6 @@
 
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!--<com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_times"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:inputType="number"
-                        android:maxLength="2"
-                        android:text="1"
-                        android:textSize="16dp" />-->
-
                     <com.google.android.material.radiobutton.MaterialRadioButton
                         style="@style/radioButton"
                         android:id="@+id/rb_until"
@@ -527,30 +433,6 @@
                 </RadioGroup>
 
             </LinearLayout>
-
-            <!--<LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                >
-
-                <Button
-                    android:id="@+id/btn_ok"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="50dp"
-                    android:textSize="10dp"
-                    android:text="Ok" />
-
-                <Button
-                    android:id="@+id/btn_cancel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="50dp"
-                    android:textSize="10dp"
-                    android:text="Cancel" />
-
-            </LinearLayout>-->
 
         </LinearLayout>
 

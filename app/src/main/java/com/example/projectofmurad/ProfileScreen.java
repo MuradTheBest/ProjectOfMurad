@@ -75,7 +75,7 @@ public class ProfileScreen extends UserSigningActivity {
     /**
      * The constant SELECT_PICTURE.
      */
-// constant to compare
+    // constant to compare
     // the activity result code
     public final static int SELECT_PICTURE = 200;
 
@@ -428,17 +428,15 @@ public class ProfileScreen extends UserSigningActivity {
      * @param onFirebaseCallback the on firebase callback
      */
     public void unsubscribeFromTopic(FirebaseUtils.FirebaseCallback onFirebaseCallback) {
-        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.getTopic(FCMSend.ADD_EVENT_TOPIC))
-                .addOnSuccessListener(unused1 -> FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.getTopic(FCMSend.EDIT_EVENT_TOPIC))
-                        .addOnSuccessListener(unused2 -> FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.getTopic(FCMSend.DELETE_EVENT_TOPIC))
-                                .addOnSuccessListener(unused3 ->
-                                        FirebaseUtils.getCurrentUserGroups().observe(this,
-                                                keys -> {
-                                                    for (String key : keys){
-                                                        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(key);
-                                                    }
-                                                    onFirebaseCallback.onFirebaseCallback();
-                                                }))));
+        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.getTopic(FCMSend.ADD_EVENT_TOPIC));
+        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.getTopic(FCMSend.EDIT_EVENT_TOPIC));
+        FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(FCMSend.getTopic(FCMSend.DELETE_EVENT_TOPIC));
+
+        FirebaseUtils.getCurrentUserGroups().observe(this,
+                keys -> {
+                    keys.forEach(key -> FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(key));
+                    onFirebaseCallback.onFirebaseCallback();
+                });
     }
 
     /**

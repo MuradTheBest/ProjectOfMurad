@@ -27,6 +27,9 @@ import com.google.gson.Gson;
 
 import java.util.Objects;
 
+/**
+ * The type Firebase notification push service.
+ */
 public class FirebaseNotificationPushService extends FirebaseMessagingService {
     
     @Override
@@ -81,7 +84,7 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
         int type = Integer.parseInt(remoteMessage.getData().getOrDefault("type", "0"));
         String groupKey = remoteMessage.getData().get(Group.KEY_GROUP_KEY);
 
-        String CHANNEL_ID = "Events Notifications";
+        String CHANNEL_ID = "Notifications";
 
         NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID,
@@ -106,7 +109,7 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
         else if (remoteMessage.getData().containsKey(FCMSend.KEY_RECEIVER_UID)){
             FirebaseUtils.getFirebaseMessaging().unsubscribeFromTopic(groupKey);
             if (FirebaseUtils.CURRENT_GROUP_KEY.equals(groupKey)) {
-                Log.d(FCM_TAG, "user's current group is the group that he was kicked out from ");
+                Log.d(FCM_TAG, "user's current group is the group that he was kicked out from");
                 startActivity(Utils.getIntentClearTop(new Intent(this, ShowGroupsScreen.class)));
             }
         }
@@ -114,6 +117,16 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
         NotificationManagerCompat.from(this).notify(tag, type, notificationBuilder.build());
     }
 
+    /**
+     * Push event notification notification compat . builder.
+     *
+     * @param groupKey            the group key
+     * @param event               the event
+     * @param notificationBuilder the notification builder
+     * @param type                the type
+     *
+     * @return the notification compat . builder
+     */
     public NotificationCompat.Builder pushEventNotification(String groupKey, @NonNull CalendarEvent event, NotificationCompat.Builder notificationBuilder, int type){
         Intent intentToShowEvent = new Intent(this, MainActivity.class);
         intentToShowEvent.setAction(DayDialog.ACTION_TO_SHOW_EVENT);
@@ -129,7 +142,8 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
             notificationBuilder.addAction(actionToShowEvent);
         }
 
-        notificationBuilder.setContentIntent(pintentToShowEvent).setFullScreenIntent(pintentToShowEvent, false);
+        notificationBuilder.setContentIntent(pintentToShowEvent)
+                .setFullScreenIntent(pintentToShowEvent, false);
 
         return notificationBuilder;
     }
@@ -138,5 +152,4 @@ public class FirebaseNotificationPushService extends FirebaseMessagingService {
     public void onNewToken(@NonNull String s) {
         super.onNewToken(s);
     }
-
 }

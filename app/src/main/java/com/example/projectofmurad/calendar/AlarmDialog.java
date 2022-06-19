@@ -1,6 +1,5 @@
 package com.example.projectofmurad.calendar;
 
-import android.annotation.SuppressLint;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,8 +13,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatDialog;
 
 import com.example.projectofmurad.R;
-import com.example.projectofmurad.utils.Utils;
 import com.example.projectofmurad.notifications.MyAlarmManager;
+import com.example.projectofmurad.utils.Utils;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 /**
@@ -77,11 +76,12 @@ public class AlarmDialog extends AppCompatDialog {
 
         Utils.createCustomDialog(timePickerDialog);
 
-        timePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", (dialog, which) -> switch_alarm.setChecked(false));
+        timePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE,
+                "Cancel", (dialog, which) -> switch_alarm.setChecked(false));
 
         RadioGroup rg_alarm = findViewById(R.id.rg_alarm);
         rg_alarm.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @SuppressLint("NonConstantResourceId")
+
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch_alarm.setChecked(true);

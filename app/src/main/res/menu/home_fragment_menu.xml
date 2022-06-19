@@ -7,4 +7,5 @@
         android:icon="@drawable/ic_baseline_arrow_back_24_180_degrees"
         android:title="@string/to_next_event"
         app:showAsAction="always"/>
+
 </menu>

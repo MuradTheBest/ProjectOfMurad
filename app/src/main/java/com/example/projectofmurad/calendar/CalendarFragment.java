@@ -1,5 +1,6 @@
 package com.example.projectofmurad.calendar;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -102,16 +103,13 @@ public class CalendarFragment extends Fragment implements CalendarAdapter.OnCale
 
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
-        LocalDate today = LocalDate.now();
-
         calendarRecyclerView = view.findViewById(R.id.rv_calendar);
 
         tv_date = view.findViewById(R.id.tv_date);
         tv_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
-                        android.app.AlertDialog.THEME_HOLO_LIGHT);
+                DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(), AlertDialog.THEME_HOLO_LIGHT);
 
                 datePickerDialog.getDatePicker().setBackgroundColor(Color.TRANSPARENT);
                 datePickerDialog.updateDate(selectedDate.getYear(), selectedDate.getMonthValue(), selectedDate.getDayOfMonth());

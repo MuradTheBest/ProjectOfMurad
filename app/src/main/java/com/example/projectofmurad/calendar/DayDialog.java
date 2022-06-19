@@ -279,8 +279,7 @@ public class DayDialog extends AppCompatDialog implements EventsAdapter.OnEventC
         @Override
         public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
 
-            final EventsAdapter.EventViewHolder eventViewHolder
-                    = (EventsAdapter.EventViewHolder) viewHolder;
+            final EventsAdapter.EventViewHolder eventViewHolder = (EventsAdapter.EventViewHolder) viewHolder;
 
             vibrator.vibrate(vibrationEffect);
 
@@ -310,8 +309,7 @@ public class DayDialog extends AppCompatDialog implements EventsAdapter.OnEventC
         @Override
         public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
 
-            final EventsAdapter.EventViewHolder eventViewHolder
-                    = (EventsAdapter.EventViewHolder) viewHolder;
+            final EventsAdapter.EventViewHolder eventViewHolder = (EventsAdapter.EventViewHolder) viewHolder;
 
             boolean approved = eventViewHolder.cb_all_attendances.isChecked();
             boolean alarmSet = eventViewHolder.switch_alarm.isChecked();

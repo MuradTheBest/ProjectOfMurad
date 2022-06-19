@@ -43,7 +43,10 @@ public class GroupInfoScreenMadrich extends GroupInfoScreen implements View.OnLo
     private Menu menu;
 
 
-    // constant to compare
+    /**
+     * The constant SELECT_PICTURE.
+     */
+// constant to compare
     // the activity result code
     public final static int SELECT_PICTURE = 200;
     private Uri selectedImageUri;

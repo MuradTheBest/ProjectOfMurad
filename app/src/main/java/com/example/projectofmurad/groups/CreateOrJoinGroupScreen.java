@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.lifecycle.Observer;
 
+import com.example.projectofmurad.LogInScreen;
 import com.example.projectofmurad.MainActivity;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.helpers.ColorPickerDialog;
@@ -64,6 +65,10 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_or_join_group_screen);
         Objects.requireNonNull(getSupportActionBar()).hide();
+
+        if (!FirebaseUtils.isUserLoggedIn()){
+            startActivity(Utils.getIntentClearTop(new Intent(this, LogInScreen.class)));
+        }
 
         loadingDialog = new LoadingDialog(this);
 
@@ -194,8 +199,9 @@ public class CreateOrJoinGroupScreen extends AppCompatActivity implements View.O
             et_new_trainer_code.setError("Trainer code required");
             filled = false;
         }
-        if (!limit.isEmpty() && Integer.parseInt(limit) < 1) {
-            et_new_group_limit.setError("User's limit can't be less than 1");
+        if (!limit.isEmpty() && Integer.parseInt(limit) < 0) {
+            et_new_group_limit.setError("User's limit can't be less than 0");
+            filled = false;
         }
 
         if (filled){

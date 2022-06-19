@@ -200,10 +200,10 @@ public class HomeFragment extends Fragment {
 
         vp_event = view.findViewById(R.id.vp_event);
 
-        Query queryLast = FirebaseUtils.getAllEventsDatabase().orderByChild("end")
+        Query queryLast = FirebaseUtils.getAllEventsDatabase().orderByChild(CalendarEvent.KEY_EVENT_END)
                 .endAt(Calendar.getInstance().getTimeInMillis()).limitToLast(1);
 
-        Query queryNext = FirebaseUtils.getAllEventsDatabase().orderByChild("end")
+        Query queryNext = FirebaseUtils.getAllEventsDatabase().orderByChild(CalendarEvent.KEY_EVENT_END)
                 .startAt(Calendar.getInstance().getTimeInMillis()).limitToFirst(1);
 
         queryLast.addValueEventListener(new ValueEventListener() {

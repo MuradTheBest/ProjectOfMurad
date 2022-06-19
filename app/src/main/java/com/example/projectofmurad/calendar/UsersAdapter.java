@@ -5,9 +5,12 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
+import android.transition.AutoTransition;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,7 +24,6 @@ import com.bumptech.glide.Glide;
 import com.example.projectofmurad.R;
 import com.example.projectofmurad.UserData;
 import com.example.projectofmurad.groups.UserGroupData;
-import com.example.projectofmurad.utils.CalendarUtils;
 import com.example.projectofmurad.utils.FirebaseUtils;
 import com.example.projectofmurad.utils.Utils;
 import com.example.projectofmurad.utils.ViewAnimationUtils;
@@ -250,7 +252,7 @@ public class UsersAdapter extends FirebaseRecyclerAdapter<UserData,
                             holder.iv_profile_picture.setBorderColor(FirebaseUtils.CURRENT_GROUP_COLOR);
                             holder.iv_profile_picture.setBorderWidth(Utils.dpToPx(2, context));
 
-                            CalendarUtils.animate(holder.constraintLayout);
+                            animate(holder.constraintLayout);
                         }
                     }
                 });
@@ -279,6 +281,19 @@ public class UsersAdapter extends FirebaseRecyclerAdapter<UserData,
                 .error(R.drawable.sample_profile_picture)
                 .placeholder(R.drawable.sample_profile_picture)
                 .centerCrop().into(holder.iv_profile_picture);
+    }
+
+    /**
+     * Animate.
+     *
+     * @param viewGroup the view group
+     */
+    public void animate(ViewGroup viewGroup){
+        AutoTransition trans = new AutoTransition();
+        trans.setDuration(100);
+        trans.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        TransitionManager.beginDelayedTransition(viewGroup, trans);
     }
 
     @NonNull

@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/calendar_app_bar_today"
-        android:title="Item"
+        android:title="Today's date"
         android:icon="@drawable/ic_round_today_24"
         app:showAsAction="ifRoom"/>
 </menu>

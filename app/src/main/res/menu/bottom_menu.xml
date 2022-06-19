@@ -12,7 +12,7 @@
         android:icon="@drawable/ic_baseline_calendar_month_24"/>
 
     <item
-        android:id="@+id/blankFragment"
+        android:id="@+id/homeFragment"
         android:title="@string/home"
         android:icon="@drawable/ic_baseline_home_24"/>
 
@@ -25,4 +25,5 @@
         android:id="@+id/preferences_Fragment"
         android:title="@string/preferences"
         android:icon="@drawable/ic_baseline_settings_24"/>
+
 </menu>

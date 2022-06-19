@@ -1,11 +1,9 @@
 package com.example.projectofmurad.notifications;
 
-import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -21,38 +19,12 @@ import java.util.TimeZone;
 /**
  * The type My alarm manager.
  */
-@SuppressLint("MissingPermission")
 public class MyAlarmManager {
 
     /**
      * The constant TAG.
      */
     public static final String TAG = "AlarmManagerForToday";
-
-    /**
-     * Check if alarm set boolean.
-     *
-     * @param context        the context
-     * @param eventPrivateId the event private id
-     *
-     * @return the boolean
-     */
-    public static boolean checkIfAlarmSet(@NonNull Context context, String eventPrivateId){
-        boolean alarmSet = false;
-
-        SQLiteDatabase db = Utils.openOrCreateDatabase(context);
-
-        Cursor cursor = db.rawQuery("select * from " + Utils.TABLE_AlARM_NAME + " where "
-                + Utils.TABLE_AlARM_COL_EVENT_PRIVATE_ID + " = '" + eventPrivateId + "'",  null);
-
-        if(cursor.moveToNext()){
-            alarmSet = true;
-        }
-
-        cursor.close();
-
-        return alarmSet;
-    }
 
     /**
      * Add alarm.
@@ -135,7 +107,6 @@ public class MyAlarmManager {
 
         if (requestCode > 0){
             PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_IMMUTABLE);
-
             alarmManager.cancel(pendingIntent);
         }
     }
